@@ -20,7 +20,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/language-provider";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
-import { BurgerMenu } from "./burger-menu";
+import { FloatingMenu } from "./nav/floating-menu";
 
 export default function Header() {
   const { user, isLoading, logout } = useUser();
@@ -104,7 +104,7 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : null}
-          <BurgerMenu />
+          <FloatingMenu />
         </div>
       </Container>
     </header>

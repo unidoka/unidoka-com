@@ -3,10 +3,7 @@ import { Container } from "@/components/ui/container";
 import Link from "next/link";
 import Logo from "@/components/layout/logo/logo";
 import { Button } from "@/components/ui/button";
-import { NavLink } from "./nav-link";
 import { Lightbulb, User } from "@phosphor-icons/react";
-import { ROUTES } from "@/utils/constants/routes";
-import { useUser } from "@/entities/user/model/user-context";
 import { useState, useEffect } from "react";
 import {
   DropdownMenu,
@@ -16,29 +13,35 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
+import { useHost } from "@/hooks/use-host";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/language-provider";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
-import { BurgerMenu } from "./burger-menu";
+import { FloatingMenu } from "./floating-menu";
+import { NavItem } from "./nav-item";
+import { useUser } from "@/entities/user/model/user-context";
+import { buildNavLinks } from "@/utils/constants/nav-links";
 
 export default function Header() {
   const { user, isLoading, logout } = useUser();
   const { t } = useLanguage();
+  const { subdomain } = useHost();
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const { secret: adminSecret } = useAdminSecret();
-  const pathname = usePathname();
   const isFullWidth =
     pathname?.startsWith("/admin") || pathname?.startsWith("/app/profile");
+
+  const links = buildNavLinks(subdomain);
+  const bare = (pathname ?? "").split("#")[0];
 
   return (
     <header
@@ -60,23 +63,45 @@ export default function Header() {
             "w-full flex items-center gap-6"
           )}
         >
-          <Link href={"/"}>
+          <Link href="/">
             <Logo className="!h-[24px] sm:h-[40px]" />
           </Link>
-          <nav className="hidden md:flex gap-4 text-sm">
-            <NavLink href={ROUTES.projects.href}>{t("nav.projects")}</NavLink>
-            <NavLink href={ROUTES.about.href}>{t("nav.about")}</NavLink>
-            <NavLink href={ROUTES.blog.href}>{t("nav.blog")}</NavLink>
+
+          <nav className="hidden md:flex items-center gap-4 text-sm">
+            {links.map((link) => {
+              const isActive =
+                !link.dialog &&
+                !link.target &&
+                !link.path?.includes("#") &&
+                (bare === link.path ||
+                  (link.path !== "/" &&
+                    link.path !== undefined &&
+                    bare.startsWith(link.path)));
+
+              return (
+                <NavItem
+                  key={link.label}
+                  item={link}
+                  variant="header"
+                  active={isActive}
+                />
+              );
+            })}
           </nav>
         </div>
+
         <div className="flex items-center gap-1">
-          <Button size={"small"} className="hidden md:flex" asChild>
-            <Link href={ROUTES.order.href}>
-              <Lightbulb />
-              {t("nav.order")}
-            </Link>
-          </Button>
+          {subdomain === "site" && (
+            <Button size={"small"} className="hidden md:flex" asChild>
+              <Link href="/order">
+                <Lightbulb />
+                {t("nav.order")}
+              </Link>
+            </Button>
+          )}
+
           <LanguageSwitcher />
+
           {isLoading ? (
             <div className="ml-2 flex items-center">
               <Skeleton className="size-8 rounded-full" />
@@ -95,16 +120,15 @@ export default function Header() {
                 {(user?.role === "admin" || user?.role === "root") &&
                   adminSecret && (
                     <DropdownMenuItem asChild>
-                      <Link href={`/admin/${adminSecret}`}>
-                        {t("nav.admin")}
-                      </Link>
+                      <Link href={`/admin/${adminSecret}`}>{t("nav.admin")}</Link>
                     </DropdownMenuItem>
                   )}
                 <DropdownMenuItem onClick={logout}>{t("nav.logout")}</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : null}
-          <BurgerMenu />
+
+          <FloatingMenu />
         </div>
       </Container>
     </header>

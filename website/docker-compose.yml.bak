@@ -10,12 +10,11 @@ services:
       - prod
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.frontend.loadbalancer.server.port=3000"      - "traefik.http.routers.frontend.rule=HostRegexp(`{subdomain:[a-z0-9-]+.}?${DOMAIN}`)"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+      - "traefik.http.routers.frontend.rule=${DOMAIN}"
       - "traefik.http.routers.frontend.entrypoints=${ENTRYPOINT}"
       - "traefik.http.routers.frontend.tls=${TLS_ENABLED}"
       - "traefik.http.routers.frontend.tls.certresolver=${CERT_RESOLVER}"
-      - "traefik.http.routers.frontend.tls.domains[0].main=${DOMAIN}"
-      - "traefik.http.routers.frontend.tls.domains[0].sans=*.${DOMAIN}"
     networks:
       - main-network
 
