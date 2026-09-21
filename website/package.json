@@ -1,13 +1,9 @@
 {
-  "name": "rovno-dev-website",
+  "name": "unidoka-com",
   "version": "1.5.1",
   "private": false,
   "author": "Niyaz Gimadiev niyaztutor@gmail.com (https://rovno.dev/niyazgim)",
   "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rovno-dev/rovno-dev"
-  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
