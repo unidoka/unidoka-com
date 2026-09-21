@@ -1,6 +1,6 @@
 "use client"
 import { useTheme } from "@/providers/theme-provider"
-import { SystemThemeIcon, SunIcon, NightIcon } from "@/components/icons"
+import { DesktopIcon, SunIcon, MoonIcon } from "@phosphor-icons/react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 
@@ -11,9 +11,9 @@ export function ThemeSwitcher() {
     setMounted(true)
   }, [])
   const options = [
-    { value: "system", icon: SystemThemeIcon, label: "Системная" },
+    { value: "system", icon: DesktopIcon, label: "Системная" },
     { value: "light", icon: SunIcon, label: "Светлая" },
-    { value: "dark", icon: NightIcon, label: "Тёмная" },
+    { value: "dark", icon: MoonIcon, label: "Тёмная" },
   ] as const
   return (
     <div className="flex items-center gap-0.5 rounded-full border border-(--outline) bg-(--card) p-0.5 w-fit h-9">

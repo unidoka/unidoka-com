@@ -67,7 +67,7 @@ export default function Header() {
             <Logo className="!h-[24px] sm:h-[40px]" />
           </Link>
 
-          <nav className="hidden md:flex items-center gap-4 text-sm">
+          <nav className="hidden lg:flex items-center gap-4 text-sm">
             {links.map((link) => {
               const isActive =
                 !link.dialog &&
@@ -92,7 +92,7 @@ export default function Header() {
 
         <div className="flex items-center gap-1">
           {subdomain === "site" && (
-            <Button size={"small"} className="hidden md:flex" asChild>
+            <Button size={"small"} className="hidden lg:flex" asChild>
               <Link href="/order">
                 <Lightbulb />
                 {t("nav.order")}
@@ -128,7 +128,7 @@ export default function Header() {
             </DropdownMenu>
           ) : null}
 
-          <FloatingMenu />
+          <FloatingMenu triggerClassName="lg:hidden" />
         </div>
       </Container>
     </header>

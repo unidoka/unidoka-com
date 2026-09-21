@@ -7,7 +7,6 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import { LanguageProvider } from "@/providers/language-provider";
 import BottomAppBar from "@/components/layout/nav/bottom-app-bar";
 import Header from "@/components/layout/nav/header";
-import Footer from "@/components/layout/footer";
 import { Toaster } from "@/components/ui/sonner";
 import { YandexMetrika } from "@/components/layout/marketing/yandex-metrika";
 import { CookieConsent } from "@/components/layout/marketing/cookie-consent";
