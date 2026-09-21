@@ -1,6 +1,6 @@
 "use client"
 import { useTheme } from "@/providers/theme-provider"
-import { Monitor, Sun, Moon } from "@phosphor-icons/react"
+import { SystemThemeIcon, SunIcon, NightIcon } from "@/components/icons"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 
@@ -11,9 +11,9 @@ export function ThemeSwitcher() {
     setMounted(true)
   }, [])
   const options = [
-    { value: "system", icon: Monitor, label: "Системная" },
-    { value: "light", icon: Sun, label: "Светлая" },
-    { value: "dark", icon: Moon, label: "Тёмная" },
+    { value: "system", icon: SystemThemeIcon, label: "Системная" },
+    { value: "light", icon: SunIcon, label: "Светлая" },
+    { value: "dark", icon: NightIcon, label: "Тёмная" },
   ] as const
   return (
     <div className="flex items-center gap-0.5 rounded-full border border-(--outline) bg-(--card) p-0.5 w-fit h-9">
@@ -23,7 +23,10 @@ export function ThemeSwitcher() {
         return (
           <button
             key={opt.value}
+            type="button"
             onClick={() => setTheme(opt.value)}
+            aria-label={opt.label}
+            aria-pressed={isActive}
             className={cn(
               "group relative flex size-8 items-center justify-center rounded-full transition-all duration-200 outline-none cursor-pointer",
               isActive
@@ -35,8 +38,8 @@ export function ThemeSwitcher() {
               className={cn(
                 "size-4! transition-colors",
                 isActive
-                  ? "[&_path]:stroke-(--bg)"
-                  : "[&_path]:stroke-(--on-bg-low) group-hover:[&_path]:stroke-(--on-bg-high)"
+                  ? "[&_path]:fill-(--bg) [&_circle]:fill-(--bg)"
+                  : "[&_path]:fill-(--on-bg-low) [&_circle]:fill-(--on-bg-low) group-hover:[&_path]:fill-(--on-bg-high) group-hover:[&_circle]:fill-(--on-bg-high)"
               )}
             />
             <span className="sr-only">{opt.label}</span>

@@ -1,0 +1,58 @@
+{
+  "nav": {
+    "home": "Home",
+    "projects": "Projects",
+    "about": "About",
+    "blog": "Rovnya Journal",
+    "order": "Start a project",
+    "menu": "Menu",
+    "profile": "Profile",
+    "admin": "Admin",
+    "logout": "Log out"
+  },
+  "Header": {
+    "projects": "Projects",
+    "about": "About",
+    "journal": "Rovnya Journal",
+    "order": "Start a project"
+  },
+  "Hero": {
+    "titleLine1": "Full-cycle",
+    "titleLine2": "digital products",
+    "subtitle": "Development, design, 3D animation, and branding. We build high-load solutions that deliver results.",
+    "ctaPrimary": "Start a project",
+    "ctaSecondary": "See case studies"
+  },
+  "Sections": {
+    "selectedWorks": "SELECTED WORK",
+    "allProjects": "All projects",
+    "services": "Our services",
+    "servicesEyebrow": "Our services"
+  },
+  "Services": {
+    "development": "Development",
+    "threeD": "3D & Motion",
+    "design": "UX/UI Design",
+    "identity": "Branding"
+  },
+  "Footer": {
+    "agency": "Agency",
+    "services": "Services",
+    "media": "Media",
+    "tagline": "We design and build reliable, high-load digital products for complex problems.",
+    "copyright": "© 2023–{year} Rovno.dev full-cycle digital agency, all rights reserved",
+    "webDev": "Web development",
+    "uxui": "UX/UI Design",
+    "identity": "Branding",
+    "motion": "3D & Motion",
+    "other": "Other",
+    "careers": "Careers at Rovno.dev",
+    "journal": "Rovnya Journal",
+    "suggestArticle": "Suggest an article"
+  },
+  "Language": {
+    "label": "Language",
+    "ru": "Russian",
+    "en": "English"
+  }
+}

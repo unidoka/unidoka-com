@@ -1,9 +1,13 @@
 {
-  "name": "unidoka-com",
+  "name": "rovno-dev-website",
   "version": "1.5.1",
   "private": false,
   "author": "Niyaz Gimadiev niyaztutor@gmail.com (https://rovno.dev/niyazgim)",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rovno-dev/rovno-dev"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -23,14 +27,13 @@
     "input-otp": "^1.4.2",
     "js-cookie": "^3.0.8",
     "mammoth": "^1.12.1",
-    "next": "^16.3.1",
-    "next-mdx-remote": "^6.0.0",
+    "next": "^16.2.4",
+    "next-intl": "^4.14.5",
     "next-themes": "^0.4.6",
     "radix-ui": "^1.4.3",
     "react": "19.2.0",
     "react-day-picker": "^9.14.0",
     "react-dom": "19.2.0",
-    "react-phone-number-input": "^3.4.17",
     "react-resizable-panels": "^4.10.0",
     "react-yandex-metrika": "^2.6.0",
     "recharts": "^3.8.0",
@@ -44,7 +47,6 @@
   "devDependencies": {
     "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4",
-    "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
