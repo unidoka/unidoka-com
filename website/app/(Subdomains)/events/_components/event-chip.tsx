@@ -1,24 +1,21 @@
 "use client";
-import { format, isSameDay } from "date-fns";
+import { isSameDay } from "date-fns";
 import { ArrowUpRight } from "@phosphor-icons/react";
-import { SOURCE_META } from "./source-meta";
+import { colorForOrganizer } from "./organizer-meta";
 import type { EventItem } from "../_data/events";
 import { cn } from "@/lib/utils";
 
 interface Props {
   event: EventItem;
-  /** The day cell this chip is rendered in — used to place "continues" edges. */
   day: Date;
   compact?: boolean;
   onClick?: (e: EventItem) => void;
 }
 
 export function EventChip({ event, day, compact, onClick }: Props) {
-  const meta = SOURCE_META[event.source];
+  const color = colorForOrganizer(event.organizer);
   const startsToday = isSameDay(new Date(event.startsAt), day);
   const endsToday = isSameDay(new Date(event.endsAt ?? event.startsAt), day);
-
-  // Middle-of-range days get squared edges so multi-day events read as one bar.
   const leftFlush = !startsToday;
   const rightFlush = !endsToday;
 
@@ -30,7 +27,7 @@ export function EventChip({ event, day, compact, onClick }: Props) {
         onClick?.(event);
       }}
       title={event.title}
-      style={{ "--ev": meta.color } as React.CSSProperties}
+      style={{ "--ev": color } as React.CSSProperties}
       className={cn(
         "group/chip w-full text-left transition-all duration-150",
         "border-l-[3px] border-[var(--ev)]",
@@ -40,7 +37,6 @@ export function EventChip({ event, day, compact, onClick }: Props) {
         compact
           ? "px-1.5 py-0.5 rounded text-[11px] leading-tight truncate"
           : "px-2 py-1 rounded-md text-[12px] leading-snug",
-        // Square the corners that continue into the next/prev day
         leftFlush && "rounded-l-none border-l-0",
         rightFlush && "rounded-r-none"
       )}

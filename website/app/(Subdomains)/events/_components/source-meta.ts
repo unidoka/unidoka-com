@@ -1,12 +1,18 @@
-import type { EventSource } from "../_data/events";
+// Deprecated — kept so older imports don't break. Use organizer-meta.
+import { colorForOrganizer } from "./organizer-meta";
+import type { EventItem } from "../_data/events";
 
-export interface SourceMeta {
-  label: string;
-  /** Base hex — tinted at render time via color-mix. */
-  color: string;
-}
+export const SOURCE_META: Record<
+  string,
+  { label: string; color: string }
+> = new Proxy(
+  {},
+  {
+    get: (_t, key: string) => ({
+      label: key,
+      color: colorForOrganizer(key),
+    }),
+  }
+);
 
-export const SOURCE_META: Record<EventSource, SourceMeta> = {
-  rosmolodez: { label: "Росмолодёжь", color: "#336DFF" },
-  roscongress: { label: "Росконгресс", color: "#E8590C" },
-};
+export { colorForOrganizer };

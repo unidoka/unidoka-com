@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { CalendarBlank, MapPin } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
-import { SOURCE_META } from "./source-meta";
+import { colorForOrganizer } from "./organizer-meta";
 import type { EventItem } from "../_data/events";
 
 interface Props {
@@ -36,24 +36,24 @@ export function AgendaView({ days, onSelectEvent }: Props) {
           </div>
           <div className="flex flex-col gap-2">
             {events.map((ev) => {
-              const meta = SOURCE_META[ev.source];
+              const color = colorForOrganizer(ev.organizer);
               return (
                 <Card
                   key={`${ev.id}-${date.toISOString()}`}
                   onClick={() => onSelectEvent(ev)}
                   className="p-4 gap-2 cursor-pointer hover:border-(--primary) transition-colors"
-                  style={{ borderLeft: `3px solid ${meta.color}` }}
+                  style={{ borderLeft: `3px solid ${color}` }}
                 >
                   <div className="flex items-center gap-2">
                     <span
                       className="size-1.5 rounded-full"
-                      style={{ backgroundColor: meta.color }}
+                      style={{ backgroundColor: color }}
                     />
                     <span
                       className="text-[11px] font-semibold uppercase tracking-wider"
-                      style={{ color: meta.color }}
+                      style={{ color }}
                     >
-                      {meta.label}
+                      {ev.organizer}
                     </span>
                   </div>
                   <h3 className="text-heading-4 leading-tight">{ev.title}</h3>

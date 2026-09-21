@@ -7,9 +7,10 @@ import { MonthView } from "./month-view";
 import { WeekView } from "./week-view";
 import { AgendaView } from "./agenda-view";
 import { MiniMonth } from "./mini-month";
-import { SourceFilter, type Filter } from "./source-filter";
+import { FilterPanel } from "./filter-panel";
 import { EventDetails } from "./event-details";
 import { indexByDay } from "./date-utils";
+import { applyFilters, EMPTY_FILTER, type FilterState } from "./filters";
 import { SEED_EVENTS, type EventItem } from "../_data/events";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -18,35 +19,19 @@ export function EventsCalendar() {
   const [view, setView] = useState<ViewMode>("month");
   const [anchor, setAnchor] = useState<Date>(() => new Date());
   const [selected, setSelected] = useState<Date>(() => new Date());
-  const [filter, setFilter] = useState<Filter>("all");
+  const [filter, setFilter] = useState<FilterState>(EMPTY_FILTER);
   const [active, setActive] = useState<EventItem | null>(null);
 
   const effectiveView: ViewMode = isMobile ? "agenda" : view;
 
-  const filtered = useMemo(
-    () => (filter === "all" ? SEED_EVENTS : SEED_EVENTS.filter((e) => e.source === filter)),
-    [filter]
-  );
-
+  const filtered = useMemo(() => applyFilters(SEED_EVENTS, filter), [filter]);
   const byDay = useMemo(() => indexByDay(filtered), [filtered]);
-
-  const counts = useMemo(
-    () => ({
-      all: SEED_EVENTS.length,
-      rosmolodez: SEED_EVENTS.filter((e) => e.source === "rosmolodez").length,
-      roscongress: SEED_EVENTS.filter((e) => e.source === "roscongress").length,
-    }),
-    []
-  );
-
   const eventDays = useMemo(() => new Set(byDay.keys()), [byDay]);
 
-  // Navigation — week view steps by week, everything else by month.
   const onPrev = () =>
     setAnchor((d) => (effectiveView === "week" ? subWeeks(d, 1) : subMonths(d, 1)));
   const onNext = () =>
     setAnchor((d) => (effectiveView === "week" ? addWeeks(d, 1) : addMonths(d, 1)));
-
   const onToday = () => {
     const now = new Date();
     setAnchor(now);
@@ -79,18 +64,22 @@ export function EventsCalendar() {
           anchor={anchor}
           view={effectiveView}
           onViewChange={setView}
+          onAnchorChange={setAnchor}
           onPrev={onPrev}
           onNext={onNext}
           onToday={onToday}
+          allEvents={SEED_EVENTS}
+          filter={filter}
+          onFilterChange={setFilter}
         />
-
-        <div className="lg:hidden">
-          <SourceFilter value={filter} onChange={setFilter} counts={counts} orientation="horizontal" />
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-5">
           <aside className="hidden lg:flex flex-col gap-4">
-            <SourceFilter value={filter} onChange={setFilter} counts={counts} />
+            <FilterPanel
+              allEvents={SEED_EVENTS}
+              value={filter}
+              onChange={setFilter}
+            />
             <MiniMonth
               month={anchor}
               selected={selected}
@@ -105,24 +94,38 @@ export function EventsCalendar() {
           </aside>
 
           <main className="min-w-0">
-            {effectiveView === "month" && (
-              <MonthView
-                month={anchor}
-                selected={selected}
-                byDay={byDay}
-                onSelectDay={(d) => {
-                  setSelected(d);
-                  setAnchor(d);
-                }}
-                onSelectEvent={setActive}
-                onShowMore={onShowMore}
-              />
+            {filtered.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-(--outline) p-12 text-center">
+                <p className="text-body-3 text-(--on-bg-medium)">
+                  Ничего не найдено по этим фильтрам.
+                </p>
+              </div>
+            ) : (
+              <>
+                {effectiveView === "month" && (
+                  <MonthView
+                    month={anchor}
+                    selected={selected}
+                    byDay={byDay}
+                    onSelectDay={(d) => {
+                      setSelected(d);
+                      setAnchor(d);
+                    }}
+                    onSelectEvent={setActive}
+                    onShowMore={onShowMore}
+                  />
+                )}
+                {effectiveView === "week" && (
+                  <WeekView anchor={anchor} byDay={byDay} onSelectEvent={setActive} />
+                )}
+                {effectiveView === "day" && (
+                  <AgendaView days={agendaDays} onSelectEvent={setActive} />
+                )}
+                {effectiveView === "agenda" && (
+                  <AgendaView days={agendaDays} onSelectEvent={setActive} />
+                )}
+              </>
             )}
-            {effectiveView === "week" && (
-              <WeekView anchor={anchor} byDay={byDay} onSelectEvent={setActive} />
-            )}
-            {effectiveView === "day" && <AgendaView days={agendaDays} onSelectEvent={setActive} />}
-            {effectiveView === "agenda" && <AgendaView days={agendaDays} onSelectEvent={setActive} />}
           </main>
         </div>
       </div>
