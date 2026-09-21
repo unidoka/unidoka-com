@@ -1,15 +1,13 @@
 "use client";
 import { addMonths, format, isSameDay, isSameMonth, isToday, subMonths } from "date-fns";
 import { ru } from "date-fns/locale";
-import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
-import { monthGrid, WEEK_OPTS } from "./date-utils";
+import { monthGrid } from "./date-utils";
 import { cn } from "@/lib/utils";
 
 interface Props {
   month: Date;
   selected: Date;
-  /** Days that have at least one event (any date in the range). */
   eventDays: Set<string>;
   onMonthChange: (d: Date) => void;
   onSelect: (d: Date) => void;
@@ -17,13 +15,7 @@ interface Props {
 
 const WEEKDAYS = ["П", "В", "С", "Ч", "П", "С", "В"];
 
-export function MiniMonth({
-  month,
-  selected,
-  eventDays,
-  onMonthChange,
-  onSelect,
-}: Props) {
+export function MiniMonth({ month, selected, eventDays, onMonthChange, onSelect }: Props) {
   const cells = monthGrid(month);
 
   return (
@@ -35,7 +27,7 @@ export function MiniMonth({
           onClick={() => onMonthChange(subMonths(month, 1))}
           aria-label="Предыдущий месяц"
         >
-          <CaretLeft className="size-4" />
+          <span className="text-base leading-none">‹</span>
         </Button>
         <div className="text-body-4 font-semibold capitalize">
           {format(month, "LLLL yyyy", { locale: ru })}
@@ -46,7 +38,7 @@ export function MiniMonth({
           onClick={() => onMonthChange(addMonths(month, 1))}
           aria-label="Следующий месяц"
         >
-          <CaretRight className="size-4" />
+          <span className="text-base leading-none">›</span>
         </Button>
       </div>
 

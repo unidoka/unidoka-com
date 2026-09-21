@@ -9,7 +9,7 @@ import { AgendaView } from "./agenda-view";
 import { MiniMonth } from "./mini-month";
 import { SourceFilter, type Filter } from "./source-filter";
 import { EventDetails } from "./event-details";
-import { indexByDay, weekGrid } from "./date-utils";
+import { indexByDay } from "./date-utils";
 import { SEED_EVENTS, type EventItem } from "../_data/events";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -23,7 +23,6 @@ export function EventsCalendar() {
 
   const effectiveView: ViewMode = isMobile ? "agenda" : view;
 
-  // Filtered events (single pass; reused everywhere).
   const filtered = useMemo(
     () => (filter === "all" ? SEED_EVENTS : SEED_EVENTS.filter((e) => e.source === filter)),
     [filter]
@@ -40,31 +39,25 @@ export function EventsCalendar() {
     []
   );
 
-  // Set of yyyy-MM-dd keys that have events (for the mini-month dots).
   const eventDays = useMemo(() => new Set(byDay.keys()), [byDay]);
 
-  // Navigation
+  // Navigation — week view steps by week, everything else by month.
   const onPrev = () =>
-    setAnchor((d) =>
-      effectiveView === "week" ? subWeeks(d, 1) : subMonths(d, 1)
-    );
+    setAnchor((d) => (effectiveView === "week" ? subWeeks(d, 1) : subMonths(d, 1)));
   const onNext = () =>
-    setAnchor((d) =>
-      effectiveView === "week" ? addWeeks(d, 1) : addMonths(d, 1)
-    );
+    setAnchor((d) => (effectiveView === "week" ? addWeeks(d, 1) : addMonths(d, 1)));
+
   const onToday = () => {
     const now = new Date();
     setAnchor(now);
     setSelected(now);
   };
 
-  // Agenda days (used on mobile + day view)
   const agendaDays = useMemo(() => {
     if (effectiveView === "day") {
       const key = format(anchor, "yyyy-MM-dd");
       return [{ date: anchor, events: byDay.get(key) ?? [] }];
     }
-    // Mobile: upcoming 30 days from today
     const start = new Date();
     return Array.from({ length: 30 }, (_, i) => {
       const d = addDays(start, i);
@@ -73,7 +66,6 @@ export function EventsCalendar() {
     });
   }, [effectiveView, anchor, byDay]);
 
-  // "Show more" from a month cell → jump to that day in week view.
   const onShowMore = (d: Date) => {
     setSelected(d);
     setAnchor(d);
@@ -92,18 +84,11 @@ export function EventsCalendar() {
           onToday={onToday}
         />
 
-        {/* Mobile filter row */}
         <div className="lg:hidden">
-          <SourceFilter
-            value={filter}
-            onChange={setFilter}
-            counts={counts}
-            orientation="horizontal"
-          />
+          <SourceFilter value={filter} onChange={setFilter} counts={counts} orientation="horizontal" />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-5">
-          {/* Sidebar — desktop only */}
           <aside className="hidden lg:flex flex-col gap-4">
             <SourceFilter value={filter} onChange={setFilter} counts={counts} />
             <MiniMonth
@@ -119,7 +104,6 @@ export function EventsCalendar() {
             <UpcomingList byDay={byDay} onSelectEvent={setActive} />
           </aside>
 
-          {/* Main area */}
           <main className="min-w-0">
             {effectiveView === "month" && (
               <MonthView
@@ -135,33 +119,19 @@ export function EventsCalendar() {
               />
             )}
             {effectiveView === "week" && (
-              <WeekView
-                anchor={anchor}
-                byDay={byDay}
-                onSelectEvent={setActive}
-              />
+              <WeekView anchor={anchor} byDay={byDay} onSelectEvent={setActive} />
             )}
-            {effectiveView === "day" && (
-              <AgendaView days={agendaDays} onSelectEvent={setActive} />
-            )}
-            {effectiveView === "agenda" && (
-              <AgendaView days={agendaDays} onSelectEvent={setActive} />
-            )}
+            {effectiveView === "day" && <AgendaView days={agendaDays} onSelectEvent={setActive} />}
+            {effectiveView === "agenda" && <AgendaView days={agendaDays} onSelectEvent={setActive} />}
           </main>
         </div>
       </div>
 
-      <EventDetails
-        event={active}
-        onOpenChange={(o) => !o && setActive(null)}
-      />
+      <EventDetails event={active} onOpenChange={(o) => !o && setActive(null)} />
     </Container>
   );
 }
 
-/* ---------------------------------------------------------
-   Sidebar widget: compact "next 5 events" list
---------------------------------------------------------- */
 function UpcomingList({
   byDay,
   onSelectEvent,
