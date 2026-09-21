@@ -1,107 +1,216 @@
 "use client";
-import {
-  DayPicker,
-  getDefaultClassNames,
-  type DayButton,
-  type DayButtonProps,
-} from "react-day-picker";
-import { ru } from "date-fns/locale";
-import { CaretLeft, CaretRight } from "@phosphor-icons/react";
-import { cn } from "@/lib/utils";
+import { useMemo, useState } from "react";
+import { addDays, addMonths, addWeeks, format, subMonths, subWeeks } from "date-fns";
+import { Container } from "@/components/ui/container";
+import { CalendarHeader, type ViewMode } from "./calendar-header";
+import { MonthView } from "./month-view";
+import { WeekView } from "./week-view";
+import { AgendaView } from "./agenda-view";
+import { MiniMonth } from "./mini-month";
+import { SourceFilter, type Filter } from "./source-filter";
+import { EventDetails } from "./event-details";
+import { indexByDay, weekGrid } from "./date-utils";
+import { SEED_EVENTS, type EventItem } from "../_data/events";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-interface EventsCalendarProps {
-  /** ISO dates of every day that has at least one event. */
-  eventDates: Date[];
-  selected: Date | undefined;
-  onSelect: (d: Date | undefined) => void;
-}
+export function EventsCalendar() {
+  const isMobile = useIsMobile();
+  const [view, setView] = useState<ViewMode>("month");
+  const [anchor, setAnchor] = useState<Date>(() => new Date());
+  const [selected, setSelected] = useState<Date>(() => new Date());
+  const [filter, setFilter] = useState<Filter>("all");
+  const [active, setActive] = useState<EventItem | null>(null);
 
-export function EventsCalendar({
-  eventDates,
-  selected,
-  onSelect,
-}: EventsCalendarProps) {
-  const defaults = getDefaultClassNames();
+  const effectiveView: ViewMode = isMobile ? "agenda" : view;
+
+  // Filtered events (single pass; reused everywhere).
+  const filtered = useMemo(
+    () => (filter === "all" ? SEED_EVENTS : SEED_EVENTS.filter((e) => e.source === filter)),
+    [filter]
+  );
+
+  const byDay = useMemo(() => indexByDay(filtered), [filtered]);
+
+  const counts = useMemo(
+    () => ({
+      all: SEED_EVENTS.length,
+      rosmolodez: SEED_EVENTS.filter((e) => e.source === "rosmolodez").length,
+      roscongress: SEED_EVENTS.filter((e) => e.source === "roscongress").length,
+    }),
+    []
+  );
+
+  // Set of yyyy-MM-dd keys that have events (for the mini-month dots).
+  const eventDays = useMemo(() => new Set(byDay.keys()), [byDay]);
+
+  // Navigation
+  const onPrev = () =>
+    setAnchor((d) =>
+      effectiveView === "week" ? subWeeks(d, 1) : subMonths(d, 1)
+    );
+  const onNext = () =>
+    setAnchor((d) =>
+      effectiveView === "week" ? addWeeks(d, 1) : addMonths(d, 1)
+    );
+  const onToday = () => {
+    const now = new Date();
+    setAnchor(now);
+    setSelected(now);
+  };
+
+  // Agenda days (used on mobile + day view)
+  const agendaDays = useMemo(() => {
+    if (effectiveView === "day") {
+      const key = format(anchor, "yyyy-MM-dd");
+      return [{ date: anchor, events: byDay.get(key) ?? [] }];
+    }
+    // Mobile: upcoming 30 days from today
+    const start = new Date();
+    return Array.from({ length: 30 }, (_, i) => {
+      const d = addDays(start, i);
+      const key = format(d, "yyyy-MM-dd");
+      return { date: d, events: byDay.get(key) ?? [] };
+    });
+  }, [effectiveView, anchor, byDay]);
+
+  // "Show more" from a month cell → jump to that day in week view.
+  const onShowMore = (d: Date) => {
+    setSelected(d);
+    setAnchor(d);
+    setView("week");
+  };
 
   return (
-    <DayPicker
-      mode="single"
-      selected={selected}
-      onSelect={onSelect}
-      locale={ru}
-      weekStartsOn={1}
-      showOutsideDays
-      modifiers={{ hasEvent: eventDates }}
-      classNames={{
-        root: cn(
-          defaults.root,
-          "w-full max-w-sm p-4 rounded-3xl border border-(--outline) bg-(--card)"
-        ),
-        months: cn(defaults.months, "relative"),
-        month: cn(defaults.month, "flex flex-col gap-3"),
-        month_caption: cn(
-          defaults.month_caption,
-          "flex h-10 items-center justify-center text-heading-3 capitalize"
-        ),
-        nav: cn(
-          defaults.nav,
-          "absolute top-0 left-0 right-0 h-10 flex items-center justify-between px-1"
-        ),
-        button_previous: cn(
-          defaults.button_previous,
-          "size-8 rounded-full flex items-center justify-center text-(--on-bg-medium) hover:bg-(--state-hover) transition-colors"
-        ),
-        button_next: cn(
-          defaults.button_next,
-          "size-8 rounded-full flex items-center justify-center text-(--on-bg-medium) hover:bg-(--state-hover) transition-colors"
-        ),
-        weekdays: cn(defaults.weekdays, "grid grid-cols-7 gap-1"),
-        weekday: cn(
-          defaults.weekday,
-          "h-9 flex items-center justify-center text-body-5 text-(--on-bg-low) font-medium uppercase"
-        ),
-        week: cn(defaults.week, "grid grid-cols-7 gap-1"),
-        day: cn(defaults.day, "aspect-square"),
-        outside: cn(defaults.outside, "opacity-30"),
-      }}
-      components={{
-        Chevron: ({ orientation }) =>
-          orientation === "left" ? (
-            <CaretLeft className="size-4" />
-          ) : (
-            <CaretRight className="size-4" />
-          ),
-        DayButton: DayCell,
-      }}
-    />
+    <Container variant="full-width" className="py-6 md:py-8">
+      <div className="flex flex-col gap-4">
+        <CalendarHeader
+          anchor={anchor}
+          view={effectiveView}
+          onViewChange={setView}
+          onPrev={onPrev}
+          onNext={onNext}
+          onToday={onToday}
+        />
+
+        {/* Mobile filter row */}
+        <div className="lg:hidden">
+          <SourceFilter
+            value={filter}
+            onChange={setFilter}
+            counts={counts}
+            orientation="horizontal"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-5">
+          {/* Sidebar — desktop only */}
+          <aside className="hidden lg:flex flex-col gap-4">
+            <SourceFilter value={filter} onChange={setFilter} counts={counts} />
+            <MiniMonth
+              month={anchor}
+              selected={selected}
+              eventDays={eventDays}
+              onMonthChange={setAnchor}
+              onSelect={(d) => {
+                setSelected(d);
+                setAnchor(d);
+              }}
+            />
+            <UpcomingList byDay={byDay} onSelectEvent={setActive} />
+          </aside>
+
+          {/* Main area */}
+          <main className="min-w-0">
+            {effectiveView === "month" && (
+              <MonthView
+                month={anchor}
+                selected={selected}
+                byDay={byDay}
+                onSelectDay={(d) => {
+                  setSelected(d);
+                  setAnchor(d);
+                }}
+                onSelectEvent={setActive}
+                onShowMore={onShowMore}
+              />
+            )}
+            {effectiveView === "week" && (
+              <WeekView
+                anchor={anchor}
+                byDay={byDay}
+                onSelectEvent={setActive}
+              />
+            )}
+            {effectiveView === "day" && (
+              <AgendaView days={agendaDays} onSelectEvent={setActive} />
+            )}
+            {effectiveView === "agenda" && (
+              <AgendaView days={agendaDays} onSelectEvent={setActive} />
+            )}
+          </main>
+        </div>
+      </div>
+
+      <EventDetails
+        event={active}
+        onOpenChange={(o) => !o && setActive(null)}
+      />
+    </Container>
   );
 }
 
-function DayCell({ day, modifiers, ...props }: DayButtonProps) {
-  const hasEvent = modifiers.hasEvent;
-  const isSelected = modifiers.selected;
+/* ---------------------------------------------------------
+   Sidebar widget: compact "next 5 events" list
+--------------------------------------------------------- */
+function UpcomingList({
+  byDay,
+  onSelectEvent,
+}: {
+  byDay: Map<string, EventItem[]>;
+  onSelectEvent: (e: EventItem) => void;
+}) {
+  const now = Date.now();
+  const items: { date: Date; event: EventItem }[] = [];
+  const seen = new Set<string>();
+
+  for (let i = 0; i < 60 && items.length < 5; i++) {
+    const d = new Date(now + i * 86400000);
+    const key = format(d, "yyyy-MM-dd");
+    const list = byDay.get(key);
+    if (!list) continue;
+    for (const ev of list) {
+      if (seen.has(ev.id)) continue;
+      seen.add(ev.id);
+      items.push({ date: d, event: ev });
+      if (items.length >= 5) break;
+    }
+  }
+
+  if (items.length === 0) return null;
 
   return (
-    <button
-      {...props}
-      className={cn(
-        "relative w-full h-full aspect-square rounded-2xl flex items-center justify-center text-body-3 transition-colors",
-        isSelected
-          ? "bg-(--primary) text-(--on-primary)"
-          : modifiers.today
-            ? "bg-(--state-hover) font-semibold"
-            : "text-(--on-bg-high) hover:bg-(--state-hover)"
-      )}
-    >
-      {day.date.getDate()}
-      {hasEvent && (
-        <span
-          className={cn(
-            "absolute bottom-1 left-1/2 -translate-x-1/2 size-1 rounded-full",
-            isSelected ? "bg-(--on-primary)" : "bg-(--primary)"
-          )}
-        />
-      )}
-    </button>
+    <div className="rounded-2xl border border-(--outline) bg-(--card) p-3">
+      <h3 className="text-body-5 font-semibold uppercase tracking-wider text-(--on-bg-low) mb-2 px-1">
+        Скоро
+      </h3>
+      <ul className="flex flex-col">
+        {items.map(({ date, event }) => (
+          <li key={event.id}>
+            <button
+              type="button"
+              onClick={() => onSelectEvent(event)}
+              className="w-full text-left px-2 py-2 rounded-lg hover:bg-(--state-hover) transition-colors"
+            >
+              <div className="text-body-5 text-(--on-bg-low) tabular-nums">
+                {format(date, "d MMM")}
+              </div>
+              <div className="text-body-4 font-medium leading-snug line-clamp-2">
+                {event.title}
+              </div>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
