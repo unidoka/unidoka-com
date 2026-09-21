@@ -1,0 +1,25 @@
+services:
+  next-js:
+    container_name: next-js
+    env_file:
+      - ./.env
+    build:
+      context: .
+      target: prod
+    profiles:
+      - prod
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+      - "traefik.http.routers.frontend.rule=${DOMAIN}"
+      - "traefik.http.routers.frontend.entrypoints=${ENTRYPOINT}"
+      - "traefik.http.routers.frontend.tls=${TLS_ENABLED}"
+      - "traefik.http.routers.frontend.tls.certresolver=${CERT_RESOLVER}"
+    networks:
+      - main-network
+
+networks:
+  main-network:
+    name: main-network
+    external: false
+  default:

@@ -1,0 +1,66 @@
+services:
+  main-service:
+    build:
+      context: ./services/main-service
+      dockerfile: Dockerfile
+    container_name: main-service
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    env_file: ../.env
+    environment:
+      - MAIN_DB_HOST=main-db
+    volumes:
+      - ./services/main-service:/app
+      - ./services/main-service/storage:/app/storage
+    depends_on:
+      main-db:
+        condition: service_healthy
+    networks:
+      - main-network
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.main-service.rule=PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/health`)"
+      - "traefik.http.services.main-service.loadbalancer.server.port=8000"
+
+  main-db:
+    image: postgres:15-alpine
+    container_name: main-db
+    env_file: ../.env
+    environment:
+      POSTGRES_USER: ${MAIN_DB_USER}
+      POSTGRES_PASSWORD: ${MAIN_DB_PASSWORD}
+      POSTGRES_DB: ${MAIN_DB_NAME}
+    volumes:
+      - main_db_data:/var/lib/postgresql/data
+    networks:
+      - main-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  valkey:
+    image: valkey/valkey:7-alpine
+    container_name: valkey
+    command: valkey-server --requirepass ${CACHE_PASSWORD} --appendonly yes
+    networks:
+      - main-network
+    healthcheck:
+      test: [ "CMD", "valkey-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+networks:
+  main-network:
+    name: main-network
+    external: false
+  default:
+
+volumes:
+  main_db_data:
