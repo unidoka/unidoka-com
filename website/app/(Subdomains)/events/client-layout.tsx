@@ -28,8 +28,8 @@ export default function EventsClientLayout({
 
   return (
     <>
-      <div className="border-b border-(--outline) bg-(--bg)">
-        <Container>
+      <div className="border-b border-(--outline) bg-(--bg) mt-[72px] sm:mt-[100px]">
+        {/* <Container>
           <nav className="flex items-center gap-1 py-3 overflow-x-auto">
             {TABS.map((t) => {
               const href = `${prefix}${t.path}` || "/";
@@ -53,7 +53,7 @@ export default function EventsClientLayout({
               );
             })}
           </nav>
-        </Container>
+        </Container> */}
       </div>
       {children}
     </>

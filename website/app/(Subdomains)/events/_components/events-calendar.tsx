@@ -12,26 +12,23 @@ import { EventDetails } from "./event-details";
 import { indexByDay } from "./date-utils";
 import { applyFilters, EMPTY_FILTER, type FilterState } from "./filters";
 import { SEED_EVENTS, type EventItem } from "../_data/events";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 export function EventsCalendar() {
-  const isMobile = useIsMobile();
   const [view, setView] = useState<ViewMode>("month");
   const [anchor, setAnchor] = useState<Date>(() => new Date());
   const [selected, setSelected] = useState<Date>(() => new Date());
   const [filter, setFilter] = useState<FilterState>(EMPTY_FILTER);
   const [active, setActive] = useState<EventItem | null>(null);
 
-  const effectiveView: ViewMode = isMobile ? "agenda" : view;
-
   const filtered = useMemo(() => applyFilters(SEED_EVENTS, filter), [filter]);
   const byDay = useMemo(() => indexByDay(filtered), [filtered]);
   const eventDays = useMemo(() => new Set(byDay.keys()), [byDay]);
 
+  // Week view steps by week, everything else by month.
   const onPrev = () =>
-    setAnchor((d) => (effectiveView === "week" ? subWeeks(d, 1) : subMonths(d, 1)));
+    setAnchor((d) => (view === "week" ? subWeeks(d, 1) : subMonths(d, 1)));
   const onNext = () =>
-    setAnchor((d) => (effectiveView === "week" ? addWeeks(d, 1) : addMonths(d, 1)));
+    setAnchor((d) => (view === "week" ? addWeeks(d, 1) : addMonths(d, 1)));
   const onToday = () => {
     const now = new Date();
     setAnchor(now);
@@ -39,7 +36,7 @@ export function EventsCalendar() {
   };
 
   const agendaDays = useMemo(() => {
-    if (effectiveView === "day") {
+    if (view === "day") {
       const key = format(anchor, "yyyy-MM-dd");
       return [{ date: anchor, events: byDay.get(key) ?? [] }];
     }
@@ -49,7 +46,7 @@ export function EventsCalendar() {
       const key = format(d, "yyyy-MM-dd");
       return { date: d, events: byDay.get(key) ?? [] };
     });
-  }, [effectiveView, anchor, byDay]);
+  }, [view, anchor, byDay]);
 
   const onShowMore = (d: Date) => {
     setSelected(d);
@@ -62,7 +59,7 @@ export function EventsCalendar() {
       <div className="flex flex-col gap-4">
         <CalendarHeader
           anchor={anchor}
-          view={effectiveView}
+          view={view}
           onViewChange={setView}
           onAnchorChange={setAnchor}
           onPrev={onPrev}
@@ -75,11 +72,7 @@ export function EventsCalendar() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-5">
           <aside className="hidden lg:flex flex-col gap-4">
-            <FilterPanel
-              allEvents={SEED_EVENTS}
-              value={filter}
-              onChange={setFilter}
-            />
+            <FilterPanel allEvents={SEED_EVENTS} value={filter} onChange={setFilter} />
             <MiniMonth
               month={anchor}
               selected={selected}
@@ -102,7 +95,7 @@ export function EventsCalendar() {
               </div>
             ) : (
               <>
-                {effectiveView === "month" && (
+                {view === "month" && (
                   <MonthView
                     month={anchor}
                     selected={selected}
@@ -115,13 +108,13 @@ export function EventsCalendar() {
                     onShowMore={onShowMore}
                   />
                 )}
-                {effectiveView === "week" && (
+                {view === "week" && (
                   <WeekView anchor={anchor} byDay={byDay} onSelectEvent={setActive} />
                 )}
-                {effectiveView === "day" && (
+                {view === "day" && (
                   <AgendaView days={agendaDays} onSelectEvent={setActive} />
                 )}
-                {effectiveView === "agenda" && (
+                {view === "agenda" && (
                   <AgendaView days={agendaDays} onSelectEvent={setActive} />
                 )}
               </>
