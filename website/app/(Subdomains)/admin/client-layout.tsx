@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import { AdminSidebar } from "./_components/admin-sidebar";
 import { Container } from "@/components/ui/container";
 export default function AdminRootClientLayout({
@@ -9,8 +9,6 @@ export default function AdminRootClientLayout({
   return (
     <div className="min-h-screen py-6 md:py-8">
       <Container variant="full-width">
-        {/* items-start keeps the sidebar from stretching to match the
-            content column. md:sticky pins it below the fixed header. */}
         <div className="flex flex-col md:flex-row gap-6 items-start">
           <div className="w-full md:w-auto md:sticky md:top-24 md:self-start shrink-0">
             <AdminSidebar />

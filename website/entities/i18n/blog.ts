@@ -1,0 +1,33 @@
+import type { Language } from './translations';
+export const blogTranslations: Record<Language, Record<string, string>> = {
+  en: {
+    'blog.title': 'Journal',
+    'blog.subtitle': 'Articles about design, development, cases, and insights from our team.',
+    'blog.empty': 'No articles yet.',
+    'blog.empty_filtered': 'No articles with this tag.',
+    'blog.all': 'All',
+    'blog.read_more': 'Read article',
+    'blog.min_read': 'min read',
+    'blog.toc': 'On this page',
+    'blog.toc_aria': 'Article contents',
+    'blog.other_articles': 'Other articles',
+    'blog.published_on': 'Published',
+    'blog.by': 'by',
+    'blog.back_to_blog': 'All articles',
+  },
+  ru: {
+    'blog.title': 'Журнал',
+    'blog.subtitle': 'Статьи о дизайне, разработке, кейсах и инсайтах нашей команды.',
+    'blog.empty': 'Пока нет статей.',
+    'blog.empty_filtered': 'Нет статей с таким тегом.',
+    'blog.all': 'Все',
+    'blog.read_more': 'Читать статью',
+    'blog.min_read': 'мин чтения',
+    'blog.toc': 'Содержание',
+    'blog.toc_aria': 'Содержание статьи',
+    'blog.other_articles': 'Другие статьи',
+    'blog.published_on': 'Опубликовано',
+    'blog.by': 'автор',
+    'blog.back_to_blog': 'Все статьи',
+  },
+};

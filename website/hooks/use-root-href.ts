@@ -9,12 +9,7 @@ function normalizeRootDomain(raw?: string): string {
   return v;
 }
 const ROOT_DOMAIN = normalizeRootDomain(process.env.NEXT_PUBLIC_ROOT_DOMAIN);
-const PROTOCOL = (process.env.NEXT_PUBLIC_PROTOCOL || "").trim().toLowerCase() || "https";
-/**
- * Returns the href the logo click should navigate to.
- * - Root domain, localhost host, or no NEXT_PUBLIC_ROOT_DOMAIN set: "/".
- * - Prod subdomains (app.*, admin.*, events.*): absolute URL to the root.
- */
+const PROTOCOL = (process.env.NEXT_PUBLIC_HTTP_PROTOCOL || "").trim().toLowerCase() || "https";
 export function useRootHref(): string {
   const [href, setHref] = useState("/");
   useEffect(() => {

@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useRef, ReactNode } from "react";
 import { cn } from "@/lib/utils";
-
 interface ScrollRevealProps {
   children: ReactNode;
   className?: string;
@@ -9,7 +8,6 @@ interface ScrollRevealProps {
   threshold?: number;
   once?: boolean;
 }
-
 export function ScrollReveal({
   children,
   className,
@@ -18,11 +16,9 @@ export function ScrollReveal({
   once = true,
 }: ScrollRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     const element = ref.current;
     if (!element) return;
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -38,11 +34,9 @@ export function ScrollReveal({
       },
       { threshold }
     );
-
     observer.observe(element);
     return () => observer.disconnect();
   }, [delay, threshold, once]);
-
   return (
     <div ref={ref} className={cn("scroll-reveal-container", className)}>
       {children}

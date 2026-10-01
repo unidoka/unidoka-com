@@ -2,14 +2,17 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ListIcon, X } from "@phosphor-icons/react";
+import { ListIcon, X, User as UserIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
+import { ROUTES } from "@/utils/constants/routes";
 import { useLanguage } from "@/providers/language-provider";
-import { useHost } from "@/hooks/use-host";
-import { buildNavLinks } from "@/utils/constants/nav-links";
-import { NavItem } from "./nav-item";
+import { useUser } from "@/entities/user/model/user-context";
+import {
+  rootDomainUrl,
+  isAbsoluteUrl,
+  crossSubdomainUrl,
+} from "@/utils/root-domain";
 import { cn } from "@/lib/utils";
-
 interface FloatingMenuProps {
   position?: "top" | "bottom";
   triggerClassName?: string;
@@ -17,7 +20,6 @@ interface FloatingMenuProps {
   triggerShape?: React.ComponentProps<typeof Button>["shape"];
   triggerIconClassName?: string;
 }
-
 export function FloatingMenu({
   position = "bottom",
   triggerClassName,
@@ -27,17 +29,12 @@ export function FloatingMenu({
 }: FloatingMenuProps) {
   const [open, setOpen] = useState(false);
   const { t } = useLanguage();
-  const { subdomain } = useHost();
+  const { user, isLoading } = useUser();
   const pathname = usePathname();
   const wrapperRef = useRef<HTMLDivElement>(null);
-
-  const links = buildNavLinks(subdomain);
-  const bare = (pathname ?? "").split("#")[0];
-
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
-
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -46,7 +43,6 @@ export function FloatingMenu({
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
-
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent | TouchEvent) => {
@@ -61,7 +57,19 @@ export function FloatingMenu({
       document.removeEventListener("touchstart", onDown);
     };
   }, [open]);
-
+  const rootLink = (path: string) => rootDomainUrl(path);
+  const links = [
+    { href: rootLink(ROUTES.projects.href), label: t("nav.projects") },
+    { href: rootLink(ROUTES.services.href), label: t("nav.services") },
+    { href: rootLink(ROUTES.events.href), label: t("nav.events") },
+    { href: rootLink(ROUTES.about.href), label: t("nav.about") },
+    { href: rootLink(ROUTES.blog.href), label: t("nav.blog") },
+  ];
+  const loginHref = rootDomainUrl("/login");
+  const registerHref = rootDomainUrl("/register");
+  const loginIsAbsolute = isAbsoluteUrl(loginHref);
+  const registerIsAbsolute = isAbsoluteUrl(registerHref);
+  const profileHref = crossSubdomainUrl("app", "/profile");
   return (
     <div ref={wrapperRef} className="contents">
       <Button
@@ -80,50 +88,83 @@ export function FloatingMenu({
           <ListIcon className={triggerIconClassName} />
         )}
       </Button>
-
       {open && (
         <div
           id="floating-menu-panel"
           className={cn(
-            "fixed left-4 right-4 sm:left-auto sm:right-6 sm:w-80 z-[60]",
+            "fixed left-2 right-2 sm:left-auto sm:right-6 sm:w-96 z-[60]",
             "rounded-3xl border border-(--outline)",
-            "bg-(--card) shadow-2xl p-3",
+            "bg-(--card) shadow-2xl p-2",
             "animate-in fade-in duration-200",
             position === "bottom"
-              ? "bottom-36 slide-in-from-bottom-4"
-              : "top-24 slide-in-from-top-4"
+              ? "bottom-32 slide-in-from-bottom-4"
+              : "top-24 slide-in-from-top-4",
           )}
         >
           <nav className="flex flex-col">
             {links.map((link) => {
-              const isActive =
-                !link.dialog &&
-                !link.target &&
-                !link.path?.includes("#") &&
-                (bare === link.path ||
-                  (link.path !== "/" &&
-                    link.path !== undefined &&
-                    bare.startsWith(link.path)));
-
+              const isActive = pathname === link.href;
               return (
-                <NavItem
-                  key={link.label}
-                  item={link}
-                  variant="panel"
-                  active={isActive}
-                  onNavigate={() => setOpen(false)}
-                />
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  className={cn(
+                    "px-4 py-2.5 rounded-2xl text-body-2 font-medium transition-colors",
+                    isActive
+                      ? "bg-(--primary-glass) text-(--primary)"
+                      : "text-(--on-bg-high) hover:bg-(--state-hover)",
+                  )}
+                >
+                  {link.label}
+                </Link>
               );
             })}
           </nav>
-
-          {subdomain === "site" && (
-            <div className="mt-2 pt-3 border-t border-(--outline)">
-              <Button className="w-full" size="large" asChild>
-                <Link href="/order" onClick={() => setOpen(false)}>
-                  {t("nav.order")}
-                </Link>
-              </Button>
+          {!isLoading && (
+            <div className="mt-1.5 pt-2 border-t border-(--outline)">
+              {user ? (
+                <Button
+                  variant="outlined"
+                  size="large"
+                  className="w-full"
+                  asChild
+                >
+                  <Link
+                    href={profileHref}
+                    prefetch={false}
+                    onClick={() => setOpen(false)}
+                  >
+                    <UserIcon className="size-4" />
+                    {t("nav.profile")}
+                  </Link>
+                </Button>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <Button variant="outlined" size="large" asChild>
+                    {loginIsAbsolute ? (
+                      <a href={loginHref} onClick={() => setOpen(false)}>
+                        {t("nav.login")}
+                      </a>
+                    ) : (
+                      <Link href={loginHref} onClick={() => setOpen(false)}>
+                        {t("nav.login")}
+                      </Link>
+                    )}
+                  </Button>
+                  <Button size="large" asChild>
+                    {registerIsAbsolute ? (
+                      <a href={registerHref} onClick={() => setOpen(false)}>
+                        {t("nav.register")}
+                      </a>
+                    ) : (
+                      <Link href={registerHref} onClick={() => setOpen(false)}>
+                        {t("nav.register")}
+                      </Link>
+                    )}
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </div>

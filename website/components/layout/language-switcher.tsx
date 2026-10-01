@@ -1,31 +1,27 @@
-"use client";
-
-import { useState, useEffect } from "react";
+"use client"
+import { useEffect, useState } from "react";
 import {
   DropdownMenu,
+  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/providers/language-provider";
-import { CaretDown, Check } from "@phosphor-icons/react";
+import { GlobeIcon, CheckIcon, CaretDownIcon, Globe, CaretDown, Check } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
-
 export function LanguageSwitcher() {
   const { lang, setLang } = useLanguage();
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
-
   useEffect(() => {
     setMounted(true);
   }, []);
-
   const handleSelect = (newLang: "en" | "ru") => {
     setLang(newLang);
     setOpen(false);
   };
-
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
@@ -37,11 +33,16 @@ export function LanguageSwitcher() {
           )}
           aria-label={lang === "en" ? "Change language" : "Изменить язык"}
         >
-          <span className="uppercase font-semibold tracking-wide">{mounted && lang}</span>
+          <Globe className="size-4 text-(--on-bg-low) group-hover:text-(--primary) transition-colors" />
+          {mounted && <span className="uppercase font-semibold tracking-wide">{lang}</span>}
           <CaretDown className="size-3 text-(--on-bg-low) transition-transform duration-200 group-data-[state=open]:rotate-180" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-44 p-1.5">
+        <DropdownMenuLabel className="text-[11px] uppercase tracking-wider text-(--on-bg-low) px-2 py-1.5">
+          {lang === "en" ? "Language" : "Язык"}
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator className="my-1" />
         <DropdownMenuItem
           onClick={() => handleSelect("en")}
           className={cn(

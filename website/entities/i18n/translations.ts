@@ -1,102 +1,21 @@
 export type Language = "en" | "ru";
-
-export const translations: Record<Language, Record<string, string>> = {
-  en: {
-    "Home.eyebrow": "Digital Agency",
-    "Home.headline": "We build digital products that solve complex problems",
-    "Home.subhead": "Unidoka is an ecosystem where young specialists grow and artificial intelligence works where it's truly needed",
-    "Home.ctaPrimary": "Start a project",
-    "Home.ctaSecondary": "Our work",
-    "nav.home": "Home",
-    "nav.projects": "Projects",
-    "nav.about": "About",
-    "nav.blog": "Rovnya Journal",
-    "nav.order": "Start a project",
-    "nav.menu": "Menu",
-    "nav.profile": "Profile",
-    "nav.admin": "Admin",
-    "nav.logout": "Log out",
-    "Header.projects": "Projects",
-    "Header.about": "About",
-    "Header.journal": "Rovnya Journal",
-    "Header.order": "Start a project",
-    "Sections.selectedWorks": "SELECTED WORK",
-    "Sections.allProjects": "All projects",
-    "Sections.services": "Our services",
-    "Sections.servicesEyebrow": "Our services",
-    "Services.development": "Development",
-    "Services.threeD": "3D & Motion",
-    "Services.design": "UX/UI Design",
-    "Services.identity": "Branding",
-    "Footer.agency": "Unidoka",
-    "Footer.services": "Services",
-    "Footer.media": "Media",
-    "Footer.tagline": "We design and build reliable, high-load digital products for complex problems.",
-    "Footer.copyright": "© 2025–{year} Unidoka. All rights reserved",
-    "Footer.webDev": "Web development",
-    "Footer.uxui": "UX/UI Design",
-    "Footer.identity": "Branding",
-    "Footer.motion": "3D & Motion",
-    "Footer.other": "Other",
-    "Footer.careers": "Careers at unidoka.com",
-    "Footer.journal": "Rovnya Journal",
-    "Footer.suggestArticle": "Suggest an article",
-    "Language.label": "Language",
-    "Language.ru": "Russian",
-    "Language.en": "English",
-    "Errors.notFoundLabel": "ERR / NOT_FOUND",
-    "Errors.notFoundTitle": "Page not found",
-    "Errors.notFoundBody": "The requested address does not exist or has been moved. Check the URL or return to the home page.",
-    "Errors.back": "Go home",
-    "Errors.contact": "Contact us",
-  },
-  ru: {
-    "Home.eyebrow": "Цифровое агентство",
-    "Home.headline": "Создаем цифровые продукты, которые решают сложные задачи",
-    "Home.subhead": "Unidoka — экосистема, в которой молодые специалисты растут, а искусственный интеллект работает там, где он действительно нужен",
-    "Home.ctaPrimary": "Начать проект",
-    "Home.ctaSecondary": "Наши работы",
-    "nav.home": "Главная",
-    "nav.projects": "Проекты",
-    "nav.about": "О нас",
-    "nav.blog": "Журнал «Ровня»",
-    "nav.order": "Оформить заказ",
-    "nav.menu": "Меню",
-    "nav.profile": "Профиль",
-    "nav.admin": "Админ",
-    "nav.logout": "Выйти",
-    "Header.projects": "Проекты",
-    "Header.about": "О нас",
-    "Header.journal": "Журнал «Ровня»",
-    "Header.order": "Оформить заказ",
-    "Sections.selectedWorks": "ИЗБРАННЫЕ ПРОЕКТЫ",
-    "Sections.allProjects": "Все проекты",
-    "Sections.services": "Наши услуги",
-    "Sections.servicesEyebrow": "Наши услуги",
-    "Services.development": "Разработка",
-    "Services.threeD": "3D & Motion",
-    "Services.design": "UX/UI Дизайн",
-    "Services.identity": "Айдентика",
-    "Footer.agency": "Юнидока",
-    "Footer.services": "Услуги",
-    "Footer.media": "Медиа",
-    "Footer.tagline": "Проектируем и разрабатываем ровные, высоконагруженные цифровые продукты для решения сложных задач",
-    "Footer.copyright": "© 2025–{year} Юнидока, все права защищены",
-    "Footer.webDev": "Веб-разработка",
-    "Footer.uxui": "UX/UI Дизайн",
-    "Footer.identity": "Айдентика",
-    "Footer.motion": "3D & Motion",
-    "Footer.other": "Другое",
-    "Footer.careers": "Карьера в unidoka.com",
-    "Footer.journal": "Журнал «Ровня»",
-    "Footer.suggestArticle": "Предложить статью",
-    "Language.label": "Язык",
-    "Language.ru": "Русский",
-    "Language.en": "English",
-    "Errors.notFoundLabel": "ERR / NOT_FOUND",
-    "Errors.notFoundTitle": "Страница не найдена",
-    "Errors.notFoundBody": "Запрошенный адрес не существует или был перемещён. Проверьте URL или вернитесь на главную.",
-    "Errors.back": "На главную",
-    "Errors.contact": "Связаться",
-  },
+import { aboutTranslations } from './about';
+import { blogTranslations } from './blog';
+import { commonTranslations } from './common';
+import { cookieTranslations } from './cookie';
+import { editorTranslations } from './editor';
+import { errorsTranslations } from './errors';
+import { eventsTranslations } from './events';
+import { footerTranslations } from './footer';
+import { formsTranslations } from './forms';
+import { headerTranslations } from './header';
+import { heroTranslations } from './hero';
+import { homeTranslations } from './home';
+import { orderTranslations } from './order';
+import { projectsTranslations } from './projects';
+import { servicesTranslations } from './services';
+const translations: Record<Language, Record<string, string>> = {
+  en: { ...aboutTranslations.en, ...blogTranslations.en, ...commonTranslations.en, ...cookieTranslations.en, ...editorTranslations.en, ...errorsTranslations.en, ...eventsTranslations.en, ...footerTranslations.en, ...formsTranslations.en, ...headerTranslations.en, ...heroTranslations.en, ...homeTranslations.en, ...orderTranslations.en, ...projectsTranslations.en, ...servicesTranslations.en },
+  ru: { ...aboutTranslations.ru, ...blogTranslations.ru, ...commonTranslations.ru, ...cookieTranslations.ru, ...editorTranslations.ru, ...errorsTranslations.ru, ...eventsTranslations.ru, ...footerTranslations.ru, ...formsTranslations.ru, ...headerTranslations.ru, ...heroTranslations.ru, ...homeTranslations.ru, ...orderTranslations.ru, ...projectsTranslations.ru, ...servicesTranslations.ru },
 };
+export { translations };

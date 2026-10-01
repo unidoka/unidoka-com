@@ -1,21 +1,14 @@
 import type { Metadata } from "next";
 import { CheckUser } from "@/entities/user/model/check-user";
 import ProfileRootClientLayout from "./client-layout";
-
 export const metadata: Metadata = {
-  title: "Admin Dashboard",
-  description: "Admin panel",
+  title: "Профиль · Rovno.dev",
+  description: "Личный кабинет",
 };
-export default function AdminRootLayout({
-  children
-}: {
-  children: React.ReactNode;
-}) {
+export default function AppRootLayout({ children }: { children: React.ReactNode }) {
   return (
     <CheckUser>
-      <ProfileRootClientLayout>
-        {children}
-      </ProfileRootClientLayout>
+      <ProfileRootClientLayout>{children}</ProfileRootClientLayout>
     </CheckUser>
-  )
+  );
 }

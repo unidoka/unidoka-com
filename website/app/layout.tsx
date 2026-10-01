@@ -1,44 +1,89 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { TooltipProvider } from "@/components/ui/tooltip"
-import { cn } from "@/lib/utils";
-import localFont from 'next/font/local'
+import { TooltipProvider } from "@/components/ui/tooltip";
+import localFont from "next/font/local";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { LanguageProvider } from "@/providers/language-provider";
-import BottomAppBar from "@/components/layout/nav/bottom-app-bar";
-import Header from "@/components/layout/nav/header";
-import { Toaster } from "@/components/ui/sonner";
+import UserProvider from "@/entities/user/model/user-context";
+import ClientRootLayout from "./client-layout";
+import { CookieConsent } from "@/components/layout/marketing/cookie-consent";
 import { YandexMetrika } from "@/components/layout/marketing/yandex-metrika";
 
 export const Geist = localFont({
-  src: '../public/fonts/Geist-VariableFont_wght.woff2',
-  variable: '--font-sans',
+  src: "../public/fonts/Geist-VariableFont_wght.woff2",
+  variable: "--font-sans",
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_ROOT_DOMAIN
+  ? `https://${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`
+  : "http://localhost:3000";
+
 export const metadata: Metadata = {
-  title: "Unidoka — Digital Agency",
-  description: "We design and build reliable, high-load digital products for complex problems.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Rovno.dev — IT-события для своих",
+    template: `%s | Rovno.dev`,
+  },
+  description:
+    "Rovno.dev — закрытое IT-сообщество. События, статьи, нетворкинг и проекты для разработчиков, дизайнеров и продактов.",
+  openGraph: {
+    type: "website",
+    locale: "ru_RU",
+    url: SITE_URL,
+    siteName: "Rovno.dev",
+    title: "Rovno.dev — IT-события для своих",
+    description:
+      "Закрытое IT-сообщество. События, статьи, нетворкинг и проекты.",
+    images: [`${SITE_URL}/og.jpg`],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Rovno.dev — IT-события для своих",
+    description: "Закрытое IT-сообщество. События, статьи, нетворкинг.",
+    images: [`${SITE_URL}/og.jpg`],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="ru" suppressHydrationWarning>
-      <body className={cn(Geist.variable, "font-sans bg-(--bg) text-(--on-bg-high)")}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+try {
+  const theme = localStorage.getItem("theme") || "system";
+  const isDark = theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  if (isDark) document.documentElement.classList.add("dark");
+} catch (e) {}
+`,
+          }}
+        />
+      </head>
+      <body className={`${Geist.variable} font-sans antialiased`}>
         <ThemeProvider>
           <LanguageProvider>
-            <TooltipProvider>
-              <Header />
-              {children}
-              <BottomAppBar />
-              <Toaster />
-              <YandexMetrika />
-            </TooltipProvider>
+            <UserProvider>
+              <TooltipProvider>
+                <ClientRootLayout>{children}</ClientRootLayout>
+                <CookieConsent />
+              </TooltipProvider>
+            </UserProvider>
           </LanguageProvider>
         </ThemeProvider>
+        <YandexMetrika />
       </body>
     </html>
   );

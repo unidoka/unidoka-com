@@ -7,6 +7,9 @@ export interface RouteLinkProps {
 export const ROUTES = {
   home: { id: 'home', href: "/", title: 'Главная' },
   projects: { id: 'projects', href: "/projects", title: 'Проекты' },
+  events: { id: 'events', href: "/events", title: 'События' },
+  services: { id: 'services', href: "/services", title: 'Услуги' },
+  companies: { id: 'companies', href: "/companies", title: 'Компании' },
   order: { id: 'order', href: "/order", title: 'Оставить заявку' },
   about: { id: 'about', href: "/about", title: 'О нас' },
   blog: { id: 'blog', href: "/blog", title: "Ровный блог" },
