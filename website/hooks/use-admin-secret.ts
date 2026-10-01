@@ -1,33 +1,29 @@
 "use client";
 import { useEffect, useState } from "react";
-
 export function useAdminSecret() {
   const [secret, setSecret] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
-    console.log('[useAdminSecret] Fetching admin secret...');
-    fetch("/api/admin-secret")
-      .then(async (res) => {
-        console.log(`[useAdminSecret] Response status: ${res.status}`);
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const res = await fetch("/api/admin-secret", { cache: "no-store" });
         if (!res.ok) {
-          console.log('[useAdminSecret] Not OK, returning null');
-          return null;
+          if (!cancelled) setSecret(null);
+          return;
         }
         const data = await res.json();
-        console.log(`[useAdminSecret] Data:`, data);
-        return data;
-      })
-      .then((data) => {
-        setSecret(data?.secret || null);
-        console.log(`[useAdminSecret] Secret set: ${data?.secret ? 'present' : 'null'}`);
-      })
-      .catch((err) => {
-        console.error('[useAdminSecret] Fetch error:', err);
-        setSecret(null);
-      })
-      .finally(() => setLoading(false));
+        if (!cancelled) setSecret(data?.secret || null);
+      } catch {
+        if (!cancelled) setSecret(null);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    load();
+    return () => {
+      cancelled = true;
+    };
   }, []);
-
   return { secret, loading };
 }

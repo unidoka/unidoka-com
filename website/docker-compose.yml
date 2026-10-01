@@ -6,19 +6,26 @@ services:
     build:
       context: .
       target: prod
+      args:
+        # Next.js inlines NEXT_PUBLIC_* at BUILD time. These must be present
+        # during `npm run build` — setting them at runtime has no effect.
+        NEXT_PUBLIC_ROOT_DOMAIN: ${NEXT_PUBLIC_ROOT_DOMAIN}
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
+        NEXT_PUBLIC_PROTOCOL: ${NEXT_PUBLIC_PROTOCOL:-https}
     profiles:
       - prod
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.frontend.loadbalancer.server.port=3000"      - "traefik.http.routers.frontend.rule=HostRegexp(`{subdomain:[a-z0-9-]+.}?${DOMAIN}`)"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+      - "traefik.http.routers.frontend.rule=${DOMAIN}"
+      # Priority 1 — explicit catch-all. Backend routers declare higher
+      # priorities so /api, /docs, /health never fall through to Next.js.
+      - "traefik.http.routers.frontend.priority=1"
       - "traefik.http.routers.frontend.entrypoints=${ENTRYPOINT}"
       - "traefik.http.routers.frontend.tls=${TLS_ENABLED}"
       - "traefik.http.routers.frontend.tls.certresolver=${CERT_RESOLVER}"
-      - "traefik.http.routers.frontend.tls.domains[0].main=${DOMAIN}"
-      - "traefik.http.routers.frontend.tls.domains[0].sans=*.${DOMAIN}"
     networks:
       - main-network
-
 networks:
   main-network:
     name: main-network

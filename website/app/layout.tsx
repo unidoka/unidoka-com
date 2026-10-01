@@ -9,9 +9,6 @@ import BottomAppBar from "@/components/layout/nav/bottom-app-bar";
 import Header from "@/components/layout/nav/header";
 import { Toaster } from "@/components/ui/sonner";
 import { YandexMetrika } from "@/components/layout/marketing/yandex-metrika";
-import { CookieConsent } from "@/components/layout/marketing/cookie-consent";
-import UserProvider from "@/entities/user/model/user-context";
-import ClientRootLayout from "./client-layout";
 
 export const Geist = localFont({
   src: '../public/fonts/Geist-VariableFont_wght.woff2',
@@ -19,54 +16,29 @@ export const Geist = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Цифровое агентство полного цикла unidoka.com",
-  description: "Digital-агентство полного цикла unidoka.com - дизайн, LLM, сайты, приложения, логотипы и айдентика, 3D",
+  title: "Unidoka — Digital Agency",
+  description: "We design and build reliable, high-load digital products for complex problems.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html
-      lang="en"
-      className={cn(Geist.className, "font-sans")}
-      suppressHydrationWarning
-    >
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  var theme = localStorage.getItem('theme') || 'system';
-                  var supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                  if (theme === 'dark' || (theme === 'system' && supportDarkMode)) {
-                    document.documentElement.classList.add('dark');
-                  } else {
-                    document.documentElement.classList.remove('dark');
-                  }
-                } catch (e) {}
-              })();
-            `,
-          }}
-        />
-      </head>
-      <body>
+    <html lang="ru" suppressHydrationWarning>
+      <body className={cn(Geist.variable, "font-sans bg-(--bg) text-(--on-bg-high)")}>
         <ThemeProvider>
           <LanguageProvider>
-            <UserProvider>
-              <TooltipProvider>
-                <ClientRootLayout>
-                  {children}
-                </ClientRootLayout>
-                <CookieConsent />
-              </TooltipProvider>
-            </UserProvider>
+            <TooltipProvider>
+              <Header />
+              {children}
+              <BottomAppBar />
+              <Toaster />
+              <YandexMetrika />
+            </TooltipProvider>
           </LanguageProvider>
         </ThemeProvider>
-        <YandexMetrika />
       </body>
     </html>
   );

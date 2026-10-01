@@ -19,11 +19,24 @@ services:
     networks:
       - main-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 40s
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.main-service.rule=PathPrefix(`/api`) || PathPrefix(`/docs`) || PathPrefix(`/health`)"
+      # Only claim paths FastAPI actually serves. PathPrefix('/api') would
+      # also swallow /api/admin-secret and /api/revalidate — both Next.js
+      # route handlers on the frontend router (priority 1). Priority 100
+      # was higher, so FastAPI returned 404 for them.
+      - "traefik.http.routers.main-service.rule=PathPrefix(`/api/v1`) || PathPrefix(`/docs`) || PathPrefix(`/health`)"
+      - "traefik.http.routers.main-service.priority=100"
+      - "traefik.http.routers.main-service.entrypoints=${ENTRYPOINT}"
+      - "traefik.http.routers.main-service.tls=${TLS_ENABLED}"
+      - "traefik.http.routers.main-service.tls.certresolver=${CERT_RESOLVER}"
       - "traefik.http.services.main-service.loadbalancer.server.port=8000"
-
   main-db:
     image: postgres:15-alpine
     container_name: main-db
@@ -42,7 +55,6 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
-
   valkey:
     image: valkey/valkey:7-alpine
     container_name: valkey
@@ -50,17 +62,15 @@ services:
     networks:
       - main-network
     healthcheck:
-      test: [ "CMD", "valkey-cli", "ping" ]
+      test: ["CMD", "valkey-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
     restart: unless-stopped
-
 networks:
   main-network:
     name: main-network
     external: false
   default:
-
 volumes:
   main_db_data:

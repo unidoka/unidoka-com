@@ -1,10 +1,8 @@
 name: Deploy to prod
-
 on:
   push:
     branches:
       - main
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -16,12 +14,22 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.PORT }}
-          command_timeout: 20m
+          command_timeout: 30m
           script: |
             cd ${{ secrets.PROJECT_PATH }}
-
             git fetch origin main && git reset --hard origin/main
-
+            # Source the root .env so NEXT_PUBLIC_* values are present
+            # for docker compose build.args interpolation.
+            set -a
+            . ./.env
+            set +a
             docker compose --profile prod up -d --build --force-recreate
-
-            docker system prune
+            # Wait for health
+            for i in $(seq 1 40); do
+              unhealthy=$(docker compose ps --format json | grep -c '"Health":"starting"' || true)
+              if [ "$unhealthy" = "0" ]; then break; fi
+              sleep 5
+            done
+            docker compose ps
+            docker compose logs --tail=200 main-service
+            docker system prune -f

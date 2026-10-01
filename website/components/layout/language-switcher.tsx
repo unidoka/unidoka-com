@@ -1,6 +1,6 @@
 "use client";
-import { useTransition } from "react";
-import { CaretDown, Check } from "@phosphor-icons/react";
+
+import { useState, useEffect } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,54 +8,66 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { setLocale as setLocaleServerAction } from "@/app/actions/locale";
-import { locales, localeNames, type Locale } from "@/i18n/config";
 import { useLanguage } from "@/providers/language-provider";
+import { CaretDown, Check } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 
 export function LanguageSwitcher() {
-  const { locale: current, setLocale } = useLanguage();
-  const [pending, startTransition] = useTransition();
+  const { lang, setLang } = useLanguage();
+  const [mounted, setMounted] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  const change = (next: Locale) => {
-    if (next === current) return;
-    setLocale(next);
-    startTransition(() => setLocaleServerAction(next));
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const handleSelect = (newLang: "en" | "ru") => {
+    setLang(newLang);
+    setOpen(false);
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="text"
-          size="small"
-          disabled={pending}
-          className="uppercase text-xs font-semibold tracking-wider px-2.5 gap-1"
-          aria-label={`Язык: ${localeNames[current]}`}
+        <button
+          className={cn(
+            "group flex items-center gap-1.5 rounded-full border border-(--outline) bg-(--card) px-3 h-9 text-sm font-medium transition-all duration-200",
+            "hover:border-(--primary)/50 hover:shadow-sm cursor-pointer",
+            "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
+          )}
+          aria-label={lang === "en" ? "Change language" : "Изменить язык"}
         >
-          {current}
-          <CaretDown className="size-3 opacity-60" />
-        </Button>
+          <span className="uppercase font-semibold tracking-wide">{mounted && lang}</span>
+          <CaretDown className="size-3 text-(--on-bg-low) transition-transform duration-200 group-data-[state=open]:rotate-180" />
+        </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-40">
-        {locales.map((l) => {
-          const active = l === current;
-          return (
-            <DropdownMenuItem
-              key={l}
-              onSelect={() => change(l)}
-              className={cn("gap-2 cursor-pointer", active && "font-medium")}
-            >
-              <span className="w-4 flex items-center">
-                {active && <Check className="size-3.5 text-(--primary)" />}
-              </span>
-              <span>{localeNames[l]}</span>
-              <span className="ml-auto text-[10px] uppercase tracking-wider text-(--on-bg-low)">
-                {l}
-              </span>
-            </DropdownMenuItem>
-          );
-        })}
+      <DropdownMenuContent align="end" className="w-44 p-1.5">
+        <DropdownMenuItem
+          onClick={() => handleSelect("en")}
+          className={cn(
+            "flex items-center justify-between rounded-lg px-2 py-2 cursor-pointer transition-colors",
+            lang === "en" && "bg-(--primary-card) text-(--primary)"
+          )}
+        >
+          <span className="flex items-center gap-2.5">
+            <span className="text-lg leading-none">🇬🇧</span>
+            <span className="text-sm font-medium">English</span>
+          </span>
+          {lang === "en" && <Check className="size-4" />}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => handleSelect("ru")}
+          className={cn(
+            "flex items-center justify-between rounded-lg px-2 py-2 cursor-pointer transition-colors",
+            lang === "ru" && "bg-(--primary-card) text-(--primary)"
+          )}
+        >
+          <span className="flex items-center gap-2.5">
+            <span className="text-lg leading-none">🇷🇺</span>
+            <span className="text-sm font-medium">Русский</span>
+          </span>
+          {lang === "ru" && <Check className="size-4" />}
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

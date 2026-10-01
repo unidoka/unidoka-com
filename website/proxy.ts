@@ -1,66 +1,25 @@
-import { NextResponse, NextRequest } from "next/server";
-
-export function proxy(req: NextRequest) {
-  const url = req.nextUrl;
-  const host = req.headers.get("host") || "";
-  const hostname = host.split(":")[0];
-
-  // ---- Skip static + API ----------------------------------------------
-  if (
-    url.pathname.startsWith("/_next") ||
-    url.pathname.includes(".") ||
-    url.pathname.startsWith("/fake-api")
-  ) {
-    return NextResponse.next();
-  }
-
-  // ---- Admin route protection ----------------------------------------
-  if (url.pathname.startsWith("/admin")) {
-    const token = req.cookies.get("access_token");
-    if (!token) {
-      const loginUrl = new URL("/login", req.url);
-      loginUrl.searchParams.set("from", url.pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
-
-  // ---- Fake API subdomain --------------------------------------------
-  const isFakeApiSubdomain = hostname.startsWith("fake-api.");
-  if (url.pathname.startsWith("/FAKE-API") && !isFakeApiSubdomain) {
-    return NextResponse.rewrite(new URL("/404", req.url));
-  }
-  if (isFakeApiSubdomain) {
-    return NextResponse.rewrite(new URL("FAKE-API/", req.url));
-  }
-
-  // ---- events.<domain> ------------------------------------------------
-  // Anything hitting events.<domain> gets rewritten under /events so
-  // the (Subdomains)/events route tree renders, but the URL bar keeps
-  // the pretty host-relative path.
-  if (hostname.startsWith("events.")) {
-    if (url.pathname === "/") {
-      return NextResponse.rewrite(new URL("/events", req.url));
-    }
-    if (!url.pathname.startsWith("/events")) {
-      return NextResponse.rewrite(new URL(`/events${url.pathname}`, req.url));
-    }
-    return NextResponse.next();
-  }
-
-  // ---- 0leak.<domain> -------------------------------------------------
-  if (hostname.startsWith("0leak.")) {
-    if (!url.pathname.startsWith("/0leak")) {
-      return NextResponse.rewrite(new URL(`/0leak${url.pathname}`, req.url));
-    }
-    return NextResponse.next();
-  }
-
-  // ---- site.com (root host) ------------------------------------------
-  // IMPORTANT: do NOT redirect "/" to the events subdomain. That's
-  // what was causing every hit to bounce to events.site.com.
-  return NextResponse.next();
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+export function proxy(request: NextRequest) {
+  const url = request.nextUrl.clone();
+  const hostname = request.headers.get("host")?.split(":")[0];
+  const baseDomain = (process.env.NEXT_PUBLIC_ROOT_DOMAIN || "").trim().toLowerCase();
+  if (!baseDomain) return NextResponse.next();
+  if (url.pathname.startsWith("/_next")) return NextResponse.next();
+  if (url.pathname.startsWith("/api")) return NextResponse.next();
+  if (url.pathname.startsWith("/dev-storage")) return NextResponse.next();
+  if (url.pathname.includes(".")) return NextResponse.next();
+  if (!hostname || hostname === baseDomain) return NextResponse.next();
+  const subdomain = hostname.split(".")[0];
+  if (!subdomain || subdomain === baseDomain) return NextResponse.next();
+  // (Subdomains) is a route GROUP — it does not appear in the URL.
+  // Routes live at /app/* and /admin/* on the root domain, so a request
+  // on app.* must be rewritten to /app/<path>, not /subdomains/app/<path>.
+  url.pathname = `/${subdomain}${url.pathname}`;
+  return NextResponse.rewrite(url);
 }
-
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|api).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:png|jpg|jpeg|svg|gif|webp|avif|ico|woff|woff2|ttf|otf)$).*)",
+  ],
 };
