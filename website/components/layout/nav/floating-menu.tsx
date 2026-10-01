@@ -13,6 +13,7 @@ import {
   crossSubdomainUrl,
 } from "@/utils/root-domain";
 import { cn } from "@/lib/utils";
+
 interface FloatingMenuProps {
   position?: "top" | "bottom";
   triggerClassName?: string;
@@ -20,6 +21,7 @@ interface FloatingMenuProps {
   triggerShape?: React.ComponentProps<typeof Button>["shape"];
   triggerIconClassName?: string;
 }
+
 export function FloatingMenu({
   position = "bottom",
   triggerClassName,
@@ -32,9 +34,11 @@ export function FloatingMenu({
   const { user, isLoading } = useUser();
   const pathname = usePathname();
   const wrapperRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -43,6 +47,7 @@ export function FloatingMenu({
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
+
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent | TouchEvent) => {
@@ -57,7 +62,9 @@ export function FloatingMenu({
       document.removeEventListener("touchstart", onDown);
     };
   }, [open]);
+
   const rootLink = (path: string) => rootDomainUrl(path);
+
   const links = [
     { href: rootLink(ROUTES.projects.href), label: t("nav.projects") },
     { href: rootLink(ROUTES.services.href), label: t("nav.services") },
@@ -65,11 +72,13 @@ export function FloatingMenu({
     { href: rootLink(ROUTES.about.href), label: t("nav.about") },
     { href: rootLink(ROUTES.blog.href), label: t("nav.blog") },
   ];
+
   const loginHref = rootDomainUrl("/login");
   const registerHref = rootDomainUrl("/register");
   const loginIsAbsolute = isAbsoluteUrl(loginHref);
   const registerIsAbsolute = isAbsoluteUrl(registerHref);
   const profileHref = crossSubdomainUrl("app", "/profile");
+
   return (
     <div ref={wrapperRef} className="contents">
       <Button
@@ -121,8 +130,10 @@ export function FloatingMenu({
               );
             })}
           </nav>
+          {/* Auth block only on mobile. On sm+ the header already renders
+              Sign in / Sign up, so rendering them here duplicates them. */}
           {!isLoading && (
-            <div className="mt-1.5 pt-2 border-t border-(--outline)">
+            <div className="mt-1.5 pt-2 border-t border-(--outline) sm:hidden">
               {user ? (
                 <Button
                   variant="outlined"

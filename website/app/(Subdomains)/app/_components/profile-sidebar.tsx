@@ -4,21 +4,27 @@ import { Sidebar, type SidebarItem } from "@/components/layout/nav/sidebar";
 import { useUser } from "@/entities/user/model/user-context";
 import { useLanguage } from "@/providers/language-provider";
 import { Button } from "@/components/ui/button";
-import { SignOutIcon, UserIcon, GearIcon, BriefcaseIcon, NewspaperIcon } from "@phosphor-icons/react";
+import {
+  SignOutIcon, UserIcon, GearIcon, BriefcaseIcon, NewspaperIcon,
+} from "@phosphor-icons/react";
+
 export function ProfileSidebar() {
   const router = useRouter();
   const { logout } = useUser();
   const { t } = useLanguage();
+
   const NAV_ITEMS: SidebarItem[] = [
     { label: t("nav.profile"), href: "/profile", icon: UserIcon, exact: true },
     { label: t("editor.my_articles"), href: "/profile/articles", icon: NewspaperIcon },
     { label: "Настройки", href: "/profile/settings", icon: GearIcon, exact: true },
     { label: "Безопасность", href: "/profile/security", icon: BriefcaseIcon, exact: true },
   ];
+
   const handleLogout = async () => {
     await logout();
     router.push("/");
   };
+
   return (
     <Sidebar
       items={NAV_ITEMS}

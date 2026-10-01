@@ -7,10 +7,12 @@ import {
   ChartLineUp, Users, Receipt, Buildings, Handshake,
   Cube, Newspaper, UsersThree, CalendarBlank, Ticket, FolderSimple,
 } from "@phosphor-icons/react";
+
 export function AdminSidebar() {
   const { secret, loading } = useAdminSecret();
   const { t } = useLanguage();
   if (loading || !secret) return null;
+
   const items: SidebarItem[] = [
     { label: t("admin.dashboard"), href: "/", icon: ChartLineUp, exact: true },
     { label: t("admin.users"), href: "/users", icon: Users },
@@ -24,10 +26,12 @@ export function AdminSidebar() {
     { label: t("admin.event_requests"), href: "/event-requests", icon: Ticket },
     { label: t("admin.catalog"), href: "/catalog", icon: FolderSimple },
   ];
+
   const enriched: SidebarItem[] = items.map((item) => ({
     ...item,
     href: crossSubdomainUrl("admin", `/${secret}${item.href === "/" ? "" : item.href}`),
   }));
+
   return (
     <Sidebar
       items={enriched}
