@@ -19,8 +19,8 @@ export const Geist = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Цифровое агентство полного цикла Rovno.dev",
-  description: "Digital-агентство полного цикла Rovno.dev - дизайн, LLM, сайты, приложения, логотипы и айдентика, 3D",
+  title: "Цифровое агентство полного цикла unidoka.com",
+  description: "Digital-агентство полного цикла unidoka.com - дизайн, LLM, сайты, приложения, логотипы и айдентика, 3D",
 };
 
 export default function RootLayout({

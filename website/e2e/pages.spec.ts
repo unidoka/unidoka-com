@@ -1,12 +1,12 @@
 import { test, expect, type Page } from '@playwright/test';
 
-test.describe('Rovno.dev Pages', () => {
+test.describe('unidoka.com Pages', () => {
   test.beforeEach(async ({ page }: { page: Page }) => {
     await page.goto('/');
   });
 
   test('home page loads and displays hero section', async ({ page }: { page: Page }) => {
-    await expect(page).toHaveTitle(/Rovno.dev/);
+    await expect(page).toHaveTitle(/unidoka.com/);
     const heroHeading = page.locator('h1');
     await expect(heroHeading).toBeVisible();
     await expect(heroHeading).toContainText('РАЗРАБОТКА');
@@ -48,7 +48,7 @@ test.describe('Rovno.dev Pages', () => {
 
   test('about page loads correctly', async ({ page }: { page: Page }) => {
     await page.goto('/about');
-    await expect(page).toHaveTitle(/Rovno.dev/);
+    await expect(page).toHaveTitle(/unidoka.com/);
     const heroHeading = page.locator('h1');
     await expect(heroHeading).toBeVisible();
     await expect(heroHeading).toContainText('Создаем цифровые продукты');
@@ -110,7 +110,7 @@ test.describe('Rovno.dev Pages', () => {
 
   test('contacts page loads correctly', async ({ page }: { page: Page }) => {
     await page.goto('/contacts');
-    await expect(page).toHaveTitle(/Rovno.dev/);
+    await expect(page).toHaveTitle(/unidoka.com/);
     const heroHeading = page.locator('h1');
     await expect(heroHeading).toBeVisible();
     await expect(heroHeading).toContainText('ЮРИДИЧЕСКАЯ ИНФОРМАЦИЯ');
@@ -125,7 +125,7 @@ test.describe('Rovno.dev Pages', () => {
     const certificatesHeading = page.locator('h2', { hasText: 'Сертификаты и лицензии' });
     await expect(certificatesHeading).toBeVisible();
     const certificateCards = page.locator('[data-slot="card"]');
-    await expect(certificateCards).toHaveCount(6); 
+    await expect(certificateCards).toHaveCount(6);
   });
 
   test('404 page for non-existent routes', async ({ page }: { page: Page }) => {
@@ -173,6 +173,6 @@ test.describe('Rovno.dev Pages', () => {
 
   test('page has correct meta tags', async ({ page }: { page: Page }) => {
     const metaDescription = page.locator('meta[name="description"]');
-    await expect(metaDescription).toHaveAttribute('content', /Rovno.dev/);
+    await expect(metaDescription).toHaveAttribute('content', /unidoka.com/);
   });
 });

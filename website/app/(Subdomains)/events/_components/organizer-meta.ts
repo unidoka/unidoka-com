@@ -5,7 +5,7 @@ const KNOWN: Record<string, string> = {
   "Росмолодёжь": "#336DFF",
   "Росконгресс": "#E8590C",
   "Унидока": "#0CA678",
-  "Rovno.dev": "#845EF7",
+  "unidoka.com": "#845EF7",
 };
 
 function hash(s: string): number {

@@ -320,7 +320,7 @@ export const SEED_EVENTS: EventItem[] = [
     tags: ["форум", "атр"],
   },
 
-  // --- Unidoka / Rovno.dev internal -----------------------------------
+  // --- Unidoka / unidoka.com internal -----------------------------------
   {
     id: "un-cortex-challenge-2026",
     title: "Cortex Challenge 2026",
@@ -359,10 +359,10 @@ export const SEED_EVENTS: EventItem[] = [
   },
   {
     id: "rov-design-jam-2026",
-    title: "Rovno.dev Design Jam",
+    title: "unidoka.com Design Jam",
     description: "48-часовой интенсив по продукт-дизайну с менторами из индустрии.",
     source: "rovno",
-    organizer: "Rovno.dev",
+    organizer: "unidoka.com",
     type: "Design",
     country: "Россия",
     ageMin: 16,
@@ -371,7 +371,7 @@ export const SEED_EVENTS: EventItem[] = [
     startsAt: "2026-10-10",
     endsAt: "2026-10-12",
     location: "Москва",
-    url: "https://rovno.dev",
+    url: "https://unidoka.com",
     tags: ["design", "интенсив"],
   },
   {
@@ -379,7 +379,7 @@ export const SEED_EVENTS: EventItem[] = [
     title: "Rovno Art Night",
     description: "Вечер современного искусства и цифрового дизайна с открытым микрофоном.",
     source: "rovno",
-    organizer: "Rovno.dev",
+    organizer: "unidoka.com",
     type: "Art",
     country: "Россия",
     ageMin: 18,
@@ -409,7 +409,7 @@ export const SEED_EVENTS: EventItem[] = [
     title: "Rovno Chill Meetup",
     description: "Неформальная встреча комьюнити: кофе, разговоры, нетворкинг.",
     source: "rovno",
-    organizer: "Rovno.dev",
+    organizer: "unidoka.com",
     type: "Chill",
     country: "Россия",
     ageMin: 16,
