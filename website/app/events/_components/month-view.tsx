@@ -5,7 +5,6 @@ import { monthGrid } from "./date-utils";
 import { EventChip } from "./event-chip";
 import { DayEventsDrawer } from "./day-events-drawer";
 import { colorForOrganizer } from "./organizer-meta";
-import { useIsMobile } from "@/hooks/use-mobile";
 import type { EventItem } from "../_data/events";
 import { cn } from "@/lib/utils";
 
@@ -31,13 +30,12 @@ export function MonthView({
   onSelectEvent,
   onShowMore,
 }: Props) {
-  const isMobile = useIsMobile();
   const cells = monthGrid(month);
   const [drawerDay, setDrawerDay] = useState<Date | null>(null);
 
   const handleDayClick = (day: Date) => {
     onSelectDay(day);
-    if (isMobile) setDrawerDay(day);
+    setDrawerDay(day);
   };
 
   const drawerEvents = drawerDay
