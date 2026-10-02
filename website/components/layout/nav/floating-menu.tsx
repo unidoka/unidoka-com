@@ -66,11 +66,12 @@ export function FloatingMenu({
   const rootLink = (path: string) => rootDomainUrl(path);
 
   const links = [
-    { href: rootLink(ROUTES.projects.href), label: t("nav.projects") },
-    { href: rootLink(ROUTES.services.href), label: t("nav.services") },
-    { href: rootLink(ROUTES.events.href), label: t("nav.events") },
-    { href: rootLink(ROUTES.about.href), label: t("nav.about") },
-    { href: rootLink(ROUTES.blog.href), label: t("nav.blog") },
+    { href: rootLink(ROUTES.solutions.href), label: t("nav.solutions") },
+    { href: rootLink(ROUTES.api.href),       label: t("nav.api") },
+    { href: rootLink(ROUTES.crew.href),      label: t("nav.crew") },
+    { href: rootLink(ROUTES.amorfa.href),    label: t("nav.amorfa") },
+    { href: rootLink(ROUTES.events.href),    label: t("nav.events") },
+    { href: rootLink(ROUTES.vershiny.href),  label: t("nav.vershiny") },
   ];
 
   const loginHref = rootDomainUrl("/login");

@@ -35,7 +35,7 @@ const CONTENT_DIR = path.join(process.cwd(), "app/_data/legal/content");
 
 function substituteEnv(body: string): string {
   const fallbacks: Record<string, string> = {
-    CONTACT_EMAIL: "rovno.dev@mail.ru",
+    CONTACT_EMAIL: "unidoka.com@mail.ru",
     CONTACT_PHONE: "+7 937 580-34-14",
     COMPANY_NAME: "самозанятый Гимадиев Нияз Наилевич",
     COMPANY_INN: "165917274919",

@@ -133,7 +133,7 @@ export default async function LegalDocPage({
             <p className="text-body-4 text-(--on-bg-medium)">
               Дата публикации и вступления в силу:{" "}
               <time dateTime={doc.publishedAt}>{doc.publishedAtLabel}</time>
-              {" · "}Место публикации: rovno.dev
+              {" · "}Место публикации: unidoka.com
             </p>
           </div>
         </Container>

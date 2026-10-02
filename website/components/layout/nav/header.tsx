@@ -67,12 +67,24 @@ export default function Header() {
             <Logo className="!h-[24px] sm:h-[40px]" />
           </Link>
           <nav className="hidden lg:flex gap-4 text-sm">
-            <NavLink href={rootLink(ROUTES.projects.href)}>{t("nav.projects")}</NavLink>
-            <NavLink href={rootLink(ROUTES.services.href)}>{t("nav.services")}</NavLink>
-            <NavLink href={rootLink(ROUTES.events.href)}>{t("nav.events")}</NavLink>
-            <NavLink href={rootLink(ROUTES.companies.href)}>{t("nav.companies")}</NavLink>
-            <NavLink href={rootLink(ROUTES.about.href)}>{t("nav.about")}</NavLink>
-            <NavLink href={rootLink(ROUTES.blog.href)}>{t("nav.blog")}</NavLink>
+            <NavLink href={rootLink(ROUTES.solutions.href)}>
+              {t("nav.solutions")}
+            </NavLink>
+            <NavLink href={rootLink(ROUTES.api.href)}>
+              {t("nav.api")}
+            </NavLink>
+            <NavLink href={rootLink(ROUTES.crew.href)}>
+              {t("nav.crew")}
+            </NavLink>
+            <NavLink href={rootLink(ROUTES.amorfa.href)}>
+              {t("nav.amorfa")}
+            </NavLink>
+            <NavLink href={rootLink(ROUTES.events.href)}>
+              {t("nav.events")}
+            </NavLink>
+            <NavLink href={rootLink(ROUTES.vershiny.href)}>
+              {t("nav.vershiny")}
+            </NavLink>
           </nav>
         </div>
         <div className="flex items-center gap-1.5">

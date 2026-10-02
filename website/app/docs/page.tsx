@@ -23,7 +23,7 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
 export const metadata = {
   title: "Документы · Rovno.dev",
   description:
-    "Правовая информация сайта rovno.dev: политика конфиденциальности, согласие на обработку персональных данных, политика cookie, пользовательское соглашение и согласие на публикацию отзывов.",
+    "Правовая информация сайта unidoka.com: политика конфиденциальности, согласие на обработку персональных данных, политика cookie, пользовательское соглашение и согласие на публикацию отзывов.",
 };
 
 export default function DocsIndexPage() {
@@ -39,7 +39,7 @@ export default function DocsIndexPage() {
               Документы
             </h1>
             <p className="text-body-2 md:text-body-1 text-(--on-bg-medium) leading-relaxed">
-              Официальные документы, регулирующие использование сайта rovno.dev и обработку
+              Официальные документы, регулирующие использование сайта unidoka.com и обработку
               персональных данных. Все документы соответствуют Федеральному закону № 152-ФЗ
               «О персональных данных».
             </p>
@@ -100,15 +100,15 @@ export default function DocsIndexPage() {
               По любым вопросам, связанным с обработкой и защитой персональных данных, а также
               для отзыва согласия напишите нам на{" "}
               <a
-                href="mailto:rovno.dev@mail.ru"
+                href="mailto:unidoka.com@mail.ru"
                 className="text-(--primary) underline underline-offset-2"
               >
-                rovno.dev@mail.ru
+                unidoka.com@mail.ru
               </a>
               . Мы ответим в течение 10 рабочих дней.
             </p>
             <Button variant="outlined" size="medium" asChild>
-              <a href="mailto:rovno.dev@mail.ru">Написать в поддержку</a>
+              <a href="mailto:unidoka.com@mail.ru">Написать в поддержку</a>
             </Button>
           </div>
         </Container>

@@ -12,8 +12,8 @@ export interface NavLinkItem {
 export type UrlFor = (sub: Subdomain | "", path: string) => string;
 
 /**
- * Events are no longer a subdomain — /events lives on the root host.
- * Subdomain is now just "site" | "0leak", so the switch has two branches.
+ * Only `0leak` remains a real subdomain. Events, Vershiny, and Amorfa
+ * live as plain routes on the root host.
  */
 export function buildNavLinks(subdomain: Subdomain): NavLinkItem[] {
   switch (subdomain) {
@@ -27,10 +27,12 @@ export function buildNavLinks(subdomain: Subdomain): NavLinkItem[] {
       ];
     default:
       return [
-        { label: "Вершины", path: "/events/vershiny" },
-        { label: "Календарь событий", path: "/events" },
+        { label: "Решения", path: "/services" },
+        { label: "Unidoka API", path: "/docs" },
+        { label: "Команда", path: "/about" },
         { label: "Amorfa", path: "/amorfa" },
-        { label: "Документы", path: "/docs" },
+        { label: "События", path: "/events" },
+        { label: "Вершины", path: "/vershiny" },
       ];
   }
 }

@@ -1,21 +1,29 @@
 import type { Language } from './translations';
+
 export const headerTranslations: Record<Language, Record<string, string>> = {
   en: {
+    // ── New nav vocabulary ─────────────────────────────────────────
+    'nav.solutions': 'Solutions',
+    'nav.api': 'Unidoka API',
+    'nav.crew': 'Crew',
+    'nav.amorfa': 'Amorfa',
+    'nav.events': 'Events',
+    'nav.vershiny': 'Vershiny',
+    // ── Legacy keys — kept for footer + backward compat ────────────
     'nav.about': 'About',
     'nav.companies': 'Companies',
     'nav.admin': 'Admin Panel',
     'nav.blog': 'Rovnya Journal',
     'nav.language': 'Language',
-    'nav.login': 'Sign in',
+    'nav.login': 'Login',
     'nav.logout': 'Logout',
     'nav.menu': 'Open menu',
     'nav.order': 'Make an Order',
     'nav.profile': 'Profile',
-    'nav.register': 'Sign up',
-    'nav.request': 'Make a request',
+    'nav.register': 'Sign Up',
     'nav.projects': 'Projects',
     'nav.services': 'Services',
-    'nav.events': 'Events',
+    // ── Admin sidebar ──────────────────────────────────────────────
     'admin.sidebar_title': 'Admin Panel',
     'admin.dashboard': 'Dashboard',
     'admin.users': 'Users',
@@ -30,6 +38,12 @@ export const headerTranslations: Record<Language, Record<string, string>> = {
     'admin.catalog': 'Catalog',
   },
   ru: {
+    'nav.solutions': 'Решения',
+    'nav.api': 'Unidoka API',
+    'nav.crew': 'Команда',
+    'nav.amorfa': 'Amorfa',
+    'nav.events': 'События',
+    'nav.vershiny': 'Вершины',
     'nav.about': 'О нас',
     'nav.companies': 'Компании',
     'nav.admin': 'Админ-панель',
@@ -41,10 +55,8 @@ export const headerTranslations: Record<Language, Record<string, string>> = {
     'nav.order': 'Оформить заказ',
     'nav.profile': 'Профиль',
     'nav.register': 'Регистрация',
-    'nav.request': 'Оставить заявку',
     'nav.projects': 'Проекты',
     'nav.services': 'Услуги',
-    'nav.events': 'События',
     'admin.sidebar_title': 'Админ-панель',
     'admin.dashboard': 'Дашборд',
     'admin.users': 'Пользователи',
