@@ -1,16 +1,21 @@
 "use client";
+
 import { useState } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { PhoneInputField } from "@/components/ui/phone-input";
 import { $fetch } from "@/utils/fetch";
 import { CircleNotchIcon } from "@phosphor-icons/react";
+
 interface ConsultFormProps {
   onSuccess?: () => void;
 }
+
 export function ConsultForm({ onSuccess }: ConsultFormProps) {
   const [form, setForm] = useState({
     name: "",
@@ -19,16 +24,22 @@ export function ConsultForm({ onSuccess }: ConsultFormProps) {
     telegram: "",
     description: "",
   });
+  const [agreed, setAgreed] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+
   const validate = () => {
     const next: Record<string, string> = {};
-    if (form.name.trim().length < 2) next.name = "Имя должно быть не короче 2 символов";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) next.email = "Некорректный email";
+    if (form.name.trim().length < 2)
+      next.name = "Имя должно быть не короче 2 символов";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      next.email = "Некорректный email";
     if (!form.phone) next.phone = "Укажите телефон";
+    if (!agreed) next.agreement = "Необходимо согласие на обработку данных";
     setErrors(next);
     return Object.keys(next).length === 0;
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
@@ -54,6 +65,7 @@ export function ConsultForm({ onSuccess }: ConsultFormProps) {
       }
       toast.success("Заявка отправлена! Свяжемся с вами в течение рабочего дня.");
       setForm({ name: "", email: "", phone: "", telegram: "", description: "" });
+      setAgreed(false);
       onSuccess?.();
     } catch {
       toast.error("Ошибка соединения. Попробуйте позже.");
@@ -61,6 +73,7 @@ export function ConsultForm({ onSuccess }: ConsultFormProps) {
       setLoading(false);
     }
   };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Field data-invalid={!!errors.name}>
@@ -74,6 +87,7 @@ export function ConsultForm({ onSuccess }: ConsultFormProps) {
         />
         {errors.name && <FieldError errors={[{ message: errors.name }]} />}
       </Field>
+
       <Field data-invalid={!!errors.email}>
         <FieldLabel>Email *</FieldLabel>
         <Input
@@ -86,6 +100,7 @@ export function ConsultForm({ onSuccess }: ConsultFormProps) {
         />
         {errors.email && <FieldError errors={[{ message: errors.email }]} />}
       </Field>
+
       <Field data-invalid={!!errors.phone}>
         <FieldLabel>Телефон *</FieldLabel>
         <PhoneInputField
@@ -95,6 +110,7 @@ export function ConsultForm({ onSuccess }: ConsultFormProps) {
           error={errors.phone}
         />
       </Field>
+
       <Field>
         <FieldLabel>Telegram (опционально)</FieldLabel>
         <Input
@@ -104,6 +120,7 @@ export function ConsultForm({ onSuccess }: ConsultFormProps) {
           placeholder="@username"
         />
       </Field>
+
       <Field>
         <FieldLabel>Описание задачи (опционально)</FieldLabel>
         <Textarea
@@ -114,13 +131,61 @@ export function ConsultForm({ onSuccess }: ConsultFormProps) {
           className="min-h-[80px]"
         />
       </Field>
+
       <Button type="submit" size="large" className="w-full" disabled={loading}>
         {loading && <CircleNotchIcon className="size-4 animate-spin" />}
         {loading ? "Отправка…" : "Отправить заявку"}
       </Button>
-      <p className="text-body-6 text-(--on-bg-low) text-center leading-relaxed">
-        Отправляя форму, вы соглашаетесь с обработкой персональных данных
-      </p>
+
+      {/* ── Legal agreement (152-ФЗ) ─────────────────────────────
+          Checkbox + full consent text with links to the three
+          documents that legally must be acknowledged before the
+          form can be submitted. Mirrors the /order form so both
+          forms use identical wording. */}
+      <div className="flex items-start gap-3 pt-1">
+        <Checkbox
+          id="consult-agreement"
+          checked={agreed}
+          onCheckedChange={(v) => setAgreed(v === true)}
+          className="mt-0.5 shrink-0"
+        />
+        <label
+          htmlFor="consult-agreement"
+          className="flex-1 text-body-6 font-normal text-(--on-bg-low) leading-relaxed cursor-pointer"
+        >
+          Я даю{" "}
+          <Link
+            href="/docs/consent"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-(--primary) underline underline-offset-2 hover:opacity-80"
+          >
+            согласие на обработку персональных данных
+          </Link>{" "}
+          и подтверждаю, что ознакомлен(а) с{" "}
+          <Link
+            href="/docs/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-(--primary) underline underline-offset-2 hover:opacity-80"
+          >
+            Политикой конфиденциальности
+          </Link>{" "}
+          и{" "}
+          <Link
+            href="/docs/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-(--primary) underline underline-offset-2 hover:opacity-80"
+          >
+            Пользовательским соглашением
+          </Link>
+          .
+        </label>
+      </div>
+      {errors.agreement && (
+        <FieldError errors={[{ message: errors.agreement }]} />
+      )}
     </form>
   );
 }

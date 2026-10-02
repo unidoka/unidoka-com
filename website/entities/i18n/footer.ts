@@ -1,12 +1,17 @@
 import type { Language } from './translations';
+
 export const footerTranslations: Record<Language, Record<string, string>> = {
   en: {
+    'footer.tagline':
+      'We build digital products and open-source tools that solve more than one problem at a time.',
+    'footer.agency': 'Unidoka',
     'footer.about': 'About us',
-    'footer.agency': 'Agency',
     'footer.branding': 'Branding',
-    'footer.careers': 'Careers at Rovno.dev',
-    'footer.copyright': '© 2023–{year} Full-cycle digital agency Rovno.dev, all rights reserved',
+    'footer.careers': 'Careers at Unidoka',
+    'footer.copyright':
+      '© 2025–{year} Unidoka. All rights reserved',
     'footer.journal': 'Rovnya Journal',
+    'footer.nav': 'Navigation',
     'footer.legal': 'Legal',
     'footer.legal.privacy': 'Privacy Policy',
     'footer.legal.consent': 'Consent to Data Processing',
@@ -22,14 +27,19 @@ export const footerTranslations: Record<Language, Record<string, string>> = {
     'footer.suggest': 'Suggest an Article',
     'footer.uxui': 'UX/UI Design',
     'footer.webdev': 'Web Development',
+    'footer.amorfa': 'Amorfa — open-source framework',
   },
   ru: {
+    'footer.tagline':
+      'Создаём цифровые продукты и open-source инструменты, которые решают сразу несколько задач.',
+    'footer.agency': 'Юнидока',
     'footer.about': 'О нас',
-    'footer.agency': 'Агентство',
     'footer.branding': 'Айдентика',
-    'footer.careers': 'Карьера в Rovno.dev',
-    'footer.copyright': '© 2023–{year} Цифровое агентство полного цикла Rovno.dev, все права защищены',
+    'footer.careers': 'Карьера в Юнидоке',
+    'footer.copyright':
+      '© 2025–{year} Юнидока, все права защищены',
     'footer.journal': 'Журнал «Ровня»',
+    'footer.nav': 'Навигация',
     'footer.legal': 'Документы',
     'footer.legal.privacy': 'Политика конфиденциальности',
     'footer.legal.consent': 'Согласие на обработку ПДн',
@@ -45,5 +55,6 @@ export const footerTranslations: Record<Language, Record<string, string>> = {
     'footer.suggest': 'Предложить статью',
     'footer.uxui': 'UX/UI Дизайн',
     'footer.webdev': 'Веб-разработка',
+    'footer.amorfa': 'Amorfa — open-source фреймворк',
   },
 };

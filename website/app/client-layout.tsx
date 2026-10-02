@@ -1,7 +1,7 @@
 "use client";
 import "./globals.css";
 import Header from "@/components/layout/nav/header";
-import Footer from "@/components/layout/footer";
+import Footer from "@/components/layout/nav/footer";
 import { Toaster } from "@/components/ui/sonner";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";

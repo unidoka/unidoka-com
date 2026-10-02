@@ -473,3 +473,186 @@
     padding-right: 36px !important;
   }
 }
+/* ─── Global scrollbar refinement ─────────────────────────────────
+   The OS default scrollbar reads heavy and grey against this site's
+   floating, rounded, dark-ish surfaces. This replaces it with a thin,
+   theme-aware track. The document scrollbar and every Radix/vaul
+   scroll surface (dialogs, drawers, sheets) get the same treatment,
+   so nothing reverts to the OS default mid-flow. */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--on-bg-low), transparent 40%) transparent;
+}
+html::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+html::-webkit-scrollbar-track {
+  background: transparent;
+}
+html::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--on-bg-low), transparent 55%);
+  border-radius: 9999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  transition: background-color 0.15s;
+}
+html::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--on-bg-low), transparent 25%);
+  background-clip: padding-box;
+  border: 3px solid transparent;
+}
+html::-webkit-scrollbar-corner {
+  background: transparent;
+}
+/* Override the pre-existing .scrollbar-admin rule — the old 10px width
+   was specifically what showed up as ugly in the screenshots. Now 8px
+   and translucent so it reads as part of the surface, not as chrome. */
+.scrollbar-admin {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--on-bg-low), transparent 45%) transparent;
+}
+.scrollbar-admin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scrollbar-admin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-admin::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--on-bg-low), transparent 60%);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.scrollbar-admin::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--on-bg-low), transparent 30%);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+/* Radix Dialog / Sheet + vaul Drawer scroll surfaces — same treatment
+   so the slim look is consistent when the user opens a modal. */
+[data-slot="dialog-content"],
+[data-slot="drawer-content"],
+[data-slot="sheet-content"] {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--on-bg-low), transparent 45%) transparent;
+}
+[data-slot="dialog-content"]::-webkit-scrollbar,
+[data-slot="drawer-content"]::-webkit-scrollbar,
+[data-slot="sheet-content"]::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+[data-slot="dialog-content"]::-webkit-scrollbar-track,
+[data-slot="drawer-content"]::-webkit-scrollbar-track,
+[data-slot="sheet-content"]::-webkit-scrollbar-track {
+  background: transparent;
+}
+[data-slot="dialog-content"]::-webkit-scrollbar-thumb,
+[data-slot="drawer-content"]::-webkit-scrollbar-thumb,
+[data-slot="sheet-content"]::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--on-bg-low), transparent 60%);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+[data-slot="dialog-content"]::-webkit-scrollbar-thumb:hover,
+[data-slot="drawer-content"]::-webkit-scrollbar-thumb:hover,
+[data-slot="sheet-content"]::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--on-bg-low), transparent 30%);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+
+/* ─── Global scrollbar refinement ─────────────────────────────────
+   The OS default scrollbar reads heavy and grey against this site's
+   floating, rounded, dark-ish surfaces. This replaces it with a thin,
+   theme-aware track. The document scrollbar and every Radix/vaul
+   scroll surface (dialogs, drawers, sheets) get the same treatment,
+   so nothing reverts to the OS default mid-flow. */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--on-bg-low), transparent 40%) transparent;
+}
+html::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+html::-webkit-scrollbar-track {
+  background: transparent;
+}
+html::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--on-bg-low), transparent 55%);
+  border-radius: 9999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  transition: background-color 0.15s;
+}
+html::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--on-bg-low), transparent 25%);
+  background-clip: padding-box;
+  border: 3px solid transparent;
+}
+html::-webkit-scrollbar-corner {
+  background: transparent;
+}
+/* Override the pre-existing .scrollbar-admin rule — the old 10px width
+   was specifically what showed up as ugly in the screenshots. Now 8px
+   and translucent so it reads as part of the surface, not as chrome. */
+.scrollbar-admin {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--on-bg-low), transparent 45%) transparent;
+}
+.scrollbar-admin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scrollbar-admin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-admin::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--on-bg-low), transparent 60%);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.scrollbar-admin::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--on-bg-low), transparent 30%);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+/* Radix Dialog / Sheet + vaul Drawer scroll surfaces — same treatment
+   so the slim look is consistent when the user opens a modal. */
+[data-slot="dialog-content"],
+[data-slot="drawer-content"],
+[data-slot="sheet-content"] {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--on-bg-low), transparent 45%) transparent;
+}
+[data-slot="dialog-content"]::-webkit-scrollbar,
+[data-slot="drawer-content"]::-webkit-scrollbar,
+[data-slot="sheet-content"]::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+[data-slot="dialog-content"]::-webkit-scrollbar-track,
+[data-slot="drawer-content"]::-webkit-scrollbar-track,
+[data-slot="sheet-content"]::-webkit-scrollbar-track {
+  background: transparent;
+}
+[data-slot="dialog-content"]::-webkit-scrollbar-thumb,
+[data-slot="drawer-content"]::-webkit-scrollbar-thumb,
+[data-slot="sheet-content"]::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--on-bg-low), transparent 60%);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+[data-slot="dialog-content"]::-webkit-scrollbar-thumb:hover,
+[data-slot="drawer-content"]::-webkit-scrollbar-thumb:hover,
+[data-slot="sheet-content"]::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--on-bg-low), transparent 30%);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}

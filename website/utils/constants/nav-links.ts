@@ -14,18 +14,16 @@ export interface NavLinkItem {
 
 export type UrlFor = (sub: Subdomain | "", path: string) => string;
 
+/**
+ * Events are no longer a subdomain — the calendar lives at /events on the
+ * root host. Only `0leak` remains a real subdomain, so the switch has just
+ * two branches: "0leak" and "site" (the default/root).
+ */
 export function buildNavLinks(subdomain: Subdomain): NavLinkItem[] {
   switch (subdomain) {
-    case "events":
-      return [
-        { label: "Unidoka", target: { sub: "", path: "/" } },
-        { label: "Вершины", path: "/vershiny" },
-        { label: "Календарь событий", path: "/" },
-        { label: "Добавить событие", dialog: "add-event" },
-      ];
     case "0leak":
       return [
-        { label: "Unidoka", target: { sub: "", path: "/" } },
+        { label: "Юнидока", target: { sub: "", path: "/" } },
         { label: "Как это работает", path: "/#how" },
         { label: "Почему мы", path: "/#why" },
         { label: "Запросить демо", dialog: "request-demo" },
@@ -33,8 +31,9 @@ export function buildNavLinks(subdomain: Subdomain): NavLinkItem[] {
       ];
     default:
       return [
-        { label: "Вершины", target: { sub: "events", path: "/vershiny" } },
-        { label: "Календарь событий", target: { sub: "events", path: "/" } },
+        { label: "Вершины", target: { sub: "", path: "/events/vershiny" } },
+        { label: "Календарь событий", target: { sub: "", path: "/events" } },
+        { label: "Amorfa", target: { sub: "", path: "/amorfa" } },
         { label: "0leak", target: { sub: "0leak", path: "/" } },
       ];
   }
