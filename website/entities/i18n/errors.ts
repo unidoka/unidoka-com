@@ -1,6 +1,25 @@
 import type { Language } from './translations';
+
 export const errorsTranslations: Record<Language, Record<string, string>> = {
   en: {
+    // ── Full-page error pages (not-found.tsx, 403/page.tsx, error.tsx) ──
+    'Errors.notFoundLabel': 'ERR / NOT_FOUND',
+    'Errors.notFoundTitle': 'Page not found',
+    'Errors.notFoundBody':
+      'The requested address does not exist or has been moved. Check the URL or return to the home page.',
+    'Errors.forbiddenLabel': 'ERR / FORBIDDEN',
+    'Errors.forbiddenTitle': 'Access denied',
+    'Errors.forbiddenBody':
+      'You do not have permission to view this page. If you think this is a mistake, please contact us.',
+    'Errors.internalLabel': 'ERR / INTERNAL',
+    'Errors.internalTitle': 'Internal error',
+    'Errors.internalBody':
+      'Something went wrong on our end. We are already aware of it. Try refreshing the page.',
+    'Errors.back': 'Go home',
+    'Errors.retry': 'Retry',
+    'Errors.contact': 'Contact us',
+
+    // ── Form validation + auth (existing, lowercase) ────────────────────
     'errors.name_too_short': 'Name must be at least 2 characters',
     'errors.phone_required': 'Please enter your phone number',
     'errors.email_invalid': 'Invalid email format',
@@ -45,6 +64,24 @@ export const errorsTranslations: Record<Language, Record<string, string>> = {
     'errors.settings_save_failed': 'Save failed',
   },
   ru: {
+    // ── Full-page error pages ───────────────────────────────────────────
+    'Errors.notFoundLabel': 'ERR / NOT_FOUND',
+    'Errors.notFoundTitle': 'Страница не найдена',
+    'Errors.notFoundBody':
+      'Запрошенный адрес не существует или был перемещён. Проверьте URL или вернитесь на главную.',
+    'Errors.forbiddenLabel': 'ERR / FORBIDDEN',
+    'Errors.forbiddenTitle': 'Доступ запрещён',
+    'Errors.forbiddenBody':
+      'У вас нет прав для просмотра этой страницы. Если вы считаете, что это ошибка — свяжитесь с нами.',
+    'Errors.internalLabel': 'ERR / INTERNAL',
+    'Errors.internalTitle': 'Внутренняя ошибка',
+    'Errors.internalBody':
+      'Что-то пошло не так на нашей стороне. Мы уже знаем об этом. Попробуйте обновить страницу.',
+    'Errors.back': 'На главную',
+    'Errors.retry': 'Обновить',
+    'Errors.contact': 'Связаться',
+
+    // ── Form validation + auth ──────────────────────────────────────────
     'errors.name_too_short': 'Имя должно быть не короче 2 символов',
     'errors.phone_required': 'Укажите номер телефона',
     'errors.email_invalid': 'Некорректный формат email',

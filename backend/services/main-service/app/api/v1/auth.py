@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
@@ -11,7 +12,7 @@ from app.schemas.auth.requests import (
     ResendVerificationRequest,
 )
 from app.schemas.auth.responses import TokenResponse, AccessTokenResponse, EmailSendCodeResponse
-from app.services.email_service import send_email
+from app.services.email_service import send_email, send_email_html
 from app.services.otp_service import generate_otp, save_otp, verify_otp
 from app.services.user_service import create_user, get_user_by_email, set_user_verified
 from app.shared.auth import (
@@ -159,3 +160,124 @@ async def resend_verification(
         raise HTTPException(status_code=503, detail="OTP storage unavailable")
     sent = await send_email(payload.email, "Verification code", f"Your verification code is: {code}. Please, don't reply to this message.")
     return EmailSendCodeResponse(sent=sent)
+
+
+# ── Password reset ──────────────────────────────────────────────────────
+from app.schemas.auth.requests import (
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
+)
+from app.schemas.auth.responses import MessageResponse
+from app.services.password_reset_service import (
+    generate_reset_token,
+    save_reset_token,
+    consume_reset_token,
+)
+
+FRONTEND_URL = os.getenv("FRONTEND_URL") or os.getenv("NEXT_PUBLIC_ROOT_DOMAIN")
+if FRONTEND_URL and not FRONTEND_URL.startswith("http"):
+    FRONTEND_URL = f"https://{FRONTEND_URL}"
+if not FRONTEND_URL:
+    FRONTEND_URL = "http://localhost:3000"
+
+
+def _reset_email_html(reset_url: str, lang: str | None) -> tuple[str, str, str]:
+    """Return (subject, text_body, html_body) for the reset email."""
+    if lang == "en":
+        subject = "Reset your password"
+        text = (
+            "We received a request to reset your Unidoka password.\n\n"
+            f"Open this link to set a new password (valid 30 minutes):\n{reset_url}\n\n"
+            "If you did not request this, ignore this email."
+        )
+        html = f"""
+        <html><body style="font-family:Arial,sans-serif;background:#f4f4f4;padding:20px;">
+          <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:8px;padding:30px;">
+            <h2 style="color:#333;margin-top:0;">Reset your password</h2>
+            <p style="color:#555;font-size:16px;">We received a request to reset your Unidoka password.</p>
+            <p style="margin:24px 0;">
+              <a href="{reset_url}"
+                 style="display:inline-block;background:#336DFF;color:#fff;text-decoration:none;
+                        padding:14px 28px;border-radius:8px;font-weight:600;">
+                Set new password
+              </a>
+            </p>
+            <p style="color:#888;font-size:13px;">
+              Link is valid for 30 minutes. If you did not request this, ignore this email.
+            </p>
+          </div>
+        </body></html>
+        """
+    else:
+        subject = "Сброс пароля"
+        text = (
+            "Мы получили запрос на сброс пароля от аккаунта Unidoka.\n\n"
+            f"Перейдите по ссылке, чтобы задать новый пароль (действует 30 минут):\n{reset_url}\n\n"
+            "Если вы не запрашивали сброс — проигнорируйте письмо."
+        )
+        html = f"""
+        <html><body style="font-family:Arial,sans-serif;background:#f4f4f4;padding:20px;">
+          <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:8px;padding:30px;">
+            <h2 style="color:#333;margin-top:0;">Сброс пароля</h2>
+            <p style="color:#555;font-size:16px;">Мы получили запрос на сброс пароля от аккаунта Unidoka.</p>
+            <p style="margin:24px 0;">
+              <a href="{reset_url}"
+                 style="display:inline-block;background:#336DFF;color:#fff;text-decoration:none;
+                        padding:14px 28px;border-radius:8px;font-weight:600;">
+                Задать новый пароль
+              </a>
+            </p>
+            <p style="color:#888;font-size:13px;">
+              Ссылка действует 30 минут. Если вы не запрашивали сброс — проигнорируйте письмо.
+            </p>
+          </div>
+        </body></html>
+        """
+    return subject, text, html
+
+
+@router.post("/forgot-password", response_model=MessageResponse)
+async def forgot_password(
+    payload: ForgotPasswordRequest,
+    db: Session = Depends(get_db),
+    _: None = Depends(limit_otp_send),
+) -> MessageResponse:
+    """
+    Sends a reset link. Always returns 200 so an attacker can't probe
+    which emails are registered — the response is identical whether the
+    user exists or not.
+    """
+    user = get_user_by_email(db, payload.email)
+    if user and not user.blocked:
+        token = generate_reset_token()
+        if save_reset_token(token, str(user.id)):
+            reset_url = f"{FRONTEND_URL}/reset-password?token={token}"
+            subject, text, html = _reset_email_html(reset_url, payload.lang)
+            await send_email_html(user.email, subject, text, html)
+        else:
+            logger.error(f"Failed to store reset token for {payload.email}")
+    else:
+        logger.info(f"Forgot-password requested for unknown/blocked email: {payload.email}")
+    return MessageResponse(message="If the email exists, a reset link has been sent")
+
+
+@router.post("/reset-password", response_model=MessageResponse)
+async def reset_password(
+    payload: ResetPasswordRequest,
+    db: Session = Depends(get_db),
+) -> MessageResponse:
+    """Consume the token and set a new password."""
+    user_id = consume_reset_token(payload.token)
+    if not user_id:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+    try:
+        user_uuid = UUID(user_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid reset token")
+    user = db.get(User, user_uuid)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    user.password = hash_password(payload.new_password)
+    db.commit()
+    logger.info(f"Password reset successful for user {user.id}")
+    return MessageResponse(message="Password updated successfully")

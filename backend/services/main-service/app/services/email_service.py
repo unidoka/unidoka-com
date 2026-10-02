@@ -69,3 +69,43 @@ async def send_email(email: str, subject: str, code: str) -> bool:
     except Exception as e:
         logger.error(f"Email send error: {e}")
         return False
+
+
+async def send_email_html(
+    email: str,
+    subject: str,
+    text_body: str,
+    html_body: str,
+) -> bool:
+    """
+    Generic HTML email sender. Same SMTP config as send_email() but takes
+    caller-supplied subject + body — used by password reset and any future
+    transactional email that isn't the OTP template.
+    """
+    sender_email = os.getenv("MAIL_SENDER")
+    sender_password = os.getenv("MAIL_PASSWORD")
+    mail_server = os.getenv("MAIL_SERVER")
+    mail_port = int(os.getenv("MAIL_PORT", 587))
+
+    if not all([sender_email, sender_password, mail_server, mail_port, email]):
+        logger.error("Email credentials missing")
+        return False
+
+    sender_password = sender_password.strip()
+    msg = EmailMessage()
+    msg["Subject"] = subject
+    msg["From"] = sender_email
+    msg["To"] = email
+    msg.set_content(text_body)
+    msg.add_alternative(html_body, subtype="html")
+
+    try:
+        with smtplib.SMTP(mail_server, mail_port) as server:
+            server.starttls()
+            server.login(sender_email, sender_password)
+            server.send_message(msg)
+        logger.info(f"Email sent successfully to {email}")
+        return True
+    except Exception as e:
+        logger.error(f"Email send error: {e}")
+        return False
