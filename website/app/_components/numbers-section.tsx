@@ -1,10 +1,21 @@
 "use client";
+
 import React, { useState, useEffect, useRef } from "react";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowUpRightIcon } from "@phosphor-icons/react";
+import {
+  ArrowUpRightIcon,
+  GitBranchIcon,
+  StackIcon,
+  CalendarBlankIcon,
+  SparkleIcon,
+} from "@phosphor-icons/react";
 import { useLanguage } from "@/providers/language-provider";
+
+/* Hacker-number animation — kept for a future stats variant. Currently
+   unused, but the section is small enough that removing it would cost
+   more than leaving it. */
 function useHackerNumber(targetValue: string, active: boolean) {
   const [display, setDisplay] = useState(targetValue);
   useEffect(() => {
@@ -13,11 +24,16 @@ function useHackerNumber(targetValue: string, active: boolean) {
     const chars = "0123456789";
     const original = targetValue;
     const interval = setInterval(() => {
-      setDisplay(original.split("").map((char, idx) => {
-        if (char === " " || char === "." || char === "," || char === "—") return char;
-        if (idx < iteration) return original[idx];
-        return chars[Math.floor(Math.random() * chars.length)];
-      }).join(""));
+      setDisplay(
+        original
+          .split("")
+          .map((char, idx) => {
+            if (" .,—".includes(char)) return char;
+            if (idx < iteration) return original[idx];
+            return chars[Math.floor(Math.random() * chars.length)];
+          })
+          .join(""),
+      );
       iteration += 1;
       if (iteration > original.length) {
         clearInterval(interval);
@@ -28,6 +44,7 @@ function useHackerNumber(targetValue: string, active: boolean) {
   }, [targetValue, active]);
   return display;
 }
+
 function useInView<T extends HTMLElement>(options?: IntersectionObserverInit) {
   const ref = useRef<T>(null);
   const [inView, setInView] = useState(false);
@@ -45,15 +62,20 @@ function useInView<T extends HTMLElement>(options?: IntersectionObserverInit) {
   }, [options]);
   return { ref, inView };
 }
-function SpotlightCard({ children, color }: { children: React.ReactNode; color: string }) {
+
+function SpotlightCard({
+  children,
+  color,
+}: {
+  children: React.ReactNode;
+  color: string;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = ref.current?.getBoundingClientRect();
     if (rect) {
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      ref.current?.style.setProperty("--spot-x", `${x}px`);
-      ref.current?.style.setProperty("--spot-y", `${y}px`);
+      ref.current?.style.setProperty("--spot-x", `${e.clientX - rect.left}px`);
+      ref.current?.style.setProperty("--spot-y", `${e.clientY - rect.top}px`);
     }
   };
   return (
@@ -73,56 +95,55 @@ function SpotlightCard({ children, color }: { children: React.ReactNode; color: 
       <div
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-10"
         style={{
-          background: `radial-gradient(circle at center, ${color} 0%, transparent 90%)`
+          background: `radial-gradient(circle at center, ${color} 0%, transparent 90%)`,
         }}
       />
-      <div className="relative z-10 flex flex-col flex-1">
-        {children}
-      </div>
+      <div className="relative z-10 flex flex-col flex-1">{children}</div>
     </div>
   );
 }
-function NumberDisplay({ value, color, active }: { value: string; color: string; active: boolean }) {
-  const display = useHackerNumber(value, active);
-  return (
-    <h3 className="text-(--on-bg-medium) text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-(--on-bg-high) mb-3">
-      {display}
-    </h3>
-  );
-}
+
 export default function NumbersSection() {
   const { t } = useLanguage();
   const { ref: sectionRef, inView } = useInView({ threshold: 0.1 });
-  const stats = [
+
+  // Four cards that describe what Unidoka actually ships. Each has an
+  // accent colour that drives the hover spotlight and the icon tile.
+  const cards = [
     {
-      number: "4.5 года",
-      description: t("home.stats_team_experience"),
-      buttonText: t("home.stats_team_btn"),
-      href: "/team",
-      color: "#3b82f6",
-    },
-    {
-      number: "42",
-      description: t("home.stats_projects_done"),
-      buttonText: t("home.stats_projects_btn"),
+      titleKey: "home.card_solutions_title",
+      descKey: "home.card_solutions_desc",
+      btnKey: "home.card_solutions_btn",
       href: "/projects",
-      color: "#f59e0b",
+      color: "#3b82f6",
+      Icon: StackIcon,
     },
     {
-      number: "18",
-      description: t("home.stats_happy_clients"),
-      buttonText: t("home.stats_clients_btn"),
-      href: "/reviews",
-      color: "#ec4899",
-    },
-    {
-      number: "1 день",
-      description: t("home.stats_spec_prep"),
-      buttonText: t("home.stats_spec_btn"),
-      href: "/order",
+      titleKey: "home.card_opensource_title",
+      descKey: "home.card_opensource_desc",
+      btnKey: "home.card_opensource_btn",
+      href: "/amorfa",
       color: "#a855f7",
+      Icon: GitBranchIcon,
+    },
+    {
+      titleKey: "home.card_community_title",
+      descKey: "home.card_community_desc",
+      btnKey: "home.card_community_btn",
+      href: "/events",
+      color: "#10b981",
+      Icon: SparkleIcon,
+    },
+    {
+      titleKey: "home.card_events_title",
+      descKey: "home.card_events_desc",
+      btnKey: "home.card_events_btn",
+      href: "/events",
+      color: "#f59e0b",
+      Icon: CalendarBlankIcon,
     },
   ];
+
   return (
     <section ref={sectionRef} className="pt-12 sm:pt-18 pb-8 sm:pb-18">
       <Container>
@@ -130,25 +151,33 @@ export default function NumbersSection() {
           {t("home.numbers_title")}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 [&>*:not(:first-child)]:pt-8 [&>*:not(:last-child)]:pb-8">
-          {stats.map((stat, idx) => (
-            <SpotlightCard key={idx} color={stat.color}>
-              <NumberDisplay value={stat.number} color={stat.color} active={inView} />
-              <p className="text-body-2 text-(--on-bg-medium) leading-relaxed mb-8 flex-1">
-                {stat.description}
-              </p>
-              <Button
-                variant="outlined"
-                size="medium"
-                className="w-full mt-auto"
-                asChild
-              >
-                <Link href={stat.href}>
-                  {stat.buttonText}
-                  <ArrowUpRightIcon className="size-4" />
-                </Link>
-              </Button>
-            </SpotlightCard>
-          ))}
+          {cards.map((card, idx) => {
+            const Icon = card.Icon;
+            return (
+              <SpotlightCard key={idx} color={card.color}>
+                <div className="flex size-12 items-center justify-center rounded-2xl bg-(--primary-card) text-(--primary) mb-5">
+                  <Icon className="size-5" weight="bold" />
+                </div>
+                <h3 className="text-heading-2 text-(--on-bg-high) mb-3">
+                  {t(card.titleKey)}
+                </h3>
+                <p className="text-body-3 text-(--on-bg-medium) leading-relaxed mb-8 flex-1">
+                  {t(card.descKey)}
+                </p>
+                <Button
+                  variant="outlined"
+                  size="medium"
+                  className="w-full mt-auto"
+                  asChild
+                >
+                  <Link href={card.href}>
+                    {t(card.btnKey)}
+                    <ArrowUpRightIcon className="size-4" />
+                  </Link>
+                </Button>
+              </SpotlightCard>
+            );
+          })}
         </div>
       </Container>
     </section>

@@ -1,15 +1,24 @@
 import type { Language } from './translations';
+
 export const homeTranslations: Record<Language, Record<string, string>> = {
   en: {
-    'home.numbers_title': 'Sharp Numbers',
-    'home.stats_team_experience': 'average experience among all Rovno.dev members in 2026',
-    'home.stats_projects_done': 'projects completed',
-    'home.stats_happy_clients': 'satisfied clients',
-    'home.stats_spec_prep': 'on average it takes to prepare technical specifications and documentation',
-    'home.stats_team_btn': 'Our team',
-    'home.stats_projects_btn': 'Our projects',
-    'home.stats_clients_btn': 'Client reviews',
-    'home.stats_spec_btn': 'See for yourself',
+    'home.numbers_title': 'What we build',
+    'home.card_solutions_title': 'Solutions',
+    'home.card_solutions_desc':
+      'Products and services that solve real business problems — from design systems to full-stack platforms.',
+    'home.card_solutions_btn': 'See projects',
+    'home.card_opensource_title': 'Open source',
+    'home.card_opensource_desc':
+      'Amorfa — our full-stack AI-optimized framework. Free, documented, self-hostable. Built in the open.',
+    'home.card_opensource_btn': 'Open Amorfa',
+    'home.card_community_title': 'For the community',
+    'home.card_community_desc':
+      'Events calendar, Vershiny, and tooling that help IT specialists actually prepare for what comes next.',
+    'home.card_community_btn': 'Open calendar',
+    'home.card_events_title': 'Events',
+    'home.card_events_desc':
+      'Conferences, hackathons, and forums. We aggregate the calendar so you never miss the one that matters.',
+    'home.card_events_btn': 'See events',
     'home.best_works_title': 'Featured Projects',
     'home.view_all_projects': 'All projects',
     'home.socials_title': 'Our addictive media',
@@ -35,19 +44,27 @@ export const homeTranslations: Record<Language, Record<string, string>> = {
     'home.socials.preview.pro_notes.description': 'Our team shares practical advice.',
     'home.socials.preview.articles.title': 'Why we chose Next.js for our new platform',
     'home.socials.preview.articles.description': 'A deep dive into our tech stack decisions.',
-    'home.socials.preview.dev.title': 'Open source: Amorfa UI',
-    'home.socials.preview.dev.description': 'Explore our design system on GitHub.',
+    'home.socials.preview.dev.title': 'Open source: Amorfa',
+    'home.socials.preview.dev.description': 'Explore our full-stack framework on GitHub.',
   },
   ru: {
-    'home.numbers_title': 'Ровные цифры',
-    'home.stats_team_experience': 'средний опыт всех участников Rovno.dev в 2026 году',
-    'home.stats_projects_done': 'проектов завершено',
-    'home.stats_happy_clients': 'довольных клиентов',
-    'home.stats_spec_prep': 'в среднем занимает подготовка технических заданий и документации',
-    'home.stats_team_btn': 'Наша команда',
-    'home.stats_projects_btn': 'Наши проекты',
-    'home.stats_clients_btn': 'Отзывы клиентов',
-    'home.stats_spec_btn': 'Убедитесь сами',
+    'home.numbers_title': 'Что мы делаем',
+    'home.card_solutions_title': 'Решения',
+    'home.card_solutions_desc':
+      'Продукты и услуги, которые решают реальные задачи бизнеса — от дизайн-систем до full-stack платформ.',
+    'home.card_solutions_btn': 'Смотреть проекты',
+    'home.card_opensource_title': 'Open source',
+    'home.card_opensource_desc':
+      'Amorfa — наш full-stack AI-фреймворк. Бесплатный, документированный, self-hosted. В открытом доступе.',
+    'home.card_opensource_btn': 'Открыть Amorfa',
+    'home.card_community_title': 'Для сообщества',
+    'home.card_community_desc':
+      'Календарь событий, Вершины и инструменты, которые помогают IT-специалистам готовиться к главному.',
+    'home.card_community_btn': 'Открыть календарь',
+    'home.card_events_title': 'События',
+    'home.card_events_desc':
+      'Конференции, хакатоны, форумы. Мы собираем календарь, чтобы вы не пропустили то, что важно.',
+    'home.card_events_btn': 'Смотреть события',
     'home.best_works_title': 'Избранные проекты',
     'home.view_all_projects': 'Все проекты',
     'home.socials_title': 'Наши залипательные медиа',
@@ -73,7 +90,7 @@ export const homeTranslations: Record<Language, Record<string, string>> = {
     'home.socials.preview.pro_notes.description': 'Наша команда делится практическими советами.',
     'home.socials.preview.articles.title': 'Почему мы выбрали Next.js для новой платформы',
     'home.socials.preview.articles.description': 'Разбираем решения по нашему техстеку.',
-    'home.socials.preview.dev.title': 'Open source: Amorfa UI',
-    'home.socials.preview.dev.description': 'Изучите нашу дизайн-систему на GitHub.',
+    'home.socials.preview.dev.title': 'Open source: Amorfa',
+    'home.socials.preview.dev.description': 'Изучите наш full-stack фреймворк на GitHub.',
   },
 };

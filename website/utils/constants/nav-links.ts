@@ -4,20 +4,16 @@ export type NavDialogKind = "request-demo" | "add-event";
 
 export interface NavLinkItem {
   label: string;
-  /** Same-host relative path. Mutually exclusive with `target`. */
   path?: string;
-  /** Cross-subdomain target. "" means the root host. */
   target?: { sub: Subdomain | ""; path: string };
-  /** Opens a dialog instead of navigating. */
   dialog?: NavDialogKind;
 }
 
 export type UrlFor = (sub: Subdomain | "", path: string) => string;
 
 /**
- * Events are no longer a subdomain — the calendar lives at /events on the
- * root host. Only `0leak` remains a real subdomain, so the switch has just
- * two branches: "0leak" and "site" (the default/root).
+ * Events are no longer a subdomain — /events lives on the root host.
+ * Subdomain is now just "site" | "0leak", so the switch has two branches.
  */
 export function buildNavLinks(subdomain: Subdomain): NavLinkItem[] {
   switch (subdomain) {
@@ -31,10 +27,10 @@ export function buildNavLinks(subdomain: Subdomain): NavLinkItem[] {
       ];
     default:
       return [
-        { label: "Вершины", target: { sub: "", path: "/events/vershiny" } },
-        { label: "Календарь событий", target: { sub: "", path: "/events" } },
-        { label: "Amorfa", target: { sub: "", path: "/amorfa" } },
-        { label: "0leak", target: { sub: "0leak", path: "/" } },
+        { label: "Вершины", path: "/events/vershiny" },
+        { label: "Календарь событий", path: "/events" },
+        { label: "Amorfa", path: "/amorfa" },
+        { label: "Документы", path: "/docs" },
       ];
   }
 }
