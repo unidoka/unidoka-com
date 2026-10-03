@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Favicon — LIGHT theme.
+  Served when the user's OS/browser is in light mode.
+  Replace the placeholder <rect> and <circle> with your light-theme
+  artwork. Keep viewBox="0 0 64 64" and the top-level <svg> attributes
+  as-is so Next.js picks it up correctly.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Unidoka">
+  <title>Unidoka</title>
+  <!-- PLACEHOLDER — swap for your real mark -->
+  <rect width="64" height="64" rx="14" fill="#0e1116"/>
+  <circle cx="32" cy="32" r="8" fill="#ffffff"/>
+</svg>
