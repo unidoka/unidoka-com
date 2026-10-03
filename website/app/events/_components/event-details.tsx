@@ -93,7 +93,7 @@ export function EventDetails({ event, onOpenChange }: Props) {
         <div className="flex flex-col gap-2 text-body-4 text-(--on-bg-medium) mt-4">
           <Row icon={<CalendarBlank className="size-4" />}>
             {format(start, "d MMMM yyyy", { locale: ru })}
-            {end && ` — ${format(end, "d MMMM yyyy", { locale: ru })}`}
+            {end && ` - ${format(end, "d MMMM yyyy", { locale: ru })}`}
           </Row>
           {event.location && (
             <Row icon={<MapPin className="size-4" />}>{event.location}</Row>

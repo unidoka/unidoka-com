@@ -42,7 +42,7 @@ export default function SecurityPage() {
     try {
       await deleteAccount();
       toast.success("Аккаунт удалён");
-      try { await logout(); } catch {}
+      try { await logout(); } catch { }
       router.push("/");
     } catch {
       toast.error("Не удалось удалить аккаунт");
@@ -83,7 +83,7 @@ export default function SecurityPage() {
       <Card className="rounded-3xl border border-[color-mix(in_srgb,var(--error),transparent_70%)] bg-[color-mix(in_srgb,var(--error),transparent_96%)] p-6 shadow-sm">
         <h2 className="text-heading-3 mb-2 text-(--error)">Опасная зона</h2>
         <p className="text-body-3 text-(--on-bg-medium) mb-5">
-          Удаление аккаунта — необратимое действие. Все данные будут утеряны без возможности восстановления.
+          Удаление аккаунта - необратимое действие. Все данные будут утеряны без возможности восстановления.
         </p>
         <Button variant="glass-red" size="large" onClick={() => setDeleteOpen(true)}>Удалить аккаунт</Button>
       </Card>

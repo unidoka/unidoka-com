@@ -31,7 +31,7 @@ const SOCIALS = [
   },
 ];
 
-/* ── Legal docs — one entry per document the site actually ships ── */
+/* ── Legal docs - one entry per document the site actually ships ── */
 const LEGAL_DOCS: { key: string; href: string }[] = [
   { key: "footer.legal.privacy", href: "/docs/privacy" },
   { key: "footer.legal.consent", href: "/docs/consent" },
@@ -45,7 +45,7 @@ export default function Footer() {
   const logoHref = useRootHref();
   const rootLink = (path: string) => rootDomainUrl(path);
 
-  // Agency column — depends on language, not on host. Names come from
+  // Agency column - depends on language, not on host. Names come from
   // i18n so RU shows "Юнидока" and EN shows "Unidoka".
   const agencyLinks = [
     { title: t("footer.projects"), href: rootLink(ROUTES.projects.href) },
@@ -138,7 +138,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Legal column — links to /docs/* */}
+          {/* Legal column - links to /docs/* */}
           <div className="flex flex-col gap-4">
             <h4 className="text-body-4 font-bold uppercase tracking-widest text-(--on-bg-low)">
               {t("footer.legal")}

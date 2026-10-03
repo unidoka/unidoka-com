@@ -65,7 +65,7 @@ export function AgendaView({ days, onSelectEvent }: Props) {
                       <CalendarBlank className="size-3.5" />
                       {format(new Date(ev.startsAt), "d MMM", { locale: ru })}
                       {ev.endsAt &&
-                        ` — ${format(new Date(ev.endsAt), "d MMM", { locale: ru })}`}
+                        ` - ${format(new Date(ev.endsAt), "d MMM", { locale: ru })}`}
                     </span>
                     {ev.location && (
                       <span className="inline-flex items-center gap-1">

@@ -42,7 +42,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
         if (!cancelled) setToken(access_token);
         return;
       }
-      // Access token expired — try the refresh token.
+      // Access token expired - try the refresh token.
       let refreshed: string | null = null;
       let refreshStatus: number | null = null;
       try {
@@ -55,7 +55,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
         refreshStatus = response?.response?.status ?? null;
         refreshed = response?.json?.access_token || null;
       } catch {
-        // Network error — backend not reachable. Do NOT clear cookies.
+        // Network error - backend not reachable. Do NOT clear cookies.
         // This is the guard that was missing before: without it, a
         // transient network failure threw up to the effect and crashed
         // the whole app on every page load.
@@ -69,7 +69,7 @@ export default function UserProvider({ children }: { children: ReactNode }) {
         return;
       }
       // Only clear when the refresh endpoint explicitly rejected the token
-      // (401/403). A 5xx or a null response is transient — keep the cookies
+      // (401/403). A 5xx or a null response is transient - keep the cookies
       // and let the next page load retry.
       if (refreshStatus === 401 || refreshStatus === 403) {
         safeCookieStorage.removeItem("access_token");

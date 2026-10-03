@@ -68,7 +68,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Nav column — driven by host, links may be cross-subdomain */}
+          {/* Nav column - driven by host, links may be cross-subdomain */}
           <div>
             <h4 className="text-body-5 font-semibold uppercase tracking-widest text-(--on-bg-low) mb-4">
               {navTitle}
@@ -122,7 +122,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Agency column — name comes from i18n so it localises. */}
+          {/* Agency column - name comes from i18n so it localises. */}
           <div>
             <h4 className="text-body-5 font-semibold uppercase tracking-widest text-(--on-bg-low) mb-4">
               {t("footer.agency")}
@@ -173,7 +173,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Legal / docs column — links into /docs/* */}
+          {/* Legal / docs column - links into /docs/* */}
           <div>
             <h4 className="text-body-5 font-semibold uppercase tracking-widest text-(--on-bg-low) mb-4">
               {t("footer.legal")}

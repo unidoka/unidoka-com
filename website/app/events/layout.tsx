@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import EventsClientLayout from "./client-layout";
 
 export const metadata: Metadata = {
-  title: "События — Unidoka",
+  title: "События - Unidoka",
   description:
     "Конференции, форумы, соревнования, стажировки и практики от Unidoka",
 };

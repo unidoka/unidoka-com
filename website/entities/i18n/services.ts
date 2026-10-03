@@ -1,7 +1,7 @@
 import type { Language } from './translations';
 export const servicesTranslations: Record<Language, Record<string, string>> = {
   en: {
-    'services.avg_label': 'Rovno from:',
+    'services.avg_label': 'Uni from:',
     'services.branding': 'Branding',
     'services.branding_description': "We'll create a brand that will be recognized",
     'services.branding_sub1': 'Logos',

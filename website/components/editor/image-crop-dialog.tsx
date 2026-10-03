@@ -177,14 +177,14 @@ export function ImageCropDialog({
             Overlay: circular preview + corner brackets, both sized to
             the crop area reported by react-easy-crop. Centered with the
             same transform the library uses, so they overlap exactly.
-            `pointer-events-none` — the Cropper must receive all drags.
+            `pointer-events-none` - the Cropper must receive all drags.
           */}
           {cropSize > 0 && (
             <div
               className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
               style={{ width: cropSize, height: cropSize }}
             >
-              {/* Circular avatar preview — only meaningful for 1:1 crops. */}
+              {/* Circular avatar preview - only meaningful for 1:1 crops. */}
               {aspect === 1 && (
                 <div
                   className={cn(
@@ -195,7 +195,7 @@ export function ImageCropDialog({
                 />
               )}
 
-              {/* Corner brackets — four L-shapes at the crop square's corners. */}
+              {/* Corner brackets - four L-shapes at the crop square's corners. */}
               <span className="absolute top-0 left-0 h-8 w-8 rounded-tl-md border-t-[3px] border-l-[3px] border-white" />
               <span className="absolute top-0 right-0 h-8 w-8 rounded-tr-md border-t-[3px] border-r-[3px] border-white" />
               <span className="absolute bottom-0 left-0 h-8 w-8 rounded-bl-md border-b-[3px] border-l-[3px] border-white" />
@@ -223,7 +223,7 @@ export function ImageCropDialog({
           </span>
         </div>
 
-        {/* ── Bottom bar — Telegram layout ────────────────────────── */}
+        {/* ── Bottom bar - Telegram layout ────────────────────────── */}
         <div className="flex items-center justify-between gap-3 px-5 py-4 border-t border-(--outline) bg-(--card)">
           <Button
             type="button"

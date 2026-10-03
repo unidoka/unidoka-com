@@ -9,7 +9,7 @@ export async function uploadImage(
   filename = "image.jpg",
 ): Promise<string> {
   const fd = new FormData();
-  // The third arg is mandatory when passing a Blob — without it the
+  // The third arg is mandatory when passing a Blob - without it the
   // browser sends "blob" as the filename and the backend's extension
   // sniffing falls back to .jpg regardless of actual format.
   fd.append("file", file, filename);

@@ -175,20 +175,20 @@ export default function AdminOrdersPage() {
                   </div>
                 )}
                 <div className="grid grid-cols-2 gap-4">
-                  <div><span className="font-medium text-body-3">О проекте:</span><p className="text-muted-foreground line-clamp-2">{order.about || "—"}</p></div>
-                  <div><span className="font-medium text-body-3">Услуги:</span><p className="text-muted-foreground line-clamp-2">{order.service_types_json?.join(", ") || "—"}</p></div>
+                  <div><span className="font-medium text-body-3">О проекте:</span><p className="text-muted-foreground line-clamp-2">{order.about || "-"}</p></div>
+                  <div><span className="font-medium text-body-3">Услуги:</span><p className="text-muted-foreground line-clamp-2">{order.service_types_json?.join(", ") || "-"}</p></div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-body-5 space-y-1">
-                    <p><span className="font-medium">Срок:</span> {order.estimate_deadline || "—"}</p>
-                    <p><span className="font-medium">Бюджет:</span> {order.estimate_budget || "—"}</p>
-                    <p><span className="font-medium">Нейминг:</span> {order.naming_help || "—"}</p>
+                    <p><span className="font-medium">Срок:</span> {order.estimate_deadline || "-"}</p>
+                    <p><span className="font-medium">Бюджет:</span> {order.estimate_budget || "-"}</p>
+                    <p><span className="font-medium">Нейминг:</span> {order.naming_help || "-"}</p>
                   </div>
                   <div className="text-body-5 space-y-1">
-                    <p><span className="font-medium">Имя:</span> {order.contact?.name || "—"}</p>
-                    <div className="flex gap-1 items-center"><PhoneIcon className="size-3" /><p>{order.contact?.phone || "—"}</p></div>
-                    <div className="flex gap-1 items-center"><EnvelopeIcon className="size-3" /><p>{order.contact?.email || "—"}</p></div>
-                    <div className="flex gap-1 items-center"><TelegramLogotypeMonoIcon className="size-3! [&>path]:fill-(--on-bg-high)" /><p>{order.contact?.telegram_username || "—"}</p></div>
+                    <p><span className="font-medium">Имя:</span> {order.contact?.name || "-"}</p>
+                    <div className="flex gap-1 items-center"><PhoneIcon className="size-3" /><p>{order.contact?.phone || "-"}</p></div>
+                    <div className="flex gap-1 items-center"><EnvelopeIcon className="size-3" /><p>{order.contact?.email || "-"}</p></div>
+                    <div className="flex gap-1 items-center"><TelegramLogotypeMonoIcon className="size-3! [&>path]:fill-(--on-bg-high)" /><p>{order.contact?.telegram_username || "-"}</p></div>
                   </div>
                 </div>
                 {order.files && order.files.length > 0 && (

@@ -5,12 +5,12 @@ export interface ServiceMeta {
   tagline: string;
   description: string;
   iconKey:
-    | "palette"
-    | "code"
-    | "cube"
-    | "film"
-    | "megaphone"
-    | "sparkle";
+  | "palette"
+  | "code"
+  | "cube"
+  | "film"
+  | "megaphone"
+  | "sparkle";
   accent: string;
   leadTime: string;
   startingAt: string;
@@ -22,7 +22,7 @@ export const SERVICES_META: ServiceMeta[] = [
     shortTitle: "Брендинг",
     tagline: "Логотип, фирменный стиль, брендбук",
     description:
-      "Собираем визуальную систему бренда — от логотипа до гайдлайнов, по которым команда сможет работать годами.",
+      "Собираем визуальную систему бренда - от логотипа до гайдлайнов, по которым команда сможет работать годами.",
     iconKey: "palette",
     accent: "#A855F7",
     leadTime: "3–6 недель",
@@ -34,7 +34,7 @@ export const SERVICES_META: ServiceMeta[] = [
     shortTitle: "Разработка",
     tagline: "Сайты, приложения, Mini Apps",
     description:
-      "Проектируем и разрабатываем цифровые продукты на Next.js, FastAPI и PostgreSQL — от лендинга до продукта с биллингом.",
+      "Проектируем и разрабатываем цифровые продукты на Next.js, FastAPI и PostgreSQL - от лендинга до продукта с биллингом.",
     iconKey: "code",
     accent: "#336DFF",
     leadTime: "4–12 недель",
@@ -58,7 +58,7 @@ export const SERVICES_META: ServiceMeta[] = [
     shortTitle: "Видео",
     tagline: "Промо-ролики, монтаж, склейка",
     description:
-      "Полный цикл видеопродакшна: сценарий, съёмка, монтаж, цветокоррекция и звук. Один мастер-ролик — три версии под площадки.",
+      "Полный цикл видеопродакшна: сценарий, съёмка, монтаж, цветокоррекция и звук. Один мастер-ролик - три версии под площадки.",
     iconKey: "film",
     accent: "#EF4444",
     leadTime: "2–6 недель",
@@ -70,7 +70,7 @@ export const SERVICES_META: ServiceMeta[] = [
     shortTitle: "Продвижение",
     tagline: "SEO, таргет, контекст, SMM",
     description:
-      "Настраиваем платный и органический трафик. Работаем с Яндекс Директ, таргетом и SEO — с прозрачной аналитикой.",
+      "Настраиваем платный и органический трафик. Работаем с Яндекс Директ, таргетом и SEO - с прозрачной аналитикой.",
     iconKey: "megaphone",
     accent: "#10B981",
     leadTime: "постоянно",

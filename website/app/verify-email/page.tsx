@@ -214,7 +214,7 @@ function VerifyEmailInner() {
   );
 }
 
-// useSearchParams() requires a Suspense boundary in the App Router —
+// useSearchParams() requires a Suspense boundary in the App Router -
 // without one, a static prerender attempt bails out of the route and
 // Next.js logs a build warning. This mirrors reset-password/page.tsx.
 export default function VerifyEmailPage() {

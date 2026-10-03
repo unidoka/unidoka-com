@@ -74,7 +74,7 @@ export default function ProfilePage() {
     setForm((p) => ({ ...p, [k]: v }));
 
   /**
-   * Avatar is persisted immediately on upload / delete — it is not part
+   * Avatar is persisted immediately on upload / delete - it is not part
    * of the big Save button. Sending `null` explicitly on delete matters:
    * `undefined` is dropped by JSON.stringify, so the PATCH body would be
    * `{}` and the backend would leave the column untouched.
@@ -171,7 +171,7 @@ export default function ProfilePage() {
         {/* ── Identity card ─────────────────────────────────────── */}
         <Card className="rounded-3xl border-(--outline) p-6 md:p-8">
           <div className="flex flex-col sm:flex-row gap-6 md:gap-8 items-start">
-            {/* Avatar preview only — actions live in the info column */}
+            {/* Avatar preview only - actions live in the info column */}
             <div className="shrink-0 mx-auto sm:mx-0">
               <ImageUploadField
                 ref={avatarRef}

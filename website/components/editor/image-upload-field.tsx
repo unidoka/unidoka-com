@@ -31,7 +31,7 @@ interface Props {
   className?: string;
   fallbackText?: string;
   /**
-   * When true, the internal button row is not rendered — the parent is
+   * When true, the internal button row is not rendered - the parent is
    * expected to drive the picker through the ref's `openPicker()` method.
    * Use this when the buttons belong in a different part of the layout.
    */

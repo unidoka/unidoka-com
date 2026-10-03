@@ -47,14 +47,14 @@ function pluralizeEvents(n: number): string {
  *
  * Scrolling is owned by the flex-1 `min-h-0 overflow-y-auto` child in
  * both shells. Without min-h-0, flex-1 items default to `min-height:
- * auto` and refuse to shrink — overflow-y-auto then has nothing to
+ * auto` and refuse to shrink - overflow-y-auto then has nothing to
  * clip against, and the sheet grows past the viewport.
  */
 export function DayEventsDrawer({ day, events, onClose, onSelectEvent }: Props) {
   const isMobile = useIsMobile();
   const title = day ? format(day, "d MMMM yyyy, EEEE", { locale: ru }) : "";
 
-  // Shared card list — same markup for both shells.
+  // Shared card list - same markup for both shells.
   const renderCards = () => {
     if (events.length === 0) return <EmptyDay />;
     return events.map((ev) => (

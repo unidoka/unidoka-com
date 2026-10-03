@@ -19,9 +19,9 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 
 export const metadata = {
-  title: "Amorfa — AI-optimized fullstack framework · Unidoka",
+  title: "Amorfa — AI-оптимизированный fullstack-фреймворк · Юнидока",
   description:
-    "Amorfa — open-source fullstack framework for building apps in hours. FastAPI + Next.js + PostgreSQL, ready to ship, AI-friendly.",
+    "Amorfa — open-source fullstack-фреймворк для сборки приложений за часы. FastAPI + Next.js + PostgreSQL, готов к продакшену, AI-friendly.",
 };
 
 const GITHUB = "https://github.com/unidoka/amorfa";
@@ -29,33 +29,33 @@ const GITHUB = "https://github.com/unidoka/amorfa";
 const FEATURES = [
   {
     icon: LightningIcon,
-    title: "Ship in hours",
-    body: "Batteries-included scaffold with auth, DB, caching, proxy, and CI already wired. Clone, edit .env, run.",
+    title: "Запуск за часы",
+    body: "Скаффолд со всем включённым: авторизация, БД, кэш, прокси и CI уже настроены. Клонируй, отредактируй .env, запускай.",
   },
   {
     icon: RobotIcon,
-    title: "AI-first structure",
-    body: "Every file carries LLM-readable context. Repomix config, .agents/skills, and a documented file tree out of the box.",
+    title: "AI-first структура",
+    body: "Каждый файл несёт LLM-читаемый контекст. Конфиг Repomix, .agents/skills и задокументированное дерево файлов — из коробки.",
   },
   {
     icon: StackIcon,
-    title: "Fullstack, honestly",
-    body: "FastAPI + SQLAlchemy 2.0 + Alembic on the backend. Next.js 16 App Router + Tailwind v4 on the frontend. One repo.",
+    title: "Fullstack, честно",
+    body: "FastAPI + SQLAlchemy 2.0 + Alembic на бэкенде. Next.js 16 App Router + Tailwind v4 на фронтенде. Один репозиторий.",
   },
   {
     icon: PackageIcon,
-    title: "Zero lock-in",
-    body: "No SaaS dashboards required. Docker Compose, Traefik, Postgres, Valkey — all self-hostable on a single VPS.",
+    title: "Ноль lock-in",
+    body: "Никаких SaaS-панелей. Docker Compose, Traefik, Postgres, Valkey — всё самохостится на одном VPS.",
   },
   {
     icon: GitBranchIcon,
-    title: "Multi-service ready",
-    body: "The /services folder is a convention, not a constraint. Split into microservices when you actually need to.",
+    title: "Готов к микросервисам",
+    body: "Папка /services — это конвенция, а не ограничение. Разделяйте на микросервисы, когда это реально нужно.",
   },
   {
     icon: CodeIcon,
-    title: "Documented defaults",
-    body: "Comments explain why, not what. JWT rotation, OTP, rate limiting, and email flows come pre-wired.",
+    title: "Задокументированные дефолты",
+    body: "Комментарии объясняют «почему», а не «что». JWT-ротация, OTP, rate limiting и email-флоу — уже подключены.",
   },
 ];
 
@@ -77,19 +77,19 @@ const STACK = [
 const TREE = `/
 ├── backend/
 │   ├── services/
-│   │   └── main-service/          # FastAPI service
-│   ├── env.example                # .env vars for the backend
+│   │   └── main-service/          # FastAPI-сервис
+│   ├── env.example                # .env-переменные бэкенда
 │   ├── Dockerfile
 │   └── docker-compose.yml
 ├── website/
 │   ├── app/                       # Next.js App Router
-│   ├── components/                # shadcn/ui + custom
+│   ├── components/                # shadcn/ui + кастомные
 │   ├── env.example
 │   ├── Dockerfile
 │   └── docker-compose.yml
-├── .agents/skills/                # LLM context for the agent
-├── env.example                    # shared .env vars
-├── docker-compose.yml             # top-level compose
+├── .agents/skills/                # LLM-контекст для агента
+├── env.example                    # общие .env-переменные
+├── docker-compose.yml             # топовый compose
 └── README.md`;
 
 export default function AmorfaPage() {
@@ -124,7 +124,7 @@ export default function AmorfaPage() {
               <AmorfaLogo className="size-14 md:size-16" />
               <div>
                 <p className="text-body-5 uppercase tracking-[0.32em] text-(--on-bg-low)">
-                  Open source · Unidoka
+                  Open source · Юнидока
                 </p>
                 <p className="text-body-4 text-(--on-bg-medium)">
                   github.com/unidoka/amorfa
@@ -135,13 +135,14 @@ export default function AmorfaPage() {
               Amorfa.
               <br />
               <span className="text-(--primary)">
-                Fullstack in hours, not weeks.
+                Fullstack за часы, а не недели.
               </span>
             </h1>
             <p className="text-body-1 md:text-display-5 text-(--on-bg-medium) leading-relaxed max-w-[720px] mb-8">
-              AI-optimized fullstack framework: FastAPI, Next.js, PostgreSQL,
-              and Valkey — pre-wired, documented, and self-hostable. Clone the
-              repo and start building the thing you actually wanted to build.
+              AI-оптимизированный fullstack-фреймворк: FastAPI, Next.js,
+              PostgreSQL и Valkey — всё подключено, задокументировано и
+              самохостится. Клонируйте репозиторий и начинайте строить то,
+              что действительно хотели.
             </p>
             <div className="flex flex-wrap gap-3">
               <Button size="large" shape="round" asChild>
@@ -250,7 +251,7 @@ export default function AmorfaPage() {
             Стек
           </p>
           <h2 className="text-display-4 md:text-display-3 text-(--on-bg-high) tracking-tight mb-8">
-            Современный, скучный, надёжный.
+            Современный, простой, надёжный.
           </h2>
           <div className="flex flex-wrap gap-2">
             {STACK.map((s) => (

@@ -11,7 +11,7 @@ interface FetchOptions {
   isToast?: boolean;
   headers?: Record<string, string>;
   onLoadingChange?: (loading: boolean) => void;
-  /** Internal — prevents infinite refresh loops. Do not pass. */
+  /** Internal - prevents infinite refresh loops. Do not pass. */
   _retried?: boolean;
 }
 // LLM context: empty by default so requests go to the SAME ORIGIN as the
@@ -21,7 +21,7 @@ interface FetchOptions {
 // origin when the API genuinely lives on a different host.
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 // Auth endpoints: a 401 there is a real credential failure, not a stale
-// session. Skip the refresh-and-retry dance for those — and never toast
+// session. Skip the refresh-and-retry dance for those - and never toast
 // their backend messages, because "User not found or blocked" is session
 // state, not a user-action error.
 const NO_RETRY = /\/login|\/register|\/verify|\/refresh|\/logout/;
@@ -42,7 +42,7 @@ async function refreshAccessToken(): Promise<string | null> {
       return token;
     }
   } catch {
-    /* network failure — fall through, caller sees the original 401 */
+    /* network failure - fall through, caller sees the original 401 */
   }
   return null;
 }
@@ -114,7 +114,7 @@ export async function $fetch(
   try {
     json = await response.json();
   } catch {
-    /* empty body — leave json undefined */
+    /* empty body - leave json undefined */
   }
   const rawMessage = json?.message;
   // Guard: only treat `message` as a toast payload if it's a string.

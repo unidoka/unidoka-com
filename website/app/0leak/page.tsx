@@ -6,7 +6,7 @@ export default function ZeroLeakPage() {
       <section id="how" className="scroll-mt-24">
         <h2 className="text-display-2">Как это работает</h2>
         <p className="text-body-3 text-(--on-bg-medium) mt-4 max-w-2xl">
-          Датчики, ML-модель, оповещение — три шага от сигнала до реакции.
+          Датчики, ML-модель, оповещение - три шага от сигнала до реакции.
         </p>
       </section>
 

@@ -9,7 +9,7 @@ export const headerTranslations: Record<Language, Record<string, string>> = {
     'nav.amorfa': 'Amorfa',
     'nav.events': 'Events',
     'nav.vershiny': 'Vershiny',
-    // ── Legacy keys — kept for footer + backward compat ────────────
+    // ── Legacy keys - kept for footer + backward compat ────────────
     'nav.about': 'About',
     'nav.companies': 'Companies',
     'nav.admin': 'Admin Panel',

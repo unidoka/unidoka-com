@@ -1,151 +1,170 @@
 :root {
+  /* ── Base ─────────────────────────────────────────────────────────── */
   --white: #ffffff;
 
-  --brand-0: #ccdbff;
-  --brand-1: #b2c8ff;
-  --brand-2: #a6bfff;
-  --brand-3: #99b6ff;
-  --brand-4: #8cadff;
-  --brand-5: #80a4ff;
-  --brand-6: #739aff;
-  --brand-7: #6691ff;
-  --brand-8: #4d7fff;
-  --brand-9: #336dff;
+  /* ── Brand — Monochrome (Minimalist-style) ────────────────────────────
+     Strict b/w identity. brand-9 = near-black (light theme primary),
+     brand-0 = barely-there light (light-mode card tints). Dark theme
+     flips --primary to pure white via globals.css overrides, so both
+     themes ship the same identity: black and white, nothing else. */
+  --brand-0: #f2f2f3;
+  --brand-1: #e6e7e8;
+  --brand-2: #cfd3d7;
+  --brand-3: #b3b6ba;
+  --brand-4: #8a8e93;
+  --brand-5: #6b6f75;
+  --brand-6: #4a4e54;
+  --brand-7: #2b2e33;
+  --brand-8: #1c2127;
+  --brand-9: #0e1116;
 
-  --gray-0: #f8f9fa;
-  --gray-1: #f1f3f5;
-  --gray-2: #e9ecef;
-  --gray-3: #dee2e6;
-  --gray-4: #ced4da;
-  --gray-5: #adb5bd;
-  --gray-6: #868e96;
-  --gray-7: #495057;
-  --gray-8: #343a40;
-  --gray-9: #212529;
+  /* ── Gray — neutral cool greys (no blue tint) ─────────────────────── */
+  --gray-0: #fafafa;
+  --gray-1: #f2f2f3;
+  --gray-2: #e6e7e8;
+  --gray-3: #d5d7d9;
+  --gray-4: #b3b6ba;
+  --gray-5: #8a8e93;
+  --gray-6: #6b6f75;
+  --gray-7: #4a4e54;
+  --gray-8: #2b2e33;
+  --gray-9: #0e1116;
 
-  --dark-0: #e2e2e6;
-  --dark-1: #a9a9b2;
-  --dark-2: #72727e;
-  --dark-3: #4d4d58;
-  --dark-4: #373742;
-  --dark-5: #2b2b35;
-  --dark-6: #22222a;
-  --dark-7: #1c1c23;
-  --dark-8: #141419;
-  --dark-9: #0d0d11;
+  /* ── Dark — neutral dark stack ─────────────────────────────────────
+     dark-0 = brightest (text on dark surfaces), dark-9 = card surface.
+     dark-8 = page bg, slightly darker than dark-9 so cards lift. */
+  --dark-0: #fafafa;
+  --dark-1: #d5d7d9;
+  --dark-2: #a4abb1;
+  --dark-3: #6b6f75;
+  --dark-4: #3d444b;
+  --dark-5: #2b2e33;
+  --dark-6: #1f2429;
+  --dark-7: #16191d;
+  --dark-8: #0b0d10;
+  --dark-9: #121417;
 
-  --white: #ffffff;
+  /* ── Red — semantic only ─────────────────────────────────────────── */
+  --red-0: #fdf2f2;
+  --red-1: #fbe0e1;
+  --red-2: #f8c5c6;
+  --red-3: #f3a5a8;
+  --red-4: #e76a6e;
+  --red-5: #de4f53;
+  --red-6: #d7484c;
+  --red-7: #cd4246;
+  --red-8: #ac2f33;
+  --red-9: #8e292c;
 
-  --red-0: #fff5f5;
-  --red-1: #ffe3e3;
-  --red-2: #ffc9c9;
-  --red-3: #ffa8a8;
-  --red-4: #ff8787;
-  --red-5: #ff6b6b;
-  --red-6: #fa5252;
-  --red-7: #f03e3e;
-  --red-8: #e03131;
-  --red-9: #c92a2a;
+  /* ── Green ────────────────────────────────────────────────────────── */
+  --green-0: #effaf4;
+  --green-1: #c9f0d9;
+  --green-2: #9ae1b8;
+  --green-3: #72ca9b;
+  --green-4: #4bb984;
+  --green-5: #32a467;
+  --green-6: #2a9059;
+  --green-7: #238551;
+  --green-8: #1c6e42;
+  --green-9: #165a36;
 
-  --green-0: #ebfbee;
-  --green-1: #d3f9d8;
-  --green-2: #b2f2bb;
-  --green-3: #8ce99a;
-  --green-4: #69db7c;
-  --green-5: #51cf66;
-  --green-6: #40c057;
-  --green-7: #37b24d;
-  --green-8: #2f9e44;
-  --green-9: #2b8a3e;
+  /* ── Yellow ───────────────────────────────────────────────────────── */
+  --yellow-0: #fffbe6;
+  --yellow-1: #fff3b3;
+  --yellow-2: #ffe980;
+  --yellow-3: #ffdc4d;
+  --yellow-4: #ffcc1a;
+  --yellow-5: #e6b800;
+  --yellow-6: #b38f00;
+  --yellow-7: #806600;
+  --yellow-8: #4d3d00;
+  --yellow-9: #1a1400;
 
-  --yellow-0: #ffffb4;
-  --yellow-1: #ffffa0;
-  --yellow-2: #ffff8c;
-  --yellow-3: #ffff78;
-  --yellow-4: #ffff64;
-  --yellow-5: #ffff50;
-  --yellow-6: #ffff3c;
-  --yellow-7: #ffff3c;
-  --yellow-8: #fff028;
-  --yellow-9: #ffdc14;
+  /* ── Indigo ───────────────────────────────────────────────────────── */
+  --indigo-0: #f0effb;
+  --indigo-1: #d9d8f3;
+  --indigo-2: #bebce8;
+  --indigo-3: #a3a1e2;
+  --indigo-4: #8a87e3;
+  --indigo-5: #6c6dd0;
+  --indigo-6: #5652b2;
+  --indigo-7: #3f3d8f;
+  --indigo-8: #2f2a6b;
+  --indigo-9: #1e1c4a;
 
-  --indigo-0: #edf2ff;
-  --indigo-1: #dbe4ff;
-  --indigo-2: #bac8ff;
-  --indigo-3: #91a7ff;
-  --indigo-4: #748ffc;
-  --indigo-5: #5c7cfa;
-  --indigo-6: #4c6ef5;
-  --indigo-7: #4263eb;
-  --indigo-8: #3b5bdb;
-  --indigo-9: #364fc7;
+  /* ── Orange ───────────────────────────────────────────────────────── */
+  --orange-0: #fdf5ea;
+  --orange-1: #fbe5cc;
+  --orange-2: #f8d09e;
+  --orange-3: #fbb360;
+  --orange-4: #f4a84a;
+  --orange-5: #ec9a3c;
+  --orange-6: #d5831f;
+  --orange-7: #c87619;
+  --orange-8: #935610;
+  --orange-9: #77450d;
 
-  --orange-0: #fff4e6;
-  --orange-1: #ffe8cc;
-  --orange-2: #ffd8a8;
-  --orange-3: #ffc078;
-  --orange-4: #ffa94d;
-  --orange-5: #ff922b;
-  --orange-6: #fd7e14;
-  --orange-7: #f76707;
-  --orange-8: #e8590c;
-  --orange-9: #d9480f;
+  /* ── Teal ─────────────────────────────────────────────────────────── */
+  --teal-0: #e9f9f8;
+  --teal-1: #c3eeec;
+  --teal-2: #a3e6e2;
+  --teal-3: #7bdbd6;
+  --teal-4: #3cc7c0;
+  --teal-5: #2ea6a0;
+  --teal-6: #23837c;
+  --teal-7: #1d6f69;
+  --teal-8: #195b56;
+  --teal-9: #0f3835;
 
-  --teal-0: #e6fcf5;
-  --teal-1: #c3fae8;
-  --teal-2: #96f2d7;
-  --teal-3: #63e6be;
-  --teal-4: #38d9a9;
-  --teal-5: #20c997;
-  --teal-6: #12b886;
-  --teal-7: #0ca678;
-  --teal-8: #099268;
-  --teal-9: #087f5b;
+  /* ── Cyan ─────────────────────────────────────────────────────────── */
+  --cyan-0: #e8f5fc;
+  --cyan-1: #c2e6f6;
+  --cyan-2: #9ad6ee;
+  --cyan-3: #6fc3ea;
+  --cyan-4: #2f9bde;
+  --cyan-5: #2981c3;
+  --cyan-6: #1c6299;
+  --cyan-7: #174c77;
+  --cyan-8: #123a5c;
+  --cyan-9: #0d2942;
 
-  --cyan-0: #e3fafc;
-  --cyan-1: #c5f6fa;
-  --cyan-2: #99e9f2;
-  --cyan-3: #66d9e8;
-  --cyan-4: #3bc9db;
-  --cyan-5: #22b8cf;
-  --cyan-6: #15aabf;
-  --cyan-7: #1098ad;
-  --cyan-8: #0c8599;
-  --cyan-9: #0b7285;
+  /* ── Violet ───────────────────────────────────────────────────────── */
+  --violet-0: #f5eefa;
+  --violet-1: #e2d3f2;
+  --violet-2: #cdb3ea;
+  --violet-3: #b197e8;
+  --violet-4: #9067d6;
+  --violet-5: #7a4cc3;
+  --violet-6: #6741a3;
+  --violet-7: #4c2e6e;
+  --violet-8: #392355;
+  --violet-9: #27183c;
 
-  --violet-0: #f3f0ff;
-  --violet-1: #e5dbff;
-  --violet-2: #d0bfff;
-  --violet-3: #b197fc;
-  --violet-4: #9775fa;
-  --violet-5: #845ef7;
-  --violet-6: #7950f2;
-  --violet-7: #7048e8;
-  --violet-8: #6741d9;
-  --violet-9: #5f3dc4;
+  /* ── Grape (alias of violet, kept for compat) ────────────────────── */
+  --grape-0: #f5eefa;
+  --grape-1: #e2d3f2;
+  --grape-2: #cdb3ea;
+  --grape-3: #b197e8;
+  --grape-4: #9067d6;
+  --grape-5: #7a4cc3;
+  --grape-6: #6741a3;
+  --grape-7: #4c2e6e;
+  --grape-8: #392355;
+  --grape-9: #27183c;
 
-  --grape-0: #f8f0fc;
-  --grape-1: #f3d9fa;
-  --grape-2: #eebefa;
-  --grape-3: #e599f7;
-  --grape-4: #da77f2;
-  --grape-5: #cc5de8;
-  --grape-6: #be4bdb;
-  --grape-7: #ae3ec9;
-  --grape-8: #9c36b5;
-  --grape-9: #862e9c;
+  /* ── Pink ─────────────────────────────────────────────────────────── */
+  --pink-0: #fdeef4;
+  --pink-1: #fad4e3;
+  --pink-2: #f5b0cd;
+  --pink-3: #f29cb8;
+  --pink-4: #e55e92;
+  --pink-5: #c73d76;
+  --pink-6: #a72a60;
+  --pink-7: #8a1e4f;
+  --pink-8: #6b173d;
+  --pink-9: #4a0f2a;
 
-  --pink-0: #fff0f6;
-  --pink-1: #ffdeeb;
-  --pink-2: #fcc2d7;
-  --pink-3: #faa2c1;
-  --pink-4: #f783ac;
-  --pink-5: #f06595;
-  --pink-6: #e64980;
-  --pink-7: #d6336c;
-  --pink-8: #c2255c;
-  --pink-9: #a61e4d;
-
+  /* ── Spacing / radius / screens ───────────────────────────────────── */
   --padding-1: 4px;
   --padding-2: 8px;
   --padding-3: 12px;
@@ -156,7 +175,6 @@
   --padding-8: 32px;
   --padding-9: 48px;
   --padding-10: 64px;
-
   --margin-1: 8px;
   --margin-2: 12px;
   --margin-3: 18px;
@@ -167,7 +185,6 @@
   --margin-8: 80px;
   --margin-9: 100px;
   --margin-10: 120px;
-
   --radius-1: 4px;
   --radius-2: 8px;
   --radius-3: 12px;
@@ -179,7 +196,6 @@
   --radius-9: 56px;
   --radius-10: 64px;
   --radius-round: 9999px;
-
   --screen-xs: 390px;
   --screen-sm: 640px;
   --screen-md: 768px;

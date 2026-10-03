@@ -21,24 +21,24 @@ const SITE_URL = process.env.NEXT_PUBLIC_ROOT_DOMAIN
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "unidoka.com — IT-события для своих",
+    default: "unidoka.com - IT-события для своих",
     template: `%s | unidoka.com`,
   },
   description:
-    "unidoka.com — закрытое IT-сообщество. События, статьи, нетворкинг и проекты для разработчиков, дизайнеров и продактов.",
+    "unidoka.com - закрытое IT-сообщество. События, статьи, нетворкинг и проекты для разработчиков, дизайнеров и продактов.",
   openGraph: {
     type: "website",
     locale: "ru_RU",
     url: SITE_URL,
     siteName: "unidoka.com",
-    title: "unidoka.com — IT-события для своих",
+    title: "unidoka.com - IT-события для своих",
     description:
       "Закрытое IT-сообщество. События, статьи, нетворкинг и проекты.",
     images: [`${SITE_URL}/og.jpg`],
   },
   twitter: {
     card: "summary_large_image",
-    title: "unidoka.com — IT-события для своих",
+    title: "unidoka.com - IT-события для своих",
     description: "Закрытое IT-сообщество. События, статьи, нетворкинг.",
     images: [`${SITE_URL}/og.jpg`],
   },

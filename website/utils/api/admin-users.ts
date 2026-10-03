@@ -2,7 +2,7 @@ import { $fetch } from "@/utils/fetch";
 
 /**
  * Root-only. Toggle whether a user is in the recipient list for
- * "new order" notifications. Backend enforces root role — a regular
+ * "new order" notifications. Backend enforces root role - a regular
  * admin gets a 403 here.
  */
 export async function setOrderNotifications(

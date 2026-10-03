@@ -44,7 +44,7 @@ export function RequestDemoDialog({ children }: Props) {
     if (Object.keys(next).length) return;
 
     setPending(true);
-    // TODO: wire to real endpoint — placeholder for now.
+    // TODO: wire to real endpoint - placeholder for now.
     await new Promise((r) => setTimeout(r, 600));
     setPending(false);
     toast.success("Заявка отправлена. Мы свяжемся с вами.");
@@ -66,7 +66,7 @@ export function RequestDemoDialog({ children }: Props) {
           <DialogHeader>
             <DialogTitle>Запросить демо</DialogTitle>
             <DialogDescription>
-              Оставьте контакты — покажем 0leak на ваших данных.
+              Оставьте контакты - покажем 0leak на ваших данных.
             </DialogDescription>
           </DialogHeader>
 

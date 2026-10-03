@@ -38,7 +38,7 @@ import {
 } from "@/utils/api/notifications";
 
 /**
- * User-subscribable topics. Order notifications are NOT listed here —
+ * User-subscribable topics. Order notifications are NOT listed here -
  * recipients are picked by root via the admin panel. Legal / policy /
  * account mail is transactional and not toggleable.
  */
@@ -193,7 +193,7 @@ export default function SettingsPage() {
               <p className="text-body-4 text-(--on-bg-medium) mt-1 leading-relaxed">
                 Выберите, куда и о чём присылать письма. Системные
                 сообщения о политике, безопасности и аккаунте приходят
-                всегда — их отключить нельзя.
+                всегда - их отключить нельзя.
               </p>
             </div>
           </div>
@@ -352,7 +352,7 @@ export default function SettingsPage() {
         <Card className="rounded-3xl border-(--outline) p-6 md:p-8">
           <h2 className="text-heading-3 mb-2">Аккаунт</h2>
           <p className="text-body-3 text-(--on-bg-medium)">
-            Управление профилем, паролем и безопасностью — в
+            Управление профилем, паролем и безопасностью - в
             соответствующих разделах бокового меню.
           </p>
         </Card>
@@ -369,7 +369,7 @@ export default function SettingsPage() {
           <div className="space-y-4 py-2">
             <ol className="text-body-3 text-(--on-bg-medium) space-y-3 list-decimal pl-5">
               <li>
-                Открылся Telegram — нажмите <b>Start</b> в диалоге с ботом.
+                Открылся Telegram - нажмите <b>Start</b> в диалоге с ботом.
               </li>
               <li>
                 Вернитесь на эту страницу и нажмите{" "}

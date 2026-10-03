@@ -18,7 +18,7 @@ export function ConsultDialog({ children }: { children: React.ReactNode }) {
         <DialogHeader>
           <DialogTitle>Оставить заявку</DialogTitle>
           <DialogDescription>
-            Оставьте контакты — свяжемся в течение рабочего дня.
+            Оставьте контакты - свяжемся в течение рабочего дня.
           </DialogDescription>
         </DialogHeader>
         <ConsultForm onSuccess={() => setOpen(false)} />

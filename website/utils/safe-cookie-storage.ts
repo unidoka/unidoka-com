@@ -51,7 +51,7 @@ interface CookieOpts {
 }
 
 function currentOptions(): CookieOpts {
-  // Guard for SSR — cookie ops only ever run client-side anyway.
+  // Guard for SSR - cookie ops only ever run client-side anyway.
   if (typeof window === "undefined") {
     return { path: "/", sameSite: "lax", secure: false };
   }
@@ -108,7 +108,7 @@ export const safeCookieStorage = {
   removeItem: (key: string): void => {
     if (typeof window === "undefined") return;
     try {
-      // Remove using the same options we set with — the browser only
+      // Remove using the same options we set with - the browser only
       // matches a cookie for deletion when domain/path line up exactly.
       Cookies.remove(key, currentOptions() as any);
       // Legacy host-only copy from a previous build, if any.

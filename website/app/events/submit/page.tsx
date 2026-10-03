@@ -170,7 +170,7 @@ export default function SubmitEventPage() {
                 Добавить событие
               </h1>
               <p className="text-body-2 text-(--on-bg-medium) leading-relaxed max-w-2xl">
-                Заполните форму — событие отправится на модерацию. Обычно
+                Заполните форму - событие отправится на модерацию. Обычно
                 проверка занимает до 1 рабочего дня. После одобрения оно
                 появится в календаре.
               </p>
@@ -288,7 +288,7 @@ export default function SubmitEventPage() {
                       Другое
                     </button>
                   </div>
-                  {/* Custom type inputs — one row per "Other" selection */}
+                  {/* Custom type inputs - one row per "Other" selection */}
                   {typeSelections.filter((t) => t.isCustom).map((t) => (
                     <div key={t.id} className="flex items-center gap-2">
                       <Input

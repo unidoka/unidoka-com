@@ -45,7 +45,7 @@ export const formsTranslations: Record<Language, Record<string, string>> = {
     // forgot password
     'forms.forgot.title': 'Forgot password',
     'forms.forgot.subtitle':
-      "Enter your email — we'll send a reset link if the account exists.",
+      "Enter your email - we'll send a reset link if the account exists.",
     'forms.forgot.submit': 'Send reset link',
     'forms.forgot.submitting': 'Sending…',
     'forms.forgot.sent_title': 'Check your inbox',
@@ -70,7 +70,7 @@ export const formsTranslations: Record<Language, Record<string, string>> = {
       'This reset link is invalid or has expired. Request a new one.',
     'forms.reset.request_new': 'Request new link',
 
-    // order — section headings
+    // order - section headings
     'forms.order.service_heading': '1. Service type',
     'forms.order.contacts_heading': '2. Contacts',
     'forms.order.project_heading': '3. About the project',
@@ -166,7 +166,7 @@ export const formsTranslations: Record<Language, Record<string, string>> = {
     'forms.verify.back': 'Назад к регистрации',
     'forms.forgot.title': 'Восстановление пароля',
     'forms.forgot.subtitle':
-      'Введите email — если аккаунт существует, мы отправим ссылку для сброса.',
+      'Введите email - если аккаунт существует, мы отправим ссылку для сброса.',
     'forms.forgot.submit': 'Отправить ссылку',
     'forms.forgot.submitting': 'Отправляем…',
     'forms.forgot.sent_title': 'Проверьте почту',

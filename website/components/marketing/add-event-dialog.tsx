@@ -8,8 +8,8 @@ import { useUser } from "@/entities/user/model/user-context";
  * target page (CheckUser), so an unauthenticated click lands on /login and
  * bounces back to the submission form.
  *
- * Kept as a component so existing call sites — footer, header, anywhere that
- * imports <AddEventDialog> — keep working without edits.
+ * Kept as a component so existing call sites - footer, header, anywhere that
+ * imports <AddEventDialog> - keep working without edits.
  */
 export function AddEventDialog({ children }: { children: React.ReactNode }) {
   const router = useRouter();

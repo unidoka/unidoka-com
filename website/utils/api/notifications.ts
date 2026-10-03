@@ -8,7 +8,7 @@ export interface NotificationPrefs {
   bot_username: string | null;
   /** User-subscribable content categories. */
   topics: string[];
-  /** Always true — legal / policy / account mail cannot be disabled. */
+  /** Always true - legal / policy / account mail cannot be disabled. */
   transactional_email: boolean;
 }
 

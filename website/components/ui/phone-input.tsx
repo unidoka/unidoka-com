@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
  * while typing and emits E.164 (`+7XXXXXXXXXX`) to the parent.
  *
  * The backend validator (`app/api/v1/orders.py`, `phonenumbers` lib)
- * accepts any of the ALLOWED_REGIONS formats — we just need to send
+ * accepts any of the ALLOWED_REGIONS formats - we just need to send
  * clean E.164. Non-RU international inputs are passed through as
  * `+<digits>`, which the same backend validator handles.
  */

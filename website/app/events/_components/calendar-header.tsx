@@ -92,7 +92,7 @@ export function CalendarHeader({
           <MonthYearPicker anchor={anchor} onSelect={onAnchorChange} />
         )}
 
-        {/* Add event — desktop only, on the right */}
+        {/* Add event - desktop only, on the right */}
         <div className="hidden lg:flex items-center gap-2 ml-auto shrink-0">
           <AddEventDialog>
             <Button size="medium" shape="round">
@@ -123,7 +123,7 @@ export function CalendarHeader({
           ))}
         </div>
 
-        {/* Mobile actions — filter + add (both hidden at lg+) */}
+        {/* Mobile actions - filter + add (both hidden at lg+) */}
         <div className="flex items-center gap-2 ml-auto lg:hidden shrink-0">
           <Dialog>
             <DialogTrigger asChild>

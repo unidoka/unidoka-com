@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
       setSent(true);
     } catch (err: any) {
       // Backend always returns 200 for valid input; a thrown error here
-      // means network / 5xx — show a generic message.
+      // means network / 5xx - show a generic message.
       toast.error(err?.message || t("errors.connection"));
     } finally {
       setLoading(false);

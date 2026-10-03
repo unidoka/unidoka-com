@@ -71,7 +71,7 @@ export const SEED_EVENTS: EventItem[] = [
   },
   {
     id: "rm-tvoy-hod-2026",
-    title: "Конкурс «Твой Ход» — третий сезон",
+    title: "Конкурс «Твой Ход» - третий сезон",
     description:
       "Всероссийский конкурс для студентов: индивидуальные и командные треки, гранты и стажировки.",
     source: "rosmolodez",
@@ -106,7 +106,7 @@ export const SEED_EVENTS: EventItem[] = [
   },
   {
     id: "rm-grants-wave-3",
-    title: "Грантовый конкурс Росмолодёжи — III волна",
+    title: "Грантовый конкурс Росмолодёжи - III волна",
     description:
       "Приём заявок на гранты для молодёжных проектов. До 1.5 млн рублей на команду.",
     source: "rosmolodez",

@@ -210,7 +210,6 @@
   }
 }
 
-
 .dark {
   --primary: var(--brand-9);
   --primary-gradient: linear-gradient(135deg, var(--brand-8), var(--brand-9));
@@ -473,6 +472,7 @@
     padding-right: 36px !important;
   }
 }
+
 /* ─── Global scrollbar refinement ─────────────────────────────────
    The OS default scrollbar reads heavy and grey against this site's
    floating, rounded, dark-ish surfaces. This replaces it with a thin,
@@ -483,13 +483,16 @@ html {
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--on-bg-low), transparent 40%) transparent;
 }
+
 html::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
+
 html::-webkit-scrollbar-track {
   background: transparent;
 }
+
 html::-webkit-scrollbar-thumb {
   background: color-mix(in srgb, var(--on-bg-low), transparent 55%);
   border-radius: 9999px;
@@ -497,14 +500,17 @@ html::-webkit-scrollbar-thumb {
   background-clip: padding-box;
   transition: background-color 0.15s;
 }
+
 html::-webkit-scrollbar-thumb:hover {
   background: color-mix(in srgb, var(--on-bg-low), transparent 25%);
   background-clip: padding-box;
   border: 3px solid transparent;
 }
+
 html::-webkit-scrollbar-corner {
   background: transparent;
 }
+
 /* Override the pre-existing .scrollbar-admin rule — the old 10px width
    was specifically what showed up as ugly in the screenshots. Now 8px
    and translucent so it reads as part of the surface, not as chrome. */
@@ -512,24 +518,29 @@ html::-webkit-scrollbar-corner {
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--on-bg-low), transparent 45%) transparent;
 }
+
 .scrollbar-admin::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
+
 .scrollbar-admin::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .scrollbar-admin::-webkit-scrollbar-thumb {
   background: color-mix(in srgb, var(--on-bg-low), transparent 60%);
   border-radius: 9999px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
+
 .scrollbar-admin::-webkit-scrollbar-thumb:hover {
   background: color-mix(in srgb, var(--on-bg-low), transparent 30%);
   background-clip: padding-box;
   border: 2px solid transparent;
 }
+
 /* Radix Dialog / Sheet + vaul Drawer scroll surfaces — same treatment
    so the slim look is consistent when the user opens a modal. */
 [data-slot="dialog-content"],
@@ -538,17 +549,20 @@ html::-webkit-scrollbar-corner {
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--on-bg-low), transparent 45%) transparent;
 }
+
 [data-slot="dialog-content"]::-webkit-scrollbar,
 [data-slot="drawer-content"]::-webkit-scrollbar,
 [data-slot="sheet-content"]::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
+
 [data-slot="dialog-content"]::-webkit-scrollbar-track,
 [data-slot="drawer-content"]::-webkit-scrollbar-track,
 [data-slot="sheet-content"]::-webkit-scrollbar-track {
   background: transparent;
 }
+
 [data-slot="dialog-content"]::-webkit-scrollbar-thumb,
 [data-slot="drawer-content"]::-webkit-scrollbar-thumb,
 [data-slot="sheet-content"]::-webkit-scrollbar-thumb {
@@ -557,6 +571,7 @@ html::-webkit-scrollbar-corner {
   border: 2px solid transparent;
   background-clip: padding-box;
 }
+
 [data-slot="dialog-content"]::-webkit-scrollbar-thumb:hover,
 [data-slot="drawer-content"]::-webkit-scrollbar-thumb:hover,
 [data-slot="sheet-content"]::-webkit-scrollbar-thumb:hover {
@@ -575,13 +590,16 @@ html {
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--on-bg-low), transparent 40%) transparent;
 }
+
 html::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
+
 html::-webkit-scrollbar-track {
   background: transparent;
 }
+
 html::-webkit-scrollbar-thumb {
   background: color-mix(in srgb, var(--on-bg-low), transparent 55%);
   border-radius: 9999px;
@@ -589,14 +607,17 @@ html::-webkit-scrollbar-thumb {
   background-clip: padding-box;
   transition: background-color 0.15s;
 }
+
 html::-webkit-scrollbar-thumb:hover {
   background: color-mix(in srgb, var(--on-bg-low), transparent 25%);
   background-clip: padding-box;
   border: 3px solid transparent;
 }
+
 html::-webkit-scrollbar-corner {
   background: transparent;
 }
+
 /* Override the pre-existing .scrollbar-admin rule — the old 10px width
    was specifically what showed up as ugly in the screenshots. Now 8px
    and translucent so it reads as part of the surface, not as chrome. */
@@ -604,24 +625,29 @@ html::-webkit-scrollbar-corner {
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--on-bg-low), transparent 45%) transparent;
 }
+
 .scrollbar-admin::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
+
 .scrollbar-admin::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .scrollbar-admin::-webkit-scrollbar-thumb {
   background: color-mix(in srgb, var(--on-bg-low), transparent 60%);
   border-radius: 9999px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
+
 .scrollbar-admin::-webkit-scrollbar-thumb:hover {
   background: color-mix(in srgb, var(--on-bg-low), transparent 30%);
   background-clip: padding-box;
   border: 2px solid transparent;
 }
+
 /* Radix Dialog / Sheet + vaul Drawer scroll surfaces — same treatment
    so the slim look is consistent when the user opens a modal. */
 [data-slot="dialog-content"],
@@ -630,17 +656,20 @@ html::-webkit-scrollbar-corner {
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--on-bg-low), transparent 45%) transparent;
 }
+
 [data-slot="dialog-content"]::-webkit-scrollbar,
 [data-slot="drawer-content"]::-webkit-scrollbar,
 [data-slot="sheet-content"]::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
+
 [data-slot="dialog-content"]::-webkit-scrollbar-track,
 [data-slot="drawer-content"]::-webkit-scrollbar-track,
 [data-slot="sheet-content"]::-webkit-scrollbar-track {
   background: transparent;
 }
+
 [data-slot="dialog-content"]::-webkit-scrollbar-thumb,
 [data-slot="drawer-content"]::-webkit-scrollbar-thumb,
 [data-slot="sheet-content"]::-webkit-scrollbar-thumb {
@@ -649,6 +678,7 @@ html::-webkit-scrollbar-corner {
   border: 2px solid transparent;
   background-clip: padding-box;
 }
+
 [data-slot="dialog-content"]::-webkit-scrollbar-thumb:hover,
 [data-slot="drawer-content"]::-webkit-scrollbar-thumb:hover,
 [data-slot="sheet-content"]::-webkit-scrollbar-thumb:hover {
@@ -656,7 +686,6 @@ html::-webkit-scrollbar-corner {
   background-clip: padding-box;
   border: 2px solid transparent;
 }
-
 
 /* Grid lines are drawn at rgba(255,255,255,0.2) by default, which
    disappears on light imagery. Bump contrast for visibility. */
@@ -674,10 +703,12 @@ html::-webkit-scrollbar-corner {
   border: none !important;
   box-shadow: none !important;
 }
+
 .reactEasyCrop_CropAreaGrid::before,
 .reactEasyCrop_CropAreaGrid::after {
   border-color: rgba(255, 255, 255, 0.35) !important;
 }
+
 /* Prevent the circle mask from react-easy-crop's `cropShape="round"`
    ever coming back via a stale hot-reload chunk. We render the
    circular preview ourselves, on top, as a non-masking overlay. */
@@ -685,64 +716,7 @@ html::-webkit-scrollbar-corner {
   border-radius: 0 !important;
 }
 
-/* ─── Palantir admin shell ────────────────────────────────────────────
-   Blueprint's dark palette applied to the /admin routes only. Every
-   token below is a named value from Blueprint's public variables.less
-   (palantir/blueprint, @blueprintjs/core) so the admin panel reads as
-   operational software rather than marketing UI: low radii, thin
-   borders, blue-only accent, muted greys for everything else.
-
-   Scoped to .admin-shell so nothing bleeds into the public site. */
-.admin-shell {
-  /* Surfaces — Blueprint dark neutrals */
-  --pal-black:            #111418;
-  --pal-bg:               #1c2127;
-  --pal-surface:          #252a31;
-  --pal-card:             #2f343c;
-  --pal-card-hover:       #383e47;
-  --pal-border:           #383e47;
-  --pal-border-subtle:    #2f343c;
-
-  /* Text */
-  --pal-text:             #f6f7f9;
-  --pal-text-secondary:   #c5cbd3;
-  --pal-text-muted:       #8f99a8;
-  --pal-text-dim:         #5f6b7c;
-
-  /* Intent — Blueprint core palette */
-  --pal-blue:             #2d72d2;
-  --pal-blue-hover:       #4c90f0;
-  --pal-blue-dim:         #215db0;
-  --pal-blue-soft:        rgba(45, 114, 210, 0.16);
-  --pal-blue-line:        rgba(45, 114, 210, 0.35);
-
-  --pal-green:            #32a467;
-  --pal-green-soft:       rgba(50, 164, 103, 0.16);
-  --pal-orange:           #ec9a3c;
-  --pal-orange-soft:      rgba(236, 154, 60, 0.16);
-  --pal-red:              #cd4246;
-  --pal-red-soft:         rgba(205, 66, 70, 0.16);
-  --pal-turquoise:        #00a396;
-  --pal-turquoise-soft:   rgba(0, 163, 150, 0.16);
-  --pal-indigo:           #7961db;
-  --pal-indigo-soft:      rgba(121, 97, 219, 0.16);
-  --pal-rose:             #db2c6f;
-  --pal-rose-soft:        rgba(219, 44, 111, 0.16);
-
-  /* Radii — Blueprint defaults to 2px; we allow 4px for cards */
-  --pal-r-sm: 2px;
-  --pal-r-md: 4px;
-  --pal-r-lg: 6px;
-
-  /* Motion — Blueprint standard curve */
-  --pal-ease: cubic-bezier(0.4, 1, 0.75, 0.9);
-
-  /* Numeric typography — tabular figures everywhere in the shell */
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum" 1;
-}
-
-/* Cards inside the shell get the Palantir surface treatment regardless
+/* Cards inside the shell get the Minimalist surface treatment regardless
    of what the generic Card component does. */
 .admin-shell [data-slot="card"] {
   background: var(--pal-surface);
@@ -755,4 +729,160 @@ html::-webkit-scrollbar-corner {
 .admin-shell .pal-num {
   font-family: var(--font-mono, ui-monospace, "SF Mono", Menlo, Consolas, monospace);
   font-variant-numeric: tabular-nums;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Minimalist-STYLE MONOCHROME BRAND OVERRIDE
+   ───────────────────────────────────────────────────────────────────
+   The base Blueprint palette (above) leaned blue. This block replaces
+   the semantic tokens with a strict black-and-white identity — no hue
+   on the brand axis. Appended AFTER the original blocks so it wins by
+   cascade order, without touching the rest of the file.
+
+   Light theme:  white canvas, near-black primary, near-black text.
+   Dark theme:   near-black canvas, pure white primary, near-white text.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Brand — near-black on light */
+  --primary: #0e1116;
+  --on-primary: #ffffff;
+  --primary-gradient: linear-gradient(180deg, #1c2127, #0e1116);
+  --primary-card: #f2f2f3;
+  --on-primary-card: #0e1116;
+  --primary-glass: color-mix(in srgb, #0e1116, transparent 96%);
+  --on-primary-glass: #0e1116;
+  --outline-primary-glass: conic-gradient(from 180deg at 50% 50%,
+      #0e1116 0%,
+      color-mix(in srgb, #0e1116, transparent 82%) 25%,
+      #0e1116 50%,
+      color-mix(in srgb, #0e1116, transparent 82%) 75%,
+      #0e1116 100%);
+
+  /* Surfaces */
+  --bg: #ffffff;
+  --card: #fafafa;
+  --bg-disabled: #e6e7e8;
+  --on-bg-disabled: #8a8e93;
+  --outline: #e6e7e8;
+
+  /* Text */
+  --on-bg-high: #0e1116;
+  --on-bg-medium: #4a4e54;
+  --on-bg-low: #8a8e93;
+
+  /* State */
+  --state-hover: color-mix(in srgb, #0e1116, transparent 95%);
+  --state-focus: color-mix(in srgb, #0e1116, transparent 92%);
+}
+
+.dark {
+  /* Brand — pure white on dark */
+  --primary: #ffffff;
+  --on-primary: #0b0d10;
+  --primary-gradient: linear-gradient(180deg, #ffffff, #e6e7e8);
+  --primary-card: #1f2429;
+  --on-primary-card: #fafafa;
+  --primary-glass: color-mix(in srgb, #ffffff, transparent 94%);
+  --on-primary-glass: #ffffff;
+  --outline-primary-glass: conic-gradient(from 180deg at 50% 50%,
+      #ffffff 0%,
+      color-mix(in srgb, #ffffff, transparent 82%) 25%,
+      #ffffff 50%,
+      color-mix(in srgb, #ffffff, transparent 82%) 75%,
+      #ffffff 100%);
+
+  /* Surfaces */
+  --bg: #0b0d10;
+  --card: #121417;
+  --bg-disabled: #16191d;
+  --on-bg-disabled: #6b6f75;
+  --outline: #1f2429;
+
+  /* Text */
+  --on-bg-high: #fafafa;
+  --on-bg-medium: #a4abb1;
+  --on-bg-low: #6b6f75;
+
+  /* State */
+  --state-hover: color-mix(in srgb, #ffffff, transparent 94%);
+  --state-focus: color-mix(in srgb, #ffffff, transparent 90%);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Minimalist-STYLE MONOCHROME BRAND OVERRIDE
+   ───────────────────────────────────────────────────────────────────
+   The base Blueprint palette (above) leaned blue. This block replaces
+   the semantic tokens with a strict black-and-white identity — no hue
+   on the brand axis. Appended AFTER the original blocks so it wins by
+   cascade order, without touching the rest of the file.
+
+   Light theme:  white canvas, near-black primary, near-black text.
+   Dark theme:   near-black canvas, pure white primary, near-white text.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Brand — near-black on light */
+  --primary: #0e1116;
+  --on-primary: #ffffff;
+  --primary-gradient: linear-gradient(180deg, #1c2127, #0e1116);
+  --primary-card: #f2f2f3;
+  --on-primary-card: #0e1116;
+  --primary-glass: color-mix(in srgb, #0e1116, transparent 96%);
+  --on-primary-glass: #0e1116;
+  --outline-primary-glass: conic-gradient(from 180deg at 50% 50%,
+      #0e1116 0%,
+      color-mix(in srgb, #0e1116, transparent 82%) 25%,
+      #0e1116 50%,
+      color-mix(in srgb, #0e1116, transparent 82%) 75%,
+      #0e1116 100%);
+
+  /* Surfaces */
+  --bg: #ffffff;
+  --card: #fafafa;
+  --bg-disabled: #e6e7e8;
+  --on-bg-disabled: #8a8e93;
+  --outline: #e6e7e8;
+
+  /* Text */
+  --on-bg-high: #0e1116;
+  --on-bg-medium: #4a4e54;
+  --on-bg-low: #8a8e93;
+
+  /* State */
+  --state-hover: color-mix(in srgb, #0e1116, transparent 95%);
+  --state-focus: color-mix(in srgb, #0e1116, transparent 92%);
+}
+
+.dark {
+  /* Brand — pure white on dark */
+  --primary: #ffffff;
+  --on-primary: #0b0d10;
+  --primary-gradient: linear-gradient(180deg, #ffffff, #e6e7e8);
+  --primary-card: #1f2429;
+  --on-primary-card: #fafafa;
+  --primary-glass: color-mix(in srgb, #ffffff, transparent 94%);
+  --on-primary-glass: #ffffff;
+  --outline-primary-glass: conic-gradient(from 180deg at 50% 50%,
+      #ffffff 0%,
+      color-mix(in srgb, #ffffff, transparent 82%) 25%,
+      #ffffff 50%,
+      color-mix(in srgb, #ffffff, transparent 82%) 75%,
+      #ffffff 100%);
+
+  /* Surfaces */
+  --bg: #0b0d10;
+  --card: #121417;
+  --bg-disabled: #16191d;
+  --on-bg-disabled: #6b6f75;
+  --outline: #1f2429;
+
+  /* Text */
+  --on-bg-high: #fafafa;
+  --on-bg-medium: #a4abb1;
+  --on-bg-low: #6b6f75;
+
+  /* State */
+  --state-hover: color-mix(in srgb, #ffffff, transparent 94%);
+  --state-focus: color-mix(in srgb, #ffffff, transparent 90%);
 }

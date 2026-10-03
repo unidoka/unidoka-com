@@ -50,7 +50,7 @@ export const errorsTranslations: Record<Language, Record<string, string>> = {
     'errors.email_not_specified': 'Email not specified',
     'errors.code_sent': 'Code sent to your email',
     'errors.code_check_spam': "Didn't get the email? Check your Spam folder",
-    'errors.code_check_spam_hint': 'If the code landed in spam — mark the email as "Not spam".',
+    'errors.code_check_spam_hint': 'If the code landed in spam - mark the email as "Not spam".',
     'errors.code_sent_again': 'Code sent again! Check your email.',
     'errors.code_send_failed': 'Could not send the code',
     'errors.current_password_wrong': 'Current password is incorrect',
@@ -72,7 +72,7 @@ export const errorsTranslations: Record<Language, Record<string, string>> = {
     'Errors.forbiddenLabel': 'ERR / FORBIDDEN',
     'Errors.forbiddenTitle': 'Доступ запрещён',
     'Errors.forbiddenBody':
-      'У вас нет прав для просмотра этой страницы. Если вы считаете, что это ошибка — свяжитесь с нами.',
+      'У вас нет прав для просмотра этой страницы. Если вы считаете, что это ошибка - свяжитесь с нами.',
     'Errors.internalLabel': 'ERR / INTERNAL',
     'Errors.internalTitle': 'Внутренняя ошибка',
     'Errors.internalBody':
@@ -112,7 +112,7 @@ export const errorsTranslations: Record<Language, Record<string, string>> = {
     'errors.email_not_specified': 'Email не указан',
     'errors.code_sent': 'Код отправлен на вашу почту',
     'errors.code_check_spam': 'Не нашли письмо? Проверьте папку «Спам»',
-    'errors.code_check_spam_hint': 'Если код оказался в спаме — отметьте письмо как «Не спам».',
+    'errors.code_check_spam_hint': 'Если код оказался в спаме - отметьте письмо как «Не спам».',
     'errors.code_sent_again': 'Код отправлен повторно! Проверьте почту.',
     'errors.code_send_failed': 'Не удалось отправить код',
     'errors.current_password_wrong': 'Текущий пароль неверен',

@@ -1,4 +1,4 @@
-// Deprecated — kept so older imports don't break. Use organizer-meta.
+// Deprecated - kept so older imports don't break. Use organizer-meta.
 import { colorForOrganizer } from "./organizer-meta";
 import type { EventItem } from "../_data/events";
 

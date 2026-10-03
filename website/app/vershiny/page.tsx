@@ -22,7 +22,7 @@ import {
 } from "@/utils/api/events";
 
 /**
- * Four pillars — community, AI, products, open source.
+ * Four pillars - community, AI, products, open source.
  * `external` items render as <a> with target="_blank"; internal ones
  * render as Next <Link>. Keeps GitHub out of the client router.
  */
@@ -71,7 +71,7 @@ function formatDateRange(start?: string | null, end?: string | null): string {
   if (!end) return fmt(s);
   const e = new Date(end);
   if (isNaN(e.getTime())) return fmt(s);
-  return `${fmt(s)} — ${fmt(e)}`;
+  return `${fmt(s)} - ${fmt(e)}`;
 }
 
 function eventTag(ev: EventListItem): string {
@@ -98,7 +98,7 @@ export default function VershinyPage() {
       {/* ─── HERO ──────────────────────────────────────────────────────
           Video on the right (white container so the animation's own
           white bg blends on both themes), minimal copy on the left.
-          Single primary-tinted radial glow — no more conic orange. */}
+          Single primary-tinted radial glow - no more conic orange. */}
       <section className="relative overflow-hidden border-b border-(--outline)">
         <div
           aria-hidden
@@ -146,7 +146,7 @@ export default function VershinyPage() {
               </div>
             </div>
 
-            {/* Video — white container so the animation renders cleanly
+            {/* Video - white container so the animation renders cleanly
                 in dark mode. Soft primary bloom behind it, no orange. */}
             <div className="relative flex items-center justify-center">
               <div className="relative w-full max-w-[520px]">
@@ -174,7 +174,7 @@ export default function VershinyPage() {
         </Container>
       </section>
 
-      {/* ─── PILLARS — four across, tighter copy ──────────────────── */}
+      {/* ─── PILLARS - four across, tighter copy ──────────────────── */}
       <section className="py-20 md:py-28">
         <Container variant="full-width">
           <div className="max-w-2xl mb-12">
@@ -223,7 +223,7 @@ export default function VershinyPage() {
         </Container>
       </section>
 
-      {/* ─── UPCOMING EVENTS — DB-backed ──────────────────────────── */}
+      {/* ─── UPCOMING EVENTS - DB-backed ──────────────────────────── */}
       <section className="py-20 md:py-28 bg-(--card) border-y border-(--outline)">
         <Container variant="full-width">
           <div className="flex items-end justify-between mb-10 gap-6 flex-wrap">

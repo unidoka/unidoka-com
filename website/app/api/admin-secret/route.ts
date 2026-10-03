@@ -7,13 +7,13 @@ import { cookies } from "next/headers";
  * Failure responses carry a `reason` field so DevTools shows why the
  * call failed without needing to read the server logs:
  *
- *   { secret: null, reason: "no_token" }        — session cookie missing
- *   { secret: null, reason: "no_base_url" }     — server env misconfigured
+ *   { secret: null, reason: "no_token" }        - session cookie missing
+ *   { secret: null, reason: "no_base_url" }     - server env misconfigured
  *   { secret: null, reason: "backend_unreachable", detail: "..." }
  *   { secret: null, reason: "unauthorized",   status: 401 }
  *   { secret: null, reason: "not_admin",      role: "user" }
- *   { secret: null, reason: "no_secret_env" }   — ADMIN_SECRET_URI unset
- *   { secret: "admin-…" }                        — success
+ *   { secret: null, reason: "no_secret_env" }   - ADMIN_SECRET_URI unset
+ *   { secret: "admin-…" }                        - success
  *
  * HTTP status codes still convey the class (401/403/500/502), so the
  * client can branch on either. The extra `reason` field only helps
@@ -28,7 +28,7 @@ export async function GET() {
     );
   }
 
-  // Server-side fetch — needs an absolute URL. The browser never sees
+  // Server-side fetch - needs an absolute URL. The browser never sees
   // this value; it's only used inside the Next.js Node process.
   const baseUrl =
     process.env.API_BASE_URL_INTERNAL ||

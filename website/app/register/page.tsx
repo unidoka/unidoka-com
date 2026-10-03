@@ -87,7 +87,7 @@ export default function RegisterPage() {
         isToast: false,
       });
 
-      // FastAPI validation (422) — unpack field-level errors
+      // FastAPI validation (422) - unpack field-level errors
       if (response?.response?.status === 422) {
         const detail = response?.json?.detail;
         if (Array.isArray(detail)) {

@@ -4,7 +4,7 @@ import { defaultLocale, isLocale, type Locale } from "./config";
 
 // Static imports so the bundler knows about both dictionaries up-front.
 // Dynamic `import(\`../messages/${locale}.json\`)` also works but is fragile
-// under `output: "standalone"` — explicit map is safer.
+// under `output: "standalone"` - explicit map is safer.
 const messageLoaders: Record<Locale, () => Promise<Record<string, unknown>>> = {
   ru: () => import("../messages/ru.json").then((m) => m.default),
   en: () => import("../messages/en.json").then((m) => m.default),

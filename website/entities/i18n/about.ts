@@ -11,7 +11,7 @@ export const aboutTranslations: Record<Language, Record<string, string>> = {
     'about.experts_subtitle': 'Команда специалистов, объединивших свои усилия для создания исключительных решений.',
     'about.experts_title': 'Наши эксперты',
     'about.join_us': 'Присоединиться к нам',
-    'about.subtitle': 'unidoka.com — агентство полного цикла, где дизайн встречается с передовыми технологиями.',
+    'about.subtitle': 'unidoka.com - агентство полного цикла, где дизайн встречается с передовыми технологиями.',
     'about.title': 'Создаём цифровые продукты, которые меняют правила.',
   },
 };

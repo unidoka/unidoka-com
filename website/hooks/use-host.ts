@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 
-// Events are no longer a subdomain — only 0leak and the root remain.
+// Events are no longer a subdomain - only 0leak and the root remain.
 // "site" means "the root domain, no subdomain".
 export type Subdomain = "site" | "0leak";
 

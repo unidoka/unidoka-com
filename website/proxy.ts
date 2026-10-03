@@ -9,7 +9,7 @@ import type { NextRequest } from 'next/server'
  *     admin.*  → rewrite to /admin/<path>
  *     0leak.*  → rewrite to /0leak/<path>
  *
- *   Vanity subdomains (no folder — they exist only as bookmarks / legacy):
+ *   Vanity subdomains (no folder - they exist only as bookmarks / legacy):
  *     amorfa.*   → 302 to <root>/amorfa
  *     events.*   → 302 to <root>/events
  *     vershiny.* → 302 to <root>/vershiny
@@ -20,8 +20,8 @@ import type { NextRequest } from 'next/server'
 
 // Subdomains that map to a single root route and should 302 there.
 const VANITY_SUBDOMAINS: Record<string, string> = {
-  amorfa:   '/amorfa',
-  events:   '/events',
+  amorfa: '/amorfa',
+  events: '/events',
   vershiny: '/vershiny',
 }
 
@@ -39,7 +39,7 @@ export function proxy(request: NextRequest) {
   if (url.pathname.startsWith('/_next')) return NextResponse.next()
   if (url.pathname.startsWith('/api')) return NextResponse.next()
   if (url.pathname.startsWith('/dev-storage')) return NextResponse.next()
-  // Static assets — never rewrite these.
+  // Static assets - never rewrite these.
   if (url.pathname.includes('.')) return NextResponse.next()
 
   // Root domain: normal route serving, no rewriting.

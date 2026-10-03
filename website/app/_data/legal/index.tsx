@@ -16,7 +16,7 @@ export interface LegalDocMeta {
   description: string;
   publishedAt: string;
   publishedAtLabel: string;
-  /** Body with frontmatter stripped — passed to compileMDX. */
+  /** Body with frontmatter stripped - passed to compileMDX. */
   body: string;
   headings: LegalHeading[];
 }

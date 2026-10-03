@@ -8,7 +8,7 @@ export const consultTranslations: Record<Language, Record<string, string>> = {
     'consult.title_highlight': 'your project',
     'consult.title_suffix': '?',
     'consult.body':
-      'Tell us about the task — we will propose a solution, estimate the timeline and cost. No fluff, within one business day.',
+      'Tell us about the task - we will propose a solution, estimate the timeline and cost. No fluff, within one business day.',
     'consult.bullet_1': 'Reply within one business day',
     'consult.bullet_2': 'Free and with no obligation',
     'consult.bullet_3': 'Then you decide',
@@ -51,10 +51,10 @@ export const consultTranslations: Record<Language, Record<string, string>> = {
     'consult.title_highlight': 'ваш проект',
     'consult.title_suffix': '?',
     'consult.body':
-      'Расскажите о задаче — предложим решение, оценим сроки и стоимость. Без воды, в течение рабочего дня.',
+      'Расскажите о задаче - предложим решение, оценим сроки и стоимость. Без воды, в течение рабочего дня.',
     'consult.bullet_1': 'Ответ в течение рабочего дня',
     'consult.bullet_2': 'Бесплатно и без обязательств',
-    'consult.bullet_3': 'Дальше — как решите',
+    'consult.bullet_3': 'Дальше - как решите',
 
     'consult.form.name_label': 'Ваше имя *',
     'consult.form.name_placeholder': 'Иван',

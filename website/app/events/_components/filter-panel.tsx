@@ -190,7 +190,7 @@ export function FilterPanel({ allEvents, value, onChange, compact }: Props) {
             className="h-9 text-body-4"
             aria-label="Минимальный возраст"
           />
-          <span className="text-(--on-bg-low) shrink-0">—</span>
+          <span className="text-(--on-bg-low) shrink-0">-</span>
           <Input
             type="number"
             min={0}

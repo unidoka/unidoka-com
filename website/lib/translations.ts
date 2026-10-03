@@ -105,7 +105,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "Errors.notFoundBody": "Запрошенный адрес не существует или был перемещён. Проверьте URL или вернитесь на главную.",
     "Errors.forbiddenLabel": "ERR / FORBIDDEN",
     "Errors.forbiddenTitle": "Доступ запрещён",
-    "Errors.forbiddenBody": "У вас нет прав для просмотра этой страницы. Если вы считаете, что это ошибка — свяжитесь с нами.",
+    "Errors.forbiddenBody": "У вас нет прав для просмотра этой страницы. Если вы считаете, что это ошибка - свяжитесь с нами.",
     "Errors.internalLabel": "ERR / INTERNAL",
     "Errors.internalTitle": "Внутренняя ошибка",
     "Errors.internalBody": "Что-то пошло не так на нашей стороне. Мы уже знаем об этом. Попробуйте обновить страницу.",

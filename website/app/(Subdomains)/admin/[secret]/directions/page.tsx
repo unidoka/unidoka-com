@@ -59,7 +59,7 @@ export default function AdminDirectionsPage() {
           <div>
             <h1 className="text-display-2 mb-1">Направления</h1>
             <p className="text-body-3 text-(--on-bg-medium)">
-              Вершины — направления и поднаправления (теги событий)
+              Вершины - направления и поднаправления (теги событий)
             </p>
           </div>
           <Button onClick={() => { setEditingDir(null); setDirOpen(true); }}>
