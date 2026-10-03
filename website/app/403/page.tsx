@@ -1,14 +1,16 @@
 "use client";
+
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { CornerTicks } from "@/components/ui/corner-ticks";
 import { useLanguage } from "@/providers/language-provider";
 import { ArrowLeft, ArrowRight, Warning } from "@phosphor-icons/react";
+
 export default function ForbiddenPage() {
   const { t } = useLanguage();
   return (
-    <main className="relative min-h-[80dvh] flex items-center overflow-hidden bg-(--bg)">
+    <main className="relative min-h-[80dvh] flex items-center overflow-hidden bg-(--bg) pt-20 sm:pt-28">
       <div
         aria-hidden
         className="absolute inset-0 pointer-events-none opacity-[0.06]"

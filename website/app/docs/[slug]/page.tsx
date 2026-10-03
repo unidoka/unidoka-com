@@ -114,7 +114,7 @@ export default async function LegalDocPage({
 
   return (
     <main className="min-h-screen bg-(--bg)">
-      <section className="border-b border-(--outline) pt-12 md:pt-20 pb-10">
+      <section className="border-b border-(--outline) pt-20 sm:pt-28 pb-10">
         <Container>
           <div className="max-w-[900px]">
             <Link

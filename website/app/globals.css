@@ -915,3 +915,25 @@ html::-webkit-scrollbar-corner {
 .scrollbar-terminal::-webkit-scrollbar-corner {
   background: transparent;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   PAGE TOP CLEARANCE
+   ───────────────────────────────────────────────────────────────────
+   The header is `fixed top-0` with `mt-2`, sized 55px on mobile and
+   80px on sm+. Total occupied: 63px mobile / 88px desktop. Any page
+   whose content starts at the top of the viewport must clear this
+   with a matching top padding.
+
+   `.page-top` is the canonical value — header height + breathing room:
+     80px mobile  (63px header + 17px)
+     112px sm+    (88px header + 24px)
+   Apply on the outermost wrapper of a top-anchored page section.
+   ═══════════════════════════════════════════════════════════════════ */
+.page-top {
+  padding-top: 5rem; /* 80px */
+}
+@media (min-width: 640px) {
+  .page-top {
+    padding-top: 7rem; /* 112px */
+  }
+}

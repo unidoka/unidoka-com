@@ -1,10 +1,12 @@
 "use client";
+
 import { useEffect } from "react";
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { CornerTicks } from "@/components/ui/corner-ticks";
 import { ArrowLeft, ArrowClockwise } from "@phosphor-icons/react";
+
 /**
  * Route-level error boundary. Next.js requires this to be a Client Component.
  *
@@ -21,12 +23,12 @@ export default function ErrorPage({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Surface to browser console so Sentry / log drains pick it up.
     // eslint-disable-next-line no-console
     console.error("[error.tsx]", error);
   }, [error]);
+
   return (
-    <main className="relative min-h-[80dvh] flex items-center overflow-hidden bg-(--bg)">
+    <main className="relative min-h-[80dvh] flex items-center overflow-hidden bg-(--bg) pt-20 sm:pt-28">
       <div
         aria-hidden
         className="absolute inset-0 pointer-events-none opacity-[0.06]"

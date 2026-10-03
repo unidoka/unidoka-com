@@ -29,7 +29,7 @@ export const metadata = {
 export default function DocsIndexPage() {
   return (
     <main className="min-h-screen bg-(--bg)">
-      <section className="py-16 md:py-24 border-b border-(--outline)">
+      <section className="pt-20 sm:pt-28 pb-16 md:pb-24 border-b border-(--outline)">
         <Container>
           <div className="max-w-[800px] animate-reveal">
             <p className="text-body-5 uppercase tracking-[0.3em] text-(--on-bg-low) mb-3">

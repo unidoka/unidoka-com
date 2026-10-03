@@ -160,7 +160,7 @@ export default function SubmitEventPage() {
   return (
     <CheckUser>
       <main className="min-h-screen bg-(--bg) pb-24">
-        <section className="pt-12 md:pt-20 pb-10 border-b border-(--outline)">
+        <section className="pt-20 sm:pt-28 pb-10 border-b border-(--outline)">
           <Container>
             <div className="max-w-[900px]">
               <p className="text-body-5 uppercase tracking-[0.3em] text-(--on-bg-low) mb-3">

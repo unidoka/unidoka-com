@@ -1,14 +1,16 @@
 "use client";
+
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { CornerTicks } from "@/components/ui/corner-ticks";
 import { useLanguage } from "@/providers/language-provider";
 import { ArrowRight, ArrowLeft } from "@phosphor-icons/react";
+
 export default function NotFound() {
   const { t } = useLanguage();
   return (
-    <main className="relative min-h-[80dvh] flex items-center overflow-hidden bg-(--bg)">
+    <main className="relative min-h-[80dvh] flex items-center overflow-hidden bg-(--bg) pt-20 sm:pt-28">
       {/* Blueprint grid, masked to the left half */}
       <div
         aria-hidden
@@ -23,7 +25,6 @@ export default function NotFound() {
             "radial-gradient(ellipse 60% 70% at 25% 40%, black 35%, transparent 90%)",
         }}
       />
-      {/* Single accent bloom */}
       <div
         aria-hidden
         className="absolute inset-0 pointer-events-none"
