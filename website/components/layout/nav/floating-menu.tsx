@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -30,7 +31,7 @@ export function FloatingMenu({
   triggerIconClassName,
 }: FloatingMenuProps) {
   const [open, setOpen] = useState(false);
-  const { t } = useLanguage();
+  const { t, lang, setLang } = useLanguage();
   const { user, isLoading } = useUser();
   const pathname = usePathname();
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -64,7 +65,6 @@ export function FloatingMenu({
   }, [open]);
 
   const rootLink = (path: string) => rootDomainUrl(path);
-
   const links = [
     { href: rootLink(ROUTES.solutions.href), label: t("nav.solutions") },
     { href: rootLink(ROUTES.api.href),       label: t("nav.api") },
@@ -98,6 +98,7 @@ export function FloatingMenu({
           <ListIcon className={triggerIconClassName} />
         )}
       </Button>
+
       {open && (
         <div
           id="floating-menu-panel"
@@ -131,7 +132,44 @@ export function FloatingMenu({
               );
             })}
           </nav>
-          {/* Auth block only on mobile. On sm+ the header already renders
+
+          {/* ── Language picker — mobile-only ──────────────────────────
+              Rendered as an inline segmented control rather than reusing
+              <LanguageSwitcher/>: that component opens a Radix dropdown
+              which portals to document.body, and the burger's outside-
+              click handler would fire and close the panel the moment the
+              user tapped an option. Inline buttons keep the interaction
+              in one place. */}
+          <div className="mt-1.5 pt-2 border-t border-(--outline) sm:hidden">
+            <div className="flex items-center justify-between px-4 py-2">
+              <span className="text-body-5 uppercase tracking-[0.18em] text-(--on-bg-low)">
+                {t("nav.language")}
+              </span>
+              <div className="flex items-center gap-0.5 rounded-full border border-(--outline) bg-(--bg) p-0.5">
+                {(["ru", "en"] as const).map((l) => {
+                  const isActive = lang === l;
+                  return (
+                    <button
+                      key={l}
+                      type="button"
+                      onClick={() => setLang(l)}
+                      aria-pressed={isActive}
+                      className={cn(
+                        "px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider transition-colors",
+                        isActive
+                          ? "bg-(--on-bg-high) text-(--bg)"
+                          : "text-(--on-bg-medium) hover:text-(--on-bg-high)",
+                      )}
+                    >
+                      {l}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Auth block — mobile only. On sm+ the header already renders
               Sign in / Sign up, so rendering them here duplicates them. */}
           {!isLoading && (
             <div className="mt-1.5 pt-2 border-t border-(--outline) sm:hidden">

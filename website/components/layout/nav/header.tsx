@@ -1,4 +1,5 @@
 "use client";
+
 import { Container } from "@/components/ui/container";
 import Link from "next/link";
 import Logo from "@/components/layout/logo/logo";
@@ -24,25 +25,30 @@ import { useLanguage } from "@/providers/language-provider";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { FloatingMenu } from "./floating-menu";
 import { ConsultDialog } from "@/components/consult-dialog";
+
 export default function Header() {
   const { user, isLoading, logout } = useUser();
   const { t } = useLanguage();
   const logoHref = useRootHref();
   const [isScrolled, setIsScrolled] = useState(false);
+
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
   const { secret: adminSecret } = useAdminSecret();
   const pathname = usePathname();
   const isFullWidth =
     pathname?.startsWith("/admin") || pathname?.startsWith("/app/profile");
+
   const adminHref = adminSecret
     ? crossSubdomainUrl("admin", `/${adminSecret}`)
     : null;
   const profileHref = crossSubdomainUrl("app", "/profile");
   const rootLink = (path: string) => rootDomainUrl(path);
+
   return (
     <header
       className={cn(
@@ -94,7 +100,15 @@ export default function Header() {
               {t("nav.request")}
             </Button>
           </ConsultDialog>
-          <LanguageSwitcher />
+
+          {/* Language switcher — sm+ only. On mobile it lives inside the
+              burger panel (see FloatingMenu). Hiding it here prevents
+              the burger + lang pill from competing for the same 55px
+              header row on narrow phones. */}
+          <div className="hidden sm:block">
+            <LanguageSwitcher />
+          </div>
+
           {isLoading ? (
             <div className="ml-1 flex items-center">
               <Skeleton className="size-8 rounded-full" />
@@ -128,9 +142,12 @@ export default function Header() {
               </Button>
             </div>
           )}
+
+          {/* Burger — visible below lg. On <sm it is the only control;
+              on sm..lg it sits next to the desktop language switcher. */}
           <FloatingMenu
             position="top"
-            triggerClassName="hidden sm:flex lg:hidden"
+            triggerClassName="lg:hidden"
           />
         </div>
       </Container>
