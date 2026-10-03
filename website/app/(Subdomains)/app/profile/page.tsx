@@ -100,6 +100,23 @@ export default function ProfilePage() {
     }
   };
 
+  // Avatar is persisted immediately on upload. Without this, the user
+  // had to remember to hit "Сохранить изменения" — otherwise the preview
+  // showed the new image (local state) but the next GET /me returned the
+  // old value (or null), and the avatar reverted to initials on reload.
+  const onAvatarChange = async (url: string) => {
+    set("avatar_url", url);
+    if (!user) return;
+    try {
+      const updated = await updateProfile({
+        avatar_url: url || undefined,
+      });
+      setUser({ ...user, ...updated });
+    } catch (err: any) {
+      toast.error(err?.message || "Не удалось сохранить аватар");
+    }
+  };
+
   const reset = () => {
     if (!user) return;
     setForm({
@@ -136,7 +153,7 @@ export default function ProfilePage() {
           <div className="flex flex-col sm:flex-row gap-6 md:gap-8 items-start">
             <ImageUploadField
               value={form.avatar_url}
-              onChange={(url) => set("avatar_url", url)}
+              onChange={onAvatarChange}
               variant="avatar"
               aspect={1}
               outputSize={512}

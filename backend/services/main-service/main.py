@@ -77,6 +77,15 @@ if _storage_root.exists():
     app.mount("/order_files", StaticFiles(directory=str(_storage_root)), name="order_files")
 
 
+# Serve uploaded images (avatars, attachments). The directory must exist
+# at boot or StaticFiles throws and silently skips the mount — create it
+# first so /order_files/* is always available.
+_storage_root = Path("/app/storage/order_files")
+_storage_root.mkdir(parents=True, exist_ok=True)
+app.mount("/order_files", StaticFiles(directory=str(_storage_root)), name="order_files")
+
+
 @app.get("/health")
+
 async def health():
     return {"status": "healthy", "service": "main-service"}
