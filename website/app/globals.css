@@ -656,3 +656,31 @@ html::-webkit-scrollbar-corner {
   background-clip: padding-box;
   border: 2px solid transparent;
 }
+
+
+/* Grid lines are drawn at rgba(255,255,255,0.2) by default, which
+   disappears on light imagery. Bump contrast for visibility. */
+.reactEasyCrop_CropAreaGrid::before,
+.reactEasyCrop_CropAreaGrid::after {
+  border-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+/* ─── react-easy-crop tuning for the Telegram-style crop UI ──────────
+   The library draws its own 1px dashed border around the crop area.
+   We replace it with corner brackets rendered by the component, so
+   the default border is hidden here. Grid lines get bumped up in
+   contrast so they read on both dark and light imagery. */
+.reactEasyCrop_CropArea {
+  border: none !important;
+  box-shadow: none !important;
+}
+.reactEasyCrop_CropAreaGrid::before,
+.reactEasyCrop_CropAreaGrid::after {
+  border-color: rgba(255, 255, 255, 0.35) !important;
+}
+/* Prevent the circle mask from react-easy-crop's `cropShape="round"`
+   ever coming back via a stale hot-reload chunk. We render the
+   circular preview ourselves, on top, as a non-masking overlay. */
+.reactEasyCrop_CropAreaRound {
+  border-radius: 0 !important;
+}
