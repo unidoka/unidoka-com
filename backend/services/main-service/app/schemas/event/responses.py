@@ -9,6 +9,8 @@ class OrganizerOut(BaseModel):
     name: str
     slug: str
     color: Optional[str] = None
+    avatar_url: Optional[str] = None
+    owner_id: Optional[str] = None
     description: Optional[str] = None
     is_active: bool
 
@@ -53,7 +55,6 @@ class EventTypeAssignmentOut(BaseModel):
 
 
 class EventAuthorOut(BaseModel):
-    """Public-safe view of the user who submitted an event."""
     id: str
     name: Optional[str] = None
     surname: Optional[str] = None
@@ -70,8 +71,9 @@ class EventListItem(BaseModel):
     cover_video_src: Optional[str] = None
     start_at: Optional[datetime] = None
     end_at: Optional[datetime] = None
+    registration_deadline: Optional[datetime] = None
     location_name: Optional[str] = None
-    city: Optional[str] = None
+    address: Optional[str] = None
     price: Optional[str] = None
     capacity: Optional[int] = None
     registration_url: Optional[str] = None
@@ -81,14 +83,16 @@ class EventListItem(BaseModel):
     created_at: datetime
     updated_at: datetime
     organizer: Optional[OrganizerOut] = None
+    custom_organizer_name: Optional[str] = None
     types: List[EventTypeAssignmentOut] = []
     tags: List[SubdirectionOut] = []
+    other_dates: List[Dict[str, Any]] = []
 
 
 class EventDetail(EventListItem):
     description: Optional[str] = None
-    address: Optional[str] = None
     metro: Optional[str] = None
+    city: Optional[str] = None
     href: Optional[str] = None
     mdx_content: Optional[str] = None
     seo_title: Optional[str] = None

@@ -1,205 +1,94 @@
 :root {
-  /* ── Base ─────────────────────────────────────────────────────────── */
   --white: #ffffff;
 
-  /* ── Brand — Monochrome (Minimalist-style) ────────────────────────────
-     Strict b/w identity. brand-9 = near-black (light theme primary),
-     brand-0 = barely-there light (light-mode card tints). Dark theme
-     flips --primary to pure white via globals.css overrides, so both
-     themes ship the same identity: black and white, nothing else. */
-  --brand-0: #f2f2f3;
-  --brand-1: #e6e7e8;
-  --brand-2: #cfd3d7;
-  --brand-3: #b3b6ba;
-  --brand-4: #8a8e93;
-  --brand-5: #6b6f75;
-  --brand-6: #4a4e54;
-  --brand-7: #2b2e33;
-  --brand-8: #1c2127;
-  --brand-9: #0e1116;
+  /* Brand — strict neutral monochrome */
+  --brand-0: #f5f5f5;
+  --brand-1: #e5e5e5;
+  --brand-2: #d4d4d4;
+  --brand-3: #a3a3a3;
+  --brand-4: #737373;
+  --brand-5: #525252;
+  --brand-6: #404040;
+  --brand-7: #262626;
+  --brand-8: #171717;
+  --brand-9: #0a0a0a;
 
-  /* ── Gray — neutral cool greys (no blue tint) ─────────────────────── */
+  /* Gray — pure neutral, no blue cast */
   --gray-0: #fafafa;
-  --gray-1: #f2f2f3;
-  --gray-2: #e6e7e8;
-  --gray-3: #d5d7d9;
-  --gray-4: #b3b6ba;
-  --gray-5: #8a8e93;
-  --gray-6: #6b6f75;
-  --gray-7: #4a4e54;
-  --gray-8: #2b2e33;
-  --gray-9: #0e1116;
+  --gray-1: #f5f5f5;
+  --gray-2: #e5e5e5;
+  --gray-3: #d4d4d4;
+  --gray-4: #a3a3a3;
+  --gray-5: #737373;
+  --gray-6: #525252;
+  --gray-7: #404040;
+  --gray-8: #262626;
+  --gray-9: #171717;
 
-  /* ── Dark — neutral dark stack ─────────────────────────────────────
-     dark-0 = brightest (text on dark surfaces), dark-9 = card surface.
-     dark-8 = page bg, slightly darker than dark-9 so cards lift. */
+  /* Dark — pure neutral */
   --dark-0: #fafafa;
-  --dark-1: #d5d7d9;
-  --dark-2: #a4abb1;
-  --dark-3: #6b6f75;
-  --dark-4: #3d444b;
-  --dark-5: #2b2e33;
-  --dark-6: #1f2429;
-  --dark-7: #16191d;
-  --dark-8: #0b0d10;
-  --dark-9: #121417;
+  --dark-1: #d4d4d4;
+  --dark-2: #a3a3a3;
+  --dark-3: #737373;
+  --dark-4: #404040;
+  --dark-5: #2a2a2a;
+  --dark-6: #1f1f1f;
+  --dark-7: #171717;
+  --dark-8: #0a0a0a;
+  --dark-9: #121212;
 
-  /* ── Red — semantic only ─────────────────────────────────────────── */
-  --red-0: #fdf2f2;
-  --red-1: #fbe0e1;
-  --red-2: #f8c5c6;
-  --red-3: #f3a5a8;
-  --red-4: #e76a6e;
-  --red-5: #de4f53;
-  --red-6: #d7484c;
-  --red-7: #cd4246;
-  --red-8: #ac2f33;
-  --red-9: #8e292c;
+  /* Semantic colors — only for errors/success/warning */
+  --red-0: #fef2f2; --red-1: #fee2e2; --red-2: #fecaca; --red-3: #fca5a5;
+  --red-4: #f87171; --red-5: #ef4444; --red-6: #dc2626; --red-7: #b91c1c;
+  --red-8: #991b1b; --red-9: #7f1d1d;
 
-  /* ── Green ────────────────────────────────────────────────────────── */
-  --green-0: #effaf4;
-  --green-1: #c9f0d9;
-  --green-2: #9ae1b8;
-  --green-3: #72ca9b;
-  --green-4: #4bb984;
-  --green-5: #32a467;
-  --green-6: #2a9059;
-  --green-7: #238551;
-  --green-8: #1c6e42;
-  --green-9: #165a36;
+  --green-0: #f0fdf4; --green-1: #dcfce7; --green-2: #bbf7d0; --green-3: #86efac;
+  --green-4: #4ade80; --green-5: #22c55e; --green-6: #16a34a; --green-7: #15803d;
+  --green-8: #166534; --green-9: #14532d;
 
-  /* ── Yellow ───────────────────────────────────────────────────────── */
-  --yellow-0: #fffbe6;
-  --yellow-1: #fff3b3;
-  --yellow-2: #ffe980;
-  --yellow-3: #ffdc4d;
-  --yellow-4: #ffcc1a;
-  --yellow-5: #e6b800;
-  --yellow-6: #b38f00;
-  --yellow-7: #806600;
-  --yellow-8: #4d3d00;
-  --yellow-9: #1a1400;
+  --yellow-0: #fefce8; --yellow-1: #fef9c3; --yellow-2: #fef08a; --yellow-3: #fde047;
+  --yellow-4: #facc15; --yellow-5: #eab308; --yellow-6: #ca8a04; --yellow-7: #a16207;
+  --yellow-8: #854d0e; --yellow-9: #713f12;
 
-  /* ── Indigo ───────────────────────────────────────────────────────── */
-  --indigo-0: #f0effb;
-  --indigo-1: #d9d8f3;
-  --indigo-2: #bebce8;
-  --indigo-3: #a3a1e2;
-  --indigo-4: #8a87e3;
-  --indigo-5: #6c6dd0;
-  --indigo-6: #5652b2;
-  --indigo-7: #3f3d8f;
-  --indigo-8: #2f2a6b;
-  --indigo-9: #1e1c4a;
+  --orange-0: #fff7ed; --orange-1: #ffedd5; --orange-2: #fed7aa; --orange-3: #fdba74;
+  --orange-4: #fb923c; --orange-5: #f97316; --orange-6: #ea580c; --orange-7: #c2410c;
+  --orange-8: #9a3412; --orange-9: #7c2d12;
 
-  /* ── Orange ───────────────────────────────────────────────────────── */
-  --orange-0: #fdf5ea;
-  --orange-1: #fbe5cc;
-  --orange-2: #f8d09e;
-  --orange-3: #fbb360;
-  --orange-4: #f4a84a;
-  --orange-5: #ec9a3c;
-  --orange-6: #d5831f;
-  --orange-7: #c87619;
-  --orange-8: #935610;
-  --orange-9: #77450d;
+  /* Stubs kept so existing tokens resolve — unused on the brand axis now */
+  --indigo-0: #eef2ff; --indigo-1: #e0e7ff; --indigo-2: #c7d2fe; --indigo-3: #a5b4fc;
+  --indigo-4: #818cf8; --indigo-5: #6366f1; --indigo-6: #4f46e5; --indigo-7: #4338ca;
+  --indigo-8: #3730a3; --indigo-9: #312e81;
 
-  /* ── Teal ─────────────────────────────────────────────────────────── */
-  --teal-0: #e9f9f8;
-  --teal-1: #c3eeec;
-  --teal-2: #a3e6e2;
-  --teal-3: #7bdbd6;
-  --teal-4: #3cc7c0;
-  --teal-5: #2ea6a0;
-  --teal-6: #23837c;
-  --teal-7: #1d6f69;
-  --teal-8: #195b56;
-  --teal-9: #0f3835;
+  --teal-0: #f0fdfa; --teal-1: #ccfbf1; --teal-2: #99f6e4; --teal-3: #5eead4;
+  --teal-4: #2dd4bf; --teal-5: #14b8a6; --teal-6: #0d9488; --teal-7: #0f766e;
+  --teal-8: #115e59; --teal-9: #134e4a;
 
-  /* ── Cyan ─────────────────────────────────────────────────────────── */
-  --cyan-0: #e8f5fc;
-  --cyan-1: #c2e6f6;
-  --cyan-2: #9ad6ee;
-  --cyan-3: #6fc3ea;
-  --cyan-4: #2f9bde;
-  --cyan-5: #2981c3;
-  --cyan-6: #1c6299;
-  --cyan-7: #174c77;
-  --cyan-8: #123a5c;
-  --cyan-9: #0d2942;
+  --cyan-0: #ecfeff; --cyan-1: #cffafe; --cyan-2: #a5f3fc; --cyan-3: #67e8f9;
+  --cyan-4: #22d3ee; --cyan-5: #06b6d4; --cyan-6: #0891b2; --cyan-7: #0e7490;
+  --cyan-8: #155e75; --cyan-9: #164e63;
 
-  /* ── Violet ───────────────────────────────────────────────────────── */
-  --violet-0: #f5eefa;
-  --violet-1: #e2d3f2;
-  --violet-2: #cdb3ea;
-  --violet-3: #b197e8;
-  --violet-4: #9067d6;
-  --violet-5: #7a4cc3;
-  --violet-6: #6741a3;
-  --violet-7: #4c2e6e;
-  --violet-8: #392355;
-  --violet-9: #27183c;
+  --violet-0: #f5f3ff; --violet-1: #ede9fe; --violet-2: #ddd6fe; --violet-3: #c4b5fd;
+  --violet-4: #a78bfa; --violet-5: #8b5cf6; --violet-6: #7c3aed; --violet-7: #6d28d9;
+  --violet-8: #5b21b6; --violet-9: #4c1d95;
 
-  /* ── Grape (alias of violet, kept for compat) ────────────────────── */
-  --grape-0: #f5eefa;
-  --grape-1: #e2d3f2;
-  --grape-2: #cdb3ea;
-  --grape-3: #b197e8;
-  --grape-4: #9067d6;
-  --grape-5: #7a4cc3;
-  --grape-6: #6741a3;
-  --grape-7: #4c2e6e;
-  --grape-8: #392355;
-  --grape-9: #27183c;
+  --grape-0: #faf5ff; --grape-1: #f3e8ff; --grape-2: #e9d5ff; --grape-3: #d8b4fe;
+  --grape-4: #c084fc; --grape-5: #a855f7; --grape-6: #9333ea; --grape-7: #7e22ce;
+  --grape-8: #6b21a8; --grape-9: #581c87;
 
-  /* ── Pink ─────────────────────────────────────────────────────────── */
-  --pink-0: #fdeef4;
-  --pink-1: #fad4e3;
-  --pink-2: #f5b0cd;
-  --pink-3: #f29cb8;
-  --pink-4: #e55e92;
-  --pink-5: #c73d76;
-  --pink-6: #a72a60;
-  --pink-7: #8a1e4f;
-  --pink-8: #6b173d;
-  --pink-9: #4a0f2a;
+  --pink-0: #fdf2f8; --pink-1: #fce7f3; --pink-2: #fbcfe8; --pink-3: #f9a8d4;
+  --pink-4: #f472b6; --pink-5: #ec4899; --pink-6: #db2777; --pink-7: #be185d;
+  --pink-8: #9d174d; --pink-9: #831843;
 
-  /* ── Spacing / radius / screens ───────────────────────────────────── */
-  --padding-1: 4px;
-  --padding-2: 8px;
-  --padding-3: 12px;
-  --padding-4: 16px;
-  --padding-5: 18px;
-  --padding-6: 20px;
-  --padding-7: 24px;
-  --padding-8: 32px;
-  --padding-9: 48px;
-  --padding-10: 64px;
-  --margin-1: 8px;
-  --margin-2: 12px;
-  --margin-3: 18px;
-  --margin-4: 24px;
-  --margin-5: 36px;
-  --margin-6: 50px;
-  --margin-7: 60px;
-  --margin-8: 80px;
-  --margin-9: 100px;
-  --margin-10: 120px;
-  --radius-1: 4px;
-  --radius-2: 8px;
-  --radius-3: 12px;
-  --radius-4: 16px;
-  --radius-5: 20px;
-  --radius-6: 24px;
-  --radius-7: 36px;
-  --radius-8: 48px;
-  --radius-9: 56px;
-  --radius-10: 64px;
-  --radius-round: 9999px;
-  --screen-xs: 390px;
-  --screen-sm: 640px;
-  --screen-md: 768px;
-  --screen-lg: 1024px;
-  --screen-xl: 1280px;
-  --screen-2xl: 1536px;
+  /* Spacing / radius / screens — unchanged */
+  --padding-1: 4px; --padding-2: 8px; --padding-3: 12px; --padding-4: 16px;
+  --padding-5: 18px; --padding-6: 20px; --padding-7: 24px; --padding-8: 32px;
+  --padding-9: 48px; --padding-10: 64px;
+  --margin-1: 8px; --margin-2: 12px; --margin-3: 18px; --margin-4: 24px;
+  --margin-5: 36px; --margin-6: 50px; --margin-7: 60px; --margin-8: 80px;
+  --margin-9: 100px; --margin-10: 120px;
+  --radius-1: 4px; --radius-2: 8px; --radius-3: 12px; --radius-4: 16px;
+  --radius-5: 20px; --radius-6: 24px; --radius-7: 36px; --radius-8: 48px;
+  --radius-9: 56px; --radius-10: 64px; --radius-round: 9999px;
+  --screen-xs: 390px; --screen-sm: 640px; --screen-md: 768px;
+  --screen-lg: 1024px; --screen-xl: 1280px; --screen-2xl: 1536px;
 }

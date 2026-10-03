@@ -50,7 +50,10 @@ export interface EventListItem {
   cover_video_src?: string | null;
   start_at?: string | null;
   end_at?: string | null;
+  registration_deadline?: string | null;
+  other_dates?: Array<{ label: string; at: string }>;
   location_name?: string | null;
+  address?: string | null;
   city?: string | null;
   price?: string | null;
   capacity?: number | null;
@@ -85,16 +88,23 @@ export interface EventTypeInput {
   custom_name?: string | null;
 }
 
+export interface OtherDateInput {
+  label: string;
+  at: string;
+}
+
 export interface EventPayload {
   title: string;
+  start_at: string;  // required
   slug?: string;
   short_description?: string | null;
   description?: string | null;
   cover_image_src?: string | null;
   cover_video_src?: string | null;
   href?: string | null;
-  start_at?: string | null;
   end_at?: string | null;
+  registration_deadline?: string | null;
+  other_dates?: OtherDateInput[];
   location_name?: string | null;
   address?: string | null;
   metro?: string | null;

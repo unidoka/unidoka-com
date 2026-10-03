@@ -937,3 +937,133 @@ html::-webkit-scrollbar-corner {
     padding-top: 7rem; /* 112px */
   }
 }
+
+
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   MONOCHROME BRAND OVERRIDE — neutral greys, crisp borders
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root { color-scheme: light; }
+.dark { color-scheme: dark; }
+
+:root {
+  --primary: #0a0a0a;
+  --on-primary: #ffffff;
+  --primary-gradient: linear-gradient(180deg, #171717, #0a0a0a);
+  --primary-card: #f5f5f5;
+  --on-primary-card: #0a0a0a;
+  --primary-glass: color-mix(in srgb, #0a0a0a, transparent 96%);
+  --outline-primary-glass: conic-gradient(from 180deg at 50% 50%,
+    #0a0a0a 0%, color-mix(in srgb, #0a0a0a, transparent 82%) 25%,
+    #0a0a0a 50%, color-mix(in srgb, #0a0a0a, transparent 82%) 75%, #0a0a0a 100%);
+
+  --bg: #ffffff;
+  --card: #ffffff;
+  --bg-disabled: #f5f5f5;
+  --on-bg-disabled: #a3a3a3;
+
+  --outline: #e5e5e5;          /* card edges */
+  --outline-strong: #d4d4d4;    /* input edges */
+
+  --on-bg-high: #0a0a0a;
+  --on-bg-medium: #525252;
+  --on-bg-low: #737373;
+
+  --state-hover: color-mix(in srgb, #0a0a0a, transparent 95%);
+  --state-focus: color-mix(in srgb, #0a0a0a, transparent 92%);
+}
+
+.dark {
+  --primary: #ffffff;
+  --on-primary: #0a0a0a;
+  --primary-gradient: linear-gradient(180deg, #ffffff, #e5e5e5);
+  --primary-card: #1f1f1f;
+  --on-primary-card: #fafafa;
+  --primary-glass: color-mix(in srgb, #ffffff, transparent 94%);
+  --outline-primary-glass: conic-gradient(from 180deg at 50% 50%,
+    #ffffff 0%, color-mix(in srgb, #ffffff, transparent 82%) 25%,
+    #ffffff 50%, color-mix(in srgb, #ffffff, transparent 82%) 75%, #ffffff 100%);
+
+  --bg: #0a0a0a;
+  --card: #0f0f0f;
+  --bg-disabled: #1a1a1a;
+  --on-bg-disabled: #737373;
+
+  --outline: #262626;           /* card edges — clearly visible */
+  --outline-strong: #3d3d3d;     /* input edges — even more visible */
+
+  --on-bg-high: #fafafa;
+  --on-bg-medium: #a3a3a3;
+  --on-bg-low: #737373;
+
+  --state-hover: color-mix(in srgb, #ffffff, transparent 94%);
+  --state-focus: color-mix(in srgb, #ffffff, transparent 90%);
+}
+
+/* ── Inputs: solid, recessed, crisp outline ──────────────────────── */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+textarea,
+select {
+  background-color: var(--bg);
+  border-color: var(--outline-strong);
+  color: var(--on-bg-high);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):hover,
+textarea:hover,
+select:hover {
+  border-color: var(--on-bg-low);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus,
+select:focus-visible {
+  border-color: var(--on-bg-high);
+  outline: none;
+}
+
+/* Placeholder legibility — default muted was too faint on the darker
+   input surface. Bump it up so empty fields read as empty, not broken. */
+input::placeholder,
+textarea::placeholder {
+  color: var(--on-bg-low);
+  opacity: 1;
+}
+
+/* ── Native date / time picker icon ─────────────────────────────────
+   The indicator glyph is rendered by the browser's native UI layer.
+   `color-scheme: dark` on the input itself (not just on <html>) is
+   what makes Chromium paint the glyph in white. The filter is a
+   fallback for browsers that don't honor color-scheme on form
+   controls — it inverts a dark glyph to light. */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  color-scheme: light;
+}
+.dark input[type="date"],
+.dark input[type="time"],
+.dark input[type="datetime-local"] {
+  color-scheme: dark;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 1;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+/* Fallback: if color-scheme is ignored, invert the glyph. */
+.dark input[type="date"]::-webkit-calendar-picker-indicator,
+.dark input[type="time"]::-webkit-calendar-picker-indicator,
+.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) brightness(0.85);
+}

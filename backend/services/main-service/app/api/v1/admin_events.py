@@ -107,6 +107,7 @@ async def admin_create_event(
         capacity=payload.capacity,
         registration_url=payload.registration_url,
         organizer_id=org_id,
+        custom_organizer_name=payload.custom_organizer_name,
         custom_page=payload.custom_page,
         is_featured=payload.is_featured,
         seo_title=payload.seo_title,
@@ -135,9 +136,10 @@ async def admin_update_event(
     for field in (
         "title", "short_description", "description",
         "cover_image_src", "cover_video_src", "href",
-        "start_at", "end_at",
+        "start_at", "end_at", "registration_deadline", "other_dates",
         "location_name", "address", "metro", "city",
         "price", "capacity", "registration_url",
+        "custom_organizer_name",
         "custom_page", "is_featured", "seo_title",
         "meta_description", "mdx_content",
     ):
@@ -222,10 +224,18 @@ async def admin_create_organizer(
     _: User = Depends(require_admin),
 ):
     slug = _slug_from(payload.slug or payload.name)
+    owner_uuid = None
+    if payload.owner_id:
+        try:
+            owner_uuid = uuid.UUID(payload.owner_id)
+        except ValueError:
+            raise HTTPException(400, "Invalid owner_id")
     o = Organizer(
         name=payload.name,
         slug=slug,
         color=payload.color,
+        avatar_url=payload.avatar_url,
+        owner_id=owner_uuid,
         description=payload.description,
         is_active=payload.is_active,
     )
@@ -255,6 +265,15 @@ async def admin_update_organizer(
     if payload.slug:
         o.slug = _slug_from(payload.slug)
     o.color = payload.color
+    o.avatar_url = payload.avatar_url
+    if payload.owner_id is not None:
+        if payload.owner_id == "":
+            o.owner_id = None
+        else:
+            try:
+                o.owner_id = uuid.UUID(payload.owner_id)
+            except ValueError:
+                raise HTTPException(400, "Invalid owner_id")
     o.description = payload.description
     o.is_active = payload.is_active
     db.commit()

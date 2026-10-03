@@ -3,7 +3,7 @@ from datetime import datetime
 import enum
 from sqlalchemy import (
     Column, String, Boolean, DateTime, Enum, Text, Integer,
-    ForeignKey, Table,
+    ForeignKey, Table, JSON,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -26,7 +26,9 @@ class Organizer(Base):
     name = Column(String, nullable=False, unique=True, index=True)
     slug = Column(String, nullable=False, unique=True, index=True)
     color = Column(String, nullable=True)     # hex accent used across the UI
+    avatar_url = Column(String, nullable=True)
     description = Column(Text, nullable=True)
+    owner_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -124,6 +126,8 @@ class Event(Base):
 
     start_at = Column(DateTime, nullable=True)
     end_at = Column(DateTime, nullable=True)
+    registration_deadline = Column(DateTime, nullable=True)
+    other_dates = Column(JSON, default=list, nullable=False, server_default="'[]'")
 
     location_name = Column(String, nullable=True)
     address = Column(String, nullable=True)
@@ -138,6 +142,7 @@ class Event(Base):
         ForeignKey("organizers.id"),
         nullable=True,
     )
+    custom_organizer_name = Column(String, nullable=True)
 
     # ── Moderation ─────────────────────────────────────────────────────
     status = Column(

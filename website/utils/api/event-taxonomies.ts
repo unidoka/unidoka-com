@@ -5,6 +5,8 @@ export interface Organizer {
   name: string;
   slug: string;
   color: string | null;
+  avatar_url: string | null;
+  owner_id: string | null;
   description: string | null;
   is_active: boolean;
 }

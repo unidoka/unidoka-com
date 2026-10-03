@@ -85,6 +85,103 @@ _storage_root.mkdir(parents=True, exist_ok=True)
 app.mount("/order_files", StaticFiles(directory=str(_storage_root)), name="order_files")
 
 
+
+
+# ── Startup: seed the events taxonomy if empty ─────────────────────
+# The events editor needs types + directions to render its pill
+# pickers. On a fresh DB those tables are empty, so the form shows
+# "Типы не загружены". This seeds a sensible default set once, on
+# boot, so a fresh deploy is immediately usable. Idempotent: skipped
+# if any row already exists in event_types.
+def _seed_taxonomy_if_empty() -> None:
+    try:
+        from database.database import SessionLocal
+        from app.models.event import (
+            Organizer, EventType, EventDirection, EventSubdirection,
+        )
+        import re
+
+        def slugify(t: str) -> str:
+            t = t.lower().strip()
+            t = re.sub(r"[^\w\s-]", "", t, flags=re.UNICODE)
+            t = re.sub(r"[\s_]+", "-", t)
+            return re.sub(r"-+", "-", t).strip("-")
+
+        db = SessionLocal()
+        try:
+            if db.query(EventType).count() == 0:
+                TYPES = [
+                    ("IT", "cpu", "#3b82f6"),
+                    ("Бизнес", "briefcase", "#f59e0b"),
+                    ("Дизайн", "palette", "#ec4899"),
+                    ("Досуг", "coffee", "#10b981"),
+                    ("Искусство", "paint-brush", "#a855f7"),
+                    ("Наука", "flask", "#06b6d4"),
+                    ("Медиа", "megaphone", "#ef4444"),
+                    ("Спорт", "barbell", "#84cc16"),
+                ]
+                for i, (name, icon, color) in enumerate(TYPES):
+                    db.add(EventType(
+                        name=name, slug=slugify(name),
+                        icon=icon, color=color, sort_order=i,
+                    ))
+                db.commit()
+                logger.info("Seeded %d event types", len(TYPES))
+
+            if db.query(EventDirection).count() == 0:
+                DIRECTIONS = [
+                    ("Software-разработка", "💻", [
+                        "Веб-разработка", "DevOps", "ML",
+                        "Flutter: desktop и мобильная разработка",
+                        "Инфобез", "1С", "UX/UI-дизайн",
+                    ]),
+                    ("Дизайн", "✍", [
+                        "3D", "Видеопроизводство", "Графический дизайн",
+                    ]),
+                    ("Бизнес", "💼", [
+                        "Бизнес-аналитика и экономика", "SMM",
+                        "Публичные выступления",
+                    ]),
+                    ("Hardware-разработка", "🤖", [
+                        "Разработка микроконтроллеров", "Дроны", "3D-печать",
+                    ]),
+                ]
+                for di, (dname, emoji, subs) in enumerate(DIRECTIONS):
+                    d = EventDirection(
+                        name=dname, slug=slugify(dname),
+                        emoji=emoji, sort_order=di,
+                    )
+                    db.add(d)
+                    db.flush()
+                    for si, sname in enumerate(subs):
+                        db.add(EventSubdirection(
+                            direction_id=d.id, name=sname,
+                            slug=slugify(sname), sort_order=si,
+                        ))
+                db.commit()
+                logger.info("Seeded %d directions with subdirections", len(DIRECTIONS))
+
+            if db.query(Organizer).count() == 0:
+                ORGANIZERS = [
+                    ("Росмолодёжь", "#336DFF"),
+                    ("Росконгресс", "#E8590C"),
+                    ("Юнидока", "#0CA678"),
+                ]
+                for name, color in ORGANIZERS:
+                    db.add(Organizer(name=name, slug=slugify(name), color=color))
+                db.commit()
+                logger.info("Seeded %d organizers", len(ORGANIZERS))
+        finally:
+            db.close()
+    except Exception as e:
+        logger.warning("Taxonomy seed skipped: %s", e)
+
+
+@app.on_event("startup")
+def _on_startup() -> None:
+    _seed_taxonomy_if_empty()
+
+
 @app.get("/health")
 
 async def health():

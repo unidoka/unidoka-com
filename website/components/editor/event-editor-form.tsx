@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -17,12 +18,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CircleNotchIcon } from "@phosphor-icons/react";
+import {
+  CircleNotchIcon,
+  PlusIcon,
+  TrashIcon,
+  CalendarBlankIcon,
+  CalendarCheckIcon,
+} from "@phosphor-icons/react";
 import {
   createEvent,
   updateEvent,
   type EventDetail,
   type EventPayload,
+  type OtherDateInput,
 } from "@/utils/api/events";
 import {
   fetchOrganizersPublic,
@@ -32,54 +40,56 @@ import {
   type EventTypeTaxonomy,
   type Direction,
 } from "@/utils/api/event-taxonomies";
+import { ImageUploadField } from "./image-upload-field";
 
 interface Props {
-  /** null → create. Non-null → edit that slug. */
   editing: EventDetail | null;
-  /** "admin" saves immediately as approved (if status=approved). "user" always saves as pending. */
   mode: "admin" | "user";
-  /** Where to go after a successful save. */
   redirectAfter?: string;
 }
 
+const NO_ORGANIZER = "__none__";
+const OTHER_ORGANIZER = "__other__";
+
 export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
   const router = useRouter();
+
   const [organizers, setOrganizers] = useState<Organizer[]>([]);
   const [types, setTypes] = useState<EventTypeTaxonomy[]>([]);
   const [directions, setDirections] = useState<Direction[]>([]);
-  const [loadingMeta, setLoadingMeta] = useState(true);
+  const [metaError, setMetaError] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     title: "",
     short_description: "",
     description: "",
+    mdx_content: "",
     cover_image_src: "",
     href: "",
     start_at: "",
     end_at: "",
+    registration_deadline: "",
     location_name: "",
     address: "",
-    metro: "",
-    city: "",
     price: "",
     capacity: "",
     registration_url: "",
-    organizer_id: "",
+    organizer_id: NO_ORGANIZER,
+    custom_organizer_name: "",
     subdirection_ids: [] as string[],
     is_featured: false,
     seo_title: "",
     meta_description: "",
-    mdx_content: "",
     status: "approved" as "pending" | "approved" | "rejected",
   });
-
+  const [otherDates, setOtherDates] = useState<OtherDateInput[]>([]);
   const [typeSelections, setTypeSelections] = useState<
     Array<{ id: string; isCustom: boolean; customName: string }>
   >([]);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // ── Load taxonomy once ──────────────────────────────────────────
+  /* ── Load taxonomy ───────────────────────────────────────────────── */
   useEffect(() => {
     Promise.all([
       fetchOrganizersPublic(),
@@ -89,38 +99,45 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
       .then(([o, t, d]) => {
         setOrganizers(o);
         setTypes(t);
-        setDirections(d);
+        setDirections(d.filter((x) => (x.subdirections ?? []).length > 0));
       })
-      .catch(() => toast.error("Не удалось загрузить справочники"))
-      .finally(() => setLoadingMeta(false));
+      .catch((err) =>
+        setMetaError(err?.message || "Не удалось загрузить справочники"),
+      );
   }, []);
 
-  // ── Hydrate from `editing` when present ─────────────────────────
+  /* ── Hydrate when editing ────────────────────────────────────────── */
   useEffect(() => {
     if (!editing) return;
     setForm({
       title: editing.title,
       short_description: editing.short_description ?? "",
       description: editing.description ?? "",
+      mdx_content: editing.mdx_content ?? "",
       cover_image_src: editing.cover_image_src ?? "",
       href: editing.href ?? "",
       start_at: toLocalInput(editing.start_at),
       end_at: toLocalInput(editing.end_at),
+      registration_deadline: toLocalInput(editing.registration_deadline),
       location_name: editing.location_name ?? "",
       address: editing.address ?? "",
-      metro: editing.metro ?? "",
-      city: editing.city ?? "",
       price: editing.price ?? "",
       capacity: editing.capacity ? String(editing.capacity) : "",
       registration_url: editing.registration_url ?? "",
-      organizer_id: editing.organizer?.id ?? "",
+      organizer_id: editing.organizer?.id ?? (editing.custom_organizer_name ? OTHER_ORGANIZER : NO_ORGANIZER),
+      custom_organizer_name: editing.custom_organizer_name ?? "",
       subdirection_ids: (editing.tags ?? []).map((t) => t.id),
       is_featured: editing.is_featured,
       seo_title: editing.seo_title ?? "",
       meta_description: editing.meta_description ?? "",
-      mdx_content: editing.mdx_content ?? "",
       status: (editing.status as any) || "approved",
     });
+    setOtherDates(
+      (editing.other_dates ?? []).map((d) => ({
+        label: d.label,
+        at: toLocalInput(d.at),
+      })),
+    );
     setTypeSelections(
       (editing.types ?? []).map((a, i) =>
         a.type
@@ -140,7 +157,10 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
   const addType = (typeId: string) => {
     if (!typeId) return;
     if (typeSelections.some((t) => t.id === typeId && !t.isCustom)) return;
-    setTypeSelections((prev) => [...prev, { id: typeId, isCustom: false, customName: "" }]);
+    setTypeSelections((prev) => [
+      ...prev,
+      { id: typeId, isCustom: false, customName: "" },
+    ]);
   };
   const addCustomType = () =>
     setTypeSelections((prev) => [
@@ -148,7 +168,9 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
       { id: `custom-${Date.now()}`, isCustom: true, customName: "" },
     ]);
   const updateCustomName = (id: string, name: string) =>
-    setTypeSelections((prev) => prev.map((t) => (t.id === id ? { ...t, customName: name } : t)));
+    setTypeSelections((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, customName: name } : t)),
+    );
   const removeType = (id: string) =>
     setTypeSelections((prev) => prev.filter((t) => t.id !== id));
 
@@ -160,10 +182,21 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
         : [...prev.subdirection_ids, sid],
     }));
 
+  const addOtherDate = () =>
+    setOtherDates((prev) => [...prev, { label: "", at: "" }]);
+  const updateOtherDate = (i: number, patch: Partial<OtherDateInput>) =>
+    setOtherDates((prev) =>
+      prev.map((d, idx) => (idx === i ? { ...d, ...patch } : d)),
+    );
+  const removeOtherDate = (i: number) =>
+    setOtherDates((prev) => prev.filter((_, idx) => idx !== i));
+
+  /* ── Submit ──────────────────────────────────────────────────────── */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const nextErrors: Record<string, string> = {};
     if (!form.title.trim()) nextErrors.title = "Название обязательно";
+    if (!form.start_at) nextErrors.start_at = "Дата начала обязательна";
     if (Object.keys(nextErrors).length) {
       setErrors(nextErrors);
       toast.error("Проверьте форму");
@@ -171,23 +204,43 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
     }
     setErrors({});
     setSubmitting(true);
+
     try {
+      // other_dates: strip blank rows, convert to ISO, skip rows with
+      // no label or no date — the backend rejects empty labels.
+      const cleanOther = otherDates
+        .filter((d) => d.label.trim() && d.at)
+        .map((d) => ({
+          label: d.label.trim(),
+          at: new Date(d.at).toISOString(),
+        }));
+
       const payload: EventPayload = {
         title: form.title.trim(),
+        start_at: new Date(form.start_at).toISOString(),
         short_description: form.short_description.trim() || null,
         description: form.description.trim() || null,
+        mdx_content: form.mdx_content.trim() || null,
         cover_image_src: form.cover_image_src.trim() || null,
         href: form.href.trim() || null,
-        start_at: form.start_at ? new Date(form.start_at).toISOString() : null,
         end_at: form.end_at ? new Date(form.end_at).toISOString() : null,
+        registration_deadline: form.registration_deadline
+          ? new Date(form.registration_deadline).toISOString()
+          : null,
+        other_dates: cleanOther,
         location_name: form.location_name.trim() || null,
         address: form.address.trim() || null,
-        metro: form.metro.trim() || null,
-        city: form.city.trim() || null,
         price: form.price.trim() || null,
         capacity: form.capacity ? Number(form.capacity) : null,
         registration_url: form.registration_url.trim() || null,
-        organizer_id: form.organizer_id || null,
+        organizer_id:
+          form.organizer_id === NO_ORGANIZER || form.organizer_id === OTHER_ORGANIZER
+            ? null
+            : form.organizer_id,
+        custom_organizer_name:
+          form.organizer_id === OTHER_ORGANIZER
+            ? form.custom_organizer_name.trim() || null
+            : null,
         types: typeSelections.map((t) =>
           t.isCustom
             ? { custom_name: t.customName.trim() || "Другое" }
@@ -197,12 +250,10 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
       };
 
       if (mode === "admin") {
-        // Admin can set publication status directly.
         payload.status = form.status;
         payload.is_featured = form.is_featured;
         payload.seo_title = form.seo_title.trim() || null;
         payload.meta_description = form.meta_description.trim() || null;
-        payload.mdx_content = form.mdx_content.trim() || null;
       }
 
       if (editing) {
@@ -213,11 +264,11 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
         toast.success(
           mode === "admin"
             ? "Событие создано"
-            : "Событие отправлено на модерацию. Мы сообщим после проверки.",
+            : "Событие отправлено на модерацию",
           { duration: 6000 },
         );
       }
-      router.push(redirectAfter || "/");
+      router.push(redirectAfter || "/events");
       router.refresh();
     } catch (err: any) {
       toast.error(err?.message || "Не удалось сохранить");
@@ -226,11 +277,20 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
     }
   };
 
+  const selectedOrganizer = useMemo(
+    () =>
+      form.organizer_id === NO_ORGANIZER
+        ? null
+        : organizers.find((o) => o.id === form.organizer_id) ?? null,
+    [form.organizer_id, organizers],
+  );
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Basics */}
-      <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4">
+      {/* ── Основное ─────────────────────────────────────────────── */}
+      <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-5">
         <h2 className="text-heading-3">Основное</h2>
+
         <Field data-invalid={!!errors.title}>
           <FieldLabel>
             Название <span className="text-destructive">*</span>
@@ -238,6 +298,7 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
           <Input value={form.title} onChange={(e) => set("title", e.target.value)} />
           {errors.title && <FieldError errors={[{ message: errors.title }]} />}
         </Field>
+
         <Field>
           <FieldLabel>Короткое описание</FieldLabel>
           <Input
@@ -246,147 +307,347 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
             placeholder="Одно предложение для карточки"
           />
         </Field>
+
         <Field>
-          <FieldLabel>Полное описание</FieldLabel>
+          <FieldLabel>Краткое описание</FieldLabel>
           <Textarea
             value={form.description}
             onChange={(e) => set("description", e.target.value)}
-            className="min-h-[120px]"
+            placeholder="Пара абзацев — что это за событие, для кого"
+            className="min-h-[100px]"
           />
         </Field>
+
+        <Field>
+          <FieldLabel>Контент события</FieldLabel>
+          <Textarea
+            value={form.mdx_content}
+            onChange={(e) => set("mdx_content", e.target.value)}
+            placeholder="Полное описание — программа, спикеры, условия. Поддерживает Markdown."
+            className="min-h-[200px] font-mono text-body-4"
+          />
+        </Field>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field>
-            <FieldLabel>Начало</FieldLabel>
+          <Field data-invalid={!!errors.start_at}>
+            <FieldLabel>
+              <CalendarBlankIcon className="size-3.5" />
+              Начало <span className="text-destructive">*</span>
+            </FieldLabel>
             <Input
               type="datetime-local"
               value={form.start_at}
               onChange={(e) => set("start_at", e.target.value)}
             />
+            {errors.start_at && (
+              <FieldError errors={[{ message: errors.start_at }]} />
+            )}
           </Field>
           <Field>
-            <FieldLabel>Конец</FieldLabel>
+            <FieldLabel>
+              <CalendarBlankIcon className="size-3.5" />
+              Конец
+            </FieldLabel>
             <Input
               type="datetime-local"
               value={form.end_at}
               onChange={(e) => set("end_at", e.target.value)}
             />
           </Field>
-        </div>
-        <Field>
-          <FieldLabel>Ссылка на сайт события</FieldLabel>
-          <Input
-            value={form.href}
-            onChange={(e) => set("href", e.target.value)}
-            placeholder="https://…"
-          />
-        </Field>
-        <Field>
-          <FieldLabel>Обложка (URL)</FieldLabel>
-          <Input
-            value={form.cover_image_src}
-            onChange={(e) => set("cover_image_src", e.target.value)}
-            placeholder="/order_files/uploads/… или https://…"
-          />
-        </Field>
-      </Card>
-
-      {/* Location & registration */}
-      <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4">
-        <h2 className="text-heading-3">Место и регистрация</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Field>
-            <FieldLabel>Место</FieldLabel>
-            <Input value={form.location_name} onChange={(e) => set("location_name", e.target.value)} />
-          </Field>
-          <Field>
-            <FieldLabel>Город</FieldLabel>
-            <Input value={form.city} onChange={(e) => set("city", e.target.value)} />
-          </Field>
-          <Field className="md:col-span-2">
-            <FieldLabel>Адрес</FieldLabel>
-            <Input value={form.address} onChange={(e) => set("address", e.target.value)} />
-          </Field>
-          <Field>
-            <FieldLabel>Метро</FieldLabel>
-            <Input value={form.metro} onChange={(e) => set("metro", e.target.value)} />
-          </Field>
-          <Field>
-            <FieldLabel>Цена</FieldLabel>
-            <Input value={form.price} onChange={(e) => set("price", e.target.value)} placeholder="Бесплатно" />
-          </Field>
-          <Field>
-            <FieldLabel>Вместимость</FieldLabel>
-            <Input type="number" value={form.capacity} onChange={(e) => set("capacity", e.target.value)} />
+            <FieldLabel>
+              <CalendarCheckIcon className="size-3.5" />
+              Дедлайн регистрации
+            </FieldLabel>
+            <Input
+              type="datetime-local"
+              value={form.registration_deadline}
+              onChange={(e) => set("registration_deadline", e.target.value)}
+            />
           </Field>
           <Field>
             <FieldLabel>Ссылка на регистрацию</FieldLabel>
             <Input
               value={form.registration_url}
               onChange={(e) => set("registration_url", e.target.value)}
+              placeholder="https://…"
             />
           </Field>
         </div>
       </Card>
 
-      {/* Organizer */}
+      {/* ── Дополнительные даты ──────────────────────────────────── */}
       <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4">
-        <h2 className="text-heading-3">Организатор</h2>
+        <div>
+          <h2 className="text-heading-3">Дополнительные даты</h2>
+          <p className="text-body-5 text-(--on-bg-low) mt-0.5">
+            Отборочные, полуфиналы, объявление результатов, финалы
+          </p>
+        </div>
+
+        {otherDates.length > 0 && (
+          <div className="space-y-2">
+            {otherDates.map((d, i) => (
+              <div key={i} className="flex items-start gap-2">
+                <Input
+                  type="datetime-local"
+                  value={d.at}
+                  onChange={(e) => updateOtherDate(i, { at: e.target.value })}
+                  className="max-w-[230px] shrink-0"
+                />
+                <Input
+                  value={d.label}
+                  onChange={(e) => updateOtherDate(i, { label: e.target.value })}
+                  placeholder="Что за дата (например, «Полуфинал»)"
+                />
+                <Button
+                  type="button"
+                  variant="text"
+                  size="icon-small"
+                  onClick={() => removeOtherDate(i)}
+                  className="shrink-0 mt-1"
+                  aria-label="Удалить"
+                >
+                  <TrashIcon className="size-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <Button type="button" variant="outlined" size="small" onClick={addOtherDate}>
+          <PlusIcon className="size-4" />
+          Добавить дату
+        </Button>
+      </Card>
+
+      {/* ── Место ────────────────────────────────────────────────── */}
+      <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4">
+        <h2 className="text-heading-3">Место</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Field>
+            <FieldLabel>Место</FieldLabel>
+            <Input
+              value={form.location_name}
+              onChange={(e) => set("location_name", e.target.value)}
+              placeholder="Манеж, Технопарк, Отель…"
+            />
+          </Field>
+          <Field>
+            <FieldLabel>Адрес</FieldLabel>
+            <Input
+              value={form.address}
+              onChange={(e) => set("address", e.target.value)}
+              placeholder="Москва, Манежная пл., 1"
+            />
+          </Field>
+          <Field>
+            <FieldLabel>Цена</FieldLabel>
+            <Input
+              value={form.price}
+              onChange={(e) => set("price", e.target.value)}
+              placeholder="Бесплатно"
+            />
+          </Field>
+          <Field>
+            <FieldLabel>Вместимость</FieldLabel>
+            <Input
+              type="number"
+              value={form.capacity}
+              onChange={(e) => set("capacity", e.target.value)}
+              placeholder="500"
+            />
+          </Field>
+        </div>
+      </Card>
+
+      {/* ── Обложка ─────────────────────────────────────────────── */}
+      <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4">
+        <div>
+          <h2 className="text-heading-3">Обложка</h2>
+          <p className="text-body-5 text-(--on-bg-low) mt-0.5">
+            Загрузите изображение, обрежьте под 4:3. Необязательно.
+          </p>
+        </div>
+        <ImageUploadField
+          value={form.cover_image_src}
+          onChange={(url) => set("cover_image_src", url)}
+          aspect={4 / 3}
+          outputSize={1200}
+          variant="cover"
+          maxSizeMb={8}
+        />
+        <Field>
+          <FieldLabel className="text-body-5 text-(--on-bg-low)">
+            Или вставьте URL
+          </FieldLabel>
+          <Input
+            value={form.cover_image_src}
+            onChange={(e) => set("cover_image_src", e.target.value)}
+            placeholder="/order_files/uploads/… или https://…"
+            className="font-mono text-body-4"
+          />
+        </Field>
+      </Card>
+
+      {/* ── Организатор ──────────────────────────────────────────── */}
+      <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4">
+        <div>
+          <h2 className="text-heading-3">Организатор</h2>
+          <p className="text-body-5 text-(--on-bg-low) mt-0.5">
+            Выберите из существующих. Новых добавляет администратор.
+          </p>
+        </div>
+
         <Field>
           <FieldLabel>Кто проводит</FieldLabel>
           <Select
             value={form.organizer_id}
-            onValueChange={(v) => set("organizer_id", v)}
-            disabled={loadingMeta}
+            onValueChange={(v) => {
+              set("organizer_id", v);
+              if (v !== OTHER_ORGANIZER) set("custom_organizer_name", "");
+            }}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Выберите…" />
+              <SelectValue placeholder="Без организатора" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value={NO_ORGANIZER}>— Без организатора —</SelectItem>
               {organizers.map((o) => (
                 <SelectItem key={o.id} value={o.id}>
-                  {o.name}
+                  <span className="flex items-center gap-2">
+                    {o.avatar_url ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={o.avatar_url}
+                        alt=""
+                        className="size-5 rounded-full object-cover shrink-0"
+                      />
+                    ) : (
+                      <span
+                        className="size-5 rounded-full shrink-0 flex items-center justify-center text-[9px] font-semibold"
+                        style={{
+                          background: o.color
+                            ? `color-mix(in srgb, ${o.color} 22%, transparent)`
+                            : "var(--state-hover)",
+                          color: o.color || "var(--on-bg-medium)",
+                        }}
+                      >
+                        {o.name.slice(0, 1).toUpperCase()}
+                      </span>
+                    )}
+                    <span>{o.name}</span>
+                  </span>
                 </SelectItem>
               ))}
+              <SelectItem value={OTHER_ORGANIZER}>
+                — Другой (введу название) —
+              </SelectItem>
             </SelectContent>
           </Select>
         </Field>
+
+        {form.organizer_id === OTHER_ORGANIZER && (
+          <Field>
+            <FieldLabel>Название организатора</FieldLabel>
+            <Input
+              value={form.custom_organizer_name}
+              onChange={(e) => set("custom_organizer_name", e.target.value)}
+              placeholder="Например, Университет ИТМО"
+            />
+            <p className="text-body-5 text-(--on-bg-low) mt-1">
+              Администратор проверит и добавит организатора в справочник.
+            </p>
+          </Field>
+        )}
+
+        {selectedOrganizer && (
+          <div className="flex items-center gap-3 rounded-2xl border border-(--outline) bg-(--bg) p-3">
+            {selectedOrganizer.avatar_url ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={selectedOrganizer.avatar_url}
+                alt=""
+                className="size-10 rounded-xl object-cover shrink-0"
+              />
+            ) : (
+              <span
+                className="flex size-10 items-center justify-center rounded-xl text-body-3 font-semibold shrink-0"
+                style={{
+                  background: selectedOrganizer.color
+                    ? `color-mix(in srgb, ${selectedOrganizer.color} 22%, transparent)`
+                    : "var(--state-hover)",
+                  color: selectedOrganizer.color || "var(--on-bg-high)",
+                }}
+              >
+                {selectedOrganizer.name.slice(0, 1).toUpperCase()}
+              </span>
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="text-body-3 font-medium truncate">
+                {selectedOrganizer.name}
+              </p>
+              {selectedOrganizer.description && (
+                <p className="text-body-5 text-(--on-bg-low) truncate">
+                  {selectedOrganizer.description}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
       </Card>
 
-      {/* Types */}
+      {/* ── Типы ─────────────────────────────────────────────────── */}
       <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4">
-        <h2 className="text-heading-3">
-          Типы{" "}
-          <span className="text-body-5 text-(--on-bg-low) font-normal">
-            (можно несколько)
-          </span>
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          {types.map((t) => {
-            const selected = typeSelections.some((x) => x.id === t.id && !x.isCustom);
-            return (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => (selected ? removeType(t.id) : addType(t.id))}
-                className={
-                  "rounded-full px-3 py-1.5 text-body-4 font-medium transition-colors " +
-                  (selected
-                    ? "bg-(--primary) text-white"
-                    : "bg-(--card) border border-(--outline) text-(--on-bg-medium) hover:text-(--on-bg-high)")
-                }
-              >
-                {t.name}
-              </button>
-            );
-          })}
-          <button
-            type="button"
-            onClick={addCustomType}
-            className="rounded-full px-3 py-1.5 text-body-4 font-medium border border-dashed border-(--outline) text-(--on-bg-low) hover:border-(--primary) hover:text-(--primary) transition-colors"
-          >
-            + Другое
-          </button>
+        <div>
+          <h2 className="text-heading-3">Типы события</h2>
+          <p className="text-body-5 text-(--on-bg-low) mt-0.5">
+            IT, Бизнес, Дизайн… Можно несколько.
+          </p>
         </div>
+
+        {types.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {types.map((t) => {
+              const selected = typeSelections.some(
+                (x) => x.id === t.id && !x.isCustom,
+              );
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => (selected ? removeType(t.id) : addType(t.id))}
+                  className={
+                    "rounded-full px-3 py-1.5 text-body-4 font-medium transition-colors " +
+                    (selected
+                      ? "bg-(--primary) text-(--on-primary)"
+                      : "bg-(--card) border border-(--outline) text-(--on-bg-medium) hover:text-(--on-bg-high)")
+                  }
+                >
+                  {t.name}
+                </button>
+              );
+            })}
+            <button
+              type="button"
+              onClick={addCustomType}
+              className="rounded-full px-3 py-1.5 text-body-4 font-medium border border-dashed border-(--outline) text-(--on-bg-low) hover:border-(--primary) hover:text-(--primary) transition-colors"
+            >
+              <PlusIcon className="size-3.5 inline mr-1" />
+              Другое
+            </button>
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-(--outline) p-4">
+            <p className="text-body-4 text-(--on-bg-medium)">
+              {metaError ? metaError : "Справочник типов пока пуст."}
+            </p>
+            <p className="text-body-5 text-(--on-bg-low) mt-1">
+              Администратор может заполнить его в панели «Типы событий».
+            </p>
+          </div>
+        )}
+
         {typeSelections
           .filter((t) => t.isCustom)
           .map((t) => (
@@ -402,59 +663,79 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
                 size="icon-small"
                 onClick={() => removeType(t.id)}
               >
-                ✕
+                <TrashIcon className="size-4" />
               </Button>
             </div>
           ))}
       </Card>
 
-      {/* Tags */}
-      {directions.length > 0 && (
-        <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4">
-          <h2 className="text-heading-3">Направления</h2>
-          <p className="text-body-4 text-(--on-bg-medium)">
-            Выберите одно или несколько направлений из Вершин.
+      {/* ── Вершины / Направления ────────────────────────────────── */}
+      <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-5">
+        <div>
+          <h2 className="text-heading-3">Вершины</h2>
+          <p className="text-body-5 text-(--on-bg-low) mt-0.5">
+            Направления, к которым относится событие. Необязательно.
           </p>
-          <div className="space-y-4">
-            {directions.map((d) => (
-              <div key={d.id}>
-                <p className="text-body-4 font-medium text-(--on-bg-high) mb-2">
-                  {d.emoji} {d.name}
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {d.subdirections.map((s) => {
-                    const on = form.subdirection_ids.includes(s.id);
-                    return (
-                      <button
-                        key={s.id}
-                        type="button"
-                        onClick={() => toggleSubdirection(s.id)}
-                        className={
-                          "rounded-full px-2.5 py-1 text-body-5 font-medium transition-colors " +
-                          (on
-                            ? "bg-(--primary) text-white"
-                            : "bg-(--bg) border border-(--outline) text-(--on-bg-medium) hover:text-(--on-bg-high)")
-                        }
-                      >
-                        {s.name}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
+        </div>
 
-      {/* Admin-only block */}
+        {metaError && (
+          <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-3">
+            <p className="text-body-5 text-destructive">{metaError}</p>
+          </div>
+        )}
+
+        {directions.length === 0 && !metaError && (
+          <div className="rounded-2xl border border-dashed border-(--outline) p-6 text-center">
+            <p className="text-body-4 text-(--on-bg-medium)">
+              Справочник направлений пока пуст.
+            </p>
+            <p className="text-body-5 text-(--on-bg-low) mt-1">
+              Администратор может заполнить его в панели «Направления».
+            </p>
+          </div>
+        )}
+
+        {directions.map((d) => (
+          <div key={d.id} className="space-y-2">
+            <p className="text-body-3 font-medium text-(--on-bg-high)">
+              {d.emoji ? `${d.emoji} ` : ""}
+              {d.name}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {d.subdirections.map((s) => {
+                const on = form.subdirection_ids.includes(s.id);
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => toggleSubdirection(s.id)}
+                    className={
+                      "rounded-full px-3 py-1 text-body-4 font-medium transition-colors " +
+                      (on
+                        ? "bg-(--primary) text-(--on-primary)"
+                        : "bg-(--bg) border border-(--outline) text-(--on-bg-medium) hover:text-(--on-bg-high) hover:border-(--on-bg-low)")
+                    }
+                  >
+                    {s.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </Card>
+
+      {/* ── Admin-only ──────────────────────────────────────────── */}
       {mode === "admin" && (
         <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4">
           <h2 className="text-heading-3">Администрирование</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Field>
               <FieldLabel>Статус публикации</FieldLabel>
-              <Select value={form.status} onValueChange={(v) => set("status", v as any)}>
+              <Select
+                value={form.status}
+                onValueChange={(v) => set("status", v as any)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -465,8 +746,8 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
                 </SelectContent>
               </Select>
             </Field>
-            <div className="flex items-end">
-              <label className="flex items-center gap-3 cursor-pointer pb-2">
+            <div className="flex items-end pb-2">
+              <label className="flex items-center gap-3 cursor-pointer">
                 <Checkbox
                   checked={form.is_featured}
                   onCheckedChange={(v) => set("is_featured", v === true)}
@@ -477,7 +758,10 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
           </div>
           <Field>
             <FieldLabel>SEO title</FieldLabel>
-            <Input value={form.seo_title} onChange={(e) => set("seo_title", e.target.value)} />
+            <Input
+              value={form.seo_title}
+              onChange={(e) => set("seo_title", e.target.value)}
+            />
           </Field>
           <Field>
             <FieldLabel>Meta description</FieldLabel>
@@ -513,11 +797,13 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
   );
 }
 
-/** ISO string → the `datetime-local` input format (`YYYY-MM-DDTHH:MM`). */
+/** ISO → local datetime-local input string (YYYY-MM-DDTHH:MM). */
 function toLocalInput(iso: string | null | undefined): string {
   if (!iso) return "";
   const d = new Date(iso);
   if (isNaN(d.getTime())) return "";
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
+    d.getHours(),
+  )}:${pad(d.getMinutes())}`;
 }

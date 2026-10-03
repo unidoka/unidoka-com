@@ -86,7 +86,10 @@ def _serialize_event(event: Event, full: bool = False) -> dict:
         "cover_video_src": event.cover_video_src,
         "start_at": event.start_at,
         "end_at": event.end_at,
+        "registration_deadline": getattr(event, "registration_deadline", None),
+        "other_dates": getattr(event, "other_dates", []) or [],
         "location_name": event.location_name,
+        "address": event.address,
         "city": event.city,
         "price": event.price,
         "capacity": event.capacity,
@@ -104,6 +107,7 @@ def _serialize_event(event: Event, full: bool = False) -> dict:
             "description": event.organizer.description,
             "is_active": event.organizer.is_active,
         } if event.organizer else None,
+        "custom_organizer_name": getattr(event, "custom_organizer_name", None),
         "types": types,
         "tags": tags,
     }
@@ -260,11 +264,31 @@ async def list_types_public(db: Session = Depends(get_db)):
 
 @router.get("/meta/directions", response_model=List[DirectionOut])
 async def list_directions_public(db: Session = Depends(get_db)):
-    q = db.query(EventDirection).filter(
-        EventDirection.deleted_at.is_(None),
-        EventDirection.is_active.is_(True),
-    ).order_by(EventDirection.sort_order, EventDirection.name)
-    return q.all()
+    from sqlalchemy.orm import selectinload
+    q = (
+        db.query(EventDirection)
+        .options(selectinload(EventDirection.subdirections))
+        .filter(
+            EventDirection.deleted_at.is_(None),
+            EventDirection.is_active.is_(True),
+        )
+        .order_by(EventDirection.sort_order, EventDirection.name)
+    )
+    directions = q.all()
+    # Only return directions that have at least one live subdirection,
+    # and filter out deleted/inactive subs — otherwise the frontend
+    # renders an empty group and looks broken.
+    out = []
+    for d in directions:
+        subs = [
+            s for s in (d.subdirections or [])
+            if getattr(s, "deleted_at", None) is None and s.is_active
+        ]
+        if not subs:
+            continue
+        d.subdirections = subs
+        out.append(d)
+    return out
 
 
 @router.get("/{slug}", response_model=EventDetail)
