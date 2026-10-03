@@ -1,4 +1,5 @@
 "use client";
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -23,11 +24,12 @@ import {
   PlusIcon, MagnifyingGlassIcon, ArrowClockwiseIcon,
   PencilSimpleIcon, TrashIcon, UsersIcon, UserMinusIcon,
   RowsIcon, GridFourIcon, EnvelopeSimple, TelegramLogo, PhoneIcon,
-  UserIcon, CheckCircleIcon, XCircleIcon,
+  CheckCircleIcon, XCircleIcon,
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 import { $fetch } from "@/utils/fetch";
 import { makeTeamMember, removeTeamMember, fetchTeamMembers } from "@/utils/api/team";
+
 interface User {
   id: string; email: string;
   name: string | null; surname: string | null;
@@ -39,22 +41,27 @@ interface User {
   telegram_enabled?: boolean;
   receives_order_notifications?: boolean;
 }
+
 const ROLE_OPTIONS = [
   { value: "client", label: "Клиент" },
   { value: "user", label: "Пользователь" },
   { value: "admin", label: "Администратор" },
   { value: "root", label: "Супер-администратор" },
 ];
+
 const ROLE_BADGE: Record<string, string> = {
   root: "bg-violet-500/15 text-violet-500 border-violet-500/30",
   admin: "bg-blue-500/15 text-blue-500 border-blue-500/30",
   user: "bg-gray-500/15 text-gray-500 border-gray-500/30",
   client: "bg-emerald-500/15 text-emerald-500 border-emerald-500/30",
 };
+
 const ROLE_LABEL: Record<string, string> = {
   root: "Root", admin: "Админ", user: "Пользователь", client: "Клиент",
 };
+
 type ViewMode = "cards" | "table";
+
 function fullName(u: User): string { return [u.name, u.surname].filter(Boolean).join(" ").trim(); }
 function displayName(u: User): string { return fullName(u) || u.username || u.email.split("@")[0] || "Без имени"; }
 function initials(u: User): string {
@@ -64,6 +71,7 @@ function initials(u: User): string {
   }
   return (u.email[0] ?? "?").toUpperCase();
 }
+
 export default function AdminUsersPage() {
   const { user: currentUser, isLoading: userLoading } = useUser();
   const router = useRouter();
@@ -78,6 +86,7 @@ export default function AdminUsersPage() {
   const [teamRole, setTeamRole] = useState("");
   const [teamBio, setTeamBio] = useState("");
   const [teamSaving, setTeamSaving] = useState(false);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
@@ -94,13 +103,17 @@ export default function AdminUsersPage() {
       toast.error("Ошибка загрузки пользователей");
     } finally { setLoading(false); }
   }, []);
+
   useEffect(() => { if (currentUser) load(); }, [currentUser, load]);
+
   if (userLoading || !currentUser) return null;
   if (currentUser.role !== "admin" && currentUser.role !== "root") {
     router.push("/"); return null;
   }
+
   const isRoot = currentUser.role === "root";
   const canEdit = (u: User) => isRoot || u.role !== "admin";
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return users;
@@ -109,12 +122,14 @@ export default function AdminUsersPage() {
         .some((v) => String(v).toLowerCase().includes(q)),
     );
   }, [users, query]);
+
   const handleDelete = async (u: User) => {
     if (!confirm(`Удалить пользователя ${u.email}?`)) return;
     const res = await $fetch(`/api/v1/admin/users/${u.id}`, { method: "DELETE" });
     if (res.response?.ok) { toast.success("Пользователь удалён"); load(); }
     else toast.error(res.json?.detail || "Ошибка удаления");
   };
+
   const handleMakeTeamMember = async () => {
     if (!teamDialogUser || !teamRole.trim()) return;
     setTeamSaving(true);
@@ -126,13 +141,16 @@ export default function AdminUsersPage() {
     } catch (err: any) { toast.error(err.message || "Ошибка"); }
     finally { setTeamSaving(false); }
   };
+
   const handleRemoveTeamMember = async (u: User) => {
     if (!confirm("Убрать из команды?")) return;
     try { await removeTeamMember(u.id); toast.success("Убран"); load(); }
     catch (err: any) { toast.error(err.message || "Ошибка"); }
   };
+
   const openCreate = () => { setEditing(null); setDialogOpen(true); };
   const openEdit = (u: User) => { setEditing(u); setDialogOpen(true); };
+
   return (
     <CheckUser>
       <div className="space-y-6">
@@ -167,13 +185,20 @@ export default function AdminUsersPage() {
             </Button>
           </div>
         </div>
-        <Card className="rounded-3xl border-(--outline) p-4">
-          <div className="relative">
-            <MagnifyingGlassIcon className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-(--on-bg-low) pointer-events-none" />
-            <Input value={query} onChange={(e) => setQuery(e.target.value)}
-              placeholder="Поиск…" className="pl-9" />
-          </div>
-        </Card>
+
+        {/* Search — bare input, no Card wrapper. The Input component
+            already provides its own padding, border, and focus ring.
+            Wrapping it added 16px of dead space around a 40px field. */}
+        <div className="relative">
+          <MagnifyingGlassIcon className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-(--on-bg-low) pointer-events-none" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Поиск…"
+            className="pl-9 h-11"
+          />
+        </div>
+
         {loading && (
           <div className={cn(view === "cards" ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" : "space-y-3")}>
             {[...Array(6)].map((_, i) => (
@@ -181,12 +206,14 @@ export default function AdminUsersPage() {
             ))}
           </div>
         )}
+
         {!loading && filtered.length === 0 && (
           <Card className="rounded-3xl border-(--outline) p-12 text-center">
             <UsersIcon className="size-6 mx-auto text-(--on-bg-low) mb-3" />
             <p className="text-body-3 text-(--on-bg-medium)">{query ? "Ничего не найдено" : "Пользователей нет"}</p>
           </Card>
         )}
+
         {!loading && filtered.length > 0 && view === "cards" && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {filtered.map((u) => (
@@ -198,6 +225,7 @@ export default function AdminUsersPage() {
             ))}
           </div>
         )}
+
         {!loading && filtered.length > 0 && view === "table" && (
           <UserTable users={filtered} teamRoles={teamRoles} currentUserId={currentUser.id}
             canEdit={canEdit} onEdit={openEdit} onDelete={handleDelete}
@@ -205,7 +233,9 @@ export default function AdminUsersPage() {
             onRemoveFromTeam={handleRemoveTeamMember} />
         )}
       </div>
+
       <UserEditorDialog open={dialogOpen} onOpenChange={setDialogOpen} user={editing} isRoot={isRoot} onSaved={load} />
+
       <Dialog open={!!teamDialogUser} onOpenChange={(open) => { if (!open) setTeamDialogUser(null); }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader><DialogTitle className="flex items-center gap-2"><UsersIcon className="size-5 text-(--primary)" />Добавить в команду</DialogTitle></DialogHeader>
@@ -225,6 +255,7 @@ export default function AdminUsersPage() {
     </CheckUser>
   );
 }
+
 function UserCard({ user, teamRole, canEdit, isSelf, onEdit, onDelete, onAddToTeam, onRemoveFromTeam }: {
   user: User; teamRole?: string; canEdit: boolean; isSelf: boolean;
   onEdit: () => void; onDelete: () => void; onAddToTeam: () => void; onRemoveFromTeam: () => void;
@@ -275,6 +306,7 @@ function UserCard({ user, teamRole, canEdit, isSelf, onEdit, onDelete, onAddToTe
     </Card>
   );
 }
+
 function NotifChip({ on, icon, label }: { on: boolean; icon: React.ReactNode; label: string }) {
   return (
     <span className={cn("inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium",
@@ -284,6 +316,7 @@ function NotifChip({ on, icon, label }: { on: boolean; icon: React.ReactNode; la
     </span>
   );
 }
+
 function UserTable({ users, teamRoles, currentUserId, canEdit, onEdit, onDelete, onAddToTeam, onRemoveFromTeam }: any) {
   return (
     <Card className="rounded-3xl border-(--outline) bg-(--card) overflow-hidden">
@@ -359,12 +392,15 @@ function UserTable({ users, teamRoles, currentUserId, canEdit, onEdit, onDelete,
     </Card>
   );
 }
+
 function Th({ children, align = "left" }: { children: React.ReactNode; align?: "left" | "right" }) {
   return <th className={cn("px-4 py-3 text-[11px] uppercase tracking-[0.08em] font-medium text-(--on-bg-low) whitespace-nowrap", align === "right" ? "text-right" : "text-left")}>{children}</th>;
 }
+
 function Td({ children, align = "left" }: { children: React.ReactNode; align?: "left" | "right" }) {
   return <td className={cn("px-4 py-3 align-middle", align === "right" ? "text-right" : "text-left")}>{children}</td>;
 }
+
 function UserEditorDialog({ open, onOpenChange, user, isRoot, onSaved }: {
   open: boolean; onOpenChange: (o: boolean) => void;
   user: User | null; isRoot: boolean; onSaved: () => void;
@@ -379,6 +415,7 @@ function UserEditorDialog({ open, onOpenChange, user, isRoot, onSaved }: {
   const [form, setForm] = useState<any>(emptyForm());
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+
   useEffect(() => {
     if (!open) return;
     if (user) {
@@ -393,7 +430,9 @@ function UserEditorDialog({ open, onOpenChange, user, isRoot, onSaved }: {
     } else setForm(emptyForm());
     setErrors({});
   }, [open, user]);
+
   const update = (k: string, v: any) => setForm((p: any) => ({ ...p, [k]: v }));
+
   const handleSave = async () => {
     const next: Record<string, string> = {};
     if (!form.email.trim()) next.email = "Email обязателен";
@@ -441,7 +480,9 @@ function UserEditorDialog({ open, onOpenChange, user, isRoot, onSaved }: {
     } catch { toast.error("Ошибка соединения"); }
     finally { setSaving(false); }
   };
+
   const roleOptions = isRoot ? ROLE_OPTIONS : ROLE_OPTIONS.filter((o) => o.value !== "root");
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl max-h-[92vh] overflow-y-auto scrollbar-admin p-0 gap-0">
@@ -461,6 +502,7 @@ function UserEditorDialog({ open, onOpenChange, user, isRoot, onSaved }: {
             <Field><FieldLabel>Username</FieldLabel>
               <Input value={form.username} onChange={(e) => update("username", e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""))} /></Field>
           </div>
+
           {!isCreate && (
             <div className="space-y-4">
               <h3 className="text-body-5 uppercase tracking-[0.14em] text-(--on-bg-low)">Уведомления</h3>
@@ -480,6 +522,7 @@ function UserEditorDialog({ open, onOpenChange, user, isRoot, onSaved }: {
               </div>
             </div>
           )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Field><FieldLabel>Роль</FieldLabel>
               <Select value={form.role} onValueChange={(v) => update("role", v)}>
@@ -500,6 +543,7 @@ function UserEditorDialog({ open, onOpenChange, user, isRoot, onSaved }: {
               )}
             </div>
           </div>
+
           <Field data-invalid={!!errors.password}>
             <FieldLabel>{isCreate ? "Пароль *" : "Новый пароль"}</FieldLabel>
             <Input type="password" value={form.password} onChange={(e) => update("password", e.target.value)}

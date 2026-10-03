@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { ru as ruLocale, enUS } from "date-fns/locale";
@@ -8,8 +9,11 @@ import {
   ArrowUpRightIcon,
   CalendarBlankIcon,
   CheckCircleIcon,
+  CheckIcon,
+  CopyIcon,
   GithubLogo,
   MapPinIcon,
+  SparkleIcon,
   TelegramLogo,
 } from "@phosphor-icons/react";
 import { Container } from "@/components/ui/container";
@@ -18,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { colorForOrganizer } from "@/app/events/_components/organizer-meta";
 import { useLanguage } from "@/providers/language-provider";
+import { useUser } from "@/entities/user/model/user-context";
 import type { PublicUser } from "@/utils/api/users";
 import type { EventListItem } from "@/utils/api/events";
 import { cn } from "@/lib/utils";
@@ -29,15 +34,28 @@ interface Props {
 
 export function UserProfile({ user, events }: Props) {
   const { t, lang } = useLanguage();
+  const { user: currentUser } = useUser();
   const locale = lang === "ru" ? ruLocale : enUS;
 
   const fullName = [user.name, user.surname].filter(Boolean).join(" ").trim();
   const display = fullName || (user.username ? "@" + user.username : "—");
   const initials = initialsOf(user, display);
   const handle = user.username ? "@" + user.username : null;
-  const joined = user.created_at
-    ? format(new Date(user.created_at), "d MMMM yyyy", { locale })
+
+  const joinedDate = user.created_at ? new Date(user.created_at) : null;
+  const joinedLong = joinedDate
+    ? format(joinedDate, "d MMMM yyyy", { locale })
     : null;
+  const joinedShort = joinedDate
+    ? format(joinedDate, "LLL yyyy", { locale })
+    : null;
+
+  const daysOnPlatform = joinedDate
+    ? Math.max(
+        0,
+        Math.floor((Date.now() - joinedDate.getTime()) / 86_400_000),
+      )
+    : 0;
 
   const ghUrl =
     user.github_url ??
@@ -51,12 +69,18 @@ export function UserProfile({ user, events }: Props) {
     if (!e.start_at) return false;
     return new Date(e.start_at).getTime() >= Date.now();
   }).length;
+  const pastCount = publishedCount - upcomingCount;
+
+  // Role is only visible to the profile owner and to admins/root.
+  const isOwner = !!currentUser && currentUser.id === user.id;
+  const isAdmin =
+    currentUser?.role === "admin" || currentUser?.role === "root";
+  const showRole = isOwner || isAdmin;
 
   return (
     <main className="min-h-screen bg-(--bg)">
       {/* ─── HERO ────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden border-b border-(--outline)">
-        {/* Blueprint grid, masked to the top */}
         <div
           aria-hidden
           className="absolute inset-0 pointer-events-none opacity-[0.035] dark:opacity-[0.06]"
@@ -70,7 +94,6 @@ export function UserProfile({ user, events }: Props) {
               "radial-gradient(ellipse 80% 55% at 50% 0%, black 20%, transparent 90%)",
           }}
         />
-        {/* Soft bloom */}
         <div
           aria-hidden
           className="absolute inset-0 pointer-events-none"
@@ -81,7 +104,6 @@ export function UserProfile({ user, events }: Props) {
         />
 
         <Container className="relative pt-32 md:pt-40 pb-14 md:pb-20">
-          {/* Back link */}
           <Link
             href="/"
             className="inline-flex items-center gap-1.5 text-body-5 uppercase tracking-[0.24em] text-(--on-bg-low) hover:text-(--primary) transition-colors mb-10"
@@ -124,17 +146,14 @@ export function UserProfile({ user, events }: Props) {
               <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-(--on-bg-low) mb-4">
                 {t("profile.eyebrow")}
               </p>
-              <h1 className="font-heading font-medium tracking-[-0.04em] leading-[0.92] text-[2.75rem] md:text-[4.5rem] lg:text-[5.5rem] text-(--on-bg-high) mb-4 break-words">
+              <h1 className="font-heading font-medium tracking-[-0.04em] leading-[0.92] text-[2.75rem] md:text-[4.5rem] lg:text-[5.5rem] text-(--on-bg-high) mb-3 break-words">
                 {display}
               </h1>
-              {handle && (
-                <p className="font-mono text-body-3 md:text-body-2 text-(--on-bg-low) mb-6">
-                  {handle}
-                </p>
-              )}
 
-              <div className="flex flex-wrap items-center gap-2 mb-6">
-                {user.role && (
+              {handle && <CopyableHandle handle={handle} />}
+
+              <div className="flex flex-wrap items-center gap-2 mt-6 mb-6">
+                {showRole && user.role && (
                   <Badge variant="tonal-card-static" size="chip-medium">
                     {user.role}
                   </Badge>
@@ -149,10 +168,10 @@ export function UserProfile({ user, events }: Props) {
                     {t("profile.verified")}
                   </Badge>
                 )}
-                {joined && (
+                {joinedLong && (
                   <Badge variant="tonal-card-static" size="chip-medium">
                     <CalendarBlankIcon className="size-3.5" />
-                    {t("profile.member_since")} · {joined}
+                    {t("profile.member_since")} · {joinedLong}
                   </Badge>
                 )}
               </div>
@@ -161,7 +180,6 @@ export function UserProfile({ user, events }: Props) {
                 {user.description?.trim() || t("profile.no_bio")}
               </p>
 
-              {/* Links */}
               <div className="flex flex-wrap gap-2">
                 {ghUrl && (
                   <Button variant="outlined" size="medium" shape="round" asChild>
@@ -187,39 +205,39 @@ export function UserProfile({ user, events }: Props) {
         </Container>
       </section>
 
-      {/* ─── STATS STRIP ─────────────────────────────────────────── */}
+      {/* ─── STATS — two cards ───────────────────────────────────── */}
       <section className="border-b border-(--outline)">
         <Container>
-          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-(--outline)">
-            <StatCell
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-(--outline) rounded-3xl overflow-hidden border border-(--outline)">
+            <StatCard
               index="01"
               label={t("profile.stats_events")}
-              value={String(publishedCount).padStart(2, "0")}
-              hint={
-                publishedCount === 1
-                  ? t("profile.events_count_one")
-                  : t("profile.events_count_many")
+              icon={CalendarBlankIcon}
+              primary={String(publishedCount).padStart(2, "0")}
+              secondary={
+                publishedCount === 0
+                  ? t("profile.stat_events_subtitle_zero")
+                  : publishedCount === 1
+                    ? t("profile.stat_events_subtitle_one")
+                    : t("profile.stat_events_subtitle_many")
+              }
+              breakdown={
+                publishedCount > 0
+                  ? `${upcomingCount} ${t("profile.stat_events_breakdown").split(" · ")[0]} · ${pastCount} ${t("profile.stat_events_breakdown").split(" · ")[1]}`
+                  : null
               }
             />
-            <StatCell
+            <StatCard
               index="02"
-              label="Upcoming"
-              value={String(upcomingCount).padStart(2, "0")}
-              hint="недавних и будущих"
-            />
-            <StatCell
-              index="03"
-              label={t("profile.role")}
-              value={user.role ?? "user"}
-              hint="на платформе"
-              monoValue
-            />
-            <StatCell
-              index="04"
-              label="Handle"
-              value={user.username ? "@" + user.username : "—"}
-              hint="уникальный"
-              monoValue
+              label={t("profile.stats_member")}
+              icon={SparkleIcon}
+              primary={joinedShort ?? "—"}
+              secondary={
+                daysOnPlatform > 3
+                  ? `${daysOnPlatform} ${t("profile.stat_member_subtitle")}`
+                  : t("profile.stat_member_subtitle_new")
+              }
+              breakdown={user.verified ? t("profile.verified") : null}
             />
           </div>
         </Container>
@@ -270,37 +288,99 @@ export function UserProfile({ user, events }: Props) {
   );
 }
 
-/* ── Stat cell ─────────────────────────────────────────────────────── */
+/* ── Copyable handle — Telegram-style ──────────────────────────────── */
 
-function StatCell({
+function CopyableHandle({ handle }: { handle: string }) {
+  const { t } = useLanguage();
+  const [copied, setCopied] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(
+    () => () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    },
+    [],
+  );
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(handle);
+      setCopied(true);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* clipboard blocked — silently ignore */
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={copy}
+      aria-label={copied ? t("profile.copied") : t("profile.copy_handle")}
+      title={copied ? t("profile.copied") : t("profile.copy_handle")}
+      className={cn(
+        "group/handle inline-flex items-center gap-2 rounded-full border border-transparent px-2.5 py-1 -ml-2.5",
+        "font-mono text-body-3 md:text-body-2 transition-all",
+        "hover:border-(--outline) hover:bg-(--state-hover)",
+        copied ? "text-emerald-500" : "text-(--on-bg-low) hover:text-(--on-bg-high)",
+      )}
+    >
+      <span>{handle}</span>
+      {copied ? (
+        <CheckIcon className="size-3.5 shrink-0" weight="bold" />
+      ) : (
+        <CopyIcon className="size-3.5 shrink-0 opacity-0 group-hover/handle:opacity-60 transition-opacity" />
+      )}
+    </button>
+  );
+}
+
+/* ── Stat card ─────────────────────────────────────────────────────── */
+
+function StatCard({
   index,
   label,
-  value,
-  hint,
-  monoValue,
+  icon: Icon,
+  primary,
+  secondary,
+  breakdown,
 }: {
   index: string;
   label: string;
-  value: string;
-  hint: string;
-  monoValue?: boolean;
+  icon: React.ComponentType<{ className?: string; weight?: "bold" | "regular" }>;
+  primary: string;
+  secondary: string;
+  breakdown?: string | null;
 }) {
   return (
-    <div className="py-8 md:py-10 px-5 md:px-8 first:pl-0 last:pr-0">
-      <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-(--on-bg-low) mb-3">
-        {index} · {label}
+    <div className="relative bg-(--bg) p-8 md:p-10 overflow-hidden group">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full opacity-0 group-hover:opacity-[0.05] transition-opacity duration-500"
+        style={{
+          background:
+            "radial-gradient(circle, var(--on-bg-high) 0%, transparent 70%)",
+        }}
+      />
+      <div className="relative flex items-start justify-between gap-4 mb-8">
+        <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-(--on-bg-low)">
+          {index} · {label}
+        </p>
+        <Icon className="size-4 text-(--on-bg-low) opacity-50" weight="regular" />
+      </div>
+      <p className="relative font-heading font-medium tracking-[-0.045em] leading-[0.9] text-[3rem] md:text-[4.5rem] text-(--on-bg-high) tabular-nums mb-3">
+        {primary}
       </p>
-      <p
-        className={cn(
-          "font-heading font-medium tracking-[-0.03em] leading-none text-(--on-bg-high) mb-3",
-          monoValue
-            ? "font-mono text-[1.25rem] md:text-[1.5rem] tracking-normal"
-            : "text-[2rem] md:text-[2.75rem] tabular-nums",
-        )}
-      >
-        {value}
+      <p className="relative text-body-4 text-(--on-bg-medium) mb-4">
+        {secondary}
       </p>
-      <p className="text-body-5 text-(--on-bg-low) truncate">{hint}</p>
+      {breakdown && (
+        <p className="relative inline-flex items-center gap-2 text-body-5 text-(--on-bg-low) pt-4 border-t border-(--outline) w-fit">
+          <span className="inline-block size-1.5 rounded-full bg-(--on-bg-low)/50" />
+          {breakdown}
+        </p>
+      )}
     </div>
   );
 }
@@ -333,7 +413,6 @@ function EventCard({
       href={`/events/${event.slug}`}
       className="group relative flex flex-col rounded-3xl border border-(--outline) bg-(--card) overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:border-(--on-bg-high)"
     >
-      {/* Cover */}
       <div className="relative aspect-[16/10] overflow-hidden bg-(--bg-disabled)">
         {event.cover_image_src ? (
           /* eslint-disable-next-line @next/next/no-img-element */
@@ -365,7 +444,6 @@ function EventCard({
         </span>
       </div>
 
-      {/* Body */}
       <div className="flex-1 flex flex-col p-5 md:p-6">
         <div className="flex items-center gap-2 mb-3 flex-wrap">
           {firstType?.type && (

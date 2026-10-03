@@ -130,7 +130,11 @@ export default function AdminDashboard() {
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <RangeTabs value={days} onChange={setDays} disabled={state.kind === "loading"} />
+          <RangeTabs
+            value={days}
+            onChange={setDays}
+            disabled={state.kind === "loading"}
+          />
           <Button
             variant="outlined"
             size="small"
@@ -164,7 +168,6 @@ export default function AdminDashboard() {
       )}
 
       {state.kind === "loading" && <LoadingGrid />}
-
       {state.kind === "ready" && (
         <ReadyView stats={state.stats} series={state.series} base={base} />
       )}
@@ -173,7 +176,6 @@ export default function AdminDashboard() {
 }
 
 /* ─── Ready view ─────────────────────────────────────────────────── */
-
 function ReadyView({
   stats,
   series,
@@ -204,7 +206,6 @@ function ReadyView({
               : "нет за месяц"
           }
           icon={Receipt}
-          accent="orange"
           href={`${base}/orders`}
         />
         <WideTile
@@ -212,7 +213,6 @@ function ReadyView({
           value={stats.total_team_members ?? 0}
           sub="активных участников"
           icon={UsersThree}
-          accent="teal"
           href={`${base}/team`}
         />
         <WideTile
@@ -220,7 +220,6 @@ function ReadyView({
           value={stats.total_events ?? 0}
           sub="в системе"
           icon={CalendarBlank}
-          accent="indigo"
           href={`${base}/events`}
           className="sm:col-span-2 lg:col-span-1"
         />
@@ -230,7 +229,6 @@ function ReadyView({
 }
 
 /* ─── Chart ──────────────────────────────────────────────────────── */
-
 function ChartPanel({ series }: { series: Point[] }) {
   const [active, setActive] = useState<"users" | "orders" | null>(null);
 
@@ -246,8 +244,14 @@ function ChartPanel({ series }: { series: Point[] }) {
     [series],
   );
 
-  const usersTotal = useMemo(() => series.reduce((a, b) => a + b.users, 0), [series]);
-  const ordersTotal = useMemo(() => series.reduce((a, b) => a + b.orders, 0), [series]);
+  const usersTotal = useMemo(
+    () => series.reduce((a, b) => a + b.users, 0),
+    [series],
+  );
+  const ordersTotal = useMemo(
+    () => series.reduce((a, b) => a + b.orders, 0),
+    [series],
+  );
 
   return (
     <div className="rounded-2xl border border-(--outline) bg-(--card) h-full flex flex-col">
@@ -263,7 +267,7 @@ function ChartPanel({ series }: { series: Point[] }) {
         <div className="flex items-center gap-1.5">
           <LegendChip
             label="Пользователи"
-            color="var(--primary)"
+            color="var(--on-bg-high)"
             value={usersTotal}
             active={active === "users"}
             onHover={setActive}
@@ -271,7 +275,7 @@ function ChartPanel({ series }: { series: Point[] }) {
           />
           <LegendChip
             label="Заявки"
-            color="var(--warning)"
+            color="var(--on-bg-low)"
             value={ordersTotal}
             active={active === "orders"}
             onHover={setActive}
@@ -286,15 +290,34 @@ function ChartPanel({ series }: { series: Point[] }) {
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 4, right: 12, bottom: 4, left: -16 }}>
+            <AreaChart
+              data={data}
+              margin={{ top: 4, right: 12, bottom: 4, left: -16 }}
+            >
               <defs>
                 <linearGradient id="grad-users" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--primary)" stopOpacity={0.35} />
-                  <stop offset="100%" stopColor="var(--primary)" stopOpacity={0} />
+                  <stop
+                    offset="0%"
+                    stopColor="var(--on-bg-high)"
+                    stopOpacity={0.28}
+                  />
+                  <stop
+                    offset="100%"
+                    stopColor="var(--on-bg-high)"
+                    stopOpacity={0}
+                  />
                 </linearGradient>
                 <linearGradient id="grad-orders" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--warning)" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="var(--warning)" stopOpacity={0} />
+                  <stop
+                    offset="0%"
+                    stopColor="var(--on-bg-low)"
+                    stopOpacity={0.22}
+                  />
+                  <stop
+                    offset="100%"
+                    stopColor="var(--on-bg-low)"
+                    stopOpacity={0}
+                  />
                 </linearGradient>
               </defs>
               <CartesianGrid
@@ -325,7 +348,7 @@ function ChartPanel({ series }: { series: Point[] }) {
                 type="monotone"
                 dataKey="users"
                 name="Пользователи"
-                stroke="var(--primary)"
+                stroke="var(--on-bg-high)"
                 strokeWidth={1.75}
                 fill="url(#grad-users)"
                 fillOpacity={active === "orders" ? 0.15 : 1}
@@ -334,7 +357,7 @@ function ChartPanel({ series }: { series: Point[] }) {
                 dot={false}
                 activeDot={{
                   r: 3.5,
-                  stroke: "var(--primary)",
+                  stroke: "var(--on-bg-high)",
                   strokeWidth: 2,
                   fill: "var(--bg)",
                 }}
@@ -343,7 +366,7 @@ function ChartPanel({ series }: { series: Point[] }) {
                 type="monotone"
                 dataKey="orders"
                 name="Заявки"
-                stroke="var(--warning)"
+                stroke="var(--on-bg-low)"
                 strokeWidth={1.75}
                 fill="url(#grad-orders)"
                 fillOpacity={active === "users" ? 0.15 : 1}
@@ -352,7 +375,7 @@ function ChartPanel({ series }: { series: Point[] }) {
                 dot={false}
                 activeDot={{
                   r: 3.5,
-                  stroke: "var(--warning)",
+                  stroke: "var(--on-bg-low)",
                   strokeWidth: 2,
                   fill: "var(--bg)",
                 }}
@@ -392,7 +415,10 @@ function LegendChip({
           : "border-transparent hover:bg-(--state-hover)",
       )}
     >
-      <span className="size-2 rounded-full shrink-0" style={{ background: color }} />
+      <span
+        className="size-2 rounded-full shrink-0"
+        style={{ background: color }}
+      />
       <span className="text-body-5 text-(--on-bg-medium)">{label}</span>
       <span className="font-mono text-body-5 text-(--on-bg-high) font-medium tabular-nums">
         {value}
@@ -409,8 +435,14 @@ function ChartTooltip({ active, payload, label }: any) {
         {label}
       </p>
       {payload.map((p: any) => (
-        <div key={p.dataKey} className="flex items-center gap-2 text-body-5 leading-tight">
-          <span className="size-1.5 rounded-full" style={{ background: p.stroke }} />
+        <div
+          key={p.dataKey}
+          className="flex items-center gap-2 text-body-5 leading-tight"
+        >
+          <span
+            className="size-1.5 rounded-full"
+            style={{ background: p.stroke }}
+          />
           <span className="text-(--on-bg-medium)">{p.name}</span>
           <span className="font-mono text-(--on-bg-high) font-medium ml-auto pl-3 tabular-nums">
             {p.value}
@@ -421,14 +453,17 @@ function ChartTooltip({ active, payload, label }: any) {
   );
 }
 
-/* ─── KPI rail ───────────────────────────────────────────────────── */
-
+/* ─── KPI rail — monochrome tiles ────────────────────────────────── */
 function KpiPanel({ stats }: { stats: Stats }) {
   const rows = [
-    { label: "Пользователи", value: stats.total_users, icon: Users, accent: "primary" as const },
-    { label: "Заявки всего", value: stats.total_orders, icon: Receipt, accent: "orange" as const },
-    { label: "Заявок в месяце", value: stats.orders_this_month ?? 0, icon: Receipt, accent: "success" as const },
-    { label: "Компании", value: stats.total_companies, icon: Buildings, accent: "teal" as const },
+    { label: "Пользователи", value: stats.total_users, icon: Users },
+    { label: "Заявки всего", value: stats.total_orders, icon: Receipt },
+    {
+      label: "Заявок в месяце",
+      value: stats.orders_this_month ?? 0,
+      icon: Receipt,
+    },
+    { label: "Компании", value: stats.total_companies, icon: Buildings },
   ];
 
   return (
@@ -444,18 +479,15 @@ function KpiPanel({ stats }: { stats: Stats }) {
       <div className="flex-1 divide-y divide-(--outline)">
         {rows.map((r) => {
           const Icon = r.icon;
-          const a = ACCENT[r.accent];
           return (
             <div
               key={r.label}
               className="flex items-center gap-3 px-4 py-3 hover:bg-(--state-hover) transition-colors"
             >
-              <span
-                className={cn(
-                  "flex size-7 shrink-0 items-center justify-center rounded-md",
-                  a.tile,
-                )}
-              >
+              {/* Monochrome tile — inverted fill, matches the home-page
+                  numbers section: solid on-bg-high on the tile, on-bg bg
+                  for the glyph. No color, no gradient. */}
+              <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-(--on-bg-high) text-(--bg)">
                 <Icon className="size-3.5" weight="bold" />
               </span>
               <span className="flex-1 text-body-4 text-(--on-bg-medium) truncate">
@@ -472,49 +504,49 @@ function KpiPanel({ stats }: { stats: Stats }) {
   );
 }
 
-/* ─── Accent helper - maps intent names to design-token classes ─── */
-
-const ACCENT = {
-  primary: { tile: "bg-(--primary-card) text-(--primary)" },
-  orange: { tile: "bg-(--warning-card) text-(--on-warning-card)" },
-  success: { tile: "bg-(--success-card) text-(--on-success-card)" },
-  teal: { tile: "bg-(--teal-1) text-(--teal-7) dark:bg-[color-mix(in_srgb,var(--teal-5),transparent_84%)] dark:text-(--teal-4)" },
-  indigo: { tile: "bg-(--indigo-0) text-(--indigo-7) dark:bg-[color-mix(in_srgb,var(--indigo-4),transparent_84%)] dark:text-(--indigo-3)" },
-  rose: { tile: "bg-(--pink-0) text-(--pink-6) dark:bg-[color-mix(in_srgb,var(--pink-4),transparent_84%)] dark:text-(--pink-3)" },
-  violet: { tile: "bg-(--violet-0) text-(--violet-6) dark:bg-[color-mix(in_srgb,var(--violet-4),transparent_84%)] dark:text-(--violet-3)" },
-} as const;
-
 /* ─── Metric strip ───────────────────────────────────────────────── */
-
 function MetricStrip({ stats, base }: { stats: Stats; base: string }) {
   const tiles: {
     label: string;
     value: number;
-    icon: React.ComponentType<{ className?: string }>;
-    accent: keyof typeof ACCENT;
+    icon: React.ComponentType<{ className?: string; weight?: "bold" | "regular" }>;
     href: string;
   }[] = [
-      { label: "Компании", value: stats.total_companies, icon: Buildings, accent: "teal", href: `${base}/companies` },
-      { label: "Проекты", value: stats.total_projects, icon: Cube, accent: "violet", href: `${base}/projects` },
-      { label: "События", value: stats.total_events ?? 0, icon: CalendarBlank, accent: "success", href: `${base}/events` },
-      { label: "Статьи", value: stats.total_articles ?? 0, icon: NewspaperIcon, accent: "rose", href: `${base}/articles` },
-    ];
+    {
+      label: "Компании",
+      value: stats.total_companies,
+      icon: Buildings,
+      href: `${base}/companies`,
+    },
+    {
+      label: "Проекты",
+      value: stats.total_projects,
+      icon: Cube,
+      href: `${base}/projects`,
+    },
+    {
+      label: "События",
+      value: stats.total_events ?? 0,
+      icon: CalendarBlank,
+      href: `${base}/events`,
+    },
+    {
+      label: "Статьи",
+      value: stats.total_articles ?? 0,
+      icon: NewspaperIcon,
+      href: `${base}/articles`,
+    },
+  ];
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
       {tiles.map((t) => {
         const Icon = t.icon;
-        const a = ACCENT[t.accent];
         return (
           <Link key={t.label} href={t.href} className="group block">
-            <div className="rounded-2xl border border-(--outline) bg-(--card) p-3.5 transition-colors group-hover:border-[color-mix(in_srgb,var(--primary),transparent_60%)]">
+            <div className="rounded-2xl border border-(--outline) bg-(--card) p-3.5 transition-colors group-hover:border-(--on-bg-low)">
               <div className="flex items-center justify-between mb-3">
-                <span
-                  className={cn(
-                    "flex size-7 items-center justify-center rounded-md",
-                    a.tile,
-                  )}
-                >
+                <span className="flex size-7 items-center justify-center rounded-md bg-(--on-bg-high) text-(--bg)">
                   <Icon className="size-3.5" weight="bold" />
                 </span>
                 <ArrowUpRightIcon className="size-3 text-(--on-bg-low) opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -534,35 +566,26 @@ function MetricStrip({ stats, base }: { stats: Stats; base: string }) {
 }
 
 /* ─── Wide tile ──────────────────────────────────────────────────── */
-
 function WideTile({
   label,
   value,
   sub,
   icon: Icon,
-  accent,
   href,
   className,
 }: {
   label: string;
   value: number;
   sub?: string;
-  icon: React.ComponentType<{ className?: string }>;
-  accent: keyof typeof ACCENT;
+  icon: React.ComponentType<{ className?: string; weight?: "bold" | "regular" }>;
   href: string;
   className?: string;
 }) {
-  const a = ACCENT[accent];
   return (
     <Link href={href} className={cn("group block", className)}>
-      <div className="rounded-2xl border border-(--outline) bg-(--card) p-4 transition-colors group-hover:border-[color-mix(in_srgb,var(--primary),transparent_60%)] h-full">
+      <div className="rounded-2xl border border-(--outline) bg-(--card) p-4 transition-colors group-hover:border-(--on-bg-low) h-full">
         <div className="flex items-center justify-between mb-4">
-          <span
-            className={cn(
-              "flex size-8 items-center justify-center rounded-md",
-              a.tile,
-            )}
-          >
+          <span className="flex size-8 items-center justify-center rounded-md bg-(--on-bg-high) text-(--bg)">
             <Icon className="size-4" weight="bold" />
           </span>
           <ArrowUpRightIcon className="size-3.5 text-(--on-bg-low) opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -573,14 +596,15 @@ function WideTile({
         <p className="font-mono text-[2rem] font-semibold leading-none text-(--on-bg-high) tabular-nums mb-2">
           {value}
         </p>
-        {sub && <p className="text-body-5 text-(--on-bg-low) truncate">{sub}</p>}
+        {sub && (
+          <p className="text-body-5 text-(--on-bg-low) truncate">{sub}</p>
+        )}
       </div>
     </Link>
   );
 }
 
 /* ─── Range tabs ─────────────────────────────────────────────────── */
-
 function RangeTabs({
   value,
   onChange,
@@ -595,6 +619,7 @@ function RangeTabs({
     { v: 30, label: "30д" },
     { v: 90, label: "90д" },
   ];
+
   return (
     <div className="inline-flex rounded-lg border border-(--outline) bg-(--card) p-0.5">
       {options.map((o) => (
@@ -606,7 +631,7 @@ function RangeTabs({
           className={cn(
             "px-2.5 py-1 text-body-5 font-medium rounded-md transition-colors",
             value === o.v
-              ? "bg-(--primary) text-(--on-primary)"
+              ? "bg-(--on-bg-high) text-(--bg)"
               : "text-(--on-bg-medium) hover:text-(--on-bg-high) hover:bg-(--state-hover)",
             disabled && "opacity-50 cursor-not-allowed",
           )}
@@ -619,7 +644,6 @@ function RangeTabs({
 }
 
 /* ─── Skeleton ───────────────────────────────────────────────────── */
-
 function LoadingGrid() {
   return (
     <div className="space-y-4">
