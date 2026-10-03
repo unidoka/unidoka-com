@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { CheckUser } from "@/entities/user/model/check-user";
 import { useUser } from "@/entities/user/model/user-context";
@@ -10,11 +10,16 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Badge } from "@/components/ui/badge";
-import { ImageUploadField } from "@/components/editor/image-upload-field";
+import {
+  ImageUploadField,
+  type ImageUploadFieldHandle,
+} from "@/components/editor/image-upload-field";
 import {
   CircleNotchIcon,
   GithubLogo,
   TelegramLogo,
+  TrashIcon,
+  UploadSimpleIcon,
 } from "@phosphor-icons/react";
 import { updateProfile } from "@/utils/api/user";
 
@@ -33,14 +38,22 @@ const GITHUB_PREFIX = "https://github.com/";
 
 export default function ProfilePage() {
   const { user, setUser } = useUser();
+  const avatarRef = useRef<ImageUploadFieldHandle>(null);
   const [form, setForm] = useState<FormState>({
-    name: "", surname: "", username: "", phone: "",
-    description: "", avatar_url: "", telegram_username: "", github_url: "",
+    name: "",
+    surname: "",
+    username: "",
+    phone: "",
+    description: "",
+    avatar_url: "",
+    telegram_username: "",
+    github_url: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [avatarBusy, setAvatarBusy] = useState(false);
 
-  // Sync form → user on mount and whenever context refreshes.
+  // Sync form → user on mount and whenever the context refreshes.
   useEffect(() => {
     if (!user) return;
     setForm({
@@ -59,6 +72,30 @@ export default function ProfilePage() {
 
   const set = (k: keyof FormState, v: string) =>
     setForm((p) => ({ ...p, [k]: v }));
+
+  /**
+   * Avatar is persisted immediately on upload / delete — it is not part
+   * of the big Save button. Sending `null` explicitly on delete matters:
+   * `undefined` is dropped by JSON.stringify, so the PATCH body would be
+   * `{}` and the backend would leave the column untouched.
+   */
+  const persistAvatar = async (url: string) => {
+    if (!user) return;
+    setAvatarBusy(true);
+    set("avatar_url", url);
+    try {
+      const updated = await updateProfile({
+        avatar_url: url === "" ? null : url,
+      });
+      setUser({ ...user, ...updated });
+      if (url === "") toast.success("Аватар удалён");
+    } catch (err: any) {
+      toast.error(err?.message || "Не удалось сохранить аватар");
+      set("avatar_url", user.avatar_url ?? "");
+    } finally {
+      setAvatarBusy(false);
+    }
+  };
 
   const validate = (): boolean => {
     const next: Record<string, string> = {};
@@ -85,35 +122,16 @@ export default function ProfilePage() {
         username: form.username.trim().toLowerCase() || undefined,
         phone: form.phone.trim() || undefined,
         description: form.description.trim() || undefined,
-        avatar_url: form.avatar_url || undefined,
-        telegram_username: form.telegram_username.replace(/^@/, "").trim() || undefined,
+        telegram_username:
+          form.telegram_username.replace(/^@/, "").trim() || undefined,
         github_url: form.github_url.trim() || undefined,
       });
-      // Sync global context so the header avatar + name update without
-      // a page reload.
       setUser({ ...user, ...updated });
       toast.success("Профиль сохранён");
     } catch (err: any) {
       toast.error(err?.message || "Не удалось сохранить");
     } finally {
       setSaving(false);
-    }
-  };
-
-  // Avatar is persisted immediately on upload. Without this, the user
-  // had to remember to hit "Сохранить изменения" — otherwise the preview
-  // showed the new image (local state) but the next GET /me returned the
-  // old value (or null), and the avatar reverted to initials on reload.
-  const onAvatarChange = async (url: string) => {
-    set("avatar_url", url);
-    if (!user) return;
-    try {
-      const updated = await updateProfile({
-        avatar_url: url || undefined,
-      });
-      setUser({ ...user, ...updated });
-    } catch (err: any) {
-      toast.error(err?.message || "Не удалось сохранить аватар");
     }
   };
 
@@ -138,6 +156,8 @@ export default function ProfilePage() {
     user.email?.split("@")[0] ||
     "?";
 
+  const hasAvatar = !!form.avatar_url;
+
   return (
     <CheckUser>
       <div className="space-y-6">
@@ -148,25 +168,34 @@ export default function ProfilePage() {
           </p>
         </div>
 
-        {/* Avatar + identity */}
+        {/* ── Identity card ─────────────────────────────────────── */}
         <Card className="rounded-3xl border-(--outline) p-6 md:p-8">
           <div className="flex flex-col sm:flex-row gap-6 md:gap-8 items-start">
-            <ImageUploadField
-              value={form.avatar_url}
-              onChange={onAvatarChange}
-              variant="avatar"
-              aspect={1}
-              outputSize={512}
-              fallbackText={initials}
-            />
-            <div className="flex-1 min-w-0 space-y-2">
-              <h2 className="text-heading-2 truncate">
-                {form.name || form.username || "Без имени"}
-              </h2>
-              <p className="text-body-4 text-(--on-bg-low) truncate">
-                {user.email}
-              </p>
-              <div className="flex flex-wrap gap-1.5 pt-1">
+            {/* Avatar preview only — actions live in the info column */}
+            <div className="shrink-0 mx-auto sm:mx-0">
+              <ImageUploadField
+                ref={avatarRef}
+                value={form.avatar_url}
+                onChange={persistAvatar}
+                variant="avatar"
+                aspect={1}
+                outputSize={512}
+                fallbackText={initials}
+                hideActions
+              />
+            </div>
+
+            <div className="flex-1 min-w-0 space-y-4 w-full">
+              <div>
+                <h2 className="text-heading-2 truncate">
+                  {form.name || form.username || "Без имени"}
+                </h2>
+                <p className="text-body-4 text-(--on-bg-low) truncate mt-0.5">
+                  {user.email}
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-1.5">
                 <Badge variant="tonal-card-static" size="chip-small">
                   {user.role}
                 </Badge>
@@ -180,7 +209,39 @@ export default function ProfilePage() {
                   </Badge>
                 )}
               </div>
-              <p className="text-body-5 text-(--on-bg-low) pt-2 leading-relaxed">
+
+              {/* Action row */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <Button
+                  type="button"
+                  variant="outlined"
+                  size="small"
+                  onClick={() => avatarRef.current?.openPicker()}
+                  disabled={avatarBusy}
+                >
+                  {avatarBusy ? (
+                    <CircleNotchIcon className="size-4 animate-spin" />
+                  ) : (
+                    <UploadSimpleIcon className="size-4" />
+                  )}
+                  {hasAvatar ? "Заменить фото" : "Загрузить фото"}
+                </Button>
+                {hasAvatar && (
+                  <Button
+                    type="button"
+                    variant="text"
+                    size="small"
+                    onClick={() => persistAvatar("")}
+                    disabled={avatarBusy}
+                    className="text-(--error) hover:bg-(--error-card)"
+                  >
+                    <TrashIcon className="size-4" />
+                    Удалить
+                  </Button>
+                )}
+              </div>
+
+              <p className="text-body-5 text-(--on-bg-low) leading-relaxed">
                 Квадратное изображение 1:1. Перетаскивайте и масштабируйте
                 при загрузке.
               </p>
@@ -188,7 +249,7 @@ export default function ProfilePage() {
           </div>
         </Card>
 
-        {/* Personal info */}
+        {/* ── Personal info ─────────────────────────────────────── */}
         <Card className="rounded-3xl border-(--outline) p-6 md:p-8 space-y-5">
           <h2 className="text-heading-3">Личная информация</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -219,7 +280,10 @@ export default function ProfilePage() {
                 <Input
                   value={form.username}
                   onChange={(e) =>
-                    set("username", e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""))
+                    set(
+                      "username",
+                      e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""),
+                    )
                   }
                   className="pl-7"
                   placeholder="niyazgim"
@@ -245,12 +309,14 @@ export default function ProfilePage() {
                 placeholder="Коротко о том, чем занимаетесь"
                 className="min-h-[110px]"
               />
-              {errors.description && <FieldError errors={[{ message: errors.description }]} />}
+              {errors.description && (
+                <FieldError errors={[{ message: errors.description }]} />
+              )}
             </Field>
           </div>
         </Card>
 
-        {/* Public links */}
+        {/* ── Public links ──────────────────────────────────────── */}
         <Card className="rounded-3xl border-(--outline) p-6 md:p-8 space-y-5">
           <div>
             <h2 className="text-heading-3 mb-1">Публичные ссылки</h2>
@@ -270,7 +336,9 @@ export default function ProfilePage() {
               </span>
               <Input
                 value={form.telegram_username}
-                onChange={(e) => set("telegram_username", e.target.value.replace(/^@/, ""))}
+                onChange={(e) =>
+                  set("telegram_username", e.target.value.replace(/^@/, ""))
+                }
                 className="pl-7"
                 placeholder="username"
                 autoComplete="off"
@@ -293,7 +361,10 @@ export default function ProfilePage() {
               <Input
                 value={form.github_url.replace(/^https?:\/\/github\.com\//, "")}
                 onChange={(e) => {
-                  const h = e.target.value.replace(/^https?:\/\/github\.com\//, "");
+                  const h = e.target.value.replace(
+                    /^https?:\/\/github\.com\//,
+                    "",
+                  );
                   set("github_url", h ? GITHUB_PREFIX + h : "");
                 }}
                 className="pl-[92px]"
@@ -307,7 +378,7 @@ export default function ProfilePage() {
           </Field>
         </Card>
 
-        {/* Save bar */}
+        {/* ── Save bar ──────────────────────────────────────────── */}
         <div className="flex flex-wrap gap-3">
           <Button onClick={save} disabled={saving} size="large">
             {saving && <CircleNotchIcon className="size-4 animate-spin" />}

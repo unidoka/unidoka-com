@@ -22,9 +22,9 @@ export interface UpdateProfilePayload {
   username?: string;
   phone?: string;
   description?: string;
-  avatar_url?: string;
-  telegram_username?: string;
-  github_url?: string;
+  avatar_url?: string | null;
+  telegram_username?: string | null;
+  github_url?: string | null;
 }
 
 export async function updateProfile(data: UpdateProfilePayload): Promise<UserProfile> {
