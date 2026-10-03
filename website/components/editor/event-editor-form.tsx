@@ -512,7 +512,7 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
               <SelectValue placeholder="Без организатора" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={NO_ORGANIZER}>— Без организатора —</SelectItem>
+              <SelectItem value={NO_ORGANIZER}>Без организатора</SelectItem>
               {organizers.map((o) => (
                 <SelectItem key={o.id} value={o.id}>
                   <span className="flex items-center gap-2">
@@ -541,7 +541,7 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
                 </SelectItem>
               ))}
               <SelectItem value={OTHER_ORGANIZER}>
-                — Другой (введу название) —
+                Другой организатор
               </SelectItem>
             </SelectContent>
           </Select>
@@ -606,46 +606,45 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
           </p>
         </div>
 
-        {types.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
-            {types.map((t) => {
-              const selected = typeSelections.some(
-                (x) => x.id === t.id && !x.isCustom,
-              );
-              return (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => (selected ? removeType(t.id) : addType(t.id))}
-                  className={
-                    "rounded-full px-3 py-1.5 text-body-4 font-medium transition-colors " +
-                    (selected
-                      ? "bg-(--primary) text-(--on-primary)"
-                      : "bg-(--card) border border-(--outline) text-(--on-bg-medium) hover:text-(--on-bg-high)")
-                  }
-                >
-                  {t.name}
-                </button>
-              );
-            })}
-            <button
-              type="button"
-              onClick={addCustomType}
-              className="rounded-full px-3 py-1.5 text-body-4 font-medium border border-dashed border-(--outline) text-(--on-bg-low) hover:border-(--primary) hover:text-(--primary) transition-colors"
-            >
-              <PlusIcon className="size-3.5 inline mr-1" />
-              Другое
-            </button>
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-dashed border-(--outline) p-4">
-            <p className="text-body-4 text-(--on-bg-medium)">
-              {metaError ? metaError : "Справочник типов пока пуст."}
-            </p>
-            <p className="text-body-5 text-(--on-bg-low) mt-1">
-              Администратор может заполнить его в панели «Типы событий».
-            </p>
-          </div>
+        <div className="flex flex-wrap gap-2">
+          {types.map((t) => {
+            const selected = typeSelections.some(
+              (x) => x.id === t.id && !x.isCustom,
+            );
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => (selected ? removeType(t.id) : addType(t.id))}
+                className={
+                  "rounded-full px-3 py-1.5 text-body-4 font-medium transition-colors " +
+                  (selected
+                    ? "bg-(--primary) text-(--on-primary)"
+                    : "bg-(--card) border border-(--outline) text-(--on-bg-medium) hover:text-(--on-bg-high)")
+                }
+              >
+                {t.name}
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            onClick={addCustomType}
+            className="rounded-full px-3 py-1.5 text-body-4 font-medium border border-dashed border-(--outline) text-(--on-bg-low) hover:border-(--on-bg-high) hover:text-(--on-bg-high) transition-colors inline-flex items-center gap-1"
+          >
+            <PlusIcon className="size-3.5" />
+            Другое
+          </button>
+        </div>
+
+        {types.length === 0 && !metaError && (
+          <p className="text-body-5 text-(--on-bg-low)">
+            Справочник типов пуст — можно добавить свой через «Другое».
+          </p>
+        )}
+
+        {types.length === 0 && metaError && (
+          <p className="text-body-5 text-destructive">{metaError}</p>
         )}
 
         {typeSelections
