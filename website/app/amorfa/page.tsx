@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
@@ -15,48 +17,20 @@ import {
   RobotIcon,
   StackIcon,
   PackageIcon,
-  TerminalWindowIcon,
-} from "@phosphor-icons/react/dist/ssr";
-
-export const metadata = {
-  title: "Amorfa — AI-оптимизированный fullstack-фреймворк · Юнидока",
-  description:
-    "Amorfa — open-source fullstack-фреймворк для сборки приложений за часы. FastAPI + Next.js + PostgreSQL, готов к продакшену, AI-friendly.",
-};
+} from "@phosphor-icons/react";
+import { useLanguage } from "@/providers/language-provider";
 
 const GITHUB = "https://github.com/unidoka/amorfa";
 
+/* Icon + i18n key pairs — resolved with t() at render, so flipping the
+   language switcher re-renders the copy without a full page reload. */
 const FEATURES = [
-  {
-    icon: LightningIcon,
-    title: "Запуск за часы",
-    body: "Скаффолд со всем включённым: авторизация, БД, кэш, прокси и CI уже настроены. Клонируй, отредактируй .env, запускай.",
-  },
-  {
-    icon: RobotIcon,
-    title: "AI-first структура",
-    body: "Каждый файл несёт LLM-читаемый контекст. Конфиг Repomix, .agents/skills и задокументированное дерево файлов — из коробки.",
-  },
-  {
-    icon: StackIcon,
-    title: "Fullstack, честно",
-    body: "FastAPI + SQLAlchemy 2.0 + Alembic на бэкенде. Next.js 16 App Router + Tailwind v4 на фронтенде. Один репозиторий.",
-  },
-  {
-    icon: PackageIcon,
-    title: "Ноль lock-in",
-    body: "Никаких SaaS-панелей. Docker Compose, Traefik, Postgres, Valkey — всё самохостится на одном VPS.",
-  },
-  {
-    icon: GitBranchIcon,
-    title: "Готов к микросервисам",
-    body: "Папка /services — это конвенция, а не ограничение. Разделяйте на микросервисы, когда это реально нужно.",
-  },
-  {
-    icon: CodeIcon,
-    title: "Задокументированные дефолты",
-    body: "Комментарии объясняют «почему», а не «что». JWT-ротация, OTP, rate limiting и email-флоу — уже подключены.",
-  },
+  { icon: LightningIcon, titleKey: "amorfa.feature_1_title", bodyKey: "amorfa.feature_1_body" },
+  { icon: RobotIcon,     titleKey: "amorfa.feature_2_title", bodyKey: "amorfa.feature_2_body" },
+  { icon: StackIcon,     titleKey: "amorfa.feature_3_title", bodyKey: "amorfa.feature_3_body" },
+  { icon: PackageIcon,   titleKey: "amorfa.feature_4_title", bodyKey: "amorfa.feature_4_body" },
+  { icon: GitBranchIcon, titleKey: "amorfa.feature_5_title", bodyKey: "amorfa.feature_5_body" },
+  { icon: CodeIcon,      titleKey: "amorfa.feature_6_title", bodyKey: "amorfa.feature_6_body" },
 ];
 
 const STACK = [
@@ -74,7 +48,27 @@ const STACK = [
   "Traefik",
 ];
 
-const TREE = `/
+/* The file tree carries inline comments, so it is not translatable via
+   t() — it ships as two full strings and the component picks one. */
+const TREE_EN = `/
+├── backend/
+│   ├── services/
+│   │   └── main-service/          # FastAPI service
+│   ├── env.example                # backend .env vars
+│   ├── Dockerfile
+│   └── docker-compose.yml
+├── website/
+│   ├── app/                       # Next.js App Router
+│   ├── components/                # shadcn/ui + custom
+│   ├── env.example
+│   ├── Dockerfile
+│   └── docker-compose.yml
+├── .agents/skills/                # LLM context for the agent
+├── env.example                    # shared .env vars
+├── docker-compose.yml             # top-level compose
+└── README.md`;
+
+const TREE_RU = `/
 ├── backend/
 │   ├── services/
 │   │   └── main-service/          # FastAPI-сервис
@@ -93,6 +87,9 @@ const TREE = `/
 └── README.md`;
 
 export default function AmorfaPage() {
+  const { t, lang } = useLanguage();
+  const TREE = lang === "ru" ? TREE_RU : TREE_EN;
+
   return (
     <main className="min-h-screen bg-(--bg) pb-24">
       {/* ─── HERO ───────────────────────────────────────────────── */}
@@ -124,7 +121,7 @@ export default function AmorfaPage() {
               <AmorfaLogo className="size-14 md:size-16" />
               <div>
                 <p className="text-body-5 uppercase tracking-[0.32em] text-(--on-bg-low)">
-                  Open source · Юнидока
+                  {t("amorfa.eyebrow")}
                 </p>
                 <p className="text-body-4 text-(--on-bg-medium)">
                   github.com/unidoka/amorfa
@@ -132,29 +129,26 @@ export default function AmorfaPage() {
               </div>
             </div>
             <h1 className="text-display-2 md:text-display-0 text-(--on-bg-high) leading-[0.98] tracking-[-0.03em] mb-6">
-              Amorfa.
+              {t("amorfa.title_1")}
               <br />
               <span className="text-(--primary)">
-                Fullstack за часы, а не недели.
+                {t("amorfa.title_2")}
               </span>
             </h1>
             <p className="text-body-1 md:text-display-5 text-(--on-bg-medium) leading-relaxed max-w-[720px] mb-8">
-              AI-оптимизированный fullstack-фреймворк: FastAPI, Next.js,
-              PostgreSQL и Valkey — всё подключено, задокументировано и
-              самохостится. Клонируйте репозиторий и начинайте строить то,
-              что действительно хотели.
+              {t("amorfa.description")}
             </p>
             <div className="flex flex-wrap gap-3">
               <Button size="large" shape="round" asChild>
                 <Link href={GITHUB} target="_blank" rel="noopener noreferrer">
                   <GitBranchIcon className="size-4" />
-                  Открыть на GitHub
+                  {t("amorfa.cta_github")}
                   <ArrowUpRightIcon className="size-4" />
                 </Link>
               </Button>
               <Button size="large" variant="outlined" shape="round" asChild>
                 <Link href="#quickstart">
-                  Быстрый старт
+                  {t("amorfa.cta_quickstart")}
                   <ArrowRightIcon className="size-4" />
                 </Link>
               </Button>
@@ -182,10 +176,10 @@ export default function AmorfaPage() {
         <Container>
           <div className="mb-12">
             <p className="text-body-5 uppercase tracking-[0.32em] text-(--primary) mb-3">
-              Что внутри
+              {t("amorfa.features_eyebrow")}
             </p>
             <h2 className="text-display-3 md:text-display-2 text-(--on-bg-high) tracking-tight max-w-[700px]">
-              Всё, что нужно для продакшена — и ничего лишнего.
+              {t("amorfa.features_title")}
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -193,17 +187,17 @@ export default function AmorfaPage() {
               const Icon = f.icon;
               return (
                 <Card
-                  key={f.title}
+                  key={f.titleKey}
                   className="rounded-3xl border border-(--outline) bg-(--card) ring-0 p-7"
                 >
                   <div className="flex size-12 items-center justify-center rounded-2xl bg-(--primary-card) text-(--primary) mb-5">
                     <Icon className="size-5" weight="bold" />
                   </div>
                   <h3 className="text-heading-3 text-(--on-bg-high) mb-2">
-                    {f.title}
+                    {t(f.titleKey)}
                   </h3>
                   <p className="text-body-3 text-(--on-bg-medium) leading-relaxed">
-                    {f.body}
+                    {t(f.bodyKey)}
                   </p>
                 </Card>
               );
@@ -218,20 +212,16 @@ export default function AmorfaPage() {
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-10 lg:gap-16 items-start">
             <div>
               <p className="text-body-5 uppercase tracking-[0.32em] text-(--primary) mb-3">
-                Структура
+                {t("amorfa.structure_eyebrow")}
               </p>
               <h2 className="text-display-4 md:text-display-3 text-(--on-bg-high) tracking-tight mb-5">
-                Один репозиторий — два сервиса.
+                {t("amorfa.structure_title")}
               </h2>
               <p className="text-body-3 text-(--on-bg-medium) leading-relaxed mb-6">
-                Монорепо по умолчанию: бэкенд и фронтенд рядом, но
-                изолированы. Разделение на микросервисы — вопрос одного
-                docker-compose, а не переписывания.
+                {t("amorfa.structure_body_1")}
               </p>
               <p className="text-body-3 text-(--on-bg-medium) leading-relaxed">
-                Каждый файл несёт контекст для LLM-агента: комментарии,
-                структура, .agents/skills. Repomix-конфиг собирает весь проект
-                в один читаемый документ — можно скармливать модели целиком.
+                {t("amorfa.structure_body_2")}
               </p>
             </div>
             <div>
@@ -248,10 +238,10 @@ export default function AmorfaPage() {
       <section className="py-16 md:py-20">
         <Container>
           <p className="text-body-5 uppercase tracking-[0.32em] text-(--primary) mb-3">
-            Стек
+            {t("amorfa.stack_eyebrow")}
           </p>
           <h2 className="text-display-4 md:text-display-3 text-(--on-bg-high) tracking-tight mb-8">
-            Современный, простой, надёжный.
+            {t("amorfa.stack_title")}
           </h2>
           <div className="flex flex-wrap gap-2">
             {STACK.map((s) => (
@@ -273,19 +263,19 @@ export default function AmorfaPage() {
         <Container>
           <div className="max-w-[800px]">
             <p className="text-body-5 uppercase tracking-[0.32em] text-(--primary) mb-3">
-              Быстрый старт
+              {t("amorfa.quickstart_eyebrow")}
             </p>
             <h2 className="text-display-3 md:text-display-2 text-(--on-bg-high) tracking-tight mb-8">
-              Три команды до работающего приложения.
+              {t("amorfa.quickstart_title")}
             </h2>
             <div className="space-y-4">
-              <Step n="01" title="Клонировать и настроить">
+              <Step n="01" title={t("amorfa.step_1_title")}>
                 <TerminalStyledInline command="git clone https://github.com/unidoka/amorfa && cd amorfa && cp .env.example .env" />
               </Step>
-              <Step n="02" title="Поднять контейнеры">
+              <Step n="02" title={t("amorfa.step_2_title")}>
                 <TerminalStyledInline command="docker compose up -d --build" />
               </Step>
-              <Step n="03" title="Применить миграции">
+              <Step n="03" title={t("amorfa.step_3_title")}>
                 <TerminalStyledInline command="docker exec -it main-service alembic upgrade head" />
               </Step>
             </div>
@@ -293,7 +283,7 @@ export default function AmorfaPage() {
               <Button size="large" shape="round" asChild>
                 <Link href={GITHUB} target="_blank" rel="noopener noreferrer">
                   <GitBranchIcon className="size-4" />
-                  Все инструкции на GitHub
+                  {t("amorfa.quickstart_cta")}
                   <ArrowUpRightIcon className="size-4" />
                 </Link>
               </Button>
@@ -317,13 +307,12 @@ export default function AmorfaPage() {
             <div className="relative">
               <AmorfaLogo className="size-14 mx-auto mb-6" />
               <h2 className="text-display-3 md:text-display-2 text-(--on-bg-high) tracking-tight mb-4">
-                Открытый исходный код.
+                {t("amorfa.cta_title_1")}
                 <br />
-                Ваш ход.
+                {t("amorfa.cta_title_2")}
               </h2>
               <p className="text-body-2 text-(--on-bg-medium) leading-relaxed mb-8 max-w-lg mx-auto">
-                Форкайте, дописывайте, присылайте PR. Amorfa живёт, пока её
-                используют.
+                {t("amorfa.cta_body")}
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button size="large" shape="round" asChild>
@@ -334,9 +323,7 @@ export default function AmorfaPage() {
                   </Link>
                 </Button>
                 <Button size="large" variant="outlined" shape="round" asChild>
-                  <Link href="/">
-                    ← На главную
-                  </Link>
+                  <Link href="/">{t("amorfa.cta_home")}</Link>
                 </Button>
               </div>
             </div>
@@ -357,7 +344,7 @@ function Step({
   children: React.ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-[52px_1fr] gap-4 items-start">
+    <div className="grid grid-cols-[52px_minmax(0,1fr)] gap-4 items-start">
       <span className="font-mono text-2xl font-bold text-(--primary) leading-none pt-1 tabular-nums">
         {n}
       </span>

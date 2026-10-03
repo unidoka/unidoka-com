@@ -886,3 +886,32 @@ html::-webkit-scrollbar-corner {
   --state-hover: color-mix(in srgb, #ffffff, transparent 94%);
   --state-focus: color-mix(in srgb, #ffffff, transparent 90%);
 }
+/* ═══════════════════════════════════════════════════════════════════
+   TERMINAL STYLED INLINE — horizontal scrollbar
+   ───────────────────────────────────────────────────────────────────
+   Thin, monochrome scrollbar that only renders on the terminal's
+   scroll container. `overflow-x: auto` on the container makes the
+   track appear ONLY when the command overflows — no track when it
+   fits. Height 6px keeps it subtle on both themes.
+   ═══════════════════════════════════════════════════════════════════ */
+.scrollbar-terminal {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--on-bg-low), transparent 45%) transparent;
+}
+.scrollbar-terminal::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.scrollbar-terminal::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-terminal::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--on-bg-low), transparent 55%);
+  border-radius: 9999px;
+}
+.scrollbar-terminal::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--on-bg-low), transparent 20%);
+}
+.scrollbar-terminal::-webkit-scrollbar-corner {
+  background: transparent;
+}
