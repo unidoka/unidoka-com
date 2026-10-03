@@ -1,26 +1,24 @@
 "use client";
+
 import { format, isSameDay, isToday } from "date-fns";
 import { ru } from "date-fns/locale";
 import { weekGrid } from "./date-utils";
 import { EventChip } from "./event-chip";
-import type { EventItem } from "../_data/events";
+import type { EventListItem } from "@/utils/api/events";
 import { cn } from "@/lib/utils";
 
 interface Props {
   anchor: Date;
-  byDay: Map<string, EventItem[]>;
-  onSelectEvent: (e: EventItem) => void;
+  byDay: Map<string, EventListItem[]>;
+  onSelectEvent: (e: EventListItem) => void;
 }
 
 export function WeekView({ anchor, byDay, onSelectEvent }: Props) {
   const days = weekGrid(anchor);
-
   return (
     <div className="rounded-2xl border border-(--outline) bg-(--card) overflow-hidden min-h-[520px] sm:min-h-[680px] flex flex-col">
-      {/* Horizontal scroll on mobile. 840px = 7 × 120px min column. */}
       <div className="flex-1 overflow-x-auto snap-x snap-mandatory sm:snap-none">
         <div className="min-w-[840px] h-full flex flex-col">
-          {/* Day headers */}
           <div className="grid grid-cols-7 border-b border-(--outline)">
             {days.map((d) => {
               const today = isToday(d);
@@ -29,7 +27,7 @@ export function WeekView({ anchor, byDay, onSelectEvent }: Props) {
                   key={d.toISOString()}
                   className={cn(
                     "h-16 flex flex-col items-center justify-center gap-0.5",
-                    today && "bg-(--primary-glass)"
+                    today && "bg-(--primary-glass)",
                   )}
                 >
                   <span className="text-body-5 uppercase tracking-wider text-(--on-bg-low)">
@@ -38,7 +36,7 @@ export function WeekView({ anchor, byDay, onSelectEvent }: Props) {
                   <span
                     className={cn(
                       "flex items-center justify-center size-8 rounded-full text-body-3 font-semibold tabular-nums",
-                      today ? "bg-(--primary) text-(--on-primary)" : "text-(--on-bg-high)"
+                      today ? "bg-(--primary) text-(--on-primary)" : "text-(--on-bg-high)",
                     )}
                   >
                     {format(d, "d")}
@@ -47,8 +45,6 @@ export function WeekView({ anchor, byDay, onSelectEvent }: Props) {
               );
             })}
           </div>
-
-          {/* Day columns */}
           <div className="grid grid-cols-7 flex-1">
             {days.map((d, i) => {
               const key = format(d, "yyyy-MM-dd");
@@ -60,7 +56,7 @@ export function WeekView({ anchor, byDay, onSelectEvent }: Props) {
                     "flex flex-col gap-1 p-2 min-h-full snap-start",
                     i !== 6 && "border-r border-(--outline)",
                     isSameDay(d, new Date()) &&
-                      "bg-[color-mix(in_srgb,var(--primary)_4%,transparent)]"
+                      "bg-[color-mix(in_srgb,var(--primary)_4%,transparent)]",
                   )}
                 >
                   {events.map((ev) => (

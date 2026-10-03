@@ -33,6 +33,14 @@ export interface TypeAssignment {
   } | null;
 }
 
+export interface EventAuthor {
+  id: string;
+  name: string | null;
+  surname: string | null;
+  username: string | null;
+  avatar_url: string | null;
+}
+
 export interface EventListItem {
   id: string;
   slug: string;
@@ -66,6 +74,7 @@ export interface EventDetail extends EventListItem {
   seo_title?: string | null;
   meta_description?: string | null;
   rejection_reason?: string | null;
+  submitted_by?: EventAuthor | null;
   submitted_by_id?: string | null;
   reviewed_by_id?: string | null;
   reviewed_at?: string | null;

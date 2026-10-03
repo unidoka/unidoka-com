@@ -1,21 +1,24 @@
 "use client";
+
 import { isSameDay } from "date-fns";
 import { ArrowUpRight } from "@phosphor-icons/react";
 import { colorForOrganizer } from "./organizer-meta";
-import type { EventItem } from "../_data/events";
+import type { EventListItem } from "@/utils/api/events";
 import { cn } from "@/lib/utils";
 
 interface Props {
-  event: EventItem;
+  event: EventListItem;
   day: Date;
   compact?: boolean;
-  onClick?: (e: EventItem) => void;
+  onClick?: (e: EventListItem) => void;
 }
 
 export function EventChip({ event, day, compact, onClick }: Props) {
   const color = colorForOrganizer(event.organizer);
-  const startsToday = isSameDay(new Date(event.startsAt), day);
-  const endsToday = isSameDay(new Date(event.endsAt ?? event.startsAt), day);
+  const start = event.start_at ? new Date(event.start_at) : null;
+  const end = event.end_at ? new Date(event.end_at) : start;
+  const startsToday = start ? isSameDay(start, day) : false;
+  const endsToday = end ? isSameDay(end, day) : false;
   const leftFlush = !startsToday;
   const rightFlush = !endsToday;
 
@@ -38,7 +41,7 @@ export function EventChip({ event, day, compact, onClick }: Props) {
           ? "px-1.5 py-0.5 rounded text-[11px] leading-tight truncate"
           : "px-2 py-1 rounded-md text-[12px] leading-snug",
         leftFlush && "rounded-l-none border-l-0",
-        rightFlush && "rounded-r-none"
+        rightFlush && "rounded-r-none",
       )}
     >
       <span className="flex items-center gap-1">
@@ -46,7 +49,7 @@ export function EventChip({ event, day, compact, onClick }: Props) {
           <span className="shrink-0 size-1.5 rounded-full bg-[var(--ev)]" />
         )}
         <span className="truncate">{event.title}</span>
-        {!compact && startsToday && event.url && (
+        {!compact && startsToday && event.registration_url && (
           <ArrowUpRight className="ml-auto size-3 opacity-0 group-hover/chip:opacity-100 transition-opacity" />
         )}
       </span>

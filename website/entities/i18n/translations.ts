@@ -14,6 +14,7 @@ import { headerTranslations } from './header';
 import { heroTranslations } from './hero';
 import { homeTranslations } from './home';
 import { orderTranslations } from './order';
+import { profileTranslations } from './profile';
 import { projectsTranslations } from './projects';
 import { servicesTranslations } from './services';
 import { solutionsTranslations } from './solutions';

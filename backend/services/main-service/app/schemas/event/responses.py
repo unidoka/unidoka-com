@@ -52,6 +52,15 @@ class EventTypeAssignmentOut(BaseModel):
     type: Optional[EventTypeOut] = None
 
 
+class EventAuthorOut(BaseModel):
+    """Public-safe view of the user who submitted an event."""
+    id: str
+    name: Optional[str] = None
+    surname: Optional[str] = None
+    username: Optional[str] = None
+    avatar_url: Optional[str] = None
+
+
 class EventListItem(BaseModel):
     id: str
     slug: str
@@ -85,6 +94,7 @@ class EventDetail(EventListItem):
     seo_title: Optional[str] = None
     meta_description: Optional[str] = None
     rejection_reason: Optional[str] = None
+    submitted_by: Optional[EventAuthorOut] = None
     submitted_by_id: Optional[str] = None
     reviewed_by_id: Optional[str] = None
     reviewed_at: Optional[datetime] = None

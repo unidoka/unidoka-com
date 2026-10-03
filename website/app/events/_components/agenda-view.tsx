@@ -1,19 +1,19 @@
 "use client";
+
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { CalendarBlank, MapPin } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
 import { colorForOrganizer } from "./organizer-meta";
-import type { EventItem } from "../_data/events";
+import type { EventListItem } from "@/utils/api/events";
 
 interface Props {
-  days: { date: Date; events: EventItem[] }[];
-  onSelectEvent: (e: EventItem) => void;
+  days: { date: Date; events: EventListItem[] }[];
+  onSelectEvent: (e: EventListItem) => void;
 }
 
 export function AgendaView({ days, onSelectEvent }: Props) {
   const nonEmpty = days.filter((d) => d.events.length > 0);
-
   if (nonEmpty.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-(--outline) p-12 text-center text-body-4 text-(--on-bg-medium)">
@@ -21,7 +21,6 @@ export function AgendaView({ days, onSelectEvent }: Props) {
       </div>
     );
   }
-
   return (
     <div className="flex flex-col gap-6">
       {nonEmpty.map(({ date, events }) => (
@@ -37,6 +36,8 @@ export function AgendaView({ days, onSelectEvent }: Props) {
           <div className="flex flex-col gap-2">
             {events.map((ev) => {
               const color = colorForOrganizer(ev.organizer);
+              const start = ev.start_at ? new Date(ev.start_at) : null;
+              const end = ev.end_at ? new Date(ev.end_at) : null;
               return (
                 <Card
                   key={`${ev.id}-${date.toISOString()}`}
@@ -44,33 +45,38 @@ export function AgendaView({ days, onSelectEvent }: Props) {
                   className="p-4 gap-2 cursor-pointer hover:border-(--primary) transition-colors"
                   style={{ borderLeft: `3px solid ${color}` }}
                 >
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="size-1.5 rounded-full"
-                      style={{ backgroundColor: color }}
-                    />
-                    <span
-                      className="text-[11px] font-semibold uppercase tracking-wider"
-                      style={{ color }}
-                    >
-                      {ev.organizer}
-                    </span>
-                  </div>
+                  {ev.organizer && (
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="size-1.5 rounded-full"
+                        style={{ backgroundColor: color }}
+                      />
+                      <span
+                        className="text-[11px] font-semibold uppercase tracking-wider"
+                        style={{ color }}
+                      >
+                        {ev.organizer.name}
+                      </span>
+                    </div>
+                  )}
                   <h3 className="text-heading-4 leading-tight">{ev.title}</h3>
-                  <p className="text-body-4 text-(--on-bg-medium) line-clamp-2">
-                    {ev.description}
-                  </p>
+                  {ev.short_description && (
+                    <p className="text-body-4 text-(--on-bg-medium) line-clamp-2">
+                      {ev.short_description}
+                    </p>
+                  )}
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-body-5 text-(--on-bg-low) mt-1">
-                    <span className="inline-flex items-center gap-1">
-                      <CalendarBlank className="size-3.5" />
-                      {format(new Date(ev.startsAt), "d MMM", { locale: ru })}
-                      {ev.endsAt &&
-                        ` - ${format(new Date(ev.endsAt), "d MMM", { locale: ru })}`}
-                    </span>
-                    {ev.location && (
+                    {start && (
+                      <span className="inline-flex items-center gap-1">
+                        <CalendarBlank className="size-3.5" />
+                        {format(start, "d MMM", { locale: ru })}
+                        {end && ` — ${format(end, "d MMM", { locale: ru })}`}
+                      </span>
+                    )}
+                    {ev.location_name && (
                       <span className="inline-flex items-center gap-1">
                         <MapPin className="size-3.5" />
-                        {ev.location}
+                        {ev.location_name}
                       </span>
                     )}
                   </div>

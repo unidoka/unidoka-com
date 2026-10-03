@@ -6,6 +6,7 @@ import { useLanguage } from "@/providers/language-provider";
 import { Button } from "@/components/ui/button";
 import {
   SignOutIcon, UserIcon, GearIcon, BriefcaseIcon, NewspaperIcon,
+  CalendarBlankIcon,
 } from "@phosphor-icons/react";
 
 export function ProfileSidebar() {
@@ -16,6 +17,7 @@ export function ProfileSidebar() {
   const NAV_ITEMS: SidebarItem[] = [
     { label: t("nav.profile"), href: "/profile", icon: UserIcon, exact: true },
     { label: t("editor.my_articles"), href: "/profile/articles", icon: NewspaperIcon },
+    { label: "Мои события", href: "/profile/events", icon: CalendarBlankIcon },
     { label: "Настройки", href: "/profile/settings", icon: GearIcon, exact: true },
     { label: "Безопасность", href: "/profile/security", icon: BriefcaseIcon, exact: true },
   ];

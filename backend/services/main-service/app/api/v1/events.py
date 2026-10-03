@@ -117,6 +117,13 @@ def _serialize_event(event: Event, full: bool = False) -> dict:
             "seo_title": event.seo_title,
             "meta_description": event.meta_description,
             "rejection_reason": event.rejection_reason,
+            "submitted_by": {
+                "id": str(event.submitted_by.id),
+                "name": event.submitted_by.name,
+                "surname": event.submitted_by.surname,
+                "username": event.submitted_by.username,
+                "avatar_url": event.submitted_by.avatar_url,
+            } if event.submitted_by else None,
             "submitted_by_id": str(event.submitted_by_id) if event.submitted_by_id else None,
             "reviewed_by_id": str(event.reviewed_by_id) if event.reviewed_by_id else None,
             "reviewed_at": event.reviewed_at,
@@ -185,6 +192,7 @@ async def list_public_events(
     upcoming_only: bool = Query(False),
     limit: Optional[int] = Query(None, ge=1, le=500),
     tag: Optional[str] = Query(None),
+    submitted_by_username: Optional[str] = Query(None),
 ):
     q = (
         db.query(Event)
@@ -202,6 +210,11 @@ async def list_public_events(
         q = q.filter(or_(Event.end_at.is_(None), Event.end_at >= datetime.utcnow()))
     if tag:
         q = q.join(Event.subdirections).filter(EventSubdirection.slug == tag)
+    if submitted_by_username:
+        q = (
+            q.join(User, User.id == Event.submitted_by_id)
+            .filter(User.username == submitted_by_username.strip().lower().lstrip("@"))
+        )
     if limit:
         q = q.limit(limit)
     return [_serialize_event(e) for e in q.all()]

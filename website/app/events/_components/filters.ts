@@ -1,65 +1,79 @@
-import type { EventItem, EventType } from "../_data/events";
+import type { EventListItem } from "@/utils/api/events";
 
 export interface FilterState {
-  organizers: string[];
-  types: EventType[];
-  country: string;      // "" = all
-  ageMin: number;       // effective user age filter (inclusive)
-  ageMax: number;       // inclusive
-  registrationOpenOnly: boolean;
+  organizerIds: string[];
+  typeIds: string[];
+  featuredOnly: boolean;
+  hasRegistrationOnly: boolean;
 }
 
-export const DEFAULT_AGE_MIN = 14;
-export const DEFAULT_AGE_MAX = 60;
-
 export const EMPTY_FILTER: FilterState = {
-  organizers: [],
-  types: [],
-  country: "",
-  ageMin: DEFAULT_AGE_MIN,
-  ageMax: DEFAULT_AGE_MAX,
-  registrationOpenOnly: false,
+  organizerIds: [],
+  typeIds: [],
+  featuredOnly: false,
+  hasRegistrationOnly: false,
 };
 
 export function isFilterEmpty(f: FilterState): boolean {
   return (
-    f.organizers.length === 0 &&
-    f.types.length === 0 &&
-    f.country === "" &&
-    f.ageMin === DEFAULT_AGE_MIN &&
-    f.ageMax === DEFAULT_AGE_MAX &&
-    !f.registrationOpenOnly
+    f.organizerIds.length === 0 &&
+    f.typeIds.length === 0 &&
+    !f.featuredOnly &&
+    !f.hasRegistrationOnly
   );
 }
 
-export function applyFilters(events: EventItem[], f: FilterState): EventItem[] {
+export function applyFilters(events: EventListItem[], f: FilterState): EventListItem[] {
   return events.filter((e) => {
-    if (f.organizers.length && !f.organizers.includes(e.organizer)) return false;
-    if (f.types.length && !f.types.includes(e.type)) return false;
-    if (f.country && e.country !== f.country) return false;
-
-    // Age overlap: the event's [ageMin, ageMax] must intersect the user's.
-    const eMin = e.ageMin ?? 0;
-    const eMax = e.ageMax ?? 200;
-    if (eMax < f.ageMin) return false;
-    if (eMin > f.ageMax) return false;
-
-    if (f.registrationOpenOnly && !e.registrationOpen) return false;
-
+    if (f.organizerIds.length && (!e.organizer || !f.organizerIds.includes(e.organizer.id)))
+      return false;
+    if (f.typeIds.length) {
+      const evTypeIds = (e.types ?? [])
+        .map((t) => t.type?.id)
+        .filter((id): id is string => !!id);
+      if (!evTypeIds.some((id) => f.typeIds.includes(id))) return false;
+    }
+    if (f.featuredOnly && !e.is_featured) return false;
+    if (f.hasRegistrationOnly && !e.registration_url) return false;
     return true;
   });
 }
 
-/** Unique countries present in a list, sorted. */
-export function uniqueCountries(events: EventItem[]): string[] {
-  return [...new Set(events.map((e) => e.country))].sort();
+/** Organizers present in the current event set, sorted by frequency desc. */
+export function uniqueOrganizers(events: EventListItem[]) {
+  const seen = new Map<string, { id: string; name: string; slug: string; color: string | null; count: number }>();
+  for (const e of events) {
+    if (!e.organizer) continue;
+    const cur = seen.get(e.organizer.id);
+    if (cur) cur.count++;
+    else
+      seen.set(e.organizer.id, {
+        id: e.organizer.id,
+        name: e.organizer.name,
+        slug: e.organizer.slug,
+        color: e.organizer.color,
+        count: 1,
+      });
+  }
+  return [...seen.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
 
-/** Unique organizers present in a list, sorted by frequency desc. */
-export function uniqueOrganizers(events: EventItem[]): string[] {
-  const counts = new Map<string, number>();
-  for (const e of events) counts.set(e.organizer, (counts.get(e.organizer) ?? 0) + 1);
-  return [...counts.entries()]
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-    .map(([name]) => name);
+/** Types present in the current event set. */
+export function uniqueTypes(events: EventListItem[]) {
+  const seen = new Map<string, { id: string; name: string; color: string | null; count: number }>();
+  for (const e of events) {
+    for (const a of e.types ?? []) {
+      if (!a.type) continue;
+      const cur = seen.get(a.type.id);
+      if (cur) cur.count++;
+      else
+        seen.set(a.type.id, {
+          id: a.type.id,
+          name: a.type.name,
+          color: a.type.color,
+          count: 1,
+        });
+    }
+  }
+  return [...seen.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }

@@ -1,11 +1,12 @@
 "use client";
+
 import { useState } from "react";
 import { format, isSameDay, isSameMonth, isToday } from "date-fns";
 import { monthGrid } from "./date-utils";
 import { EventChip } from "./event-chip";
 import { DayEventsDrawer } from "./day-events-drawer";
 import { colorForOrganizer } from "./organizer-meta";
-import type { EventItem } from "../_data/events";
+import type { EventListItem } from "@/utils/api/events";
 import { cn } from "@/lib/utils";
 
 const WEEKDAYS_LONG = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
@@ -16,9 +17,9 @@ const MAX_DOTS = 3;
 interface Props {
   month: Date;
   selected: Date;
-  byDay: Map<string, EventItem[]>;
+  byDay: Map<string, EventListItem[]>;
   onSelectDay: (d: Date) => void;
-  onSelectEvent: (e: EventItem) => void;
+  onSelectEvent: (e: EventListItem) => void;
   onShowMore: (d: Date) => void;
 }
 
@@ -44,9 +45,7 @@ export function MonthView({
 
   return (
     <>
-      {/* Edge-to-edge on mobile: -mx-4 cancels the container's px-4 */}
       <div className="-mx-4 sm:mx-0 flex flex-col rounded-none sm:rounded-2xl border-y sm:border border-(--outline) bg-(--card) overflow-hidden min-h-[520px] sm:min-h-[680px]">
-        {/* Weekday header */}
         <div className="grid grid-cols-7 border-b border-(--outline)">
           {WEEKDAYS_LONG.map((long, i) => (
             <div
@@ -58,7 +57,6 @@ export function MonthView({
             </div>
           ))}
         </div>
-
         <div className="grid grid-cols-7 grid-rows-6 flex-1">
           {cells.map((day, i) => {
             const key = format(day, "yyyy-MM-dd");
@@ -78,7 +76,7 @@ export function MonthView({
                   i < 35 && "border-b",
                   !inMonth && "bg-[color-mix(in_srgb,var(--bg)_60%,transparent)]",
                   inMonth && !isSelected && "hover:bg-(--state-hover)",
-                  isSelected && "bg-(--primary-glass)"
+                  isSelected && "bg-(--primary-glass)",
                 )}
               >
                 <div className="flex items-center justify-between">
@@ -87,7 +85,7 @@ export function MonthView({
                       "flex items-center justify-center min-w-5 sm:min-w-6 h-5 sm:h-6 px-1 sm:px-1.5 rounded-full text-[11px] sm:text-body-5 font-medium tabular-nums",
                       !inMonth && "text-(--on-bg-low)",
                       inMonth && !isToday(day) && "text-(--on-bg-medium)",
-                      isToday(day) && "bg-(--primary) text-(--on-primary)"
+                      isToday(day) && "bg-(--primary) text-(--on-primary)",
                     )}
                   >
                     {format(day, "d")}
@@ -98,8 +96,6 @@ export function MonthView({
                     </span>
                   )}
                 </div>
-
-                {/* Desktop: real chips */}
                 <div className="hidden lg:flex flex-col gap-0.5 min-h-0">
                   {events.slice(0, MAX_CHIPS).map((ev) => (
                     <EventChip
@@ -123,8 +119,6 @@ export function MonthView({
                     </button>
                   )}
                 </div>
-
-                {/* Mobile: colored dots (up to 3, then +N) */}
                 {events.length > 0 && (
                   <div className="lg:hidden mt-auto flex items-center gap-0.5 justify-center pb-1">
                     {events.slice(0, MAX_DOTS).map((ev) => (
@@ -146,7 +140,6 @@ export function MonthView({
           })}
         </div>
       </div>
-
       <DayEventsDrawer
         day={drawerDay}
         events={drawerEvents}

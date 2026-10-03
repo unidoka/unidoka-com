@@ -1,13 +1,12 @@
 import {
   addDays,
   endOfMonth,
-  endOfWeek,
   format,
   startOfDay,
   startOfMonth,
   startOfWeek,
 } from "date-fns";
-import type { EventItem } from "../_data/events";
+import type { EventListItem } from "@/utils/api/events";
 
 export const WEEK_OPTS = { weekStartsOn: 1 as const };
 export const KEY_FMT = "yyyy-MM-dd";
@@ -16,10 +15,7 @@ export function dateKey(d: Date): string {
   return format(d, KEY_FMT);
 }
 
-/**
- * Six weeks × seven days covering the month. Always 42 cells so the
- * grid height never jumps between months.
- */
+/** 6×7 month grid, always 42 cells so the height never jumps. */
 export function monthGrid(month: Date): Date[] {
   const start = startOfWeek(startOfMonth(month), WEEK_OPTS);
   return Array.from({ length: 42 }, (_, i) => addDays(start, i));
@@ -31,16 +27,17 @@ export function weekGrid(anchor: Date): Date[] {
 }
 
 /**
- * Multi-day events get expanded onto every date in their range, so
- * "Oct 5 – Oct 12" appears on all eight days. Keyed by yyyy-MM-dd.
+ * Multi-day events are expanded onto every date in their range. An event
+ * with no `end_at` sits on its `start_at` day only. Events with no
+ * `start_at` at all are dropped — they cannot be placed on a grid.
  */
-export function indexByDay(events: EventItem[]): Map<string, EventItem[]> {
-  const map = new Map<string, EventItem[]>();
+export function indexByDay(events: EventListItem[]): Map<string, EventListItem[]> {
+  const map = new Map<string, EventListItem[]>();
   for (const ev of events) {
-    const start = startOfDay(new Date(ev.startsAt));
-    const end = ev.endsAt ? startOfDay(new Date(ev.endsAt)) : start;
+    if (!ev.start_at) continue;
+    const start = startOfDay(new Date(ev.start_at));
+    const end = ev.end_at ? startOfDay(new Date(ev.end_at)) : start;
     let cursor = start;
-    // Guard against malformed ranges (end < start).
     let safety = 0;
     while (cursor <= end && safety < 400) {
       const key = format(cursor, KEY_FMT);
@@ -54,19 +51,18 @@ export function indexByDay(events: EventItem[]): Map<string, EventItem[]> {
   return map;
 }
 
-/** Full-range months for the mini-month to bound its navigation. */
-export function monthBounds(events: EventItem[]): { min: Date; max: Date } {
-  if (events.length === 0) {
-    const now = new Date();
-    return { min: startOfMonth(now), max: endOfMonth(now) };
-  }
-  let min = startOfDay(new Date(events[0].startsAt));
-  let max = startOfDay(new Date(events[0].endsAt ?? events[0].startsAt));
-  for (const ev of events) {
-    const s = startOfDay(new Date(ev.startsAt));
-    const e = startOfDay(new Date(ev.endsAt ?? ev.startsAt));
+export function monthBounds(events: EventListItem[]): { min: Date; max: Date } {
+  const now = new Date();
+  if (events.length === 0) return { min: startOfMonth(now), max: endOfMonth(now) };
+  const starts = events
+    .map((e) => (e.start_at ? new Date(e.start_at) : null))
+    .filter((d): d is Date => d !== null && !isNaN(d.getTime()));
+  if (starts.length === 0) return { min: startOfMonth(now), max: endOfMonth(now) };
+  let min = starts[0];
+  let max = starts[0];
+  for (const s of starts) {
     if (s < min) min = s;
-    if (e > max) max = e;
+    if (s > max) max = s;
   }
   return { min: startOfMonth(min), max: endOfMonth(max) };
 }
