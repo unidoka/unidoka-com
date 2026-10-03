@@ -684,3 +684,75 @@ html::-webkit-scrollbar-corner {
 .reactEasyCrop_CropAreaRound {
   border-radius: 0 !important;
 }
+
+/* ─── Palantir admin shell ────────────────────────────────────────────
+   Blueprint's dark palette applied to the /admin routes only. Every
+   token below is a named value from Blueprint's public variables.less
+   (palantir/blueprint, @blueprintjs/core) so the admin panel reads as
+   operational software rather than marketing UI: low radii, thin
+   borders, blue-only accent, muted greys for everything else.
+
+   Scoped to .admin-shell so nothing bleeds into the public site. */
+.admin-shell {
+  /* Surfaces — Blueprint dark neutrals */
+  --pal-black:            #111418;
+  --pal-bg:               #1c2127;
+  --pal-surface:          #252a31;
+  --pal-card:             #2f343c;
+  --pal-card-hover:       #383e47;
+  --pal-border:           #383e47;
+  --pal-border-subtle:    #2f343c;
+
+  /* Text */
+  --pal-text:             #f6f7f9;
+  --pal-text-secondary:   #c5cbd3;
+  --pal-text-muted:       #8f99a8;
+  --pal-text-dim:         #5f6b7c;
+
+  /* Intent — Blueprint core palette */
+  --pal-blue:             #2d72d2;
+  --pal-blue-hover:       #4c90f0;
+  --pal-blue-dim:         #215db0;
+  --pal-blue-soft:        rgba(45, 114, 210, 0.16);
+  --pal-blue-line:        rgba(45, 114, 210, 0.35);
+
+  --pal-green:            #32a467;
+  --pal-green-soft:       rgba(50, 164, 103, 0.16);
+  --pal-orange:           #ec9a3c;
+  --pal-orange-soft:      rgba(236, 154, 60, 0.16);
+  --pal-red:              #cd4246;
+  --pal-red-soft:         rgba(205, 66, 70, 0.16);
+  --pal-turquoise:        #00a396;
+  --pal-turquoise-soft:   rgba(0, 163, 150, 0.16);
+  --pal-indigo:           #7961db;
+  --pal-indigo-soft:      rgba(121, 97, 219, 0.16);
+  --pal-rose:             #db2c6f;
+  --pal-rose-soft:        rgba(219, 44, 111, 0.16);
+
+  /* Radii — Blueprint defaults to 2px; we allow 4px for cards */
+  --pal-r-sm: 2px;
+  --pal-r-md: 4px;
+  --pal-r-lg: 6px;
+
+  /* Motion — Blueprint standard curve */
+  --pal-ease: cubic-bezier(0.4, 1, 0.75, 0.9);
+
+  /* Numeric typography — tabular figures everywhere in the shell */
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Cards inside the shell get the Palantir surface treatment regardless
+   of what the generic Card component does. */
+.admin-shell [data-slot="card"] {
+  background: var(--pal-surface);
+  border-color: var(--pal-border-subtle);
+  border-radius: var(--pal-r-md);
+  box-shadow: none;
+}
+
+/* Numbers in the shell render mono to align columns. */
+.admin-shell .pal-num {
+  font-family: var(--font-mono, ui-monospace, "SF Mono", Menlo, Consolas, monospace);
+  font-variant-numeric: tabular-nums;
+}

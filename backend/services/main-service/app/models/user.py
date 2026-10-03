@@ -35,6 +35,17 @@ class User(Base):
     github_url = Column(String, nullable=True)
     notifications_email_enabled = Column(Boolean, default=True, nullable=False)
     notifications_telegram_enabled = Column(Boolean, default=True, nullable=False)
+    # Which content categories this user subscribes to. Order
+    # notifications are NOT listed here — root picks recipients
+    # via receives_order_notifications.
+    notification_topics = Column(
+        JSON, default=list, nullable=False, server_default="'[]'"
+    )
+    # Root-only. True => included in the recipient list for
+    # "new order" notifications.
+    receives_order_notifications = Column(
+        Boolean, default=False, nullable=False
+    )
     user_role = Column(Enum(UserRole, name="user_role"), default=UserRole.user)
     user_status = Column(
         Enum(UserStatus, name="user_status"), default=UserStatus.pending_verification

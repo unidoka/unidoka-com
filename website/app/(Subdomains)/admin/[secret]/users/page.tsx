@@ -37,6 +37,7 @@ interface User {
   telegram_chat_id?: string | null;
   email_enabled?: boolean;
   telegram_enabled?: boolean;
+  receives_order_notifications?: boolean;
 }
 const ROLE_OPTIONS = [
   { value: "client", label: "Клиент" },
@@ -373,6 +374,7 @@ function UserEditorDialog({ open, onOpenChange, user, isRoot, onSaved }: {
     email: "", password: "", name: "", surname: "", phone: "", username: "",
     avatar_url: "", role: "user", verified: false, blocked: false,
     telegram_chat_id: "", email_enabled: true, telegram_enabled: true,
+    receives_order_notifications: false,
   });
   const [form, setForm] = useState<any>(emptyForm());
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -386,6 +388,7 @@ function UserEditorDialog({ open, onOpenChange, user, isRoot, onSaved }: {
         role: user.role, verified: user.verified, blocked: user.blocked,
         telegram_chat_id: user.telegram_chat_id ?? "",
         email_enabled: user.email_enabled ?? true, telegram_enabled: user.telegram_enabled ?? true,
+        receives_order_notifications: user.receives_order_notifications ?? false,
       });
     } else setForm(emptyForm());
     setErrors({});
@@ -486,6 +489,15 @@ function UserEditorDialog({ open, onOpenChange, user, isRoot, onSaved }: {
             <div className="flex flex-col gap-3 justify-end">
               <label className="flex items-center gap-3 cursor-pointer"><Switch checked={form.verified} onCheckedChange={(v) => update("verified", v)} /><span className="text-body-4">Подтверждён</span></label>
               <label className="flex items-center gap-3 cursor-pointer"><Switch checked={form.blocked} onCheckedChange={(v) => update("blocked", v)} /><span className="text-body-4">Заблокирован</span></label>
+              {isRoot && !isCreate && (
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <Switch
+                    checked={!!form.receives_order_notifications}
+                    onCheckedChange={(v) => update("receives_order_notifications", v)}
+                  />
+                  <span className="text-body-4">Уведомления о заявках</span>
+                </label>
+              )}
             </div>
           </div>
           <Field data-invalid={!!errors.password}>
