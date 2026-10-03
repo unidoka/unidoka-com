@@ -22,9 +22,9 @@ export async function generateMetadata({
 }) {
   const { slug } = await params;
   const doc = LEGAL_DOCS[slug];
-  if (!doc) return { title: "Документ не найден · Rovno.dev" };
+  if (!doc) return { title: "Документ не найден · unidoka.com" };
   return {
-    title: `${doc.shortTitle} · Rovno.dev`,
+    title: `${doc.shortTitle} · unidoka.com`,
     description: doc.description,
   };
 }

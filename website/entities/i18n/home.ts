@@ -2,25 +2,26 @@ import type { Language } from './translations';
 
 export const homeTranslations: Record<Language, Record<string, string>> = {
   en: {
-    'home.numbers_title': 'What we build',
+    'home.numbers_title': 'Solving many problems',
     'home.card_solutions_title': 'Solutions',
     'home.card_solutions_desc':
-      'Products and services that solve real business problems — from design systems to full-stack platforms.',
+      'Products and services for real business problems.',
     'home.card_solutions_btn': 'See projects',
     'home.card_opensource_title': 'Open source',
     'home.card_opensource_desc':
-      'Amorfa — our full-stack AI-optimized framework. Free, documented, self-hostable. Built in the open.',
+      'Amorfa — our open-source full-stack AI framework.',
     'home.card_opensource_btn': 'Open Amorfa',
     'home.card_community_title': 'For the community',
     'home.card_community_desc':
-      'Events calendar, Vershiny, and tooling that help IT specialists actually prepare for what comes next.',
+      'Events calendar, Vershiny, and tools for the IT community.',
     'home.card_community_btn': 'Open calendar',
     'home.card_events_title': 'Events',
     'home.card_events_desc':
-      'Conferences, hackathons, and forums. We aggregate the calendar so you never miss the one that matters.',
+      'Conferences, hackathons, forums — all in one calendar.',
     'home.card_events_btn': 'See events',
     'home.best_works_title': 'Featured Projects',
     'home.view_all_projects': 'All projects',
+    'home.no_projects': 'No projects yet',
     'home.socials_title': 'Our addictive media',
     'home.cta.title': "We'll find a solution",
     'home.cta.subtitle': "Write to us — we'll reply within 3 hours.",
@@ -48,25 +49,26 @@ export const homeTranslations: Record<Language, Record<string, string>> = {
     'home.socials.preview.dev.description': 'Explore our full-stack framework on GitHub.',
   },
   ru: {
-    'home.numbers_title': 'Что мы делаем',
+    'home.numbers_title': 'Решаем много задач',
     'home.card_solutions_title': 'Решения',
     'home.card_solutions_desc':
-      'Продукты и услуги, которые решают реальные задачи бизнеса — от дизайн-систем до full-stack платформ.',
+      'Продукты и услуги под реальные задачи бизнеса.',
     'home.card_solutions_btn': 'Смотреть проекты',
     'home.card_opensource_title': 'Open source',
     'home.card_opensource_desc':
-      'Amorfa — наш full-stack AI-фреймворк. Бесплатный, документированный, self-hosted. В открытом доступе.',
+      'Amorfa — наш open-source full-stack AI-фреймворк.',
     'home.card_opensource_btn': 'Открыть Amorfa',
     'home.card_community_title': 'Для сообщества',
     'home.card_community_desc':
-      'Календарь событий, Вершины и инструменты, которые помогают IT-специалистам готовиться к главному.',
+      'Календарь событий, Вершины и инструменты для IT-сообщества.',
     'home.card_community_btn': 'Открыть календарь',
     'home.card_events_title': 'События',
     'home.card_events_desc':
-      'Конференции, хакатоны, форумы. Мы собираем календарь, чтобы вы не пропустили то, что важно.',
+      'Конференции, хакатоны, форумы — в одном календаре.',
     'home.card_events_btn': 'Смотреть события',
     'home.best_works_title': 'Избранные проекты',
     'home.view_all_projects': 'Все проекты',
+    'home.no_projects': 'Пока нет проектов',
     'home.socials_title': 'Наши залипательные медиа',
     'home.cta.title': 'Мы найдем решение',
     'home.cta.subtitle': 'Напишите нам — ответим в течение 3 часов.',

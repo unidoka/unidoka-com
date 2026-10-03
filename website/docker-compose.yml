@@ -11,21 +11,28 @@ services:
         # during `npm run build` — setting them at runtime has no effect.
         NEXT_PUBLIC_ROOT_DOMAIN: ${NEXT_PUBLIC_ROOT_DOMAIN}
         NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
-        NEXT_PUBLIC_PROTOCOL: ${NEXT_PUBLIC_PROTOCOL:-https}
+        NEXT_PUBLIC_HTTP_PROTOCOL: ${NEXT_PUBLIC_HTTP_PROTOCOL:-https}
     profiles:
       - prod
+    volumes:
+      # ponytail: same host dir the backend writes uploads to — served by
+      # Next.js as static assets from /public.
+      - ../backend/services/main-service/storage/order_files:/app/public/order_files
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
       - "traefik.http.routers.frontend.rule=${DOMAIN}"
       # Priority 1 — explicit catch-all. Backend routers declare higher
-      # priorities so /api, /docs, /health never fall through to Next.js.
+      # priorities (see backend/docker-compose.yml) so that /api, /docs,
+      # and /health never fall through to Next.js. Setting both sides
+      # explicitly means neither depends on rule-string length.
       - "traefik.http.routers.frontend.priority=1"
       - "traefik.http.routers.frontend.entrypoints=${ENTRYPOINT}"
       - "traefik.http.routers.frontend.tls=${TLS_ENABLED}"
       - "traefik.http.routers.frontend.tls.certresolver=${CERT_RESOLVER}"
     networks:
       - main-network
+
 networks:
   main-network:
     name: main-network

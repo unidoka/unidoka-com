@@ -236,7 +236,7 @@ export function SocialContentPreview({
   link,
   className,
   authorAvatar = "/images/logotype-icon.png",
-  authorName = "Rovno.dev",
+  authorName = "unidoka.com",
   date = "",
   isVerified = false,
 }: SocialContentPreviewProps) {

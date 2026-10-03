@@ -4,6 +4,8 @@ services:
       context: ./services/main-service
       dockerfile: Dockerfile
     container_name: main-service
+    ports:
+      - "8000:8000"
     dns:
       - 8.8.8.8
       - 1.1.1.1
@@ -27,10 +29,10 @@ services:
       start_period: 40s
     labels:
       - "traefik.enable=true"
-      # Only claim paths FastAPI actually serves. PathPrefix('/api') would
-      # also swallow /api/admin-secret and /api/revalidate — both Next.js
-      # route handlers on the frontend router (priority 1). Priority 100
-      # was higher, so FastAPI returned 404 for them.
+      # Only claim paths FastAPI actually serves. PathPrefix('/api') also
+      # swallowed /api/admin-secret and /api/revalidate — both Next.js
+      # route handlers that live on the frontend router (priority 1).
+      # Priority 100 was higher, so FastAPI returned 404 for them.
       - "traefik.http.routers.main-service.rule=PathPrefix(`/api/v1`) || PathPrefix(`/docs`) || PathPrefix(`/health`)"
       - "traefik.http.routers.main-service.priority=100"
       - "traefik.http.routers.main-service.entrypoints=${ENTRYPOINT}"
@@ -62,7 +64,7 @@ services:
     networks:
       - main-network
     healthcheck:
-      test: ["CMD", "valkey-cli", "ping"]
+      test: [ "CMD", "valkey-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5

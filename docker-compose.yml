@@ -1,5 +1,6 @@
 name: unidoka-com
 include:
+  # - tg-bot/docker-compose.yml
   - backend/docker-compose.yml
   - website/docker-compose.yml
 services:
@@ -12,7 +13,7 @@ services:
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=hi@unidoka.com"
+      - "--certificatesresolvers.myresolver.acme.email=unidoka.com@mail.ru"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       - "--api.insecure=${TRAEFIK_API_INSECURE:-false}"
     ports:
@@ -23,6 +24,7 @@ services:
       - "./letsencrypt:/letsencrypt"
     networks:
       - main-network
+
 networks:
   main-network:
     name: main-network

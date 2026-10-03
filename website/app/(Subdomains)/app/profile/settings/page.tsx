@@ -154,7 +154,7 @@ export default function SettingsPage() {
                       <Label htmlFor="tg-notif" className="text-body-3 font-medium cursor-pointer">
                         Telegram-уведомления
                       </Label>
-                      <p className="text-body-5 text-(--on-bg-low)">Сообщения от бота Rovno.dev</p>
+                      <p className="text-body-5 text-(--on-bg-low)">Сообщения от бота unidoka.com</p>
                     </div>
                   </div>
                   <Switch id="tg-notif" checked={prefs.telegram_enabled} onCheckedChange={toggleTelegram} disabled={savingField === "telegram"} />

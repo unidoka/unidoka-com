@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -11,12 +10,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { PhoneInputField } from "@/components/ui/phone-input";
 import { $fetch } from "@/utils/fetch";
 import { CircleNotchIcon } from "@phosphor-icons/react";
+import { useLanguage } from "@/providers/language-provider";
 
 interface ConsultFormProps {
   onSuccess?: () => void;
 }
 
 export function ConsultForm({ onSuccess }: ConsultFormProps) {
+  const { t } = useLanguage();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -31,11 +32,11 @@ export function ConsultForm({ onSuccess }: ConsultFormProps) {
   const validate = () => {
     const next: Record<string, string> = {};
     if (form.name.trim().length < 2)
-      next.name = "Имя должно быть не короче 2 символов";
+      next.name = t("consult.form.error_name");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
-      next.email = "Некорректный email";
-    if (!form.phone) next.phone = "Укажите телефон";
-    if (!agreed) next.agreement = "Необходимо согласие на обработку данных";
+      next.email = t("consult.form.error_email");
+    if (!form.phone) next.phone = t("consult.form.error_phone");
+    if (!agreed) next.agreement = t("consult.form.error_agreement");
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -60,15 +61,15 @@ export function ConsultForm({ onSuccess }: ConsultFormProps) {
       if (!res?.response?.ok) {
         const detail = res?.json?.detail;
         const msg = Array.isArray(detail) ? detail[0]?.msg : detail;
-        toast.error(msg || "Не удалось отправить заявку");
+        toast.error(msg || t("consult.form.error_send"));
         return;
       }
-      toast.success("Заявка отправлена! Свяжемся с вами в течение рабочего дня.");
+      toast.success(t("consult.form.success"));
       setForm({ name: "", email: "", phone: "", telegram: "", description: "" });
       setAgreed(false);
       onSuccess?.();
     } catch {
-      toast.error("Ошибка соединения. Попробуйте позже.");
+      toast.error(t("consult.form.error_connection"));
     } finally {
       setLoading(false);
     }
@@ -77,32 +78,30 @@ export function ConsultForm({ onSuccess }: ConsultFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Field data-invalid={!!errors.name}>
-        <FieldLabel>Ваше имя *</FieldLabel>
+        <FieldLabel>{t("consult.form.name_label")}</FieldLabel>
         <Input
           name="name"
           autoComplete="name"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
-          placeholder="Иван"
+          placeholder={t("consult.form.name_placeholder")}
         />
         {errors.name && <FieldError errors={[{ message: errors.name }]} />}
       </Field>
-
       <Field data-invalid={!!errors.email}>
-        <FieldLabel>Email *</FieldLabel>
+        <FieldLabel>{t("consult.form.email_label")}</FieldLabel>
         <Input
           name="email"
           type="email"
           autoComplete="email"
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
-          placeholder="you@example.com"
+          placeholder={t("consult.form.email_placeholder")}
         />
         {errors.email && <FieldError errors={[{ message: errors.email }]} />}
       </Field>
-
       <Field data-invalid={!!errors.phone}>
-        <FieldLabel>Телефон *</FieldLabel>
+        <FieldLabel>{t("consult.form.phone_label")}</FieldLabel>
         <PhoneInputField
           name="phone"
           value={form.phone}
@@ -110,38 +109,29 @@ export function ConsultForm({ onSuccess }: ConsultFormProps) {
           error={errors.phone}
         />
       </Field>
-
       <Field>
-        <FieldLabel>Telegram (опционально)</FieldLabel>
+        <FieldLabel>{t("consult.form.telegram_label")}</FieldLabel>
         <Input
           name="telegram"
           value={form.telegram}
           onChange={(e) => setForm({ ...form, telegram: e.target.value })}
-          placeholder="@username"
+          placeholder={t("consult.form.telegram_placeholder")}
         />
       </Field>
-
       <Field>
-        <FieldLabel>Описание задачи (опционально)</FieldLabel>
+        <FieldLabel>{t("consult.form.description_label")}</FieldLabel>
         <Textarea
           name="description"
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
-          placeholder="Коротко о том, что нужно сделать"
+          placeholder={t("consult.form.description_placeholder")}
           className="min-h-[80px]"
         />
       </Field>
-
       <Button type="submit" size="large" className="w-full" disabled={loading}>
         {loading && <CircleNotchIcon className="size-4 animate-spin" />}
-        {loading ? "Отправка…" : "Отправить заявку"}
+        {loading ? t("consult.form.submitting") : t("consult.form.submit")}
       </Button>
-
-      {/* ── Legal agreement (152-ФЗ) ─────────────────────────────
-          Checkbox + full consent text with links to the three
-          documents that legally must be acknowledged before the
-          form can be submitted. Mirrors the /order form so both
-          forms use identical wording. */}
       <div className="flex items-start gap-3 pt-1">
         <Checkbox
           id="consult-agreement"
@@ -153,32 +143,32 @@ export function ConsultForm({ onSuccess }: ConsultFormProps) {
           htmlFor="consult-agreement"
           className="flex-1 text-body-6 font-normal text-(--on-bg-low) leading-relaxed cursor-pointer"
         >
-          Я даю{" "}
+          {t("consult.form.agreement_prefix")}{" "}
           <Link
             href="/docs/consent"
             target="_blank"
             rel="noopener noreferrer"
             className="text-(--primary) underline underline-offset-2 hover:opacity-80"
           >
-            согласие на обработку персональных данных
+            {t("consult.form.agreement_consent")}
           </Link>{" "}
-          и подтверждаю, что ознакомлен(а) с{" "}
+          {t("consult.form.agreement_middle")}{" "}
           <Link
             href="/docs/privacy"
             target="_blank"
             rel="noopener noreferrer"
             className="text-(--primary) underline underline-offset-2 hover:opacity-80"
           >
-            Политикой конфиденциальности
+            {t("consult.form.agreement_privacy")}
           </Link>{" "}
-          и{" "}
+          {t("consult.form.agreement_and")}{" "}
           <Link
             href="/docs/terms"
             target="_blank"
             rel="noopener noreferrer"
             className="text-(--primary) underline underline-offset-2 hover:opacity-80"
           >
-            Пользовательским соглашением
+            {t("consult.form.agreement_terms")}
           </Link>
           .
         </label>

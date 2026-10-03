@@ -1,19 +1,15 @@
 """sync users table with model
-
 Revision ID: b1c2d3e4f5a6
 Revises: 9ae240940cf1
 Create Date: 2026-10-01 00:00:00
-
 The initial migration (9ae240940cf1) created a `users` table that does not
 match `app/models/user.py`:
-
   - column was named `role`, not `user_role`
   - the `user_role` enum used values USER/ADMIN/ROOT (uppercase), but the
     model defines client/user/admin/root (lowercase)
   - nine columns the model declares were never created: username, name,
     surname, description, avatar_url, vk_public_username, user_status,
     verified (and `user_role` itself)
-
 This migration brings the schema in line with the model. It is destructive
 against the old `role` column — the value space doesn't map cleanly, and the
 table has no production rows (the schema was broken, so the service could not
@@ -22,10 +18,12 @@ have written any). Safe to run against a dev DB.
 from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
+
 revision: str = "b1c2d3e4f5a6"
 down_revision: Union[str, None] = "9ae240940cf1"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
+
 def upgrade() -> None:
     conn = op.get_bind()
     # 1. Drop the stale `role` column and its enum. Postgres lets us drop
@@ -73,6 +71,7 @@ def upgrade() -> None:
     op.create_unique_constraint(
         "users_vk_public_username_key", "users", ["vk_public_username"]
     )
+
 def downgrade() -> None:
     op.drop_constraint("users_vk_public_username_key", "users", type_="unique")
     op.drop_constraint("users_username_key", "users", type_="unique")

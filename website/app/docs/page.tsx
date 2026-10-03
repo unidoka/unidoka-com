@@ -21,7 +21,7 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export const metadata = {
-  title: "Документы · Rovno.dev",
+  title: "Документы · unidoka.com",
   description:
     "Правовая информация сайта unidoka.com: политика конфиденциальности, согласие на обработку персональных данных, политика cookie, пользовательское соглашение и согласие на публикацию отзывов.",
 };

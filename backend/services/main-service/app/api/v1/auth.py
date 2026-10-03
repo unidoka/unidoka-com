@@ -129,10 +129,17 @@ async def get_me(current_user: User = Depends(get_current_user)):
         "email": current_user.email,
         "name": current_user.name,
         "surname": current_user.surname,
+        "username": current_user.username,
+        "phone": current_user.phone,
+        "description": current_user.description,
+        "avatar_url": current_user.avatar_url,
+        "telegram_username": current_user.telegram_username,
+        "github_url": current_user.github_url,
         "role": current_user.user_role.value,
         "verified": current_user.verified,
         "blocked": current_user.blocked,
     }
+
 @router.post("/logout")
 async def logout(
     payload: RefreshTokenRequest,

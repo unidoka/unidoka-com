@@ -155,7 +155,10 @@ export default function NumbersSection() {
             const Icon = card.Icon;
             return (
               <SpotlightCard key={idx} color={card.color}>
-                <div className="flex size-12 items-center justify-center rounded-2xl bg-(--primary-card) text-(--primary) mb-5">
+                <div
+                  className="flex size-12 items-center justify-center rounded-2xl text-white mb-5 shadow-sm"
+                  style={{ backgroundColor: card.color }}
+                >
                   <Icon className="size-5" weight="bold" />
                 </div>
                 <h3 className="text-heading-2 text-(--on-bg-high) mb-3">

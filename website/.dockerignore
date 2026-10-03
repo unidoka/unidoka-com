@@ -9,8 +9,7 @@ coverage
 .repomixignore
 .github
 
-.env
-.env.*
+.env*
 !.env.example
 
 Dockerfile

@@ -31,6 +31,10 @@ class User(Base):
     description = Column(Text, nullable=True)
     avatar_url = Column(String, nullable=True)
     vk_public_username = Column(String, unique=True, nullable=True)
+    telegram_username = Column(String, unique=True, nullable=True)
+    github_url = Column(String, nullable=True)
+    notifications_email_enabled = Column(Boolean, default=True, nullable=False)
+    notifications_telegram_enabled = Column(Boolean, default=True, nullable=False)
     user_role = Column(Enum(UserRole, name="user_role"), default=UserRole.user)
     user_status = Column(
         Enum(UserStatus, name="user_status"), default=UserStatus.pending_verification
