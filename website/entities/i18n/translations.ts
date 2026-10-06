@@ -18,6 +18,7 @@ import { profileTranslations } from './profile';
 import { projectsTranslations } from './projects';
 import { servicesTranslations } from './services';
 import { solutionsTranslations } from './solutions';
+import { vershinyTranslations } from './vershiny';
 
 const translations: Record<Language, Record<string, string>> = {
   en: {
@@ -40,6 +41,7 @@ const translations: Record<Language, Record<string, string>> = {
     ...projectsTranslations.en,
     ...servicesTranslations.en,
     ...solutionsTranslations.en,
+    ...vershinyTranslations.en,
   },
   ru: {
     ...aboutTranslations.ru,
@@ -61,6 +63,7 @@ const translations: Record<Language, Record<string, string>> = {
     ...projectsTranslations.ru,
     ...servicesTranslations.ru,
     ...solutionsTranslations.ru,
+    ...vershinyTranslations.ru,
   },
 };
 export { translations };

@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
+    "@mdxeditor/editor": "^4.3.2",
     "@phosphor-icons/react": "^2.1.10",
     "@scalar/api-reference-react": "^0.9.29",
     "class-variance-authority": "^0.7.1",

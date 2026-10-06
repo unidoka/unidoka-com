@@ -140,7 +140,7 @@ export function FloatingMenu({
               click handler would fire and close the panel the moment the
               user tapped an option. Inline buttons keep the interaction
               in one place. */}
-          <div className="mt-1.5 pt-2 border-t border-(--outline) sm:hidden">
+          <div className="mt-1.5 pt-2 border-t border-(--outline)">
             <div className="flex items-center justify-between px-4 py-2">
               <span className="text-body-5 uppercase tracking-[0.18em] text-(--on-bg-low)">
                 {t("nav.language")}
@@ -172,7 +172,7 @@ export function FloatingMenu({
           {/* Auth block — mobile only. On sm+ the header already renders
               Sign in / Sign up, so rendering them here duplicates them. */}
           {!isLoading && (
-            <div className="mt-1.5 pt-2 border-t border-(--outline) sm:hidden">
+            <div className="mt-1.5 pt-2 border-t border-(--outline)">
               {user ? (
                 <Button
                   variant="outlined"

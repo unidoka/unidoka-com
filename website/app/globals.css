@@ -1061,9 +1061,210 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   border-radius: 4px;
 }
 
-/* Fallback: if color-scheme is ignored, invert the glyph. */
-.dark input[type="date"]::-webkit-calendar-picker-indicator,
-.dark input[type="time"]::-webkit-calendar-picker-indicator,
-.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-  filter: invert(1) brightness(0.85);
+
+
+/* ── Native date/time picker indicator ─────────────────────────────
+   `color-scheme: dark` on the input is what makes Chromium paint
+   this glyph white in dark mode. No `filter: invert()` here — that
+   would flip the already-white glyph back to dark. */
+input[type="datetime-local"],
+input[type="date"],
+input[type="time"] {
+  color-scheme: light;
+}
+.dark input[type="datetime-local"],
+.dark input[type="date"],
+.dark input[type="time"] {
+  color-scheme: dark;
+}
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.9;
+  padding: 2px;
+  border-radius: 4px;
+}
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover,
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  background: var(--state-hover);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MDXEditor — theme bridge + scroll behaviour
+   ───────────────────────────────────────────────────────────────────
+   MDXEditor ships its own palette via CSS variables. This block
+   rebinds those variables to our design tokens so the editor inherits
+   the monochrome surface instead of the library's default greys.
+
+   Scroll: the wrapper has a max-height, the editor grows inside it,
+   the toolbar sticks to the top of the wrapper while the content
+   below scrolls. On mobile this is what keeps the mode switcher and
+   format buttons reachable while the user edits a long document.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.mdx-editor-wrapper .mdxeditor {
+  --basePageBg: var(--bg);
+  --baseBg: var(--card);
+  --baseBgHover: var(--state-hover);
+  --baseBgSubtle: var(--card);
+  --baseLine: var(--outline);
+  --baseSolid: var(--on-bg-high);
+  --baseSolidHover: var(--on-bg-high);
+  --baseText: var(--on-bg-high);
+  --baseTextContrast: var(--on-bg-high);
+  --accentBase: var(--on-bg-high);
+  --accentBg: var(--state-hover);
+  --accentBgHover: var(--state-hover);
+  --accentBgActive: var(--state-hover);
+  --accentSolid: var(--on-bg-high);
+  --accentSolidHover: var(--on-bg-high);
+  --accentText: var(--on-bg-high);
+  --accentTextContrast: var(--bg);
+
+  font-family: var(--font-sans);
+  color: var(--on-bg-high);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+/* Toolbar — sticky, opaque, hairline separator */
+.mdx-editor-wrapper .mdxeditor-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--card);
+  border-bottom: 1px solid var(--outline);
+  border-radius: 0;
+  padding: 4px 6px;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+
+/* Editable surface — comfortable padding, our type ramp */
+.mdx-editor-wrapper .mdxeditor-root-contenteditable {
+  padding: 20px 20px 24px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--on-bg-high);
+  background: transparent;
+  outline: none;
+  min-height: inherit;
+}
+
+.mdx-editor-wrapper .mdxeditor-root-contenteditable:focus-visible {
+  outline: none;
+}
+
+.mdx-editor-wrapper .mdxeditor-root-contenteditable h1 {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 1.875rem;
+  letter-spacing: -0.02em;
+  margin: 24px 0 12px;
+  color: var(--on-bg-high);
+}
+.mdx-editor-wrapper .mdxeditor-root-contenteditable h2 {
+  font-weight: 500;
+  font-size: 1.5rem;
+  letter-spacing: -0.015em;
+  margin: 20px 0 10px;
+  color: var(--on-bg-high);
+}
+.mdx-editor-wrapper .mdxeditor-root-contenteditable h3 {
+  font-weight: 500;
+  font-size: 1.25rem;
+  margin: 16px 0 8px;
+  color: var(--on-bg-high);
+}
+.mdx-editor-wrapper .mdxeditor-root-contenteditable p {
+  margin: 0 0 12px;
+}
+.mdx-editor-wrapper .mdxeditor-root-contenteditable a {
+  color: var(--on-bg-high);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--on-bg-low);
+}
+.mdx-editor-wrapper .mdxeditor-root-contenteditable code {
+  background: var(--card);
+  border: 1px solid var(--outline);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.875em;
+}
+.mdx-editor-wrapper .mdxeditor-root-contenteditable pre {
+  background: var(--card);
+  border: 1px solid var(--outline);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 12px 0;
+  overflow-x: auto;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
+}
+.mdx-editor-wrapper .mdxeditor-root-contenteditable pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+.mdx-editor-wrapper .mdxeditor-root-contenteditable blockquote {
+  border-left: 2px solid var(--on-bg-low);
+  padding-left: 14px;
+  margin: 12px 0;
+  color: var(--on-bg-medium);
+  font-style: italic;
+}
+.mdx-editor-wrapper .mdxeditor-root-contenteditable hr {
+  border: 0;
+  border-top: 1px solid var(--outline);
+  margin: 20px 0;
+}
+.mdx-editor-wrapper .mdxeditor-root-contenteditable img {
+  max-width: 100%;
+  border-radius: 12px;
+  margin: 12px 0;
+}
+.mdx-editor-wrapper .mdxeditor-root-contenteditable table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 12px 0;
+}
+.mdx-editor-wrapper .mdxeditor-root-contenteditable th,
+.mdx-editor-wrapper .mdxeditor-root-contenteditable td {
+  border: 1px solid var(--outline);
+  padding: 6px 10px;
+  text-align: left;
+}
+.mdx-editor-wrapper .mdxeditor-root-contenteditable th {
+  background: var(--card);
+  font-weight: 500;
+}
+
+/* Source (CodeMirror) view — same surface, mono type */
+.mdx-editor-wrapper .cm-editor {
+  background: var(--bg);
+  color: var(--on-bg-high);
+}
+.mdx-editor-wrapper .cm-editor .cm-content {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
+  padding: 12px 16px;
+}
+.mdx-editor-wrapper .cm-editor .cm-gutters {
+  background: var(--card);
+  border-right: 1px solid var(--outline);
+  color: var(--on-bg-low);
+}
+.mdx-editor-wrapper .cm-editor .cm-activeLine {
+  background: var(--state-hover);
+}
+
+/* Placeholder */
+.mdx-editor-wrapper [data-placeholder]::before {
+  color: var(--on-bg-low);
 }

@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
@@ -20,68 +21,51 @@ import {
   fetchPublishedEventsClient,
   type EventListItem,
 } from "@/utils/api/events";
+import { useLanguage } from "@/providers/language-provider";
 
-/**
- * Four pillars - community, AI, products, open source.
- * `external` items render as <a> with target="_blank"; internal ones
- * render as Next <Link>. Keeps GitHub out of the client router.
- */
+/* Icon + i18n key pairs. Resolved with t() at render time so the
+   language switcher re-renders copy without a page reload. */
 const PILLARS = [
   {
     icon: Users,
-    title: "Соединяем таланты",
-    description: "Молодые специалисты в IT, дизайне и бизнесе.",
+    titleKey: "vershiny.pillar_talents_title",
+    descKey: "vershiny.pillar_talents_desc",
+    ctaKey: "vershiny.pillar_talents_cta",
     href: "/events",
-    cta: "События",
   },
   {
     icon: Cpu,
-    title: "AI на слабом железе",
-    description: "Искусственный интеллект без облаков и дорогих серверов.",
+    titleKey: "vershiny.pillar_ai_title",
+    descKey: "vershiny.pillar_ai_desc",
+    ctaKey: "vershiny.pillar_ai_cta",
     href: "/amorfa",
-    cta: "Amorfa",
   },
   {
     icon: Lightbulb,
-    title: "Решения, которые решают",
-    description: "Продукты и сервисы под реальные задачи.",
+    titleKey: "vershiny.pillar_solutions_title",
+    descKey: "vershiny.pillar_solutions_desc",
+    ctaKey: "vershiny.pillar_solutions_cta",
     href: "/projects",
-    cta: "Проекты",
   },
   {
     icon: Code,
-    title: "Открытый код",
-    description: "Фреймворки и инструменты в открытом доступе.",
+    titleKey: "vershiny.pillar_oss_title",
+    descKey: "vershiny.pillar_oss_desc",
+    ctaKey: "vershiny.pillar_oss_cta",
     href: "https://github.com/unidoka",
-    cta: "GitHub",
     external: true,
   },
 ] as const;
 
-function formatDateRange(start?: string | null, end?: string | null): string {
-  if (!start) return "Дата уточняется";
-  const s = new Date(start);
-  if (isNaN(s.getTime())) return "Дата уточняется";
-  const fmt = (d: Date) =>
-    d.toLocaleDateString("ru-RU", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-  if (!end) return fmt(s);
-  const e = new Date(end);
-  if (isNaN(e.getTime())) return fmt(s);
-  return `${fmt(s)} - ${fmt(e)}`;
-}
-
-function eventTag(ev: EventListItem): string {
-  const t = ev.types?.[0];
-  if (t?.type?.name) return t.type.name;
-  if (t?.custom_name) return t.custom_name;
-  return ev.organizer?.name ?? "Событие";
+function eventTag(ev: EventListItem, fallback: string): string {
+  const tt = ev.types?.[0];
+  if (tt?.type?.name) return tt.type.name;
+  if (tt?.custom_name) return tt.custom_name;
+  return ev.organizer?.name ?? fallback;
 }
 
 export default function VershinyPage() {
+  const { t, lang } = useLanguage();
   const [events, setEvents] = useState<EventListItem[] | null>(null);
 
   useEffect(() => {
@@ -92,20 +76,48 @@ export default function VershinyPage() {
 
   const featured = events?.[0];
   const rest = events?.slice(1) ?? [];
+  const tbd = t("vershiny.events_date_tbd");
+  const defaultTag = t("vershiny.events_default_tag");
+  const dateLocale = lang === "ru" ? "ru-RU" : "en-US";
+
+  // Local helper — reads `lang` at call time so flipping the switcher
+  // reformats every visible date without a memo dance.
+  const formatDate = (
+    start: string | null | undefined,
+    end: string | null | undefined,
+  ): string => {
+    if (!start) return tbd;
+    const s = new Date(start);
+    if (isNaN(s.getTime())) return tbd;
+    const fmt = (d: Date) =>
+      d.toLocaleDateString(dateLocale, {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    if (!end) return fmt(s);
+    const e = new Date(end);
+    if (isNaN(e.getTime())) return fmt(s);
+    return `${fmt(s)} — ${fmt(e)}`;
+  };
 
   return (
     <div className="min-h-screen">
       {/* ─── HERO ──────────────────────────────────────────────────────
-          Video on the right (white container so the animation's own
-          white bg blends on both themes), minimal copy on the left.
-          Single primary-tinted radial glow - no more conic orange. */}
+          Video on the right, copy on the left. The video container was
+          previously capped at 520px with a heavy inner frame and shadow
+          that read as a widget. Now: wider on desktop (up to 720px, but
+          full-column via max-w-none on lg+), a soft primary bloom behind
+          it for depth, and the video sits directly inside the rounded
+          shell with no nested frame. The white shell is kept because the
+          .webm has a baked white background — switching it to a theme
+          colour would show a seam. */}
       <section className="relative overflow-hidden border-b border-(--outline)">
         <div
           aria-hidden
           className="pointer-events-none absolute -top-40 left-1/4 h-[520px] w-[520px] rounded-full opacity-[0.10]"
           style={{
-            background:
-              "radial-gradient(circle, var(--primary) 0%, transparent 70%)",
+            background: "radial-gradient(circle, var(--primary) 0%, transparent 70%)",
           }}
         />
         <Container variant="full-width" className="relative py-16 md:py-24">
@@ -114,58 +126,51 @@ export default function VershinyPage() {
             <div>
               <Badge variant="glass-static">
                 <Sparkle className="size-3" />
-                Better together
+                {t("vershiny.badge")}
               </Badge>
               <h1 className="text-display-2 md:text-display-1 mt-6 leading-[1.05] tracking-tight">
-                Соединяем таланты,
+                {t("vershiny.title_1")}
                 <br />
-                <span className="text-(--primary)">AI и решения.</span>
+                <span className="text-(--primary)">{t("vershiny.title_2")}</span>
               </h1>
               <p className="text-body-3 text-(--on-bg-medium) mt-6 max-w-lg leading-relaxed">
-                Сообщество, где молодые специалисты растут, а искусственный
-                интеллект работает там, где другие сдаются.
+                {t("vershiny.subtitle")}
               </p>
               <div className="flex flex-col sm:flex-row gap-3 mt-8">
                 <Button size="large" shape="round" asChild>
                   <Link href="/events">
-                    Смотреть события
+                    {t("vershiny.cta_events")}
                     <ArrowRight />
                   </Link>
                 </Button>
-                <Button
-                  size="large"
-                  variant="outlined"
-                  shape="round"
-                  asChild
-                >
+                <Button size="large" variant="outlined" shape="round" asChild>
                   <Link href="/amorfa">
-                    Amorfa
+                    {t("vershiny.cta_amorfa")}
                     <ArrowUpRight />
                   </Link>
                 </Button>
               </div>
             </div>
 
-            {/* Video - white container so the animation renders cleanly
-                in dark mode. Soft primary bloom behind it, no orange. */}
-            <div className="relative flex items-center justify-center">
-              <div className="relative w-full max-w-[520px]">
+            {/* Video */}
+            <div className="relative w-full">
+              <div className="relative w-full max-w-[720px] mx-auto lg:max-w-none">
                 <div
                   aria-hidden
-                  className="absolute inset-0 rounded-[2rem] blur-2xl opacity-[0.20]"
+                  className="absolute -inset-6 rounded-[2.5rem] blur-3xl opacity-[0.16]"
                   style={{
                     background:
                       "radial-gradient(circle, var(--primary) 0%, transparent 70%)",
                   }}
                 />
-                <div className="relative rounded-[2rem] border border-(--outline) bg-white p-4 md:p-5 shadow-xl overflow-hidden">
+                <div className="relative rounded-[1.75rem] border border-(--outline) bg-white overflow-hidden shadow-2xl">
                   <video
                     src="/videos/ver-logo-animation.webm"
                     autoPlay
                     muted
                     loop
                     playsInline
-                    className="w-full h-auto rounded-[1.25rem]"
+                    className="block w-full h-auto"
                   />
                 </div>
               </div>
@@ -174,14 +179,14 @@ export default function VershinyPage() {
         </Container>
       </section>
 
-      {/* ─── PILLARS - four across, tighter copy ──────────────────── */}
+      {/* ─── PILLARS ──────────────────────────────────────────────── */}
       <section className="py-20 md:py-28">
         <Container variant="full-width">
           <div className="max-w-2xl mb-12">
             <p className="text-body-5 uppercase tracking-widest text-(--primary) mb-3">
-              Что мы делаем
+              {t("vershiny.pillars_eyebrow")}
             </p>
-            <h2 className="text-display-3">Четыре опоры Вершин</h2>
+            <h2 className="text-display-3">{t("vershiny.pillars_title")}</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {PILLARS.map((p) => {
@@ -190,15 +195,15 @@ export default function VershinyPage() {
                 "inline-flex items-center gap-1 text-body-4 text-(--primary) hover:gap-2 transition-all mt-2";
               return (
                 <Card
-                  key={p.title}
+                  key={p.titleKey}
                   className="p-6 gap-4 flex flex-col transition-colors hover:border-(--primary)/40"
                 >
                   <span className="flex size-10 items-center justify-center rounded-2xl bg-(--primary-glass) text-(--primary)">
                     <Icon className="size-5" />
                   </span>
-                  <h3 className="text-heading-3 leading-tight">{p.title}</h3>
+                  <h3 className="text-heading-3 leading-tight">{t(p.titleKey)}</h3>
                   <p className="text-body-4 text-(--on-bg-medium) flex-1">
-                    {p.description}
+                    {t(p.descKey)}
                   </p>
                   {"external" in p && p.external ? (
                     <a
@@ -207,12 +212,12 @@ export default function VershinyPage() {
                       rel="noopener noreferrer"
                       className={linkClass}
                     >
-                      {p.cta}
+                      {t(p.ctaKey)}
                       <ArrowUpRight className="size-4" />
                     </a>
                   ) : (
                     <Link href={p.href} className={linkClass}>
-                      {p.cta}
+                      {t(p.ctaKey)}
                       <ArrowUpRight className="size-4" />
                     </Link>
                   )}
@@ -223,24 +228,23 @@ export default function VershinyPage() {
         </Container>
       </section>
 
-      {/* ─── UPCOMING EVENTS - DB-backed ──────────────────────────── */}
+      {/* ─── UPCOMING EVENTS ──────────────────────────────────────── */}
       <section className="py-20 md:py-28 bg-(--card) border-y border-(--outline)">
         <Container variant="full-width">
           <div className="flex items-end justify-between mb-10 gap-6 flex-wrap">
             <div className="max-w-2xl">
               <p className="text-body-5 uppercase tracking-widest text-(--primary) mb-3">
-                Что дальше
+                {t("vershiny.events_eyebrow")}
               </p>
-              <h2 className="text-display-3">Ближайшие события</h2>
+              <h2 className="text-display-3">{t("vershiny.events_title")}</h2>
             </div>
             <Button variant="outlined" size="medium" shape="round" asChild>
               <Link href="/events">
-                Все события
+                {t("vershiny.events_all")}
                 <ArrowRight />
               </Link>
             </Button>
           </div>
-
           {events === null ? (
             <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-8">
               <Card className="rounded-3xl border-(--outline) h-[360px] animate-pulse bg-muted/30" />
@@ -257,10 +261,10 @@ export default function VershinyPage() {
             <Card className="rounded-3xl border border-dashed border-(--outline) p-12 text-center">
               <CalendarBlank className="size-8 mx-auto text-(--on-bg-low) mb-4" />
               <p className="text-body-3 text-(--on-bg-medium) mb-1">
-                Пока нет событий
+                {t("vershiny.events_none_title")}
               </p>
               <p className="text-body-5 text-(--on-bg-low)">
-                События появятся здесь, как только будут опубликованы.
+                {t("vershiny.events_none_body")}
               </p>
             </Card>
           ) : (
@@ -282,17 +286,17 @@ export default function VershinyPage() {
                     <div className="flex items-center gap-2 mb-4">
                       <Sparkle className="size-4 text-(--primary)" />
                       <span className="text-body-5 uppercase tracking-widest text-(--on-bg-low)">
-                        Главное событие
+                        {t("vershiny.events_featured")}
                       </span>
                     </div>
                     <Badge variant="tonal-static" className="w-fit mb-4">
-                      {eventTag(featured)}
+                      {eventTag(featured, defaultTag)}
                     </Badge>
                     <h3 className="text-display-4 leading-tight">
                       {featured.title}
                     </h3>
                     <p className="text-body-5 text-(--on-bg-low) uppercase tracking-wider mt-4">
-                      {formatDateRange(featured.start_at, featured.end_at)}
+                      {formatDate(featured.start_at, featured.end_at)}
                     </p>
                     {featured.short_description && (
                       <p className="text-body-4 text-(--on-bg-medium) mt-3 line-clamp-2">
@@ -304,7 +308,7 @@ export default function VershinyPage() {
                     {featured.price ? (
                       <div>
                         <div className="text-body-5 uppercase tracking-widest text-(--on-bg-low)">
-                          Стоимость
+                          {t("vershiny.events_price_label")}
                         </div>
                         <div className="text-display-3 text-(--primary) leading-none mt-2">
                           {featured.price}
@@ -321,7 +325,7 @@ export default function VershinyPage() {
                     >
                       <Link
                         href={`/events/${featured.slug}`}
-                        aria-label="Подробнее о событии"
+                        aria-label={t("vershiny.events_all")}
                       >
                         <ArrowRight />
                       </Link>
@@ -329,11 +333,10 @@ export default function VershinyPage() {
                   </div>
                 </Card>
               )}
-
               <div className="flex flex-col divide-y divide-(--outline)">
                 {rest.length === 0 ? (
                   <p className="text-body-4 text-(--on-bg-low) py-6">
-                    Больше событий пока нет.
+                    {t("vershiny.events_more_none")}
                   </p>
                 ) : (
                   rest.map((e, i) => (
@@ -347,13 +350,15 @@ export default function VershinyPage() {
                       </span>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
-                          <Badge variant="tonal-static">{eventTag(e)}</Badge>
+                          <Badge variant="tonal-static">
+                            {eventTag(e, defaultTag)}
+                          </Badge>
                         </div>
                         <h3 className="text-heading-3 leading-tight group-hover:text-(--primary) transition-colors">
                           {e.title}
                         </h3>
                         <p className="text-body-5 text-(--on-bg-low) uppercase tracking-wider mt-2">
-                          {formatDateRange(e.start_at, e.end_at)}
+                          {formatDate(e.start_at, e.end_at)}
                         </p>
                       </div>
                       <ArrowUpRight className="size-5 text-(--on-bg-low) group-hover:text-(--primary) transition-colors mt-1 shrink-0" />
@@ -383,32 +388,27 @@ export default function VershinyPage() {
               }}
             />
             <div className="relative max-w-2xl">
-              <Badge variant="glass-static">Better together</Badge>
+              <Badge variant="glass-static">{t("vershiny.cta_badge")}</Badge>
               <h2 className="text-display-3 mt-6 leading-tight">
-                Готов сделать шаг к своей вершине?
+                {t("vershiny.cta_title")}
               </h2>
               <p className="text-body-3 text-(--on-bg-medium) mt-4">
-                Участие бесплатно, опыт не нужен, возраст от 16 лет.
+                {t("vershiny.cta_subtitle")}
               </p>
               <div className="flex flex-wrap gap-3 mt-8">
                 <Button size="large" variant="filled" shape="round" asChild>
                   <Link href="/events">
-                    Присоединиться
+                    {t("vershiny.cta_join")}
                     <ArrowRight />
                   </Link>
                 </Button>
-                <Button
-                  size="large"
-                  variant="outlined"
-                  shape="round"
-                  asChild
-                >
+                <Button size="large" variant="outlined" shape="round" asChild>
                   <a
                     href="https://events.unidoka.com"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    events.unidoka.com
+                    {t("vershiny.cta_url")}
                     <ArrowUpRight />
                   </a>
                 </Button>

@@ -24,6 +24,8 @@ import {
   TrashIcon,
   CalendarBlankIcon,
   CalendarCheckIcon,
+  ArrowUpRightIcon,
+  MapPinIcon,
 } from "@phosphor-icons/react";
 import {
   createEvent,
@@ -41,6 +43,9 @@ import {
   type Direction,
 } from "@/utils/api/event-taxonomies";
 import { ImageUploadField } from "./image-upload-field";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
+import { MdxEditor } from "./mdx-editor";
+import { colorForOrganizer } from "@/app/events/_components/organizer-meta";
 
 interface Props {
   editing: EventDetail | null;
@@ -320,12 +325,15 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
 
         <Field>
           <FieldLabel>Контент события</FieldLabel>
-          <Textarea
+          <MdxEditor
             value={form.mdx_content}
-            onChange={(e) => set("mdx_content", e.target.value)}
-            placeholder="Полное описание — программа, спикеры, условия. Поддерживает Markdown."
-            className="min-h-[200px] font-mono text-body-4"
+            onChange={(v) => set("mdx_content", v)}
+            minHeight={320}
           />
+          <p className="text-body-5 text-(--on-bg-low) mt-1">
+            Поддерживает Markdown. Правый столбец — превью того, как
+            событие будет выглядеть на странице.
+          </p>
         </Field>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -334,10 +342,11 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
               <CalendarBlankIcon className="size-3.5" />
               Начало <span className="text-destructive">*</span>
             </FieldLabel>
-            <Input
-              type="datetime-local"
+            <DateTimePicker
               value={form.start_at}
-              onChange={(e) => set("start_at", e.target.value)}
+              onChange={(v) => set("start_at", v)}
+              placeholder="Дата и время начала"
+              clearable={false}
             />
             {errors.start_at && (
               <FieldError errors={[{ message: errors.start_at }]} />
@@ -348,10 +357,10 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
               <CalendarBlankIcon className="size-3.5" />
               Конец
             </FieldLabel>
-            <Input
-              type="datetime-local"
+            <DateTimePicker
               value={form.end_at}
-              onChange={(e) => set("end_at", e.target.value)}
+              onChange={(v) => set("end_at", v)}
+              placeholder="Дата и время окончания"
             />
           </Field>
           <Field>
@@ -359,10 +368,10 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
               <CalendarCheckIcon className="size-3.5" />
               Дедлайн регистрации
             </FieldLabel>
-            <Input
-              type="datetime-local"
+            <DateTimePicker
               value={form.registration_deadline}
-              onChange={(e) => set("registration_deadline", e.target.value)}
+              onChange={(v) => set("registration_deadline", v)}
+              placeholder="Дедлайн регистрации"
             />
           </Field>
           <Field>
@@ -389,11 +398,10 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
           <div className="space-y-2">
             {otherDates.map((d, i) => (
               <div key={i} className="flex items-start gap-2">
-                <Input
-                  type="datetime-local"
+                <DateTimePicker
                   value={d.at}
-                  onChange={(e) => updateOtherDate(i, { at: e.target.value })}
-                  className="max-w-[230px] shrink-0"
+                  onChange={(v) => updateOtherDate(i, { at: v })}
+                  className="max-w-[260px] shrink-0"
                 />
                 <Input
                   value={d.label}
@@ -488,6 +496,33 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
             className="font-mono text-body-4"
           />
         </Field>
+
+        {/* Live card preview — renders the exact composition the
+            events grid uses, so the author sees whether the crop
+            works before saving. */}
+        <div>
+          <p className="text-body-5 uppercase tracking-[0.18em] text-(--on-bg-low) mb-3">
+            Превью карточки
+          </p>
+          <EventCardPreview
+            title={form.title || "Название события"}
+            shortDescription={form.short_description}
+            coverUrl={form.cover_image_src}
+            startAt={form.start_at}
+            location={form.location_name}
+            organizer={selectedOrganizer}
+            customOrganizer={form.custom_organizer_name}
+            firstType={
+              typeSelections.find((t) => !t.isCustom)
+                ? types.find((t) => t.id === typeSelections.find((x) => !x.isCustom)?.id)
+                : null
+            }
+            customType={
+              typeSelections.find((t) => t.isCustom)?.customName || null
+            }
+            isFeatured={form.is_featured}
+          />
+        </div>
       </Card>
 
       {/* ── Организатор ──────────────────────────────────────────── */}
@@ -805,4 +840,120 @@ function toLocalInput(iso: string | null | undefined): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
     d.getHours(),
   )}:${pad(d.getMinutes())}`;
+}
+
+
+/* ── Card preview ──────────────────────────────────────────────────
+   A 1:1 clone of the events grid card, rendered live from the form
+   state. The `aspect-[16/10]` and the dark organizer chip in the
+   top-left match `EventCard` in the user profile page — if the
+   event card layout changes there, update both. */
+function EventCardPreview({
+  title,
+  shortDescription,
+  coverUrl,
+  startAt,
+  location,
+  organizer,
+  customOrganizer,
+  firstType,
+  customType,
+  isFeatured,
+}: {
+  title: string;
+  shortDescription?: string;
+  coverUrl?: string;
+  startAt?: string;
+  location?: string;
+  organizer: Organizer | null;
+  customOrganizer?: string;
+  firstType: EventTypeTaxonomy | null | undefined;
+  customType: string | null;
+  isFeatured: boolean;
+}) {
+  const color = organizer
+    ? colorForOrganizer(organizer)
+    : customOrganizer
+      ? "#4a4e54"
+      : "#4a4e54";
+  const orgLabel = organizer?.name || customOrganizer || "Без организатора";
+
+  const dateLabel = startAt
+    ? new Date(startAt).toLocaleDateString("ru-RU", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : "Дата не указана";
+
+  const typeLabel = firstType?.name || customType;
+
+  return (
+    <div className="max-w-sm">
+      <div className="group relative flex flex-col rounded-3xl border border-(--outline) bg-(--card) overflow-hidden">
+        <div className="relative aspect-[4/3] overflow-hidden bg-(--bg-disabled)">
+          {coverUrl ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={coverUrl}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          ) : (
+            <div
+              className="absolute inset-0"
+              style={{
+                background: `linear-gradient(135deg, color-mix(in srgb, ${color} 22%, transparent), color-mix(in srgb, ${color} 4%, transparent))`,
+              }}
+            />
+          )}
+          <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white backdrop-blur-md">
+            <span
+              className="size-1.5 rounded-full"
+              style={{ backgroundColor: color }}
+            />
+            {orgLabel}
+          </span>
+        </div>
+
+        <div className="flex-1 flex flex-col p-5">
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
+            {typeLabel && (
+              <Badge variant="tonal-card-static" size="chip-small">
+                {typeLabel}
+              </Badge>
+            )}
+            {isFeatured && (
+              <Badge variant="tonal-primary-static" size="chip-small">
+                ★
+              </Badge>
+            )}
+          </div>
+
+          <h3 className="text-heading-3 leading-tight text-(--on-bg-high) mb-3 line-clamp-2">
+            {title}
+          </h3>
+
+          {shortDescription && (
+            <p className="text-body-4 text-(--on-bg-medium) leading-relaxed line-clamp-2 mb-5">
+              {shortDescription}
+            </p>
+          )}
+
+          <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-body-5 text-(--on-bg-low) mt-auto pt-4 border-t border-(--outline)">
+            <span className="inline-flex items-center gap-1.5">
+              <CalendarBlankIcon className="size-3.5" />
+              {dateLabel}
+            </span>
+            {location && (
+              <span className="inline-flex items-center gap-1.5 truncate">
+                <MapPinIcon className="size-3.5 shrink-0" />
+                <span className="truncate">{location}</span>
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

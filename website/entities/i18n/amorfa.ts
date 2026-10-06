@@ -105,7 +105,7 @@ export const amorfaTranslations: Record<Language, Record<string, string>> = {
 
     // ── Stack ───────────────────────────────────────────────────────
     'amorfa.stack_eyebrow': 'Стек',
-    'amorfa.stack_title': 'Современный, скучный, надёжный.',
+    'amorfa.stack_title': 'Современный, простой, надёжный.',
 
     // ── Quickstart ──────────────────────────────────────────────────
     'amorfa.quickstart_eyebrow': 'Быстрый старт',

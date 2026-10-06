@@ -26,11 +26,11 @@ const GITHUB = "https://github.com/unidoka/amorfa";
    language switcher re-renders the copy without a full page reload. */
 const FEATURES = [
   { icon: LightningIcon, titleKey: "amorfa.feature_1_title", bodyKey: "amorfa.feature_1_body" },
-  { icon: RobotIcon,     titleKey: "amorfa.feature_2_title", bodyKey: "amorfa.feature_2_body" },
-  { icon: StackIcon,     titleKey: "amorfa.feature_3_title", bodyKey: "amorfa.feature_3_body" },
-  { icon: PackageIcon,   titleKey: "amorfa.feature_4_title", bodyKey: "amorfa.feature_4_body" },
+  { icon: RobotIcon, titleKey: "amorfa.feature_2_title", bodyKey: "amorfa.feature_2_body" },
+  { icon: StackIcon, titleKey: "amorfa.feature_3_title", bodyKey: "amorfa.feature_3_body" },
+  { icon: PackageIcon, titleKey: "amorfa.feature_4_title", bodyKey: "amorfa.feature_4_body" },
   { icon: GitBranchIcon, titleKey: "amorfa.feature_5_title", bodyKey: "amorfa.feature_5_body" },
-  { icon: CodeIcon,      titleKey: "amorfa.feature_6_title", bodyKey: "amorfa.feature_6_body" },
+  { icon: CodeIcon, titleKey: "amorfa.feature_6_title", bodyKey: "amorfa.feature_6_body" },
 ];
 
 const STACK = [
@@ -155,16 +155,16 @@ export default function AmorfaPage() {
             </div>
             <div className="mt-10 flex flex-wrap gap-2">
               <Badge variant="tonal-card-static" size="chip-medium">
-                MIT License
+                Apache 2.0 License
               </Badge>
               <Badge variant="tonal-card-static" size="chip-medium">
-                Python 3.12 · Node 22
+                Amorfa UI
               </Badge>
               <Badge variant="tonal-card-static" size="chip-medium">
                 Docker Compose
               </Badge>
               <Badge variant="tonal-card-static" size="chip-medium">
-                AI-friendly
+                AI-optimized
               </Badge>
             </div>
           </div>

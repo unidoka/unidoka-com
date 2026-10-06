@@ -133,7 +133,7 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <div className="hidden sm:flex items-center gap-1 ml-1">
+            <div className="hidden">
               <Button size="small" variant="text" asChild>
                 <Link href={rootLink("/login")}>{t("nav.login")}</Link>
               </Button>
