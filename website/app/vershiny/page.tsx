@@ -64,6 +64,18 @@ function eventTag(ev: EventListItem, fallback: string): string {
   return ev.organizer?.name ?? fallback;
 }
 
+/* The logo animation lives on a light background (see
+   public/videos/ver-logo-animation.webm). In light mode it is faintly
+   visible on its own; in dark mode it needs a scrim of the page
+   background so the light text stays readable. The gradient is
+   heaviest at the top (badge / heading / subtitle) and slightly
+   lighter at the bottom, so the animation reads through the footer
+   of the hero. */
+const BG_SCRIM =
+  "linear-gradient(to bottom, " +
+  "color-mix(in srgb, var(--bg) 88%, transparent) 0%, " +
+  "color-mix(in srgb, var(--bg) 78%, transparent) 100%)";
+
 export default function VershinyPage() {
   const { t, lang } = useLanguage();
   const [events, setEvents] = useState<EventListItem[] | null>(null);
@@ -104,34 +116,62 @@ export default function VershinyPage() {
   return (
     <div className="min-h-screen">
       {/* ─── HERO ──────────────────────────────────────────────────────
-          Video on the right, copy on the left. The video container was
-          previously capped at 520px with a heavy inner frame and shadow
-          that read as a widget. Now: wider on desktop (up to 720px, but
-          full-column via max-w-none on lg+), a soft primary bloom behind
-          it for depth, and the video sits directly inside the rounded
-          shell with no nested frame. The white shell is kept because the
-          .webm has a baked white background — switching it to a theme
-          colour would show a seam. */}
+          lg+ : two-column split — copy on the left, the logo animation
+                in a white shell on the right. The shell is kept white
+                because the .webm has a baked white background; a
+                theme-coloured shell would show a seam in dark mode.
+          <lg : the animation becomes the section background. A soft
+                gradient scrim in the section bg colour keeps the copy
+                readable while letting the animation read through.
+          The video element is rendered twice — once per layout — with
+          `display: none` hiding the inactive one, so only one decodes
+          at any time. Same src, so the HTTP cache serves the second
+          copy for free. */}
       <section className="relative overflow-hidden border-b border-(--outline)">
+        {/* Mobile / tablet background video */}
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-40 left-1/4 h-[520px] w-[520px] rounded-full opacity-[0.10]"
+          className="lg:hidden pointer-events-none absolute inset-0 overflow-hidden"
+        >
+          <video
+            src="/videos/ver-logo-animation.webm"
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 h-full w-full object-cover object-center"
+          />
+          <div
+            className="absolute inset-0"
+            style={{ background: BG_SCRIM }}
+          />
+        </div>
+
+        {/* Desktop bloom */}
+        <div
+          aria-hidden
+          className="hidden lg:block pointer-events-none absolute -top-40 left-1/4 h-[520px] w-[520px] rounded-full opacity-[0.10]"
           style={{
-            background: "radial-gradient(circle, var(--primary) 0%, transparent 70%)",
+            background:
+              "radial-gradient(circle, var(--primary) 0%, transparent 70%)",
           }}
         />
-        <Container variant="full-width" className="relative py-16 md:py-24">
+
+        <Container
+          variant="full-width"
+          className="relative py-28 md:py-32 lg:py-24"
+        >
           <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-12 lg:gap-16 items-center">
-            {/* Copy */}
-            <div>
-              <Badge variant="glass-static">
-                <Sparkle className="size-3" />
-                {t("vershiny.badge")}
-              </Badge>
+            {/* Copy — sits above the mobile background video thanks to
+                the `relative` stacking context, no z-index needed since
+                the video wrapper is a sibling and paints first. */}
+            <div className="relative">
               <h1 className="text-display-2 md:text-display-1 mt-6 leading-[1.05] tracking-tight">
                 {t("vershiny.title_1")}
                 <br />
-                <span className="text-(--primary)">{t("vershiny.title_2")}</span>
+                <span className="text-(--primary)">
+                  {t("vershiny.title_2")}
+                </span>
               </h1>
               <p className="text-body-3 text-(--on-bg-medium) mt-6 max-w-lg leading-relaxed">
                 {t("vershiny.subtitle")}
@@ -143,7 +183,12 @@ export default function VershinyPage() {
                     <ArrowRight />
                   </Link>
                 </Button>
-                <Button size="large" variant="outlined" shape="round" asChild>
+                <Button
+                  size="large"
+                  variant="outlined"
+                  shape="round"
+                  asChild
+                >
                   <Link href="/amorfa">
                     {t("vershiny.cta_amorfa")}
                     <ArrowUpRight />
@@ -152,9 +197,9 @@ export default function VershinyPage() {
               </div>
             </div>
 
-            {/* Video */}
-            <div className="relative w-full">
-              <div className="relative w-full max-w-[720px] mx-auto lg:max-w-none">
+            {/* Desktop video (right column, lg+) */}
+            <div className="hidden lg:block relative w-full">
+              <div className="relative w-full">
                 <div
                   aria-hidden
                   className="absolute -inset-6 rounded-[2.5rem] blur-3xl opacity-[0.16]"
@@ -183,9 +228,9 @@ export default function VershinyPage() {
       <section className="py-20 md:py-28">
         <Container variant="full-width">
           <div className="max-w-2xl mb-12">
-            <p className="text-body-5 uppercase tracking-widest text-(--primary) mb-3">
+            {/* <p className="text-body-5 uppercase tracking-widest text-(--primary) mb-3">
               {t("vershiny.pillars_eyebrow")}
-            </p>
+            </p> */}
             <h2 className="text-display-3">{t("vershiny.pillars_title")}</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -201,11 +246,13 @@ export default function VershinyPage() {
                   <span className="flex size-10 items-center justify-center rounded-2xl bg-(--primary-glass) text-(--primary)">
                     <Icon className="size-5" />
                   </span>
-                  <h3 className="text-heading-3 leading-tight">{t(p.titleKey)}</h3>
+                  <h3 className="text-heading-3 leading-tight">
+                    {t(p.titleKey)}
+                  </h3>
                   <p className="text-body-4 text-(--on-bg-medium) flex-1">
                     {t(p.descKey)}
                   </p>
-                  {"external" in p && p.external ? (
+                  {/* {"external" in p && p.external ? (
                     <a
                       href={p.href}
                       target="_blank"
@@ -220,7 +267,7 @@ export default function VershinyPage() {
                       {t(p.ctaKey)}
                       <ArrowUpRight className="size-4" />
                     </Link>
-                  )}
+                  )} */}
                 </Card>
               );
             })}
@@ -233,9 +280,9 @@ export default function VershinyPage() {
         <Container variant="full-width">
           <div className="flex items-end justify-between mb-10 gap-6 flex-wrap">
             <div className="max-w-2xl">
-              <p className="text-body-5 uppercase tracking-widest text-(--primary) mb-3">
+              {/* <p className="text-body-5 uppercase tracking-widest text-(--primary) mb-3">
                 {t("vershiny.events_eyebrow")}
-              </p>
+              </p> */}
               <h2 className="text-display-3">{t("vershiny.events_title")}</h2>
             </div>
             <Button variant="outlined" size="medium" shape="round" asChild>
@@ -388,7 +435,6 @@ export default function VershinyPage() {
               }}
             />
             <div className="relative max-w-2xl">
-              <Badge variant="glass-static">{t("vershiny.cta_badge")}</Badge>
               <h2 className="text-display-3 mt-6 leading-tight">
                 {t("vershiny.cta_title")}
               </h2>
@@ -404,11 +450,11 @@ export default function VershinyPage() {
                 </Button>
                 <Button size="large" variant="outlined" shape="round" asChild>
                   <a
-                    href="https://events.unidoka.com"
+                    href="https://t.me/vershiny_top"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {t("vershiny.cta_url")}
+                    {t("vershiny.cta_telegram")}
                     <ArrowUpRight />
                   </a>
                 </Button>
