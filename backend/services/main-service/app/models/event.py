@@ -3,7 +3,7 @@ from datetime import datetime
 import enum
 from sqlalchemy import (
     Column, String, Boolean, DateTime, Enum, Text, Integer,
-    ForeignKey, Table, JSON,
+    ForeignKey, Table, JSON, text,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -127,7 +127,7 @@ class Event(Base):
     start_at = Column(DateTime, nullable=True)
     end_at = Column(DateTime, nullable=True)
     registration_deadline = Column(DateTime, nullable=True)
-    other_dates = Column(JSON, default=list, nullable=False, server_default="'[]'")
+    other_dates = Column(JSON, default=list, nullable=False, server_default=text("'[]'::jsonb"))
 
     location_name = Column(String, nullable=True)
     address = Column(String, nullable=True)

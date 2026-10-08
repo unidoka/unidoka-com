@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Boolean, DateTime, Text, Integer, ForeignKey, JSON
+from sqlalchemy import Column, String, Boolean, DateTime, Text, Integer, ForeignKey, JSON, text
 from sqlalchemy.dialects.postgresql import UUID
 from database.database import Base
 
@@ -27,8 +27,8 @@ class Solution(Base):
 
     category = Column(String, nullable=True)       # "e-commerce", "identity", etc.
     period = Column(String, nullable=True)         # "2024", "2025"
-    tech_stack = Column(JSON, default=list, nullable=False, server_default="'[]'")
-    tags = Column(JSON, default=list, nullable=False, server_default="'[]'")
+    tech_stack = Column(JSON, default=list, nullable=False, server_default=text("'[]'::jsonb"))
+    tags = Column(JSON, default=list, nullable=False, server_default=text("'[]'::jsonb"))
 
     client_id = Column(UUID(as_uuid=True), ForeignKey("clients.id"), nullable=True)
     client_name = Column(String, nullable=True)   # fallback if no FK
