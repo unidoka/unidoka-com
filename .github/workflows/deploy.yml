@@ -1,13 +1,23 @@
 name: Deploy to prod
+
 on:
   push:
     branches:
       - main
+  # Manual trigger for rebuild-without-code-change (e.g. to pick up a
+  # base image update or to force a clean redeploy).
+  workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: "Rebuild every service, ignoring git diff"
+        type: boolean
+        default: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Execute remote command via SSH
+      - name: Execute remote deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST }}
@@ -15,21 +25,117 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.PORT }}
           command_timeout: 30m
+          # FORCE_REBUILD is passed through from the workflow_dispatch
+          # input. On a regular push it is empty, so the diff-based
+          # detection runs.
+          envs: FORCE_REBUILD
           script: |
-            cd ${{ secrets.PROJECT_PATH }}
-            git fetch origin main && git reset --hard origin/main
-            # Source the root .env so NEXT_PUBLIC_* values are present
-            # for docker compose build.args interpolation.
-            set -a
-            . ./.env
-            set +a
-            docker compose --profile prod up -d --build --force-recreate
-            # Wait for health
+            set -euo pipefail
+            cd "${{ secrets.PROJECT_PATH }}"
+
+            # ── 1. Capture the currently-deployed commit ─────────────
+            # Must happen BEFORE git reset, or the diff below has
+            # nothing to compare against. First-ever deploy lands here
+            # with an empty OLD_SHA.
+            OLD_SHA=$(git rev-parse HEAD 2>/dev/null || echo "")
+
+            # ── 2. Pull latest main ─────────────────────────────────
+            git fetch --quiet origin main
+            git reset --hard origin/main
+            NEW_SHA=$(git rev-parse HEAD)
+
+            # ── 3. Work out which files changed ─────────────────────
+            # Three cases fall back to "rebuild everything":
+            #   - first deploy (no OLD_SHA)
+            #   - manual force_rebuild input
+            #   - diff command fails for any reason
+            if [ -z "$OLD_SHA" ] || [ "${FORCE_REBUILD:-}" = "true" ]; then
+              CHANGED="ALL"
+            else
+              CHANGED=$(git diff --name-only "$OLD_SHA..$NEW_SHA" || echo "ALL")
+            fi
+
+            echo "==> Changed files:"
+            if [ "$CHANGED" = "ALL" ]; then
+              echo "  (full rebuild)"
+            else
+              echo "$CHANGED" | sed 's/^/  /'
+            fi
+
+            # ── 4. Map changed paths → services to rebuild ──────────
+            # A service rebuilds when anything under its build context
+            # changed. Compose file and .env changes rebuild everything
+            # so that build args (NEXT_PUBLIC_*) and runtime env stay
+            # consistent.
+            need_backend=false
+            need_frontend=false
+            need_tgbot=false
+
+            if [ "$CHANGED" = "ALL" ]; then
+              need_backend=true
+              need_frontend=true
+              need_tgbot=true
+            else
+              grep -qE '^backend/services/main-service/' <<<"$CHANGED" && need_backend=true || true
+              grep -qE '^website/'                       <<<"$CHANGED" && need_frontend=true || true
+              grep -qE '^tg-bot/'                        <<<"$CHANGED" && need_tgbot=true || true
+
+              if grep -qE '^(\.env|docker-compose\.yml|backend/docker-compose\.yml|website/docker-compose\.yml|tg-bot/docker-compose\.yml)$' <<<"$CHANGED"; then
+                need_backend=true
+                need_frontend=true
+                need_tgbot=true
+              fi
+            fi
+
+            # ── 5. Build only what changed ──────────────────────────
+            # No `source .env` — the file holds values with parentheses
+            # (company names, addresses) that bash tries to execute as
+            # subshell syntax. Docker Compose reads ./.env from the
+            # working directory on its own and uses it to interpolate
+            # ${VAR} in build.args and service env blocks, which is
+            # exactly what we needed the sourcing for.
+            BUILD_SERVICES=""
+            [ "$need_backend"  = "true" ] && BUILD_SERVICES="$BUILD_SERVICES main-service"
+            [ "$need_frontend" = "true" ] && BUILD_SERVICES="$BUILD_SERVICES next-js"
+            [ "$need_tgbot"    = "true" ] && BUILD_SERVICES="$BUILD_SERVICES tg-bot"
+            BUILD_SERVICES=$(echo "$BUILD_SERVICES" | xargs)  # trim
+
+            if [ -n "$BUILD_SERVICES" ]; then
+              echo "==> Building:$BUILD_SERVICES"
+              # The build step alone doesn't touch running containers.
+              # Docker's layer cache makes a rebuild of an unchanged
+              # source directory essentially a no-op.
+              docker compose --profile prod build $BUILD_SERVICES
+            else
+              echo "==> No buildable services changed"
+            fi
+
+            # ── 6. Reconcile running containers ─────────────────────
+            # `up -d` without --build or --force-recreate:
+            #   - recreates only containers whose image ID or config
+            #     changed since the last run
+            #   - leaves everything else running
+            # If BUILD_SERVICES is empty, no container's image changed,
+            # so only config-level drift (e.g. a new env var in the
+            # compose file) triggers a recreate.
+            echo "==> Reconciling compose state"
+            docker compose --profile prod up -d
+
+            # ── 7. Wait for health ──────────────────────────────────
+            echo "==> Waiting for services to become healthy"
             for i in $(seq 1 40); do
-              unhealthy=$(docker compose ps --format json | grep -c '"Health":"starting"' || true)
-              if [ "$unhealthy" = "0" ]; then break; fi
+              ps_json=$(docker compose ps --format json 2>/dev/null || echo "")
+              starting=$(grep -c '"Health":"starting"'  <<<"$ps_json" || true)
+              unhealthy=$(grep -c '"Health":"unhealthy"' <<<"$ps_json" || true)
+              if [ "$starting" = "0" ] && [ "$unhealthy" = "0" ]; then
+                echo "  healthy after ${i} checks"
+                break
+              fi
               sleep 5
             done
+
+            echo "==> Container status"
             docker compose ps
-            docker compose logs --tail=200 main-service
-            docker system prune -f
+
+            echo "==> main-service logs (tail)"
+            docker compose logs --tail=100 main-service
