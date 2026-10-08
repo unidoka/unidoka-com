@@ -20,7 +20,7 @@ export function AdminSidebar() {
     { label: t("admin.orders"), href: "/orders", icon: Receipt },
     { label: t("admin.companies"), href: "/companies", icon: Buildings },
     { label: t("admin.clients"), href: "/clients", icon: Handshake },
-    { label: t("admin.projects"), href: "/projects", icon: Cube },
+    { label: t("admin.solutions"), href: "/solutions", icon: Cube },
     { label: t("admin.articles"), href: "/articles", icon: Newspaper },
     { label: t("admin.team"), href: "/team", icon: UsersThree },
     { label: t("admin.events"), href: "/events", icon: CalendarBlank },

@@ -7,10 +7,12 @@ from app.api.v1 import (
     admin_users_notifications,
     admin_events,
     admin_orders,
+    admin_solutions,
     me,
     events,
     uploads,
     notifications,
+    solutions,
     users,
 )
 
@@ -22,6 +24,7 @@ router.include_router(admin_users.router)
 router.include_router(admin_users_notifications.router)
 router.include_router(admin_events.router)
 router.include_router(admin_orders.router)
+router.include_router(admin_solutions.router)
 router.include_router(me.router)
 router.include_router(notifications.router)
 router.include_router(events.router)
