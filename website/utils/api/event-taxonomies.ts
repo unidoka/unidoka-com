@@ -64,7 +64,15 @@ async function adminCall<T>(
     isToast: false,
   });
   if (!res?.response?.ok) {
-    throw new Error(res?.json?.detail || "Request failed");
+    const detail = res?.json?.detail;
+    if (Array.isArray(detail)) {
+      const msgs = detail.map((e: any) => {
+        const field = Array.isArray(e.loc) ? e.loc[e.loc.length - 1] : "";
+        return field ? `${field}: ${e.msg}` : e.msg;
+      });
+      throw new Error(msgs.join("; ") || "Request failed");
+    }
+    throw new Error(typeof detail === "string" ? detail : "Request failed");
   }
   return res.json as T;
 }

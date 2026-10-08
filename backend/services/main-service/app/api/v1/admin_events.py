@@ -16,7 +16,7 @@ from app.schemas.event import (
     OrganizerRequest, EventTypeRequest, DirectionRequest, SubdirectionRequest,
     OrganizerOut, EventTypeOut, DirectionOut, SubdirectionOut,
 )
-from app.api.v1.events import _serialize_event, _unique_slug, _apply_types_and_tags
+from app.api.v1.events import _serialize_event, _unique_slug, _apply_types_and_tags, slugify
 from app.shared.auth import get_current_user
 from database.database import get_db
 
@@ -50,6 +50,8 @@ def _load_event_any(db: Session, slug: str) -> Event:
 async def admin_list_events(
     q: Optional[str] = Query(None),
     status: Optional[str] = Query(None, pattern="^(pending|approved|rejected)$"),
+    organizer_id: Optional[str] = Query(None),
+    event_type_id: Optional[str] = Query(None),
     db: Session = Depends(get_db),
     _: User = Depends(require_admin),
 ):
@@ -67,7 +69,21 @@ async def admin_list_events(
         query = query.filter(Event.title.ilike(like))
     if status:
         query = query.filter(Event.status == EventStatus(status))
-    return [_serialize_event(e) for e in query.all()]
+    if organizer_id:
+        try:
+            org_uuid = uuid.UUID(organizer_id)
+            query = query.filter(Event.organizer_id == org_uuid)
+        except ValueError:
+            pass
+    if event_type_id:
+        try:
+            type_uuid = uuid.UUID(event_type_id)
+            query = query.join(EventTypeAssignment).filter(
+                EventTypeAssignment.type_id == type_uuid
+            )
+        except ValueError:
+            pass
+    return [_serialize_event(e, full=True) for e in query.all()]
 
 
 @router.get("/events/{slug}", response_model=EventDetail)
@@ -85,7 +101,7 @@ async def admin_create_event(
     db: Session = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
-    slug_base = _slug_from(payload.slug or payload.title)
+    slug_base = slugify(payload.slug or payload.title)
     slug = _unique_slug(db, slug_base)
 
     org_id = _uuid_or_none(payload.organizer_id, "organizer_id")
@@ -223,7 +239,7 @@ async def admin_create_organizer(
     db: Session = Depends(get_db),
     _: User = Depends(require_admin),
 ):
-    slug = _slug_from(payload.slug or payload.name)
+    slug = slugify(payload.slug or payload.name)
     owner_uuid = None
     if payload.owner_id:
         try:
@@ -263,7 +279,7 @@ async def admin_update_organizer(
         raise HTTPException(404, "Organizer not found")
     o.name = payload.name
     if payload.slug:
-        o.slug = _slug_from(payload.slug)
+        o.slug = slugify(payload.slug)
     o.color = payload.color
     o.avatar_url = payload.avatar_url
     if payload.owner_id is not None:
@@ -319,7 +335,7 @@ async def admin_create_type(
 ):
     t = EventType(
         name=payload.name,
-        slug=_slug_from(payload.slug or payload.name),
+        slug=slugify(payload.slug or payload.name),
         icon=payload.icon,
         color=payload.color,
         sort_order=payload.sort_order,
@@ -349,7 +365,7 @@ async def admin_update_type(
         raise HTTPException(404, "Type not found")
     t.name = payload.name
     if payload.slug:
-        t.slug = _slug_from(payload.slug)
+        t.slug = slugify(payload.slug)
     t.icon = payload.icon
     t.color = payload.color
     t.sort_order = payload.sort_order
@@ -397,7 +413,7 @@ async def admin_create_direction(
 ):
     d = EventDirection(
         name=payload.name,
-        slug=_slug_from(payload.slug or payload.name),
+        slug=slugify(payload.slug or payload.name),
         emoji=payload.emoji,
         sort_order=payload.sort_order,
         is_active=payload.is_active,
@@ -426,7 +442,7 @@ async def admin_update_direction(
         raise HTTPException(404, "Direction not found")
     d.name = payload.name
     if payload.slug:
-        d.slug = _slug_from(payload.slug)
+        d.slug = slugify(payload.slug)
     d.emoji = payload.emoji
     d.sort_order = payload.sort_order
     d.is_active = payload.is_active
@@ -473,7 +489,7 @@ async def admin_create_subdirection(
     s = EventSubdirection(
         direction_id=direction_id,
         name=payload.name,
-        slug=_slug_from(payload.slug or payload.name),
+        slug=slugify(payload.slug or payload.name),
         sort_order=payload.sort_order,
         is_active=payload.is_active,
     )
@@ -501,7 +517,7 @@ async def admin_update_subdirection(
         raise HTTPException(404, "Subdirection not found")
     s.name = payload.name
     if payload.slug:
-        s.slug = _slug_from(payload.slug)
+        s.slug = slugify(payload.slug)
     s.sort_order = payload.sort_order
     s.is_active = payload.is_active
     db.commit()
@@ -526,12 +542,7 @@ async def admin_delete_subdirection(
 
 
 # ── Utilities ────────────────────────────────────────────────────────────
-def _slug_from(text: str) -> str:
-    import re
-    text = text.lower().strip()
-    text = re.sub(r"[^\w\s-]", "", text, flags=re.UNICODE)
-    text = re.sub(r"[\s_]+", "-", text)
-    return re.sub(r"-+", "-", text).strip("-")[:180]
+
 
 
 def _uuid_or_none(v: Optional[str], field: str) -> Optional[uuid.UUID]:

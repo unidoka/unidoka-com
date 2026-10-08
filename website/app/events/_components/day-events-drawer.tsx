@@ -170,6 +170,12 @@ function EventCard({ event, onOpen }: { event: EventListItem; onOpen: () => void
               {event.price}
             </span>
           )}
+          {event.submitted_by && (
+            <span className="inline-flex items-center gap-1.5">
+              <UserIcon className="size-3.5 shrink-0" />
+              {[event.submitted_by.name, event.submitted_by.surname].filter(Boolean).join(" ") || event.submitted_by.username || "—"}
+            </span>
+          )}
         </div>
         {(event.tags ?? []).length > 0 && (
           <div className="mt-3 flex flex-wrap gap-1.5">

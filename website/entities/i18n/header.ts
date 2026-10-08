@@ -36,6 +36,9 @@ export const headerTranslations: Record<Language, Record<string, string>> = {
     'admin.team': 'Team',
     'admin.events': 'Events',
     'admin.event_requests': 'Event Requests',
+    'admin.event_types': 'Event Types',
+    'admin.organizers': 'Organizers',
+    'admin.directions': 'Directions',
     'admin.catalog': 'Catalog',
   },
   ru: {
@@ -70,6 +73,9 @@ export const headerTranslations: Record<Language, Record<string, string>> = {
     'admin.team': 'Команда',
     'admin.events': 'События',
     'admin.event_requests': 'Заявки на события',
+    'admin.event_types': 'Типы событий',
+    'admin.organizers': 'Организаторы',
+    'admin.directions': 'Направления',
     'admin.catalog': 'Каталоги',
   },
 };

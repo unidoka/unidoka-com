@@ -1,5 +1,40 @@
 import { $fetch } from "@/utils/fetch";
 
+/**
+ * Разбирает ответ FastAPI (особенно 422 Validation Error) в читаемую строку.
+ * FastAPI возвращает { detail: [ { loc: ["body", "start_at"], msg: "field required" } ] }
+ * Без этого мы получаем [object Object].
+ */
+function extractErrorMessage(payload: any, fallback: string): string {
+  if (!payload) return fallback;
+  if (typeof payload === "string") return payload;
+
+  const detail = payload.detail ?? payload.message;
+
+  if (typeof detail === "string") return detail;
+
+  if (Array.isArray(detail)) {
+    return detail
+      .map((e: any) => {
+        if (typeof e === "string") return e;
+        if (e && typeof e === "object") {
+          const field = Array.isArray(e.loc) ? e.loc[e.loc.length - 1] : "";
+          const msg = e.msg || e.message || JSON.stringify(e);
+          return field ? `${field}: ${msg}` : msg;
+        }
+        return String(e);
+      })
+      .filter(Boolean)
+      .join("; ");
+  }
+
+  if (typeof detail === "object") {
+    return detail.msg || detail.message || JSON.stringify(detail);
+  }
+
+  return fallback;
+}
+
 export interface OrganizerRef {
   id: string;
   name: string;
@@ -183,7 +218,7 @@ export async function submitEvent(payload: EventPayload): Promise<EventDetail> {
     isToast: false,
   });
   if (!res?.response?.ok) {
-    throw new Error(res?.json?.detail || "Не удалось отправить событие");
+    throw new Error(extractErrorMessage(res?.json, "Не удалось отправить событие"));
   }
   return res.json as EventDetail;
 }
@@ -192,14 +227,21 @@ export async function submitEvent(payload: EventPayload): Promise<EventDetail> {
 export async function fetchAdminEvents(params?: {
   q?: string;
   status?: string;
+  organizer_id?: string;
+  event_type_id?: string;
 }): Promise<EventListItem[]> {
   const qs = new URLSearchParams();
   if (params?.q) qs.set("q", params.q);
   if (params?.status) qs.set("status", params.status);
+  if (params?.organizer_id) qs.set("organizer_id", params.organizer_id);
+  if (params?.event_type_id) qs.set("event_type_id", params.event_type_id);
   const res = await $fetch(
     `/api/v1/admin/events${qs.toString() ? `?${qs}` : ""}`,
     { isToast: false },
   );
+  if (!res?.response?.ok) {
+    throw new Error(res?.json?.detail || "Failed to fetch events");
+  }
   return Array.isArray(res?.json) ? res.json : [];
 }
 
@@ -217,7 +259,7 @@ export async function createEvent(payload: EventPayload): Promise<EventDetail> {
     body: JSON.stringify(payload),
     headers: { "Content-Type": "application/json" },
   });
-  if (!res?.response?.ok) throw new Error(res?.json?.detail || "Failed to create event");
+  if (!res?.response?.ok) throw new Error(extractErrorMessage(res?.json, "Failed to create event"));
   return res.json as EventDetail;
 }
 
@@ -230,7 +272,7 @@ export async function updateEvent(
     body: JSON.stringify(payload),
     headers: { "Content-Type": "application/json" },
   });
-  if (!res?.response?.ok) throw new Error(res?.json?.detail || "Failed to update event");
+  if (!res?.response?.ok) throw new Error(extractErrorMessage(res?.json, "Failed to update event"));
   return res.json as EventDetail;
 }
 
@@ -238,7 +280,7 @@ export async function deleteEvent(slug: string): Promise<void> {
   const res = await $fetch(`/api/v1/admin/events/${encodeURIComponent(slug)}`, {
     method: "DELETE",
   });
-  if (!res?.response?.ok) throw new Error(res?.json?.detail || "Failed to delete event");
+  if (!res?.response?.ok) throw new Error(extractErrorMessage(res?.json, "Failed to delete event"));
 }
 
 export async function approveEvent(slug: string): Promise<EventDetail> {
@@ -246,7 +288,7 @@ export async function approveEvent(slug: string): Promise<EventDetail> {
     `/api/v1/admin/events/${encodeURIComponent(slug)}/approve`,
     { method: "POST" },
   );
-  if (!res?.response?.ok) throw new Error(res?.json?.detail || "Failed to approve");
+  if (!res?.response?.ok) throw new Error(extractErrorMessage(res?.json, "Failed to approve"));
   return res.json as EventDetail;
 }
 
@@ -259,6 +301,6 @@ export async function rejectEvent(slug: string, reason: string): Promise<EventDe
       headers: { "Content-Type": "application/json" },
     },
   );
-  if (!res?.response?.ok) throw new Error(res?.json?.detail || "Failed to reject");
+  if (!res?.response?.ok) throw new Error(extractErrorMessage(res?.json, "Failed to reject"));
   return res.json as EventDetail;
 }

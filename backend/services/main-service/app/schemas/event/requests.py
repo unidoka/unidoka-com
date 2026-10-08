@@ -34,6 +34,8 @@ class EventSubmitRequest(BaseModel):
     other_dates: List[OtherDateInput] = []
     location_name: Optional[str] = None
     address: Optional[str] = None
+    metro: Optional[str] = None
+    city: Optional[str] = None
     price: Optional[str] = None
     capacity: Optional[int] = None
     registration_url: Optional[str] = None

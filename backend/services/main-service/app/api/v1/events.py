@@ -25,11 +25,22 @@ logger = logging.getLogger(__name__)
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────
+TRANSLIT_MAP = {
+    'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'e',
+    'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm',
+    'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
+    'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'shch',
+    'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya'
+}
+
 def slugify(text: str) -> str:
     text = text.lower().strip()
-    text = re.sub(r"[^\w\s-]", "", text, flags=re.UNICODE)
-    text = re.sub(r"[\s_]+", "-", text)
-    return re.sub(r"-+", "-", text).strip("-")[:180]
+    # Transliterate Cyrillic to Latin
+    transliterated = "".join(TRANSLIT_MAP.get(char, char) for char in text)
+    # Remove non-alphanumeric, non-space, non-hyphen
+    transliterated = re.sub(r"[^\w\s-]", "", transliterated, flags=re.UNICODE)
+    transliterated = re.sub(r"[\s_]+", "-", transliterated)
+    return re.sub(r"-+", "-", transliterated).strip("-")[:180]
 
 
 def _unique_slug(db: Session, base: str, exclude_id: Optional[uuid.UUID] = None) -> str:
@@ -110,6 +121,14 @@ def _serialize_event(event: Event, full: bool = False) -> dict:
         "custom_organizer_name": getattr(event, "custom_organizer_name", None),
         "types": types,
         "tags": tags,
+        "submitted_by": {
+            "id": str(event.submitted_by.id),
+            "name": event.submitted_by.name,
+            "surname": event.submitted_by.surname,
+            "username": event.submitted_by.username,
+            "avatar_url": event.submitted_by.avatar_url,
+        } if event.submitted_by else None,
+        "submitted_by_id": str(event.submitted_by_id) if event.submitted_by_id else None,
     }
     if full:
         data.update({
@@ -121,14 +140,6 @@ def _serialize_event(event: Event, full: bool = False) -> dict:
             "seo_title": event.seo_title,
             "meta_description": event.meta_description,
             "rejection_reason": event.rejection_reason,
-            "submitted_by": {
-                "id": str(event.submitted_by.id),
-                "name": event.submitted_by.name,
-                "surname": event.submitted_by.surname,
-                "username": event.submitted_by.username,
-                "avatar_url": event.submitted_by.avatar_url,
-            } if event.submitted_by else None,
-            "submitted_by_id": str(event.submitted_by_id) if event.submitted_by_id else None,
             "reviewed_by_id": str(event.reviewed_by_id) if event.reviewed_by_id else None,
             "reviewed_at": event.reviewed_at,
         })

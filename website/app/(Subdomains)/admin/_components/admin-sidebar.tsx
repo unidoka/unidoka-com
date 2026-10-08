@@ -1,4 +1,5 @@
 "use client";
+import { VershinyLogo } from "@/components/icons/logotypes/vershiny-logo";
 import { Sidebar, type SidebarItem } from "@/components/layout/nav/sidebar";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
 import { useLanguage } from "@/providers/language-provider";
@@ -23,9 +24,9 @@ export function AdminSidebar() {
     { label: t("admin.articles"), href: "/articles", icon: Newspaper },
     { label: t("admin.team"), href: "/team", icon: UsersThree },
     { label: t("admin.events"), href: "/events", icon: CalendarBlank },
-    { label: "Типы событий", href: "/event-types", icon: FolderSimple },
-    { label: "Организаторы", href: "/organizers", icon: Buildings },
-    { label: "Направления", href: "/directions", icon: Cube },
+    { label: t("admin.event_types"), href: "/event-types", icon: FolderSimple },
+    { label: t("admin.organizers"), href: "/organizers", icon: Buildings },
+    { label: t("admin.directions"), href: "/directions", icon: VershinyLogo },
     { label: t("admin.event_requests"), href: "/event-requests", icon: Ticket },
     { label: t("admin.catalog"), href: "/catalog", icon: FolderSimple },
   ];

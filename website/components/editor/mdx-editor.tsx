@@ -47,22 +47,14 @@ interface MdxEditorProps {
    MDXEDITOR WRAPPER
    ───────────────────────────────────────────────────────────────────
    Three modes, all writing back to the same `value` string (markdown):
-
-     • WYSIWYG  — MDXEditor rich-text mode. Bold/italic/lists/links/
-                  images/tables/code blocks render inline as you type.
-     • SOURCE   — MDXEditor's built-in CodeMirror source view. Raw
-                  markdown, line numbers, syntax highlighting.
-     • PREVIEW  — read-only render. The editor is unmounted and a
-                  lightweight markdown renderer takes its place.
-
-   Switching modes remounts the editor via `key`, which is the only
-   reliable way to reset MDXEditor's internal viewMode — the plugin
-   reads it once at construction time.
+     • WYSIWYG  — Rich-text mode. Headings render visually, # is hidden.
+     • SOURCE   — Pure Markdown mode (Obsidian-style). Shows raw syntax.
+     • PREVIEW  — Read-only render. Lightweight markdown renderer.
    ═══════════════════════════════════════════════════════════════════ */
 export function MdxEditor({
   value,
   onChange,
-  placeholder = "Полное описание события. Пишите как в обычном текстовом редакторе.",
+  placeholder = "Полное описание события...",
   minHeight = 320,
   className,
 }: MdxEditorProps) {
@@ -70,15 +62,9 @@ export function MdxEditor({
   const [isDark, setIsDark] = React.useState(false);
   const editorRef = React.useRef<MDXEditorMethods>(null);
 
-  // Guards against the value ↔ onChange feedback loop. When the
-  // parent re-renders with the same string we just emitted, we skip
-  // the setMarkdown call. Without this, every keystroke triggers a
-  // re-render that resets the cursor to the start.
+  // Guards against the value ↔ onChange feedback loop.
   const lastEmittedRef = React.useRef(value);
 
-  // Track dark mode for MDXEditor's `dark-theme` class. Observes the
-  // <html> class attribute so it reacts to the theme switcher and to
-  // the system preference when the theme is "system".
   React.useEffect(() => {
     const root = document.documentElement;
     const update = () => setIsDark(root.classList.contains("dark"));
@@ -93,7 +79,6 @@ export function MdxEditor({
     onChange(md);
   };
 
-  // External value changes (form hydration, reset button).
   React.useEffect(() => {
     if (value === lastEmittedRef.current) return;
     if (mode !== "preview" && editorRef.current) {
@@ -153,17 +138,10 @@ export function MdxEditor({
         className,
       )}
     >
-      {/* ── Mode bar ────────────────────────────────────────────────
-          Sits above the editor and stays pinned while the body
-          scrolls. The formatting toolbar inside MDXEditor remains
-          sticky below this strip. */}
+      {/* ── Mode bar ──────────────────────────────────────────────── */}
       <div className="flex items-center justify-between gap-2 border-b border-(--outline) bg-(--card) px-3 py-1.5">
         <span className="text-[10px] uppercase tracking-[0.18em] text-(--on-bg-low)">
-          {mode === "wysiwyg"
-            ? "Редактор"
-            : mode === "source"
-              ? "Markdown"
-              : "Предпросмотр"}
+          {mode === "wysiwyg" ? "ВИЗУАЛЬНЫЙ" : mode === "source" ? "MARKDOWN" : "ПРЕДПРОСМОТР"}
         </span>
         <div className="flex items-center gap-0.5">
           <ModeButton
@@ -176,7 +154,7 @@ export function MdxEditor({
           <ModeButton
             active={mode === "source"}
             onClick={() => setMode("source")}
-            title="Markdown"
+            title="Markdown (чистый)"
           >
             <CodeBlockIcon className="size-4" />
           </ModeButton>
@@ -190,10 +168,7 @@ export function MdxEditor({
         </div>
       </div>
 
-      {/* ── Editor body ─────────────────────────────────────────────
-          One wrapper with max-height + internal scroll on every
-          viewport. The `key` forces MDXEditor to remount on mode
-          change so the diffSourcePlugin picks up its new viewMode. */}
+      {/* ── Editor body ───────────────────────────────────────────── */}
       <div
         className="max-h-[70vh] overflow-y-auto scrollbar-terminal"
         style={{ minHeight }}
@@ -285,12 +260,6 @@ function ModeButton({
 
 /* ═══════════════════════════════════════════════════════════════════
    PREVIEW RENDERER
-   ───────────────────────────────────────────────────────────────────
-   Parses the same markdown subset MDXEditor produces. Kept inline so
-   the component is self-contained — no react-markdown dependency for
-   a feature that only needs to render headings, lists, quotes, code,
-   links, hr. If the markdown ever grows beyond this subset, swap in
-   `react-markdown` + `remark-gfm` and delete this block.
    ═══════════════════════════════════════════════════════════════════ */
 type Block =
   | { kind: "heading"; level: 1 | 2 | 3 | 4; text: string }
@@ -314,8 +283,10 @@ function parseBlocks(src: string): Block[] {
   const lines = src.replace(/\r\n/g, "\n").split("\n");
   const out: Block[] = [];
   let i = 0;
+
   while (i < lines.length) {
     const line = lines[i];
+
     if (/^\s*$/.test(line)) {
       i++;
       continue;
@@ -404,9 +375,11 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
   let last = 0;
   let m: RegExpExecArray | null;
   let k = 0;
+
   while ((m = re.exec(text)) !== null) {
     if (m.index > last) out.push(text.slice(last, m.index));
     const tok = m[0];
+
     if (tok.startsWith("**")) {
       out.push(
         <strong key={`${keyPrefix}-b-${k++}`} className="font-semibold text-(--on-bg-high)">
@@ -448,6 +421,7 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
     }
     last = m.index + tok.length;
   }
+
   if (last < text.length) out.push(text.slice(last));
   return out;
 }

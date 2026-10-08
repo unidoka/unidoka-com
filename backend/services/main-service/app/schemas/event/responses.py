@@ -1,23 +1,35 @@
 from typing import Optional, List, Any, Dict
 from datetime import datetime
-from pydantic import BaseModel, ConfigDict
+from uuid import UUID
+from pydantic import BaseModel, ConfigDict, field_validator
 
+
+# ═══════════════════════════════════════════════════════════════════
+# ORM-backed schemas
+# ───────────────────────────────────────────────────────────────────
+# These are populated via `from_attributes=True` from SQLAlchemy models.
+# The ORM columns are UUID, so the Pydantic fields MUST be UUID too —
+# declaring them as `str` raises `Input should be a valid string` in
+# Pydantic v2 (which dropped implicit UUID→str coercion on input).
+# Pydantic serializes UUID back to a JSON string automatically, so the
+# frontend still receives plain strings.
+# ═══════════════════════════════════════════════════════════════════
 
 class OrganizerOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    id: str
+    id: UUID
     name: str
     slug: str
     color: Optional[str] = None
     avatar_url: Optional[str] = None
-    owner_id: Optional[str] = None
+    owner_id: Optional[UUID] = None
     description: Optional[str] = None
     is_active: bool
 
 
 class EventTypeOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    id: str
+    id: UUID
     name: str
     slug: str
     icon: Optional[str] = None
@@ -28,8 +40,8 @@ class EventTypeOut(BaseModel):
 
 class SubdirectionOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    id: str
-    direction_id: str
+    id: UUID
+    direction_id: UUID
     name: str
     slug: str
     sort_order: int
@@ -38,7 +50,7 @@ class SubdirectionOut(BaseModel):
 
 class DirectionOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    id: str
+    id: UUID
     name: str
     slug: str
     emoji: Optional[str] = None
@@ -46,6 +58,14 @@ class DirectionOut(BaseModel):
     is_active: bool
     subdirections: List[SubdirectionOut] = []
 
+
+# ═══════════════════════════════════════════════════════════════════
+# Manually-built schemas
+# ───────────────────────────────────────────────────────────────────
+# These are built by hand in `_serialize_event` from dicts where ids
+# are already `str(uuid)`. Declaring them as `str` is correct — do NOT
+# change to UUID, or the manual dict construction will start failing.
+# ═══════════════════════════════════════════════════════════════════
 
 class EventTypeAssignmentOut(BaseModel):
     id: str
@@ -61,6 +81,10 @@ class EventAuthorOut(BaseModel):
     username: Optional[str] = None
     avatar_url: Optional[str] = None
 
+
+# ═══════════════════════════════════════════════════════════════════
+# Event schemas
+# ═══════════════════════════════════════════════════════════════════
 
 class EventListItem(BaseModel):
     id: str
@@ -87,6 +111,8 @@ class EventListItem(BaseModel):
     types: List[EventTypeAssignmentOut] = []
     tags: List[SubdirectionOut] = []
     other_dates: List[Dict[str, Any]] = []
+    submitted_by: Optional[EventAuthorOut] = None
+    submitted_by_id: Optional[str] = None
 
 
 class EventDetail(EventListItem):
@@ -98,7 +124,5 @@ class EventDetail(EventListItem):
     seo_title: Optional[str] = None
     meta_description: Optional[str] = None
     rejection_reason: Optional[str] = None
-    submitted_by: Optional[EventAuthorOut] = None
-    submitted_by_id: Optional[str] = None
     reviewed_by_id: Optional[str] = None
     reviewed_at: Optional[datetime] = None
