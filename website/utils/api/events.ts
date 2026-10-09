@@ -99,8 +99,11 @@ export interface EventListItem {
   created_at: string;
   updated_at: string;
   organizer?: OrganizerRef | null;
+  custom_organizer_name?: string | null;
   types?: TypeAssignment[];
   tags?: SubdirectionRef[];
+  submitted_by?: EventAuthor | null;
+  submitted_by_id?: string | null;
 }
 
 export interface EventDetail extends EventListItem {
@@ -112,8 +115,6 @@ export interface EventDetail extends EventListItem {
   seo_title?: string | null;
   meta_description?: string | null;
   rejection_reason?: string | null;
-  submitted_by?: EventAuthor | null;
-  submitted_by_id?: string | null;
   reviewed_by_id?: string | null;
   reviewed_at?: string | null;
 }
@@ -148,6 +149,7 @@ export interface EventPayload {
   capacity?: number | null;
   registration_url?: string | null;
   organizer_id?: string | null;
+  custom_organizer_name?: string | null;
   types?: EventTypeInput[];
   subdirection_ids?: string[];
   // Admin only

@@ -1,5 +1,16 @@
 import { $fetch } from "@/utils/fetch";
-import type { TagRef } from "@/utils/api/articles";
+
+/**
+ * Shape of a tag reference as returned by the admin articles API.
+ * Previously imported from `@/utils/api/articles`, which doesn't
+ * exist in this codebase — inlined so the admin panel builds. If a
+ * shared articles API lands, move this type there and re-import.
+ */
+export interface TagRef {
+  id: string;
+  name: string;
+  slug?: string;
+}
 export type ReviewStatus = "draft" | "pending_review" | "published" | "rejected";
 export interface AdminArticle {
   id: string;

@@ -229,7 +229,7 @@ export default function AdminUsersPage() {
         {!loading && filtered.length > 0 && view === "table" && (
           <UserTable users={filtered} teamRoles={teamRoles} currentUserId={currentUser.id}
             canEdit={canEdit} onEdit={openEdit} onDelete={handleDelete}
-            onAddToTeam={(u) => { setTeamDialogUser(u); setTeamRole(""); setTeamBio(""); }}
+            onAddToTeam={(u: User) => { setTeamDialogUser(u); setTeamRole(""); setTeamBio(""); }}
             onRemoveFromTeam={handleRemoveTeamMember} />
         )}
       </div>

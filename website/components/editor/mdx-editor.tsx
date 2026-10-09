@@ -196,7 +196,6 @@ export function MdxEditor({
               ...commonPlugins,
               diffSourcePlugin({
                 viewMode: mode === "source" ? "source" : "rich-text",
-                diffMode: "unified",
                 readOnlyDiff: true,
               }),
               toolbarPlugin({
@@ -435,7 +434,7 @@ function renderBlock(b: Block, i: number) {
         "text-heading-2 mt-5 mb-2 text-(--on-bg-high)",
         "text-heading-3 mt-4 mb-2 text-(--on-bg-high)",
       ][b.level - 1];
-      const Tag = (`h${b.level}` as unknown) as keyof JSX.IntrinsicElements;
+      const Tag = `h${b.level}` as "h1" | "h2" | "h3" | "h4";
       return (
         <Tag key={i} className={cls}>
           {renderInline(b.text, `h${i}`)}

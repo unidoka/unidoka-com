@@ -2,7 +2,7 @@
 
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { MapPin, Clock, ArrowUpRight, CalendarX } from "@phosphor-icons/react";
+import { MapPin, Clock, ArrowUpRight, CalendarX, User as UserIcon } from "@phosphor-icons/react";
 import {
   Drawer,
   DrawerContent,

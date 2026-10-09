@@ -1,5 +1,9 @@
-import { ProjectCategoryCode, getProjectCategoryLabel } from "@/app/_data/categories";
-import { CLIENTS, Client } from "../clients";
+// NOTE: this module used to import ProjectCategoryCode and Client from
+// sibling files (`_data/categories`, `_data/clients`) that were never
+// committed. The projects page reads from the API now; the static
+// PROJECTS map below is kept only as a shape reference for
+// ProjectCard. ProjectCategoryCode is inlined as a plain string.
+export type ProjectCategoryCode = string;
 export type ProjectTagType = {
   title: string;
   href?: string;

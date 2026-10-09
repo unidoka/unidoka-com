@@ -13,6 +13,7 @@ export const buttonUnidekaVariants = {
   "tonal-primary": "bg-[var(--primary-card)] text-primary [&_svg]:text-current",
   text: "bg-transparent text-foreground [&_svg]:text-current",
   glass: "bg-[var(--primary-glass)] backdrop-blur-[var(--blur-glass)] border border-[var(--outline-primary-glass)] text-primary [&_svg]:text-current",
+  "glass-red": "bg-[color-mix(in_srgb,var(--error),transparent_93%)] backdrop-blur-[var(--blur-glass)] border border-[color-mix(in_srgb,var(--error),transparent_60%)] text-(--error) hover:bg-[color-mix(in_srgb,var(--error),transparent_88%)] [&_svg]:text-current",
   selected: "bg-[var(--primary-card)] text-primary border border-primary cursor-pointer [&_svg]:text-current",
 };
 export const chipSizes = {
