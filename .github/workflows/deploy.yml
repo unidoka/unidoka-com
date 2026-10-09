@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-  # Manual trigger for rebuild-without-code-change (e.g. to pick up a
-  # base image update or to force a clean redeploy).
   workflow_dispatch:
     inputs:
       force_rebuild:
@@ -14,114 +12,195 @@ on:
         default: false
 
 jobs:
-  deploy:
+  # ── 1. Decide what changed (runs on the GitHub runner) ──────────
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend:  ${{ steps.detect.outputs.backend }}
+      frontend: ${{ steps.detect.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Need HEAD^ to diff against. fetch-depth: 2 pulls one extra
+          # commit. On the very first push HEAD^ doesn't exist and the
+          # script falls through to "ALL".
+          fetch-depth: 2
+
+      - id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] \
+             && [ "${{ inputs.force_rebuild }}" = "true" ]; then
+            CHANGED="ALL"
+          else
+            CHANGED=$(git diff --name-only HEAD^ HEAD 2>/dev/null || echo "ALL")
+          fi
+
+          echo "Changed files:"
+          echo "$CHANGED" | sed 's/^/  /'
+
+          if [ "$CHANGED" = "ALL" ]; then
+            echo "backend=true"  >> "$GITHUB_OUTPUT"
+            echo "frontend=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          backend=false
+          frontend=false
+
+          grep -qE '^backend/services/main-service/' <<<"$CHANGED" && backend=true  || true
+          grep -qE '^website/'                       <<<"$CHANGED" && frontend=true || true
+
+          # Compose file / .env changes invalidate build args and
+          # runtime config for every service, so rebuild both.
+          if grep -qE '^(\.env|docker-compose\.yml|backend/docker-compose\.yml|website/docker-compose\.yml)$' <<<"$CHANGED"; then
+            backend=true
+            frontend=true
+          fi
+
+          echo "backend=$backend"   >> "$GITHUB_OUTPUT"
+          echo "frontend=$frontend" >> "$GITHUB_OUTPUT"
+
+  # ── 2a. Build backend on the runner, ship the image to the VPS ───
+  build-backend:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Execute remote deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend/services/main-service
+          file: ./backend/services/main-service/Dockerfile
+          # `load` puts the image into the runner's local docker daemon
+          # so we can `docker save` it in the next step.
+          load: true
+          tags: main-service:deploy
+          # GHA-backed layer cache. The pip-install layer survives
+          # across runs, so a source-only change rebuilds in seconds.
+          cache-from: type=gha,scope=main-service
+          cache-to:   type=gha,scope=main-service,mode=max
+
+      - name: Save image to tarball
+        run: docker save main-service:deploy | gzip -1 > main-service.tar.gz
+
+      - name: Upload tarball to VPS
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.PORT }}
-          command_timeout: 30m
-          # FORCE_REBUILD is passed through from the workflow_dispatch
-          # input. On a regular push it is empty, so the diff-based
-          # detection runs.
-          envs: FORCE_REBUILD
+          source: main-service.tar.gz
+          target: ${{ secrets.PROJECT_PATH }}/.deploy/
+
+  # ── 2b. Build frontend on the runner, ship the image to the VPS ──
+  build-frontend:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./website
+          file: ./website/Dockerfile
+          target: prod
+          load: true
+          tags: next-js:deploy
+          # Next.js inlines NEXT_PUBLIC_* at BUILD time. These must be
+          # present on the runner — they are read from repo Variables,
+          # not from the VPS .env, because the VPS no longer builds.
+          build-args: |
+            NEXT_PUBLIC_ROOT_DOMAIN=${{ vars.NEXT_PUBLIC_ROOT_DOMAIN }}
+            NEXT_PUBLIC_API_BASE_URL=${{ vars.NEXT_PUBLIC_API_BASE_URL }}
+            NEXT_PUBLIC_HTTP_PROTOCOL=${{ vars.NEXT_PUBLIC_HTTP_PROTOCOL }}
+          cache-from: type=gha,scope=next-js
+          cache-to:   type=gha,scope=next-js,mode=max
+
+      - name: Save image to tarball
+        run: docker save next-js:deploy | gzip -1 > next-js.tar.gz
+
+      - name: Upload tarball to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          source: next-js.tar.gz
+          target: ${{ secrets.PROJECT_PATH }}/.deploy/
+
+  # ── 3. Load the images + reconcile containers on the VPS ─────────
+  # No `docker build` runs here. The SSH session just does `docker
+  # load` (fast, local disk) and `docker compose up -d` (recreates
+  # only containers whose image ID changed).
+  deploy:
+    needs: [changes, build-backend, build-frontend]
+    # Run even when a build job was skipped (that service didn't
+    # change) — the deploy script still needs to reconcile state.
+    if: always() && !cancelled() && !failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH deploy
+        uses: appleboy/ssh-action@v1.0.3
+        envs: BACKEND_CHANGED,FRONTEND_CHANGED
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          # Loading a tarball + recreating a container is seconds.
+          # 15m is headroom for a very slow disk or a first-time
+          # Postgres image pull if the DB volume was wiped.
+          command_timeout: 15m
           script: |
             set -euo pipefail
             cd "${{ secrets.PROJECT_PATH }}"
+            mkdir -p .deploy
 
-            # ── 1. Capture the currently-deployed commit ─────────────
-            # Must happen BEFORE git reset, or the diff below has
-            # nothing to compare against. First-ever deploy lands here
-            # with an empty OLD_SHA.
-            OLD_SHA=$(git rev-parse HEAD 2>/dev/null || echo "")
-
-            # ── 2. Pull latest main ─────────────────────────────────
-            git fetch --quiet origin main
-            git reset --hard origin/main
-            NEW_SHA=$(git rev-parse HEAD)
-
-            # ── 3. Work out which files changed ─────────────────────
-            # Three cases fall back to "rebuild everything":
-            #   - first deploy (no OLD_SHA)
-            #   - manual force_rebuild input
-            #   - diff command fails for any reason
-            if [ -z "$OLD_SHA" ] || [ "${FORCE_REBUILD:-}" = "true" ]; then
-              CHANGED="ALL"
-            else
-              CHANGED=$(git diff --name-only "$OLD_SHA..$NEW_SHA" || echo "ALL")
+            # Guard: if a service didn't change but its local image is
+            # missing, `docker compose up` will try to pull the tag
+            # from a registry, which doesn't exist. Fail loudly and
+            # tell the operator how to recover.
+            if [ "$BACKEND_CHANGED" != "true" ] \
+               && ! docker image inspect main-service:local >/dev/null 2>&1; then
+              echo "ERROR: main-service:local missing and backend didn't change."
+              echo "Re-run this workflow with force_rebuild=true."
+              exit 1
+            fi
+            if [ "$FRONTEND_CHANGED" != "true" ] \
+               && ! docker image inspect next-js:local >/dev/null 2>&1; then
+              echo "ERROR: next-js:local missing and frontend didn't change."
+              echo "Re-run this workflow with force_rebuild=true."
+              exit 1
             fi
 
-            echo "==> Changed files:"
-            if [ "$CHANGED" = "ALL" ]; then
-              echo "  (full rebuild)"
-            else
-              echo "$CHANGED" | sed 's/^/  /'
+            if [ "$BACKEND_CHANGED" = "true" ]; then
+              echo "==> Loading backend image"
+              docker load < .deploy/main-service.tar.gz
+              docker tag main-service:deploy main-service:local
+              rm -f .deploy/main-service.tar.gz
             fi
 
-            # ── 4. Map changed paths → services to rebuild ──────────
-            # A service rebuilds when anything under its build context
-            # changed. Compose file and .env changes rebuild everything
-            # so that build args (NEXT_PUBLIC_*) and runtime env stay
-            # consistent.
-            need_backend=false
-            need_frontend=false
-            need_tgbot=false
-
-            if [ "$CHANGED" = "ALL" ]; then
-              need_backend=true
-              need_frontend=true
-              need_tgbot=true
-            else
-              grep -qE '^backend/services/main-service/' <<<"$CHANGED" && need_backend=true || true
-              grep -qE '^website/'                       <<<"$CHANGED" && need_frontend=true || true
-              grep -qE '^tg-bot/'                        <<<"$CHANGED" && need_tgbot=true || true
-
-              if grep -qE '^(\.env|docker-compose\.yml|backend/docker-compose\.yml|website/docker-compose\.yml|tg-bot/docker-compose\.yml)$' <<<"$CHANGED"; then
-                need_backend=true
-                need_frontend=true
-                need_tgbot=true
-              fi
+            if [ "$FRONTEND_CHANGED" = "true" ]; then
+              echo "==> Loading frontend image"
+              docker load < .deploy/next-js.tar.gz
+              docker tag next-js:deploy next-js:local
+              rm -f .deploy/next-js.tar.gz
             fi
 
-            # ── 5. Build only what changed ──────────────────────────
-            # No `source .env` — the file holds values with parentheses
-            # (company names, addresses) that bash tries to execute as
-            # subshell syntax. Docker Compose reads ./.env from the
-            # working directory on its own and uses it to interpolate
-            # ${VAR} in build.args and service env blocks, which is
-            # exactly what we needed the sourcing for.
-            BUILD_SERVICES=""
-            [ "$need_backend"  = "true" ] && BUILD_SERVICES="$BUILD_SERVICES main-service"
-            [ "$need_frontend" = "true" ] && BUILD_SERVICES="$BUILD_SERVICES next-js"
-            [ "$need_tgbot"    = "true" ] && BUILD_SERVICES="$BUILD_SERVICES tg-bot"
-            BUILD_SERVICES=$(echo "$BUILD_SERVICES" | xargs)  # trim
-
-            if [ -n "$BUILD_SERVICES" ]; then
-              echo "==> Building:$BUILD_SERVICES"
-              # The build step alone doesn't touch running containers.
-              # Docker's layer cache makes a rebuild of an unchanged
-              # source directory essentially a no-op.
-              docker compose --profile prod build $BUILD_SERVICES
-            else
-              echo "==> No buildable services changed"
-            fi
-
-            # ── 6. Reconcile running containers ─────────────────────
-            # `up -d` without --build or --force-recreate:
-            #   - recreates only containers whose image ID or config
-            #     changed since the last run
-            #   - leaves everything else running
-            # If BUILD_SERVICES is empty, no container's image changed,
-            # so only config-level drift (e.g. a new env var in the
-            # compose file) triggers a recreate.
-            echo "==> Reconciling compose state"
+            echo "==> Reconciling containers"
             docker compose --profile prod up -d
 
-            # ── 7. Wait for health ──────────────────────────────────
             echo "==> Waiting for services to become healthy"
             for i in $(seq 1 40); do
               ps_json=$(docker compose ps --format json 2>/dev/null || echo "")
@@ -136,6 +215,8 @@ jobs:
 
             echo "==> Container status"
             docker compose ps
-
             echo "==> main-service logs (tail)"
-            docker compose logs --tail=100 main-service
+            docker compose logs --tail=80 main-service || true
+        env:
+          BACKEND_CHANGED:  ${{ needs.changes.outputs.backend }}
+          FRONTEND_CHANGED: ${{ needs.changes.outputs.frontend }}
