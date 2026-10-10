@@ -67,11 +67,11 @@ export function FloatingMenu({
   const rootLink = (path: string) => rootDomainUrl(path);
   const links = [
     { href: rootLink(ROUTES.solutions.href), label: t("nav.solutions") },
-    { href: rootLink(ROUTES.api.href),       label: t("nav.api") },
-    { href: rootLink(ROUTES.crew.href),      label: t("nav.crew") },
-    { href: rootLink(ROUTES.amorfa.href),    label: t("nav.amorfa") },
-    { href: rootLink(ROUTES.events.href),    label: t("nav.events") },
-    { href: rootLink(ROUTES.vershiny.href),  label: t("nav.vershiny") },
+    { href: rootLink(ROUTES.api.href), label: t("nav.api") },
+    { href: rootLink(ROUTES.crew.href), label: t("nav.crew") },
+    { href: rootLink(ROUTES.amorfa.href), label: t("nav.amorfa") },
+    { href: rootLink(ROUTES.events.href), label: t("nav.events") },
+    { href: rootLink(ROUTES.vershiny.href), label: t("nav.vershiny") },
   ];
 
   const loginHref = rootDomainUrl("/login");
@@ -140,7 +140,7 @@ export function FloatingMenu({
               click handler would fire and close the panel the moment the
               user tapped an option. Inline buttons keep the interaction
               in one place. */}
-          <div className="mt-1.5 pt-2 border-t border-(--outline)">
+          {/* <div className="mt-1.5 pt-2 border-t border-(--outline)">
             <div className="flex items-center justify-between px-4 py-2">
               <span className="text-body-5 uppercase tracking-[0.18em] text-(--on-bg-low)">
                 {t("nav.language")}
@@ -167,7 +167,7 @@ export function FloatingMenu({
                 })}
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Auth block — mobile only. On sm+ the header already renders
               Sign in / Sign up, so rendering them here duplicates them. */}

@@ -2,7 +2,6 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
-
 const isDev = process.env.NODE_ENV === "development";
 const hasAbsoluteApi = !!process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -23,6 +22,18 @@ const nextConfig: NextConfig = {
       { source: "/docs/:path*", destination: `${backend}/docs/:path*` },
       { source: "/health", destination: `${backend}/health` },
     ];
+  },
+  // LLM context: on a 1-CPU box, webpack spends most of its time
+  // resolving barrel files. optimizePackageImports rewrites
+  // `import { X } from "pkg"` into a deep import so only the used
+  // modules are parsed. @phosphor-icons/react is the worst offender
+  // in this repo (thousands of icons behind one entry point).
+  experimental: {
+    optimizePackageImports: [
+      "@phosphor-icons/react",
+      "recharts",
+      "date-fns",
+    ],
   },
 };
 
