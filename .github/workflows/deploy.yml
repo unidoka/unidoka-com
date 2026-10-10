@@ -11,6 +11,13 @@ on:
         type: boolean
         default: false
 
+# Only one deploy at a time. A queued run waits for the in-flight one
+# to finish, then starts. Without this, two quick pushes race on
+# `docker compose up -d` and can leave the VPS in a half-swapped state.
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
 jobs:
   # ── 1. Decide what changed (runs on the GitHub runner) ──────────
   changes:
@@ -21,10 +28,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # Need HEAD^ to diff against. fetch-depth: 2 pulls one extra
-          # commit. On the very first push HEAD^ doesn't exist and the
-          # script falls through to "ALL".
-          fetch-depth: 2
+          # fetch-depth: 0 so github.event.before is present in local
+          # history. With fetch-depth: 2, a multi-commit push leaves the
+          # "before" SHA outside the fetched window and `git diff` fails.
+          fetch-depth: 0
 
       - id: detect
         shell: bash
@@ -34,6 +41,12 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] \
              && [ "${{ inputs.force_rebuild }}" = "true" ]; then
             CHANGED="ALL"
+          elif [ "${{ github.event_name }}" = "push" ] \
+               && [ -n "${{ github.event.before }}" ] \
+               && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            # Full push range, not just the tip commit. Fixes the
+            # "merge moved 10 commits but only #10 is seen" bug.
+            CHANGED=$(git diff --name-only "${{ github.event.before }}" "${{ github.event.after }}")
           else
             CHANGED=$(git diff --name-only HEAD^ HEAD 2>/dev/null || echo "ALL")
           fi
@@ -53,9 +66,11 @@ jobs:
           grep -qE '^backend/services/main-service/' <<<"$CHANGED" && backend=true  || true
           grep -qE '^website/'                       <<<"$CHANGED" && frontend=true || true
 
-          # Compose file / .env changes invalidate build args and
-          # runtime config for every service, so rebuild both.
-          if grep -qE '^(\.env|docker-compose\.yml|backend/docker-compose\.yml|website/docker-compose\.yml)$' <<<"$CHANGED"; then
+          # Root files that invalidate build args or runtime config for
+          # every service — rebuild both when any of them changes.
+          # .env.example / .env / compose files / the workflow itself /
+          # the SQL seed that runs after migrations.
+          if grep -qE '^(\.env(\.example|\.dev|\.prod)?|docker-compose\.yml|backend/docker-compose\.yml|website/docker-compose\.yml|backend/seed_events\.sql|\.github/workflows/deploy\.yml)$' <<<"$CHANGED"; then
             backend=true
             frontend=true
           fi
@@ -77,12 +92,8 @@ jobs:
         with:
           context: ./backend/services/main-service
           file: ./backend/services/main-service/Dockerfile
-          # `load` puts the image into the runner's local docker daemon
-          # so we can `docker save` it in the next step.
           load: true
           tags: main-service:deploy
-          # GHA-backed layer cache. The pip-install layer survives
-          # across runs, so a source-only change rebuilds in seconds.
           cache-from: type=gha,scope=main-service
           cache-to:   type=gha,scope=main-service,mode=max
 
@@ -119,10 +130,14 @@ jobs:
           # Next.js inlines NEXT_PUBLIC_* at BUILD time. These must be
           # present on the runner — they are read from repo Variables,
           # not from the VPS .env, because the VPS no longer builds.
+          #
+          # NOTE: the Dockerfile declares ARG NEXT_PUBLIC_PROTOCOL
+          # (no _HTTP_ prefix). The previous workflow passed
+          # NEXT_PUBLIC_HTTP_PROTOCOL, which the Dockerfile ignored.
           build-args: |
             NEXT_PUBLIC_ROOT_DOMAIN=${{ vars.NEXT_PUBLIC_ROOT_DOMAIN }}
             NEXT_PUBLIC_API_BASE_URL=${{ vars.NEXT_PUBLIC_API_BASE_URL }}
-            NEXT_PUBLIC_HTTP_PROTOCOL=${{ vars.NEXT_PUBLIC_HTTP_PROTOCOL }}
+            NEXT_PUBLIC_PROTOCOL=${{ vars.NEXT_PUBLIC_HTTP_PROTOCOL }}
           cache-from: type=gha,scope=next-js
           cache-to:   type=gha,scope=next-js,mode=max
 
@@ -140,14 +155,17 @@ jobs:
           target: ${{ secrets.PROJECT_PATH }}/.deploy/
 
   # ── 3. Load the images + reconcile containers on the VPS ─────────
-  # No `docker build` runs here. The SSH session just does `docker
-  # load` (fast, local disk) and `docker compose up -d` (recreates
-  # only containers whose image ID changed).
   deploy:
     needs: [changes, build-backend, build-frontend]
     # Run even when a build job was skipped (that service didn't
     # change) — the deploy script still needs to reconcile state.
-    if: always() && !cancelled() && !failure()
+    #
+    # Branch guard: on workflow_dispatch, this prevents a manual run
+    # from a non-main branch reaching prod. push-to-main already
+    # satisfies this, so it's a no-op for the normal path.
+    if: |
+      always() && !cancelled() && !failure()
+      && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: SSH deploy
@@ -158,19 +176,12 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.PORT }}
-          # Loading a tarball + recreating a container is seconds.
-          # 15m is headroom for a very slow disk or a first-time
-          # Postgres image pull if the DB volume was wiped.
           command_timeout: 15m
           script: |
             set -euo pipefail
             cd "${{ secrets.PROJECT_PATH }}"
             mkdir -p .deploy
 
-            # Guard: if a service didn't change but its local image is
-            # missing, `docker compose up` will try to pull the tag
-            # from a registry, which doesn't exist. Fail loudly and
-            # tell the operator how to recover.
             if [ "$BACKEND_CHANGED" != "true" ] \
                && ! docker image inspect main-service:local >/dev/null 2>&1; then
               echo "ERROR: main-service:local missing and backend didn't change."
