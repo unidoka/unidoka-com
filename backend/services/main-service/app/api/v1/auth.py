@@ -12,7 +12,11 @@ from app.schemas.auth.requests import (
     ResendVerificationRequest,
 )
 from app.schemas.auth.responses import TokenResponse, AccessTokenResponse, EmailSendCodeResponse
-from app.services.email_service import send_email, send_email_html
+from app.services.email_service import send_email_html
+from app.services.email_templates import (
+    render_verification_email,
+    render_password_reset_email,
+)
 from app.services.otp_service import generate_otp, save_otp, verify_otp
 from app.services.user_service import create_user, get_user_by_email, set_user_verified
 from app.shared.auth import (
@@ -44,11 +48,12 @@ async def register_email(
     code = generate_otp()
     if not save_otp(payload.email, code):
         raise HTTPException(status_code=503, detail="OTP storage unavailable")
-    sent = await send_email(
-        payload.email,
-        "Verification code",
-        f"Your verification code is: {code}"
+    subject, text_body, html_body = render_verification_email(
+        code=code,
+        email=payload.email,
+        lang=payload.lang,
     )
+    sent = await send_email_html(payload.email, subject, text_body, html_body)
     return EmailSendCodeResponse(sent=sent)
 
 @router.post("/verify-email")
@@ -165,7 +170,12 @@ async def resend_verification(
     code = generate_otp()
     if not save_otp(payload.email, code):
         raise HTTPException(status_code=503, detail="OTP storage unavailable")
-    sent = await send_email(payload.email, "Verification code", f"Your verification code is: {code}. Please, don't reply to this message.")
+    subject, text_body, html_body = render_verification_email(
+        code=code,
+        email=payload.email,
+        lang=payload.lang,
+    )
+    sent = await send_email_html(payload.email, subject, text_body, html_body)
     return EmailSendCodeResponse(sent=sent)
 
 
@@ -188,61 +198,6 @@ if not FRONTEND_URL:
     FRONTEND_URL = "http://localhost:3000"
 
 
-def _reset_email_html(reset_url: str, lang: str | None) -> tuple[str, str, str]:
-    """Return (subject, text_body, html_body) for the reset email."""
-    if lang == "en":
-        subject = "Reset your password"
-        text = (
-            "We received a request to reset your Unidoka password.\n\n"
-            f"Open this link to set a new password (valid 30 minutes):\n{reset_url}\n\n"
-            "If you did not request this, ignore this email."
-        )
-        html = f"""
-        <html><body style="font-family:Arial,sans-serif;background:#f4f4f4;padding:20px;">
-          <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:8px;padding:30px;">
-            <h2 style="color:#333;margin-top:0;">Reset your password</h2>
-            <p style="color:#555;font-size:16px;">We received a request to reset your Unidoka password.</p>
-            <p style="margin:24px 0;">
-              <a href="{reset_url}"
-                 style="display:inline-block;background:#336DFF;color:#fff;text-decoration:none;
-                        padding:14px 28px;border-radius:8px;font-weight:600;">
-                Set new password
-              </a>
-            </p>
-            <p style="color:#888;font-size:13px;">
-              Link is valid for 30 minutes. If you did not request this, ignore this email.
-            </p>
-          </div>
-        </body></html>
-        """
-    else:
-        subject = "Сброс пароля"
-        text = (
-            "Мы получили запрос на сброс пароля от аккаунта Unidoka.\n\n"
-            f"Перейдите по ссылке, чтобы задать новый пароль (действует 30 минут):\n{reset_url}\n\n"
-            "Если вы не запрашивали сброс — проигнорируйте письмо."
-        )
-        html = f"""
-        <html><body style="font-family:Arial,sans-serif;background:#f4f4f4;padding:20px;">
-          <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:8px;padding:30px;">
-            <h2 style="color:#333;margin-top:0;">Сброс пароля</h2>
-            <p style="color:#555;font-size:16px;">Мы получили запрос на сброс пароля от аккаунта Unidoka.</p>
-            <p style="margin:24px 0;">
-              <a href="{reset_url}"
-                 style="display:inline-block;background:#336DFF;color:#fff;text-decoration:none;
-                        padding:14px 28px;border-radius:8px;font-weight:600;">
-                Задать новый пароль
-              </a>
-            </p>
-            <p style="color:#888;font-size:13px;">
-              Ссылка действует 30 минут. Если вы не запрашивали сброс — проигнорируйте письмо.
-            </p>
-          </div>
-        </body></html>
-        """
-    return subject, text, html
-
-
 @router.post("/forgot-password", response_model=MessageResponse)
 async def forgot_password(
     payload: ForgotPasswordRequest,
@@ -259,8 +214,11 @@ async def forgot_password(
         token = generate_reset_token()
         if save_reset_token(token, str(user.id)):
             reset_url = f"{FRONTEND_URL}/reset-password?token={token}"
-            subject, text, html = _reset_email_html(reset_url, payload.lang)
-            await send_email_html(user.email, subject, text, html)
+            subject, text_body, html_body = render_password_reset_email(
+                reset_url=reset_url,
+                lang=payload.lang,
+            )
+            await send_email_html(user.email, subject, text_body, html_body)
         else:
             logger.error(f"Failed to store reset token for {payload.email}")
     else:

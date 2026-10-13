@@ -1,29 +1,44 @@
-node_modules
-.next
-out
-build
-coverage
+# ── Node build artifacts — rebuilt inside the image ─────────────────
+node_modules/
+.next/
+out/
+build/
+dist/
+coverage/
+.turbo/
+.swc/
+.eslintcache
+*.tsbuildinfo
+next-env.d.ts
 
-.git
-.gitignore
-.repomixignore
-.github
-
-.env*
+# ── Local env — NEXT_PUBLIC_* comes in as build args ────────────────
+.env
+.env.*
 !.env.example
 
+# ── Tests + reports — not needed to build the prod image ────────────
+e2e/
+playwright-report/
+test-results/
+
+# ── Runtime uploads — bind-mounted from the backend at runtime ──────
+public/order_files/
+
+# ── Editor / OS noise ───────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+.DS_Store
+*.log
+
+# ── VCS + tooling metadata ──────────────────────────────────────────
+.git/
+.gitignore
+.dockerignore
 Dockerfile
 docker-compose.yml
 README.md
 LICENSE
 components.json
-
-e2e
-playwright-report
-test-results
-
-.aider*
 repomix*
-*.log
-*.tsbuildinfo
-next-env.d.ts
+.aider*

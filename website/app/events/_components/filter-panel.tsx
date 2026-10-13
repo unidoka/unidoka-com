@@ -2,7 +2,6 @@
 
 import { Check, X } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import type { EventListItem } from "@/utils/api/events";
 import { colorForOrganizer } from "./organizer-meta";
 import {
@@ -135,24 +134,87 @@ export function FilterPanel({ allEvents, value, onChange, compact }: Props) {
       )}
 
       <Section title="Показывать">
-        <label className="flex items-center justify-between gap-3 cursor-pointer">
-          <span className="text-body-4 text-(--on-bg-high)">Только избранные</span>
-          <Switch
-            checked={value.featuredOnly}
-            onCheckedChange={(v) => onChange({ ...value, featuredOnly: v })}
-          />
-        </label>
-        <label className="flex items-center justify-between gap-3 cursor-pointer">
-          <span className="text-body-4 text-(--on-bg-high)">
-            Только с открытой регистрацией
-          </span>
-          <Switch
-            checked={value.hasRegistrationOnly}
-            onCheckedChange={(v) => onChange({ ...value, hasRegistrationOnly: v })}
-          />
-        </label>
+        <ToggleRow
+          label="Только избранные"
+          checked={value.featuredOnly}
+          onToggle={(v) => onChange({ ...value, featuredOnly: v })}
+        />
+        <ToggleRow
+          label="Только с открытой регистрацией"
+          checked={value.hasRegistrationOnly}
+          onToggle={(v) => onChange({ ...value, hasRegistrationOnly: v })}
+        />
       </Section>
     </div>
+  );
+}
+
+/**
+ * Row-level binary filter toggle.
+ *
+ * Replaces the bare <Switch> that used to sit here. Reasons:
+ *   1. The switch primitive's unchecked state relies on
+ *      `data-unchecked:bg-input` -> --outline, and its thumb on
+ *      --bg. In dark theme both resolve to near-black and the control
+ *      becomes invisible — which is what the screenshot showed.
+ *   2. A switch reads as a preference ("email me about events").
+ *      A filter row that toggles whether a subset of events is shown
+ *      is an action, and should look actionable.
+ *   3. Making the whole row the hit target fixes the tap-size problem
+ *      on mobile without adding any padding dance.
+ *
+ * State is signalled three ways so it can't be missed: background
+ * fill, label color, and a checkmark inside a filled circle. Any one
+ * of them reads on its own; together they're unambiguous.
+ */
+function ToggleRow({
+  label,
+  checked,
+  onToggle,
+}: {
+  label: string;
+  checked: boolean;
+  onToggle: (v: boolean) => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onToggle(!checked)}
+      className={cn(
+        "group/toggle flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left transition-all",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)/40",
+        checked
+          ? "border-(--primary) bg-(--primary-glass)"
+          : "border-(--outline) bg-transparent hover:border-(--on-bg-low) hover:bg-(--state-hover)",
+      )}
+    >
+      <span
+        className={cn(
+          "text-body-4 leading-tight transition-colors",
+          checked
+            ? "text-(--primary) font-medium"
+            : "text-(--on-bg-high)",
+        )}
+      >
+        {label}
+      </span>
+      {/* Indicator: hollow circle when off, filled circle with a
+          checkmark when on. `shrink-0` keeps it square when the label
+          wraps to two lines. */}
+      <span
+        aria-hidden
+        className={cn(
+          "flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-all",
+          checked
+            ? "border-(--primary) bg-(--primary) text-(--on-primary)"
+            : "border-(--on-bg-low) bg-transparent group-hover/toggle:border-(--on-bg-high)",
+        )}
+      >
+        {checked && <Check className="size-3" weight="bold" />}
+      </span>
+    </button>
   );
 }
 

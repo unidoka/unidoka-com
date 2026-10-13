@@ -1,8 +1,16 @@
+# Backend stack. Included by the root docker-compose.yml (prod) and
+# docker-compose.dev.yml (dev). Not meant to be run standalone — the
+# network it declares is shared with Traefik and the frontend.
+#
+# Prod-safe: no source mount, no --reload, image pinned so
+# `docker compose --profile prod up -d` on the VPS uses the CI-shipped
+# tarball instead of triggering a rebuild.
 services:
   main-service:
-    build:
-      context: ./services/main-service
-      dockerfile: Dockerfile
+    # Pinned image name — without this, `docker compose up -d` sees no
+    # image and can't start the service (there is no `build:` here;
+    # the dev override adds it).
+    image: main-service:local
     container_name: main-service
     ports:
       - "8000:8000"
@@ -12,33 +20,46 @@ services:
     env_file: ../.env
     environment:
       - MAIN_DB_HOST=main-db
+      - CACHE_HOST=valkey
     volumes:
-      - ./services/main-service:/app
+      # ONLY the storage dir — the source mount lives in the dev override.
       - ./services/main-service/storage:/app/storage
     depends_on:
       main-db:
         condition: service_healthy
+      valkey:
+        condition: service_healthy
     networks:
       - main-network
     restart: unless-stopped
+    stop_grace_period: 30s
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
       interval: 10s
       timeout: 5s
       retries: 6
       start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     labels:
       - "traefik.enable=true"
-      # Only claim paths FastAPI actually serves. PathPrefix('/api') also
-      # swallowed /api/admin-secret and /api/revalidate — both Next.js
-      # route handlers that live on the frontend router (priority 1).
-      # Priority 100 was higher, so FastAPI returned 404 for them.
+      # Only claim paths FastAPI serves. PathPrefix('/api') would also
+      # swallow /api/admin-secret and /api/revalidate — both Next.js
+      # route handlers that live on the frontend.
       - "traefik.http.routers.main-service.rule=PathPrefix(`/api/v1`) || PathPrefix(`/docs`) || PathPrefix(`/health`)"
       - "traefik.http.routers.main-service.priority=100"
       - "traefik.http.routers.main-service.entrypoints=${ENTRYPOINT}"
       - "traefik.http.routers.main-service.tls=${TLS_ENABLED}"
       - "traefik.http.routers.main-service.tls.certresolver=${CERT_RESOLVER}"
       - "traefik.http.services.main-service.loadbalancer.server.port=8000"
+
   main-db:
     image: postgres:15-alpine
     container_name: main-db
@@ -47,6 +68,21 @@ services:
       POSTGRES_USER: ${MAIN_DB_USER}
       POSTGRES_PASSWORD: ${MAIN_DB_PASSWORD}
       POSTGRES_DB: ${MAIN_DB_NAME}
+    # Tuned for a 2 GB box sharing RAM with the app + valkey.
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_buffers=128MB"
+      - "-c"
+      - "effective_cache_size=512MB"
+      - "-c"
+      - "work_mem=4MB"
+      - "-c"
+      - "maintenance_work_mem=32MB"
+      - "-c"
+      - "max_connections=30"
+      - "-c"
+      - "log_min_duration_statement=1000"
     volumes:
       - main_db_data:/var/lib/postgresql/data
     networks:
@@ -57,22 +93,56 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    stop_grace_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 384M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   valkey:
     image: valkey/valkey:7-alpine
     container_name: valkey
-    command: valkey-server --requirepass ${CACHE_PASSWORD} --appendonly yes
+    environment:
+      CACHE_PASSWORD: ${CACHE_PASSWORD}
+    # maxmemory + allkeys-lru: rate-limit keys are expendable; nothing
+    # stored here is worth OOM-killing the box for.
+    command:
+      - "valkey-server"
+      - "--requirepass"
+      - "${CACHE_PASSWORD}"
+      - "--appendonly"
+      - "yes"
+      - "--maxmemory"
+      - "96mb"
+      - "--maxmemory-policy"
+      - "allkeys-lru"
     networks:
       - main-network
     healthcheck:
-      test: [ "CMD", "valkey-cli", "ping" ]
+      test: ["CMD-SHELL", "valkey-cli -a \"$$CACHE_PASSWORD\" ping | grep -q PONG"]
       interval: 10s
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 96M
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+
 networks:
   main-network:
     name: main-network
     external: false
-  default:
+
 volumes:
   main_db_data:

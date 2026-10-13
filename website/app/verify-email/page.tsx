@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -7,7 +6,6 @@ import { toast } from "sonner";
 import {
   ArrowLeftIcon,
   CircleNotchIcon,
-  EnvelopeSimpleIcon,
 } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,31 +19,25 @@ import { useUser } from "@/entities/user/model/user-context";
 import { useLanguage } from "@/providers/language-provider";
 import { $fetch } from "@/utils/fetch";
 import { safeCookieStorage } from "@/utils/safe-cookie-storage";
-
 // Resend cooldown in seconds. Backend enforces 5s (see
 // `limit_otp_send` in config/rate_limiter.py); we hold a longer UI-side
 // cooldown so users don't spam the SMTP provider through a refresh.
 const RESEND_COOLDOWN = 30;
-
 function VerifyEmailInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t, lang } = useLanguage();
   const { setToken } = useUser();
-
   const email = searchParams.get("email") || "";
-
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const [cooldown, setCooldown] = useState(0);
-
   // No email in the URL -> nothing to verify. Bounce to /register.
   useEffect(() => {
     if (!email) router.replace("/register");
   }, [email, router]);
-
   // Resend cooldown ticker.
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -55,7 +47,6 @@ function VerifyEmailInner() {
     );
     return () => clearInterval(id);
   }, [cooldown]);
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -96,7 +87,6 @@ function VerifyEmailInner() {
       setLoading(false);
     }
   }
-
   async function handleResend() {
     if (cooldown > 0 || resending) return;
     setResending(true);
@@ -120,35 +110,50 @@ function VerifyEmailInner() {
       setResending(false);
     }
   }
-
   return (
     <CheckNotUser>
       <div className="flex items-center justify-center min-h-[80vh] px-4 py-12">
         <div className="w-full max-w-md">
-          {/* Header */}
-          <div className="mb-8 text-center">
-            <div className="inline-flex size-16 items-center justify-center rounded-3xl bg-(--primary-card) text-(--primary) mb-6">
-              <EnvelopeSimpleIcon className="size-8" weight="duotone" />
-            </div>
-            <h1 className="text-display-3 md:text-display-2 mb-2">
+          {/* ── Header ─────────────────────────────────────────────────
+              No icon — the headline carries the page. Three stacked
+              blocks: big title, explanatory subtitle, and the target
+              email in mono so it reads as data, not prose. */}
+          <div className="mb-10 text-center">
+            <h1 className="text-display-3 md:text-display-2 mb-3">
               {t("forms.verify.title")}
             </h1>
             <p className="text-body-4 text-(--on-bg-medium) leading-relaxed">
               {t("forms.verify.subtitle")}
             </p>
             {email && (
-              <p className="text-body-5 text-(--on-bg-low) mt-2 font-mono break-all">
+              <p className="text-body-5 text-(--on-bg-low) mt-3 font-mono break-all">
                 {email}
               </p>
             )}
           </div>
-
-          {/* Form */}
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <Field data-invalid={!!error}>
-              <FieldLabel>{t("forms.verify.code")}</FieldLabel>
-              <div className="flex justify-center">
+          {/* ── Form ─────────────────────────────────────────────────
+              No local max-width — the parent `max-w-md` already caps
+              the whole column at 448px, and every child below (OTP row,
+              button) is `w-full`, so both share the exact same
+              horizontal track. Adding a narrower `max-w-*` on the form
+              itself was what left the OTP row shorter than the button
+              in the previous revision. */}
+          <form className="space-y-7" onSubmit={handleSubmit}>
+            <Field data-invalid={!!error} className="w-full">
+              {/* OTP row: same width as the submit button.
+                  `containerClassName="w-full"` stretches the OTPInput
+                  shell (base class is `flex items-center`); `flex w-full`
+                  on the group fills that shell; `flex-1` on each slot
+                  gives every box an equal share of the remaining width
+                  after the gaps. `aspect-square` computes height from
+                  the flex-assigned width — which requires `h-auto!`,
+                  because InputOTPSlot's base `size-8` sets a fixed
+                  height that would otherwise squash the aspect ratio.
+                  `rounded-xl!` overrides the base first:/last: side
+                  rounding so each slot renders as a standalone box. */}
+              <div className="w-full pt-1">
                 <InputOTP
+                  id="otp"
                   maxLength={6}
                   value={code}
                   onChange={(v) => {
@@ -160,29 +165,42 @@ function VerifyEmailInner() {
                   inputMode="numeric"
                   pattern="[0-9]*"
                   aria-label={t("forms.verify.code")}
+                  containerClassName="w-full"
                 >
-                  <InputOTPGroup>
+                  <InputOTPGroup className="flex w-full gap-1.5 sm:gap-2">
                     {Array.from({ length: 6 }).map((_, i) => (
                       <InputOTPSlot
                         key={i}
                         index={i}
-                        className="size-11 text-base"
+                        className="flex-1 aspect-square h-auto! rounded-xl! text-lg sm:text-2xl font-medium"
                       />
                     ))}
                   </InputOTPGroup>
                 </InputOTP>
               </div>
-              {error && <FieldError errors={[{ message: t(error) }]} />}
+              {error && (
+                <FieldError
+                  errors={[{ message: t(error) }]}
+                  className="text-center"
+                />
+              )}
+              {/* Inline spam hint. The register page fires a toast about
+                  this, but toasts are transient — a user who alt-tabbed
+                  to their inbox and back loses it. This line is always
+                  visible while the user is looking at the form, which is
+                  where the "check spam" advice actually needs to live. */}
+              <p className="text-body-5 text-(--on-bg-low) text-center pt-1 leading-relaxed">
+                {t("forms.verify.spam_hint")}
+              </p>
             </Field>
-
             <Button
               type="submit"
               disabled={loading || code.length !== 6}
               className="w-full"
+              size="large"
             >
               {loading ? t("forms.verify.submitting") : t("forms.verify.submit")}
             </Button>
-
             <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
               <button
                 type="button"
@@ -213,7 +231,6 @@ function VerifyEmailInner() {
     </CheckNotUser>
   );
 }
-
 // useSearchParams() requires a Suspense boundary in the App Router -
 // without one, a static prerender attempt bails out of the route and
 // Next.js logs a build warning. This mirrors reset-password/page.tsx.

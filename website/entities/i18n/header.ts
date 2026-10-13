@@ -40,6 +40,10 @@ export const headerTranslations: Record<Language, Record<string, string>> = {
     'admin.event_types': 'Event Types',
     'admin.organizers': 'Organizers',
     'admin.directions': 'Directions',
+    'admin.vershiny': 'Vershiny',
+    'admin.marketing': 'Marketing',
+    'admin.marketing_placements': 'Placements',
+    'admin.marketing_tools': 'Tools',
     'admin.catalog': 'Catalog',
   },
   ru: {
@@ -78,6 +82,10 @@ export const headerTranslations: Record<Language, Record<string, string>> = {
     'admin.event_types': 'Типы событий',
     'admin.organizers': 'Организаторы',
     'admin.directions': 'Направления',
+    'admin.vershiny': 'Вершины',
+    'admin.marketing': 'Маркетинг',
+    'admin.marketing_placements': 'Размещения',
+    'admin.marketing_tools': 'Инструменты',
     'admin.catalog': 'Каталоги',
   },
 };

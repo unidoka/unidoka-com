@@ -1,0 +1,58 @@
+# ── Python ──────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# ── Virtualenvs ─────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Test / type / lint caches ───────────────────────────────────────
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.cache/
+
+# ── Local env — never bake secrets into an image ────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Runtime state — volumes supply these at boot ────────────────────
+storage/
+*.db
+*.sqlite
+*.sqlite3
+
+# ── Editor / OS noise ───────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# ── VCS + tooling metadata — not needed at runtime ──────────────────
+.git/
+.gitignore
+.dockerignore
+Dockerfile
+alembic.ini
+README.md
+LICENCE
+LICENSE
+
+# ── Repomix / agent scratch — pure overhead in the build context ────
+repomix*
+.aider*
+*.log

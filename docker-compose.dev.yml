@@ -1,0 +1,23 @@
+# Development stack. Backend + Next.js, no Traefik.
+#
+#   Start:  docker compose -f docker-compose.dev.yml up -d --build
+#   Logs:   docker compose -f docker-compose.dev.yml logs -f next-js
+#   Down:   docker compose -f docker-compose.dev.yml down
+#
+# The backend services come in via `include:` — same base file as prod,
+# with the dev override layered on top for hot reload and the source
+# mount. Next.js runs `next dev` (not the standalone build) and lives
+# inline here because website/docker-compose.yml is prod-only.
+#
+# Ports: browser → :3000 (Next.js dev server) → :8000 (FastAPI).
+# Next.js proxies /api/v1/*, /docs, /health to main-service inside the
+# Docker network — same origin as the browser, so no CORS and no
+# cross-origin cookie trouble.
+#
+# Separate `name:` namespace means this stack can run side by side
+# with prod on the same machine without clashing on containers,
+# networks, or DB volumes.
+name: unidoka-com-dev
+include:
+  - backend/docker-compose.yml
+  - backend/docker-compose.dev.yml

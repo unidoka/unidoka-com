@@ -1,0 +1,32 @@
+# Dev override for backend/docker-compose.yml. Layer it ON TOP of the
+# base file, never alone:
+#     docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+# (the root docker-compose.dev.yml does this for you)
+#
+# Adds back the source mount the base file intentionally omits, and
+# re-enables uvicorn's hot reload.
+services:
+  main-service:
+    # The base file pins `image: main-service:local` with no build section
+    # so the VPS uses the CI-shipped tarball. Dev needs to build locally,
+    # so the build section is added here.
+    build:
+      context: ./services/main-service
+      dockerfile: Dockerfile
+    command:
+      - "sh"
+      - "-c"
+      - "alembic upgrade head && uvicorn main:app --reload --host 0.0.0.0 --port 8000"
+    volumes:
+      - ./services/main-service:/app
+      - ./services/main-service/storage:/app/storage
+    environment:
+      - MAIN_DB_HOST=main-db
+      - PYTHONUNBUFFERED=1
+      # Reload watcher is noisy — cap it at the source tree, not /app
+      - WATCHFILES_FORCE_POLLING=false
+    deploy:
+      # No memory cap in dev — a debugger or profiler can spike freely.
+      resources:
+        limits:
+          memory: 1G

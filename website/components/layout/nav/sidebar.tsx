@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -7,13 +6,27 @@ import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
-import { SidebarSimpleIcon, SidebarIcon } from "@phosphor-icons/react";
+import {
+  CaretDown,
+  SidebarSimpleIcon,
+  SidebarIcon,
+} from "@phosphor-icons/react";
+
+export interface SidebarSubItem {
+  label: string;
+  href: string;
+  exact?: boolean;
+}
 
 export interface SidebarItem {
   label: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   exact?: boolean;
+  /** Nested links rendered indented below the parent. The parent row
+   *  carries a separate caret button that toggles their visibility;
+   *  clicking the label still navigates to `href`. */
+  children?: SidebarSubItem[];
 }
 
 interface SidebarProps {
@@ -24,6 +37,25 @@ interface SidebarProps {
   footer?: ReactNode;
   collapsible?: boolean;
   storageKey?: string;
+}
+
+/** Extract the path portion of an href.
+ *
+ *  The admin sidebar builds hrefs with crossSubdomainUrl(), which
+ *  returns a full URL in subdomain mode (`https://admin.x/y`) and a
+ *  bare path in path mode (`/admin/x/y`). usePathname() always returns
+ *  the browser-visible path — the internal rewrite done by proxy.ts is
+ *  invisible to it. Comparing `https://…` to `/…` never matches, so
+ *  strip the origin first. */
+function toPath(href: string): string {
+  if (href.startsWith("http://") || href.startsWith("https://")) {
+    try {
+      return new URL(href).pathname;
+    } catch {
+      return href;
+    }
+  }
+  return href;
 }
 
 export function Sidebar({
@@ -38,12 +70,24 @@ export function Sidebar({
   const pathname = usePathname();
   const isMobile = useIsMobile();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  // Per-group expansion. Keyed by the group's `href` so a group's
+  // state survives reordering. Empty object on first render — the
+  // `isGroupExpanded` helper defaults to "open if it contains the
+  // current route, else closed", so only the relevant group starts
+  // open without needing an effect to figure that out.
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
+    {},
+  );
 
+  // Restore both the whole-sidebar collapse and per-group expansion
+  // from localStorage.
   useEffect(() => {
     if (!storageKey) return;
     try {
       if (localStorage.getItem(storageKey) === "1") setIsCollapsed(true);
-    } catch { }
+      const rawGroups = localStorage.getItem(`${storageKey}-groups`);
+      if (rawGroups) setExpandedGroups(JSON.parse(rawGroups));
+    } catch {}
   }, [storageKey]);
 
   const toggleCollapsed = () => {
@@ -52,20 +96,82 @@ export function Sidebar({
       if (storageKey) {
         try {
           localStorage.setItem(storageKey, next ? "1" : "0");
-        } catch { }
+        } catch {}
       }
       return next;
     });
   };
 
-  const path = pathname.replace(/\/+$/, "") || "/";
-  const isItemActive = (href: string, item: SidebarItem): boolean => {
-    if (item.exact) return path === href;
-    return path === href || path.startsWith(href + "/");
+  const toggleGroup = (key: string) => {
+    setExpandedGroups((prev) => {
+      // Read the current effective value (which may be the default),
+      // flip it, and persist the explicit choice.
+      const next = { ...prev, [key]: !isGroupExpandedRaw(key, prev) };
+      if (storageKey) {
+        try {
+          localStorage.setItem(
+            `${storageKey}-groups`,
+            JSON.stringify(next),
+          );
+        } catch {}
+      }
+      return next;
+    });
   };
 
+  const currentPath = pathname.replace(/\/+$/, "") || "/";
+
+  const isActive = (href: string, exact?: boolean): boolean => {
+    const target = toPath(`${basePath}${href}`);
+    if (exact) return currentPath === target;
+    return currentPath === target || currentPath.startsWith(target + "/");
+  };
+
+  // Resolve a group's expansion state: explicit user choice wins,
+  // otherwise default to "open if the current page is one of its
+  // children." `overrides` lets the toggle handler read the same
+  // resolution before mutating.
+  const isGroupExpandedRaw = (
+    href: string,
+    overrides: Record<string, boolean>,
+  ): boolean => {
+    if (href in overrides) return overrides[href];
+    const item = items.find((i) => i.href === href);
+    if (!item?.children) return false;
+    return item.children.some((c) => isActive(c.href, c.exact));
+  };
+
+  const isGroupExpanded = (item: SidebarItem): boolean =>
+    isGroupExpandedRaw(item.href, expandedGroups);
+
   if (isMobile) {
-    return <MobileTabs items={items} basePath={basePath} isItemActive={isItemActive} className={className} />;
+    // Flatten the tree into one horizontal strip. Children reuse the
+    // parent's icon — on a 40px-tall pill, icon variety is noise.
+    const flat: MobileTab[] = [];
+    for (const item of items) {
+      flat.push({
+        label: item.label,
+        href: item.href,
+        icon: item.icon,
+        exact: item.exact,
+      });
+      for (const child of item.children ?? []) {
+        flat.push({
+          label: child.label,
+          href: child.href,
+          icon: item.icon,
+          exact: child.exact,
+        });
+      }
+    }
+    return (
+      <MobileTabs
+        items={flat}
+        basePath={basePath}
+        isActive={isActive}
+        className={className}
+      />
+    );
   }
 
   return (
@@ -98,41 +204,121 @@ export function Sidebar({
           </Button>
         )}
       </div>
-      <nav className="flex flex-col gap-1">
+
+      <nav className="flex flex-col gap-0.5">
         {items.map((item) => {
-          const href = `${basePath}${item.href}`;
-          const isActive = isItemActive(href, item);
+          const selfActive = isActive(item.href, item.exact);
+          const childActive = (item.children ?? []).some((c) =>
+            isActive(c.href, c.exact),
+          );
+          const groupActive = selfActive || childActive;
           const Icon = item.icon;
+          const hasChildren = (item.children ?? []).length > 0;
+          const expanded = isGroupExpanded(item);
+
           return (
-            <Tooltip
-              key={item.href}
-              delayDuration={0}
-              disableHoverableContent={!isCollapsed}
-            >
-              <TooltipTrigger asChild>
-                <Button
-                  variant={isActive ? "glass" : "text"}
-                  className={cn(
-                    isCollapsed ? "justify-center" : "justify-start",
-                    "p-3",
-                  )}
-                  asChild
+            <div key={item.href} className="flex flex-col">
+              <div
+                className={cn(
+                  "flex items-stretch rounded-xl transition-colors",
+                  groupActive
+                    ? "bg-(--primary-glass)"
+                    : "hover:bg-(--state-hover)",
+                )}
+              >
+                {/* Label row — navigates. `min-w-0` lets the label
+                    truncate when the sidebar is narrow. */}
+                <Tooltip
+                  delayDuration={0}
+                  disableHoverableContent={!isCollapsed}
                 >
-                  <Link href={href}>
-                    <Icon className="size-5 shrink-0" />
-                    {!isCollapsed && <span className="text-sm">{item.label}</span>}
-                  </Link>
-                </Button>
-              </TooltipTrigger>
-              {isCollapsed && (
-                <TooltipContent side="right" sideOffset={8} className="hidden md:block">
-                  {item.label}
-                </TooltipContent>
+                  <TooltipTrigger asChild>
+                    <Link
+                      href={`${basePath}${item.href}`}
+                      className={cn(
+                        "flex min-w-0 flex-1 items-center gap-2.5 rounded-xl px-3 py-2.5",
+                        groupActive
+                          ? "text-(--primary)"
+                          : "text-(--on-bg-high)",
+                      )}
+                    >
+                      <Icon className="size-5 shrink-0" />
+                      {!isCollapsed && (
+                        <span className="text-sm truncate">{item.label}</span>
+                      )}
+                    </Link>
+                  </TooltipTrigger>
+                  {isCollapsed && (
+                    <TooltipContent
+                      side="right"
+                      sideOffset={8}
+                      className="hidden md:block"
+                    >
+                      {item.label}
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+
+                {/* Caret — a separate hit target so the row can be both
+                    "navigate" and "expand" without ambiguity. Hidden
+                    when the sidebar is fully collapsed (icons-only
+                    mode); the child list is hidden there too, so the
+                    caret would have nothing to toggle. */}
+                {hasChildren && !isCollapsed && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      toggleGroup(item.href);
+                    }}
+                    aria-label={expanded ? "Свернуть группу" : "Развернуть группу"}
+                    aria-expanded={expanded}
+                    className={cn(
+                      "flex w-8 shrink-0 items-center justify-center rounded-xl",
+                      "text-(--on-bg-low) transition-colors",
+                      "hover:text-(--on-bg-high)",
+                      groupActive && "text-(--primary)",
+                    )}
+                  >
+                    <CaretDown
+                      className={cn(
+                        "size-3.5 transition-transform duration-150",
+                        expanded && "rotate-180",
+                      )}
+                      weight="bold"
+                    />
+                  </button>
+                )}
+              </div>
+
+              {!isCollapsed && hasChildren && expanded && (
+                <ul className="ml-4 mt-1 pl-3 border-l border-(--outline) flex flex-col gap-0.5">
+                  {item.children!.map((child) => {
+                    const active = isActive(child.href, child.exact);
+                    return (
+                      <li key={child.href}>
+                        <Link
+                          href={`${basePath}${child.href}`}
+                          className={cn(
+                            "block px-2.5 py-1.5 rounded-md text-[13px] leading-snug transition-colors",
+                            active
+                              ? "bg-(--primary-glass) text-(--primary) font-medium"
+                              : "text-(--on-bg-medium) hover:text-(--on-bg-high) hover:bg-(--state-hover)",
+                          )}
+                        >
+                          {child.label}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
               )}
-            </Tooltip>
+            </div>
           );
         })}
       </nav>
+
       {footer && !isCollapsed && (
         <div className="mt-4 pt-3 border-t border-(--outline)">{footer}</div>
       )}
@@ -140,32 +326,30 @@ export function Sidebar({
   );
 }
 
-/* ── Mobile horizontal tab strip ──────────────────────────────────── */
+/* ── Mobile horizontal tab strip ─────────────────────────────────── */
+interface MobileTab {
+  label: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  exact?: boolean;
+}
 
 function MobileTabs({
   items,
   basePath,
-  isItemActive,
+  isActive,
   className,
 }: {
-  items: SidebarItem[];
+  items: MobileTab[];
   basePath: string;
-  isItemActive: (href: string, item: SidebarItem) => boolean;
+  isActive: (href: string, exact?: boolean) => boolean;
   className?: string;
 }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLAnchorElement>(null);
 
-  // Scroll the active pill into view whenever the path changes. Uses
-  // `scrollIntoView({ inline: "center" })` so the active tab lands in
-  // the middle of the strip regardless of where it sits in the list -
-  // a user landing on /admin/.../team sees "Team" centred, not parked
-  // off the right edge where they'd have to swipe to find it.
   useEffect(() => {
     const el = activeRef.current;
     if (!el) return;
-    // rAF defers until the browser has laid out the row, so the
-    // measured width is correct on the first render.
     const id = requestAnimationFrame(() => {
       el.scrollIntoView({
         behavior: "smooth",
@@ -174,7 +358,7 @@ function MobileTabs({
       });
     });
     return () => cancelAnimationFrame(id);
-  }, [basePath]);
+  });
 
   return (
     <div
@@ -183,8 +367,6 @@ function MobileTabs({
         className,
       )}
     >
-      {/* Fade edges so pills don't slam into the viewport walls - soft
-          hint that the strip scrolls without adding chrome. */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-y-0 left-0 w-6 z-10 bg-gradient-to-r from-(--card) to-transparent"
@@ -193,35 +375,26 @@ function MobileTabs({
         aria-hidden
         className="pointer-events-none absolute inset-y-0 right-0 w-6 z-10 bg-gradient-to-l from-(--card) to-transparent"
       />
-
       <div
-        ref={scrollRef}
         className={cn(
           "flex gap-1 px-4 py-2 whitespace-nowrap overflow-x-auto",
-          // Hide the scrollbar on every engine:
-          //   Webkit (Chrome/Safari/Edge) - pseudo-element
-          //   Firefox                    - scrollbar-width
-          //   IE/legacy Edge              - -ms-overflow-style
           "[&::-webkit-scrollbar]:hidden",
           "[scrollbar-width:none]",
           "[-ms-overflow-style:none]",
-          // Momentum scrolling on iOS + touch-pan-x so horizontal
-          // swipes don't bubble into the page's vertical scroll.
           "[-webkit-overflow-scrolling:touch] [touch-action:pan-x]",
         )}
       >
         {items.map((item) => {
-          const href = `${basePath}${item.href}`;
-          const isActive = isItemActive(href, item);
+          const active = isActive(item.href, item.exact);
           const Icon = item.icon;
           return (
             <Link
               key={item.href}
-              href={href}
-              ref={isActive ? activeRef : undefined}
+              href={`${basePath}${item.href}`}
+              ref={active ? activeRef : undefined}
               className={cn(
                 "flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors shrink-0",
-                isActive
+                active
                   ? "bg-(--primary-glass) text-(--primary)"
                   : "text-(--on-bg-medium) hover:bg-(--state-hover) hover:text-(--on-bg-high)",
               )}

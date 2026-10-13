@@ -8,12 +8,14 @@ from app.api.v1 import (
     admin_events,
     admin_orders,
     admin_solutions,
+    admin_marketing,
     me,
     events,
     uploads,
     notifications,
     solutions,
     users,
+    marketing,
 )
 
 router = APIRouter(prefix="/v1")
@@ -25,6 +27,8 @@ router.include_router(admin_users_notifications.router)
 router.include_router(admin_events.router)
 router.include_router(admin_orders.router)
 router.include_router(admin_solutions.router)
+router.include_router(admin_marketing.router)
+router.include_router(marketing.router)
 router.include_router(me.router)
 router.include_router(notifications.router)
 router.include_router(events.router)

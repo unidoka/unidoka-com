@@ -58,9 +58,14 @@ export default function Footer() {
     },
   ];
 
-  // Services column, sourced from the shared meta so it never drifts.
+  // Services column. The slugs are the source of truth (they match
+  // the real /services/<slug> routes); the label comes from i18n so
+  // an EN visitor sees "Branding" instead of the Russian shortTitle
+  // baked into SERVICES_META. `t()` falls through to the key if a
+  // translation is missing, which fails loudly rather than silently
+  // rendering the wrong language.
   const serviceLinks = SERVICES_META.map((s) => ({
-    title: s.shortTitle,
+    title: t(`footer.service.${s.slug}`),
     href: rootLink(`/services/${s.slug}`),
   }));
 
