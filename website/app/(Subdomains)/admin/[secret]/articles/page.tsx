@@ -4,7 +4,7 @@ import { CheckUser } from "@/entities/user/model/check-user";
 //   ## File: website/app/(Subdomains)/admin/[secret]/articles/page.tsx
 export default function AdminArticlesPage() {
   return (
-    <CheckUser>
+    <CheckUser permission="admin.articles">
       <div className="text-display-3">Статьи - TODO: paste from donor</div>
     </CheckUser>
   );

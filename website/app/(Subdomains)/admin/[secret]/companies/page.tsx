@@ -30,7 +30,7 @@ function CompaniesInner() {
   };
 
   return (
-    <CheckUser>
+    <CheckUser permission="admin.orders">
       <div className="space-y-6">
         <div>
           <h1 className="text-display-2 mb-1">Компании</h1>

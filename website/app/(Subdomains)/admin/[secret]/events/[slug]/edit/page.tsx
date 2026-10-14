@@ -27,7 +27,7 @@ export default function EditEventPage({ params }: { params: Promise<{ slug: stri
   }, [slug]);
 
   return (
-    <CheckUser>
+    <CheckUser permission="admin.events">
       <div className="max-w-3xl space-y-6">
         <div>
           <h1 className="text-display-2 mb-1">Редактирование</h1>

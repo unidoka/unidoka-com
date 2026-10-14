@@ -18,7 +18,10 @@ from app.schemas.event import (
 )
 from app.api.v1.events import _serialize_event, _unique_slug, _apply_types_and_tags, slugify
 from app.shared.auth import get_current_user
+from app.shared.permissions import require_permission
 from database.database import get_db
+
+_require_admin = require_permission("admin.events")
 
 router = APIRouter(prefix="/admin", tags=["admin-events"])
 logger = logging.getLogger(__name__)

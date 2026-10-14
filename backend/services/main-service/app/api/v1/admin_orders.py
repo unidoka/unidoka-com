@@ -13,7 +13,10 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.models.user import User, UserRole
 from app.shared.auth import get_current_user
+from app.shared.permissions import require_permission
 from database.database import get_db
+
+_require_admin = require_permission("admin.orders")
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/admin/order-requests", tags=["admin-orders"])

@@ -46,6 +46,13 @@ class User(Base):
     receives_order_notifications = Column(
         Boolean, default=False, nullable=False
     )
+    # Admin-panel page access. Ignored for `root` (root bypasses every
+    # check) and for `user`/`client` (role gate fires first). Read on
+    # every request by `app.shared.permissions.has_permission`, so a
+    # change takes effect immediately — nothing is cached in the JWT.
+    permissions = Column(
+        JSON, default=list, nullable=False, server_default="'[]'"
+    )
     user_role = Column(Enum(UserRole, name="user_role"), default=UserRole.user)
     user_status = Column(
         Enum(UserStatus, name="user_status"), default=UserStatus.pending_verification

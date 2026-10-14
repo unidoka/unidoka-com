@@ -63,7 +63,7 @@ export default function AdminClientsPage() {
   }, [state, query]);
   const clients = state.kind === "ready" ? state.clients : [];
   return (
-    <CheckUser>
+    <CheckUser permission="admin.orders">
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>

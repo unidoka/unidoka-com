@@ -33,7 +33,7 @@ export default function VershinyPage() {
   ];
 
   return (
-    <CheckUser>
+    <CheckUser permission="admin.vershiny">
       <div className="space-y-6">
         <div>
           <h1 className="text-display-2 mb-1">Вершины</h1>

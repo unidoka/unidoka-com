@@ -23,7 +23,7 @@ import {
  */
 export default function MarketingPage() {
   return (
-    <CheckUser>
+    <CheckUser permission="admin.marketing">
       <div className="space-y-6">
         <div>
           <h1 className="text-display-2 mb-1">Маркетинг</h1>

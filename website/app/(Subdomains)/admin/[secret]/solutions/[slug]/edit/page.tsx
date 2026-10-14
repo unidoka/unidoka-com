@@ -31,7 +31,7 @@ export default function EditSolutionPage({
   }, [slug]);
 
   return (
-    <CheckUser>
+    <CheckUser permission="admin.solutions">
       <div className="max-w-3xl space-y-6">
         <div>
           <h1 className="text-display-2 mb-1">Редактирование</h1>

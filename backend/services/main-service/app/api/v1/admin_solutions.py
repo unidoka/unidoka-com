@@ -8,15 +8,14 @@ from app.models.user import User, UserRole
 from app.models.solution import Solution
 from app.schemas.solution import SolutionPayload, SolutionOut
 from app.shared.auth import get_current_user
+from app.shared.permissions import require_permission
 from database.database import get_db
 
 router = APIRouter(prefix="/admin/solutions", tags=["admin-solutions"])
 
 
-def _require_admin(current_user: User = Depends(get_current_user)) -> User:
-    if current_user.user_role not in (UserRole.admin, UserRole.root):
-        raise HTTPException(403, "Admin role required")
-    return current_user
+# Bound permission dependency. Enforced per-request on the DB-loaded User — no JWT caching, so a revoke is immediate.
+_require_admin = require_permission("admin.solutions")
 
 
 def _slugify(text: str) -> str:

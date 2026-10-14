@@ -39,7 +39,6 @@ class UserUpdateRequest(BaseModel):
     def normalize_telegram(cls, v: Optional[str]) -> Optional[str]:
         if v is None:
             return None
-        # Telegram handles: 5-32 chars, letters/digits/underscore.
         v = v.strip().lstrip("@")
         return v or None
 
@@ -51,7 +50,10 @@ class UserUpdateRequest(BaseModel):
         v = v.strip()
         if not v:
             return None
-        if not (v.startswith("https://github.com/") or v.startswith("http://github.com/")):
+        if not (
+            v.startswith("https://github.com/")
+            or v.startswith("http://github.com/")
+        ):
             raise ValueError("github_url must be a github.com URL")
         return v
 
@@ -62,7 +64,15 @@ class PasswordChangeRequest(BaseModel):
 
 
 def _serialize(user: User) -> dict:
-    """Single source of truth for what the frontend sees as `user`."""
+    """Single source of truth for what the frontend sees as `user`.
+
+    `permissions` is exposed so the admin sidebar can filter by grant.
+    Only meaningful for `admin` — root bypasses checks entirely, and
+    user/client never reach the panel. The frontend treats a missing
+    or non-list value as an empty set; the backend re-verifies every
+    admin request on the DB-loaded row regardless of what this field
+    contains.
+    """
     return {
         "id": str(user.id),
         "email": user.email,
@@ -74,9 +84,14 @@ def _serialize(user: User) -> dict:
         "avatar_url": user.avatar_url,
         "telegram_username": user.telegram_username,
         "github_url": user.github_url,
-        "role": user.user_role.value if hasattr(user.user_role, "value") else user.user_role,
+        "role": (
+            user.user_role.value
+            if hasattr(user.user_role, "value")
+            else user.user_role
+        ),
         "verified": user.verified,
         "blocked": user.blocked,
+        "permissions": list(getattr(user, "permissions", None) or []),
     }
 
 

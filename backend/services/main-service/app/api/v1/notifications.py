@@ -32,9 +32,24 @@ from database.database import get_db
 
 router = APIRouter(prefix="/me/notifications", tags=["notifications"])
 
-# Only these topics are user-subscribable. Extending this set requires
-# a matching entry in the frontend settings page.
-ALLOWED_TOPICS = frozenset({"events", "vershiny"})
+# Content categories a user can subscribe to. Extending this set
+# requires matching entries in the frontend USER_TOPICS list
+# (website/entities/i18n/notifications.ts) and, for admins editing
+# another user, in the admin user editor.
+#
+# Deliberately NOT in this list:
+#   • transactional — password resets, order confirmations, security
+#     alerts. Always sent; not a subscription.
+#   • legal — terms/privacy changes. Always sent; not a subscription.
+#   • order_notifications — routed to root-configured recipients via
+#     the `receives_order_notifications` flag, not to subscribers.
+ALLOWED_TOPICS = frozenset({
+    "events",     # events, forums, hackathons
+    "vershiny",   # Vershiny program updates
+    "marketing",  # discounts, promotions, special offers
+    "news",       # blog posts, product updates
+    "jobs",       # job openings, internships
+})
 
 
 class NotificationPrefs(BaseModel):

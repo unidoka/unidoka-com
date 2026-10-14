@@ -7,7 +7,7 @@ import { useAdminSecret } from "@/hooks/use-admin-secret";
 export default function NewEventPage() {
   const { secret } = useAdminSecret();
   return (
-    <CheckUser>
+    <CheckUser permission="admin.events">
       <div className="max-w-3xl space-y-6">
         <div>
           <h1 className="text-display-2 mb-1">Новое событие</h1>

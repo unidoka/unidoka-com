@@ -143,6 +143,7 @@ async def get_me(current_user: User = Depends(get_current_user)):
         "role": current_user.user_role.value,
         "verified": current_user.verified,
         "blocked": current_user.blocked,
+        "permissions": list(getattr(current_user, "permissions", None) or []),
     }
 
 @router.post("/logout")

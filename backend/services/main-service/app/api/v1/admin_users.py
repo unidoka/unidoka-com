@@ -14,22 +14,48 @@ Self-protection rules:
 
 Passwords are hashed with the same helper the auth flow uses. On PATCH,
 `password` is optional — leaving it blank preserves the existing hash.
+
+Page-access permissions (added 2026-10-13)
+------------------------------------------
+Each admin carries a `permissions` JSONB list gating which admin-panel
+pages their account can reach. Three rules, all enforced below:
+
+  • Only root can change the field. Any other actor — including an
+    admin editing another admin — gets 403.
+  • The field is only valid on `admin` targets. Writing it onto a
+    `user` or `client` gets 422. The role gate in
+    `app.shared.permissions.has_permission` fires before the set is
+    consulted, so a grant on those roles would be dead data.
+  • Unknown permission strings are rejected by the pydantic validator.
+    A typo cannot silently produce an unenforceable grant.
+
+Every admin endpoint is gated by `require_permission("admin.X")`;
+this file itself is gated on `admin.users`.
 """
+import logging
 import uuid
 from typing import Optional, List
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, EmailStr, Field, field_validator
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
+
 from app.models.user import User, UserRole
 from app.shared.auth import get_current_user, hash_password
+from app.shared.permissions import ADMIN_PERMISSIONS, require_permission
 from database.database import get_db
 
 router = APIRouter(prefix="/admin/users", tags=["admin-users"])
+logger = logging.getLogger(__name__)
+
+# Bound once at import; enforced per-request against the DB-loaded
+# user. A permission revoke takes effect on the next request —
+# nothing is cached in the JWT.
+_require_admin = require_permission("admin.users")
 
 
 # ── Schemas ──────────────────────────────────────────────────────────
-
 class UserOut(BaseModel):
     id: str
     email: str
@@ -45,6 +71,7 @@ class UserOut(BaseModel):
     email_enabled: bool = True
     telegram_enabled: bool = True
     receives_order_notifications: bool = False
+    permissions: List[str] = []
     created_at: Optional[str] = None
 
 
@@ -81,6 +108,23 @@ class UserUpdateIn(BaseModel):
     telegram_chat_id: Optional[str] = None
     email_enabled: Optional[bool] = None
     telegram_enabled: Optional[bool] = None
+    # Root-only. The handler enforces actor=root and target=admin.
+    permissions: Optional[List[str]] = None
+
+    @field_validator("permissions")
+    @classmethod
+    def validate_permissions(cls, v):
+        if v is None:
+            return None
+        # Reject unknown strings at the API boundary. A stored typo
+        # would render as a checkbox that looks applied but matches
+        # no enforcement site — worse than rejecting outright.
+        unknown = sorted(set(v) - ADMIN_PERMISSIONS)
+        if unknown:
+            raise ValueError(f"Unknown permissions: {unknown}")
+        # Deduplicate, preserve order.
+        seen = set()
+        return [p for p in v if not (p in seen or seen.add(p))]
 
     @field_validator("password")
     @classmethod
@@ -95,14 +139,6 @@ class UserUpdateIn(BaseModel):
 
 
 # ── Guards ───────────────────────────────────────────────────────────
-
-def _require_admin(current_user: User = Depends(get_current_user)) -> User:
-    role = current_user.user_role
-    if role not in (UserRole.admin, UserRole.root):
-        raise HTTPException(403, "Admin role required")
-    return current_user
-
-
 def _is_root(user: User) -> bool:
     return user.user_role == UserRole.root
 
@@ -147,12 +183,16 @@ def _serialize(u: User) -> UserOut:
         receives_order_notifications=getattr(
             u, "receives_order_notifications", False
         ),
+        # Guard against legacy rows where the column was added before
+        # the model caught up. Anything that isn't a list resolves to
+        # an empty list — mirrors the read-side default in
+        # app.shared.permissions.get_user_permissions.
+        permissions=list(getattr(u, "permissions", None) or []),
         created_at=u.created_at.isoformat() if u.created_at else None,
     )
 
 
 # ── Endpoints ────────────────────────────────────────────────────────
-
 @router.get("", response_model=List[UserOut])
 async def list_users(
     q: Optional[str] = Query(None),
@@ -209,6 +249,10 @@ async def create_user(
         user_role=UserRole(payload.role),
         verified=payload.verified,
         blocked=payload.blocked,
+        # New users start with an empty permission set. Grants are an
+        # explicit PATCH after creation. Root users don't consult the
+        # field at all.
+        permissions=[],
     )
     db.add(user)
     try:
@@ -230,7 +274,6 @@ async def update_user(
     target = db.get(User, user_id)
     if not target:
         raise HTTPException(404, "User not found")
-
     if not _can_touch(actor, target):
         raise HTTPException(403, "Cannot modify this user")
 
@@ -250,6 +293,34 @@ async def update_user(
             )
             if root_count <= 1:
                 raise HTTPException(400, "Cannot demote the last root user")
+
+    # ── Permissions guard ─────────────────────────────────────────
+    # Three checks, in order. This field is privileged state —
+    # getting any of them wrong is a privilege escalation.
+    if payload.permissions is not None:
+        # 1. Only root may modify permissions.
+        if not _is_root(actor):
+            raise HTTPException(403, "Only root can change permissions")
+        # 2. Permissions only make sense on `admin` targets.
+        if _role_value(target) != "admin":
+            raise HTTPException(
+                422,
+                "permissions can only be set on admin users; "
+                f"target role is {_role_value(target)!r}",
+            )
+        # 3. Audit the diff. Permission changes are security-relevant
+        #    and belong in the log with actor and target ids.
+        old_set = set(getattr(target, "permissions", None) or [])
+        new_set = set(payload.permissions)
+        if old_set != new_set:
+            logger.info(
+                "permissions changed actor=%s target=%s added=%s removed=%s",
+                actor.id,
+                target.id,
+                sorted(new_set - old_set),
+                sorted(old_set - new_set),
+            )
+        target.permissions = list(payload.permissions)
 
     if payload.email is not None:
         new_email = payload.email.lower().strip()
@@ -272,8 +343,10 @@ async def update_user(
 
     if payload.role is not None:
         target.user_role = UserRole(payload.role)
+
     if payload.verified is not None:
         target.verified = payload.verified
+
     if payload.blocked is not None:
         target.blocked = payload.blocked
 
@@ -284,6 +357,7 @@ async def update_user(
         target, "notifications_email_enabled"
     ):
         target.notifications_email_enabled = payload.email_enabled
+
     if payload.telegram_enabled is not None and hasattr(
         target, "notifications_telegram_enabled"
     ):
@@ -311,7 +385,6 @@ async def delete_user(
         raise HTTPException(400, "Cannot delete yourself")
     if not _can_touch(actor, target):
         raise HTTPException(403, "Cannot delete this user")
-
     if _role_value(target) == "root":
         root_count = (
             db.query(func.count(User.id))
@@ -321,7 +394,6 @@ async def delete_user(
         )
         if root_count <= 1:
             raise HTTPException(400, "Cannot delete the last root user")
-
     db.delete(target)
     db.commit()
     return None
