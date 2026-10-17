@@ -25,7 +25,7 @@ import {
   type Direction,
   type Subdirection,
 } from "@/utils/api/event-taxonomies";
-import { TaxonomyEditorDialog } from "../../../_components/taxonomy-editor-dialog";
+import { TaxonomyEditorDialog } from "../../_components/taxonomy-editor-dialog";
 
 export function DirectionsEditor() {
   const { user, isLoading } = useUser();

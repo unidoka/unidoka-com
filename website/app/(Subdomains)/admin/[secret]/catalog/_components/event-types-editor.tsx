@@ -14,7 +14,7 @@ import {
   adminDeleteType,
   type EventTypeTaxonomy,
 } from "@/utils/api/event-taxonomies";
-import { TaxonomyEditorDialog } from "../../../_components/taxonomy-editor-dialog";
+import { TaxonomyEditorDialog } from "../../_components/taxonomy-editor-dialog";
 
 export function EventTypesEditor() {
   const { user, isLoading } = useUser();
