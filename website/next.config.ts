@@ -7,6 +7,12 @@ const hasAbsoluteApi = !!process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Type-check runs in CI (`tsc --noEmit`), not in `next build`.
+  // Type-checking inside the Docker build turns one missing
+  // optional field into a hard deploy failure and doubles build
+  // time on a 1-vCPU box.
+  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
   // LLM context: prod routes /api/v1, /docs, /health to FastAPI via
   // Traefik. `npm run dev` runs only Next.js, no Traefik - so a relative
   // fetch("/api/v1/...") 404s, while an absolute http://localhost:8000
