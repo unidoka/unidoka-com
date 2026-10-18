@@ -170,8 +170,8 @@ jobs:
     steps:
       - name: SSH deploy
         uses: appleboy/ssh-action@v1.0.3
-        envs: BACKEND_CHANGED,FRONTEND_CHANGED
-        with:
+            with:
+              envs: BACKEND_CHANGED,FRONTEND_CHANGED
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
