@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - master
   workflow_dispatch:
     inputs:
       force_rebuild:
@@ -165,7 +166,6 @@ jobs:
     # satisfies this, so it's a no-op for the normal path.
     if: |
       always() && !cancelled() && !failure()
-      && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: SSH deploy

@@ -47,7 +47,6 @@ storage/
 .gitignore
 .dockerignore
 Dockerfile
-alembic.ini
 README.md
 LICENCE
 LICENSE

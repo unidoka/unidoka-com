@@ -7,10 +7,15 @@
 # tarball instead of triggering a rebuild.
 services:
   main-service:
-    # Pinned image name — without this, `docker compose up -d` sees no
-    # image and can't start the service (there is no `build:` here;
-    # the dev override adds it).
+    # Pinned image name. When the image is missing locally (fresh
+    # clone, standalone `docker compose up main-service`), Compose
+    # builds it from the local source. CI still ships a pre-built
+    # tarball and runs `up -d` without `--build`, so the VPS reuses
+    # that image instead of rebuilding.
     image: main-service:local
+    build:
+      context: ./services/main-service
+      dockerfile: Dockerfile
     container_name: main-service
     ports:
       - "8000:8000"

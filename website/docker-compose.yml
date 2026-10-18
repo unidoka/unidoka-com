@@ -21,7 +21,7 @@ services:
         # present during `npm run build`.
         NEXT_PUBLIC_ROOT_DOMAIN: ${NEXT_PUBLIC_ROOT_DOMAIN}
         NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
-        NEXT_PUBLIC_HTTP_PROTOCOL: ${NEXT_PUBLIC_HTTP_PROTOCOL:-https}
+        NEXT_PUBLIC_PROTOCOL: ${NEXT_PUBLIC_HTTP_PROTOCOL:-https}
     profiles:
       - prod
     env_file:
