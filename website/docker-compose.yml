@@ -24,7 +24,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
       # 1. Hardcoded rule bypasses the .env parsing error
-      - "traefik.http.routers.frontend.rule=Host(`unidoka.com`) || Host(`i.unidoka.com`) || Host(`app.unidoka.com`) || Host(`admin.unidoka.com`)"
+      - "traefik.http.routers.frontend.rule=${DOMAIN}"
       - "traefik.http.routers.frontend.priority=1"
       - "traefik.http.routers.frontend.entrypoints=${ENTRYPOINT}"
       - "traefik.http.routers.frontend.tls=${TLS_ENABLED}"
