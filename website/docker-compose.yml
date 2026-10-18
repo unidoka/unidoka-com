@@ -1,79 +1,42 @@
-# Next.js production service. Included by the root docker-compose.yml.
-#
-# Dev Next.js is NOT here — dev runs `next dev` from
-# root docker-compose.dev.yml, because the dev server has nothing to do
-# with the standalone build this file ships.
-#
-# Gated behind the `prod` profile so a bare `docker compose up -d` on
-# the root file doesn't start the frontend, and CI's
-# `docker compose --profile prod up -d` explicitly activates it.
 services:
   next-js:
-    # Pinned image name — without it, `docker compose up -d` rebuilds
-    # from source instead of using the CI-shipped tarball.
-    image: next-js:local
     container_name: next-js
+    env_file:
+      - ./.env
     build:
       context: .
       target: prod
       args:
-        # Next.js inlines NEXT_PUBLIC_* at BUILD time. These must be
-        # present during `npm run build`.
+        # Next.js inlines NEXT_PUBLIC_* at BUILD time. These must be present
+        # during `npm run build` — setting them at runtime has no effect.
         NEXT_PUBLIC_ROOT_DOMAIN: ${NEXT_PUBLIC_ROOT_DOMAIN}
         NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
-        NEXT_PUBLIC_PROTOCOL: ${NEXT_PUBLIC_HTTP_PROTOCOL:-https}
-    profiles:
-      - prod
-    env_file:
-      - ./.env
+        NEXT_PUBLIC_HTTP_PROTOCOL: ${NEXT_PUBLIC_HTTP_PROTOCOL:-https}
     volumes:
-      # ── IMAGE OPTIMIZATION MOUNT ──────────────────────────────────
-      # next/image runs in-process: it opens the source file from this
-      # container's filesystem, resizes it, and serves the result. For
-      # that to work, every file under /order_files/* must exist inside
-      # THIS container at the path the browser requests. The backend
-      # writes uploads to its own storage volume, so we mirror that
-      # directory into the frontend's public/ folder here.
-      #
-      # Without this mount: /order_files/* 404s inside the container,
-      # next/image throws "Unable to optimize image" and falls back to
-      # the raw <img> src, defeating optimization entirely.
-      #
-      # The route handler at app/order_files/[...path]/route.ts exists
-      # as a dev-time fallback (where this mount isn't present); on prod
-      # this mount is what serves every avatar and event cover.
+      # public/ is NOT baked into the image (see website/Dockerfile). It is
+      # mounted from the host so the image stays lean and static assets can
+      # be updated without a rebuild.
+      - ./public:/app/public
+      # Backend writes uploaded order files to the same host dir, served
+      # by Next.js under /public/order_files. This nested bind mount wins
+      # over the parent ./public mount for this specific subpath.
       - ../backend/services/main-service/storage/order_files:/app/public/order_files
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
       - "traefik.http.routers.frontend.rule=${DOMAIN}"
-      # Priority 1 — catch-all. Backend routers declare priority 100.
+      # Priority 1 — explicit catch-all. Backend routers declare higher
+      # priorities (see backend/docker-compose.yml) so that /api, /docs,
+      # and /health never fall through to Next.js. Setting both sides
+      # explicitly means neither depends on rule-string length.
       - "traefik.http.routers.frontend.priority=1"
       - "traefik.http.routers.frontend.entrypoints=${ENTRYPOINT}"
       - "traefik.http.routers.frontend.tls=${TLS_ENABLED}"
       - "traefik.http.routers.frontend.tls.certresolver=${CERT_RESOLVER}"
     networks:
       - main-network
-    restart: unless-stopped
-    stop_grace_period: 20s
-    healthcheck:
-      # Node 22 has global fetch — no wget/curl dependency in alpine.
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 25s
-    deploy:
-      resources:
-        limits:
-          memory: 640M
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
 networks:
   main-network:
     name: main-network
     external: false
+  default:
