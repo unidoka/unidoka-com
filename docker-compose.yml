@@ -1,8 +1,8 @@
-name: unidoka-com
+name: rovno-dev
 include:
+#  - tg-bot/docker-compose.yml
   - backend/docker-compose.yml
   - website/docker-compose.yml
-
 services:
   traefik:
     image: traefik:latest
@@ -13,15 +13,9 @@ services:
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=unidoka.com@mail.ru"
+      - "--certificatesresolvers.myresolver.acme.email=rovno.dev@mail.ru"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       - "--api.insecure=${TRAEFIK_API_INSECURE:-false}"
-      # Healthcheck endpoint + quiet logs. Verbose access logs on a
-      # 1 vCPU box are pure overhead — journald flushes every request
-      # to disk, and every request makes it worse.
-      - "--ping=true"
-      - "--accesslog=false"
-      - "--log.level=WARN"
     ports:
       - "80:80"
       - "443:443"
@@ -30,24 +24,8 @@ services:
       - "./letsencrypt:/letsencrypt"
     networks:
       - main-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "traefik", "healthcheck", "--ping"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-    deploy:
-      resources:
-        limits:
-          memory: 96M
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
 
 networks:
   main-network:
     name: main-network
-    external: false
+    driver: bridge
