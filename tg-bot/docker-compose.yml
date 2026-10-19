@@ -1,0 +1,19 @@
+services:
+  tg-bot:
+    build:
+      context: .
+    container_name: tg-bot
+    env_file:
+      - ../.env
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    networks:
+      - main-network
+    restart: unless-stopped
+
+networks:
+  main-network:
+    name: main-network
+    external: false
+  default:

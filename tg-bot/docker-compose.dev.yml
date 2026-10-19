@@ -1,0 +1,26 @@
+services:
+  tg-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tg-bot-dev
+    env_file:
+      - ../.env
+    volumes:
+      # Source is bind-mounted. watchfiles restarts the process on any
+      # change to a .py file under app/.
+      - ./app:/app/app
+    # Override the Dockerfile CMD with a watcher-driven run.
+    command: watchfiles --filter python "python app/bot.py" app
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    networks:
+      - main-network-dev
+    restart: unless-stopped
+
+networks:
+  main-network-dev:
+    name: main-network-dev
+    external: false
+  default:

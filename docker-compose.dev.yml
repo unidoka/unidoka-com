@@ -21,3 +21,5 @@ name: unidoka-com-dev
 include:
   - backend/docker-compose.yml
   - backend/docker-compose.dev.yml
+  - tg-bot/docker-compose.yml
+  - tg-bot/docker-compose.dev.yml
