@@ -98,7 +98,7 @@ export function AdminSidebar() {
     },
     {
       label: t("admin.vershiny"),
-      href: "/vershiny",
+      href: "/vershiny_top",
       icon: VershinyLogo,
       permission: "admin.vershiny",
     },

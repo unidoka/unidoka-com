@@ -32,7 +32,7 @@ export function buildNavLinks(subdomain: Subdomain): NavLinkItem[] {
         { label: "Команда", path: "/about" },
         { label: "Amorfa", path: "/amorfa" },
         { label: "События", path: "/events" },
-        { label: "Вершины", path: "/vershiny" },
+        { label: "Вершины", path: "/vershiny_top" },
       ];
   }
 }

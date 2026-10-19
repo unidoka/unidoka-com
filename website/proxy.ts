@@ -12,17 +12,17 @@ import type { NextRequest } from 'next/server'
  *   Vanity subdomains (no folder - they exist only as bookmarks / legacy):
  *     amorfa.*   → 302 to <root>/amorfa
  *     events.*   → 302 to <root>/events
- *     vershiny.* → 302 to <root>/vershiny
+ *     vershiny.* → 302 to <root>/vershiny_top
  *
  *   Everything else (root domain, plain routes) is served unchanged.
- *   /events, /vershiny, /amorfa are ROOT ROUTES, not subdomains.
+ *   /events, /vershiny_top, /amorfa are ROOT ROUTES, not subdomains.
  */
 
 // Subdomains that map to a single root route and should 302 there.
 const VANITY_SUBDOMAINS: Record<string, string> = {
   amorfa: '/amorfa',
   events: '/events',
-  vershiny: '/vershiny',
+  vershiny: '/vershiny_top',
 }
 
 // Subdomains that have their own route folder under app/(Subdomains)/.

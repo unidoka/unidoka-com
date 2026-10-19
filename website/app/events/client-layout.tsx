@@ -7,7 +7,7 @@ import { Container } from "@/components/ui/container";
 
 const TABS = [
   { path: "/", label: "События" },
-  { path: "/vershiny", label: "Вершины" },
+  { path: "/vershiny_top", label: "Вершины" },
 ];
 
 function normalize(p: string): string {

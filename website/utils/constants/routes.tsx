@@ -15,7 +15,7 @@ export const ROUTES = {
   crew: { id: "crew", href: "/about", title: "Команда" },
   amorfa: { id: "amorfa", href: "/amorfa", title: "Amorfa" },
   events: { id: "events", href: "/events", title: "События" },
-  vershiny: { id: "vershiny", href: "/vershiny", title: "Вершины" },
+  vershiny: { id: "vershiny", href: "/vershiny_top", title: "Вершины" },
 
   // ── Legacy - still referenced by footer / admin / profile ─────────
   projects: { id: "projects", href: "/projects", title: "Проекты" },
