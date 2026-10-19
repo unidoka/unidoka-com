@@ -7,7 +7,7 @@ services:
       # Force Next.js standalone server to bind to all interfaces (fixes Traefik 404)
       - HOSTNAME=0.0.0.0
       - PORT=3000
-      # Force Server-Side Rendering (SSR) to talk to the backend internally over the Docker network
+      # Force SSR calls to the backend over the Docker network
       - API_BASE_URL_INTERNAL=http://main-service:8000
     build:
       context: .
@@ -15,7 +15,6 @@ services:
       args:
         NEXT_PUBLIC_ROOT_DOMAIN: ${NEXT_PUBLIC_ROOT_DOMAIN}
         NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
-        # Fixed arg name to match Dockerfile
         NEXT_PUBLIC_PROTOCOL: ${NEXT_PUBLIC_HTTP_PROTOCOL:-https}
     volumes:
       - ./public:/app/public
@@ -23,21 +22,26 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
-      # 1. Hardcoded rule bypasses the .env parsing error
-      - "traefik.http.routers.frontend.rule=${DOMAIN}"
+
+      # HARDCODED rule. Do NOT use ${DOMAIN} here — the injected value
+      # was arriving with its own "DOMAIN=" prefix, which Traefik's
+      # rule parser rejects (it expects "==" for operators, never "=").
+      - "traefik.http.routers.frontend.rule=Host(`unidoka.com`) || Host(`www.unidoka.com`) || Host(`i.unidoka.com`) || Host(`app.unidoka.com`) || Host(`admin.unidoka.com`)"
       - "traefik.http.routers.frontend.priority=1"
       - "traefik.http.routers.frontend.entrypoints=${ENTRYPOINT}"
       - "traefik.http.routers.frontend.tls=${TLS_ENABLED}"
       - "traefik.http.routers.frontend.tls.certresolver=${CERT_RESOLVER}"
-      # 2. Explicitly tell Traefik what domains to get certs for. This stops Traefik
-      # from trying to parse the rule string to extract domains, fixing the ACME error.
+
+      # Wildcards (*.unidoka.com) require DNS-01 challenge, which the
+      # tlschallenge resolver does NOT support — it can only issue certs
+      # for explicitly listed names. Enumerate the real subdomains so
+      # each gets its own HTTP-validated cert.
       - "traefik.http.routers.frontend.tls.domains[0].main=unidoka.com"
-      - "traefik.http.routers.frontend.tls.domains[0].sans=*.unidoka.com"
+      - "traefik.http.routers.frontend.tls.domains[0].sans=www.unidoka.com,i.unidoka.com,app.unidoka.com,admin.unidoka.com"
     networks:
       - main-network
     restart: unless-stopped
     stop_grace_period: 20s
-    # 3. Upgraded healthcheck to output the actual error to logs if it fails
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(async r => { if(!r.ok) { console.error(await r.text()); process.exit(1) } process.exit(0) }).catch(e => { console.error(e); process.exit(1) })"]
       interval: 15s
