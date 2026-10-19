@@ -413,7 +413,7 @@ function EventCard({
       href={`/events/${event.slug}`}
       className="group relative flex flex-col rounded-3xl border border-(--outline) bg-(--card) overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:border-(--on-bg-high)"
     >
-      <div className="relative aspect-[16/10] overflow-hidden bg-(--bg-disabled)">
+      <div className="relative aspect-[4/3] overflow-hidden bg-(--bg-disabled)">
         {event.cover_image_src ? (
           /* eslint-disable-next-line @next/next/no-img-element */
           <img

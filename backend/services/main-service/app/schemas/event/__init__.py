@@ -1,5 +1,5 @@
 from app.schemas.event.requests import (
-    EventSubmitRequest, EventAdminRequest, EventRejectRequest,
+    EventSubmitRequest, EventAdminRequest, EventUpdateRequest, EventRejectRequest,
     EventTypeInput, OtherDateInput,
     OrganizerRequest, EventTypeRequest,
     DirectionRequest, SubdirectionRequest,

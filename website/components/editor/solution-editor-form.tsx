@@ -211,7 +211,7 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
         <ImageUploadField
           value={form.cover_image_src ?? ""}
           onChange={(url) => set("cover_image_src", url)}
-          aspect={16 / 10}
+          aspect={4 / 3}
           outputSize={1600}
           variant="cover"
           maxSizeMb={8}

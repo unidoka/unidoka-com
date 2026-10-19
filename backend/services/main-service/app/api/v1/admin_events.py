@@ -12,7 +12,7 @@ from app.models.event import (
     EventSubdirection,
 )
 from app.schemas.event import (
-    EventDetail, EventListItem, EventAdminRequest, EventRejectRequest,
+    EventDetail, EventListItem, EventAdminRequest, EventUpdateRequest, EventRejectRequest,
     OrganizerRequest, EventTypeRequest, DirectionRequest, SubdirectionRequest,
     OrganizerOut, EventTypeOut, DirectionOut, SubdirectionOut,
 )
@@ -44,7 +44,8 @@ def _load_event_any(db: Session, slug: str) -> Event:
         .first()
     )
     if not e:
-        raise HTTPException(404, "Event not found")
+        logger.warning("admin events: slug not found: %r", slug)
+        raise HTTPException(404, f"Event not found: {slug!r}")
     return e
 
 
@@ -147,31 +148,52 @@ async def admin_create_event(
 @router.patch("/events/{slug}", response_model=EventDetail)
 async def admin_update_event(
     slug: str,
-    payload: EventAdminRequest,
+    payload: EventUpdateRequest,
     db: Session = Depends(get_db),
     admin: User = Depends(require_admin),
 ):
+    # Partial update: only keys the client explicitly sent are applied.
     event = _load_event_any(db, slug)
-    for field in (
-        "title", "short_description", "description",
-        "cover_image_src", "cover_video_src", "href",
-        "start_at", "end_at", "registration_deadline", "other_dates",
-        "location_name", "address", "metro", "city",
-        "price", "capacity", "registration_url",
-        "custom_organizer_name",
-        "custom_page", "is_featured", "seo_title",
-        "meta_description", "mdx_content",
+
+    new_slug = payload.slug if "slug" in payload.model_fields_set else None
+    if new_slug:
+        event.slug = _unique_slug(db, slugify(new_slug), exclude_id=event.id)
+
+    if "organizer_id" in payload.model_fields_set:
+        raw = payload.organizer_id
+        event.organizer_id = _uuid_or_none(raw, "organizer_id") if raw else None
+
+    if "status" in payload.model_fields_set:
+        new_status = EventStatus(payload.status)
+        if new_status != event.status:
+            event.status = new_status
+            event.reviewed_by_id = admin.id
+            event.reviewed_at = datetime.utcnow()
+
+    # Everything else is a straight setattr.
+    HANDLED = {"slug", "organizer_id", "status", "types", "subdirection_ids"}
+    for field in payload.model_fields_set:
+        if field in HANDLED:
+            continue
+        value = getattr(payload, field)
+        if field == "other_dates":
+            value = [
+                {"label": d.label, "at": d.at.isoformat() if d.at else None}
+                for d in (value or [])
+            ]
+        if hasattr(event, field):
+            setattr(event, field, value)
+
+    if ("types" in payload.model_fields_set) or (
+        "subdirection_ids" in payload.model_fields_set
     ):
-        setattr(event, field, getattr(payload, field))
-    if payload.organizer_id:
-        event.organizer_id = _uuid_or_none(payload.organizer_id, "organizer_id")
-    elif payload.organizer_id is None:
-        event.organizer_id = None
-    if payload.status != event.status.value:
-        event.status = EventStatus(payload.status)
-        event.reviewed_by_id = admin.id
-        event.reviewed_at = datetime.utcnow()
-    _apply_types_and_tags(db, event, payload)
+        from types import SimpleNamespace
+        safe = SimpleNamespace(
+            types=payload.types or [],
+            subdirection_ids=payload.subdirection_ids or [],
+        )
+        _apply_types_and_tags(db, event, safe)
+
     db.commit()
     db.refresh(event)
     return _serialize_event(event, full=True)

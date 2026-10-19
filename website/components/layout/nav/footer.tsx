@@ -15,6 +15,7 @@ import { useLanguage } from "@/providers/language-provider";
 import { useRootHref } from "@/hooks/use-root-href";
 import { rootDomainUrl } from "@/utils/root-domain";
 import { SERVICES_META } from "@/app/_data/services/meta";
+import { MadeOnAmorfa } from "@/components/made-on-amorfa";
 import Link from "next/link";
 
 /* ── Socials: only GitHub + Telegram ───────────────────────────── */
@@ -168,6 +169,7 @@ export default function Footer() {
           <span className="text-body-5 text-(--on-bg-low)">
             {t("footer.copyright").replace("{year}", String(year))}
           </span>
+            <MadeOnAmorfa />
           <ThemeSwitcher />
         </div>
       </Container>

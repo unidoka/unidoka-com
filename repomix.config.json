@@ -1,9 +1,48 @@
 {
+  "$schema": "https://repomix.com/schemas/latest/schema.json",
   "output": {
     "style": "markdown",
     "filePath": "repomix-output-unidoka-com.md",
     "removeComments": false,
     "removeEmptyLines": true,
-    "showLineNumbers": false
+    "showLineNumbers": false,
+    "truncateBase64": true
+  },
+  "ignore": {
+    "useGitignore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": [
+      "*.exe",
+      "*.exe~",
+      "*.dll",
+      "*.so",
+      "*.dylib",
+      "*.test",
+      "*.out",
+      "vendor/**/*",
+      "go.work",
+      "go.work.sum",
+      ".env",
+      ".env.dev",
+      ".env.prod",
+      "docker/.env",
+      "docker/.env.dev",
+      "docker/.env.prod",
+      "services/**/tmp/",
+      "aider*",
+      "repomix-output*",
+      "openapi.json",
+      "letsencrypt/**/*",
+      "skills-lock.json",
+      "package-lock.json",
+      "**/*.glb",
+      "website/components/icons/experts-icons/**/*",
+      "website/components/icons/logotypes/**/*",
+      "website/components/layout/logo/**/*",
+      "**/.agents/skills/image-to-code/**/*",
+      "**/.agents/skills/imagegen-frontend-mobile/**/*",
+      "**/.agents/skills/imagegen-frontend-web/**/*",
+      "**/.agents/skills/design-taste-frontend/**/*"
+    ]
   }
 }

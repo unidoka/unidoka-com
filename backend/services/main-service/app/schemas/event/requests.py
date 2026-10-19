@@ -90,3 +90,45 @@ class SubdirectionRequest(BaseModel):
     slug: Optional[str] = Field(None, max_length=120)
     sort_order: int = 0
     is_active: bool = True
+
+
+class EventUpdateRequest(BaseModel):
+    """Partial-update schema for PATCH /admin/events/{slug}.
+
+    Every field is optional; the handler applies only the keys the
+    client actually sent (via model_fields_set). This makes partial
+    PATCHes legal, and separates the two failure modes that previously
+    collapsed into one indistinguishable 4xx:
+
+      - bad payload     -> 422
+      - missing row     -> 404, with the slug in the detail
+    """
+
+    title: Optional[str] = Field(None, min_length=3, max_length=200)
+    slug: Optional[str] = Field(None, max_length=200)
+    short_description: Optional[str] = Field(None, max_length=500)
+    description: Optional[str] = None
+    mdx_content: Optional[str] = None
+    cover_image_src: Optional[str] = None
+    cover_video_src: Optional[str] = None
+    href: Optional[str] = None
+    start_at: Optional[datetime] = None
+    end_at: Optional[datetime] = None
+    registration_deadline: Optional[datetime] = None
+    other_dates: Optional[List[OtherDateInput]] = None
+    location_name: Optional[str] = None
+    address: Optional[str] = None
+    metro: Optional[str] = None
+    city: Optional[str] = None
+    price: Optional[str] = None
+    capacity: Optional[int] = None
+    registration_url: Optional[str] = None
+    organizer_id: Optional[str] = None
+    custom_organizer_name: Optional[str] = Field(None, max_length=120)
+    types: Optional[List[EventTypeInput]] = None
+    subdirection_ids: Optional[List[str]] = None
+    custom_page: Optional[str] = None
+    is_featured: Optional[bool] = None
+    seo_title: Optional[str] = None
+    meta_description: Optional[str] = None
+    status: Optional[str] = Field(None, pattern="^(pending|approved|rejected)$")

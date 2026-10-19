@@ -257,7 +257,7 @@ export default function AdminEventsPage() {
             {[...Array(6)].map((_, i) => (
               <Card
                 key={i}
-                className="rounded-3xl border-(--outline) aspect-[16/10] animate-pulse bg-muted/30"
+                className="rounded-3xl border-(--outline) aspect-[4/3] animate-pulse bg-muted/30"
               />
             ))}
           </div>
@@ -295,7 +295,7 @@ export default function AdminEventsPage() {
                 key={ev.id}
                 className="group relative rounded-3xl border-(--outline) bg-(--card) overflow-hidden transition-all hover:border-(--primary)/40 flex flex-col"
               >
-                <div className="relative aspect-[16/10] bg-muted overflow-hidden">
+                <div className="relative aspect-[4/3] bg-muted overflow-hidden">
                   <Link
                     href={`${base}/${ev.slug}/edit`}
                     className="absolute inset-0 z-[1]"

@@ -10,12 +10,12 @@ import { VershinyLogo } from "@/components/icons/logotypes/vershiny-logo";
 import {
   ArrowRight,
   ArrowUpRight,
+  Briefcase,
   CalendarBlank,
   Code,
   Cpu,
-  Lightbulb,
+  Palette,
   Sparkle,
-  Users,
 } from "@phosphor-icons/react";
 import {
   fetchPublishedEventsClient,
@@ -23,46 +23,51 @@ import {
 } from "@/utils/api/events";
 import { useLanguage } from "@/providers/language-provider";
 
-/* Icon + i18n key pairs. Resolved with t() at render time so the
-   language switcher re-renders copy without a page reload. */
-const PILLARS = [
+/* ── External links ─────────────────────────────────────────────── */
+const JOIN_URL = "https://t.me/+cgrvXV-BbBJmMzYy";
+const CONTACT_URL = "https://t.me/niyaz_gimadiev";
+const SOCIALS = [
+  { label: "Telegram", href: "https://t.me/vershiny_top" },
+  { label: "ВКонтакте", href: "https://vk.ru/vershiny_top" },
+  { label: "Max", href: "https://max.ru/channel_vershiny_top" },
+] as const;
+
+/* ── Static data ────────────────────────────────────────────────── */
+const WHY = [
+  { n: "01", titleKey: "vershiny.why_1_title", bodyKey: "vershiny.why_1_body" },
+  { n: "02", titleKey: "vershiny.why_2_title", bodyKey: "vershiny.why_2_body" },
+  { n: "03", titleKey: "vershiny.why_3_title", bodyKey: "vershiny.why_3_body" },
+] as const;
+
+const MENTOR_POINTS = [
+  "vershiny.mentors_point_1",
+  "vershiny.mentors_point_2",
+  "vershiny.mentors_point_3",
+  "vershiny.mentors_point_4",
+] as const;
+
+const DIRECTIONS = [
   {
-    icon: Users,
-    titleKey: "vershiny.pillar_talents_title",
-    descKey: "vershiny.pillar_talents_desc",
-    ctaKey: "vershiny.pillar_talents_cta",
-    href: "/events",
+    icon: Code,
+    titleKey: "vershiny.direction_software_title",
+    bodyKey: "vershiny.direction_software_body",
+  },
+  {
+    icon: Briefcase,
+    titleKey: "vershiny.direction_business_title",
+    bodyKey: "vershiny.direction_business_body",
+  },
+  {
+    icon: Palette,
+    titleKey: "vershiny.direction_design_title",
+    bodyKey: "vershiny.direction_design_body",
   },
   {
     icon: Cpu,
-    titleKey: "vershiny.pillar_ai_title",
-    descKey: "vershiny.pillar_ai_desc",
-    ctaKey: "vershiny.pillar_ai_cta",
-    href: "/amorfa",
-  },
-  {
-    icon: Lightbulb,
-    titleKey: "vershiny.pillar_solutions_title",
-    descKey: "vershiny.pillar_solutions_desc",
-    ctaKey: "vershiny.pillar_solutions_cta",
-    href: "/projects",
-  },
-  {
-    icon: Code,
-    titleKey: "vershiny.pillar_oss_title",
-    descKey: "vershiny.pillar_oss_desc",
-    ctaKey: "vershiny.pillar_oss_cta",
-    href: "https://github.com/unidoka",
-    external: true,
+    titleKey: "vershiny.direction_hardware_title",
+    bodyKey: "vershiny.direction_hardware_body",
   },
 ] as const;
-
-function eventTag(ev: EventListItem, fallback: string): string {
-  const tt = ev.types?.[0];
-  if (tt?.type?.name) return tt.type.name;
-  if (tt?.custom_name) return tt.custom_name;
-  return ev.organizer?.name ?? fallback;
-}
 
 /* The logo animation lives on a light background (see
    public/videos/ver-logo-animation.webm). In light mode it is faintly
@@ -75,6 +80,13 @@ const BG_SCRIM =
   "linear-gradient(to bottom, " +
   "color-mix(in srgb, var(--bg) 88%, transparent) 0%, " +
   "color-mix(in srgb, var(--bg) 78%, transparent) 100%)";
+
+function eventTag(ev: EventListItem, fallback: string): string {
+  const tt = ev.types?.[0];
+  if (tt?.type?.name) return tt.type.name;
+  if (tt?.custom_name) return tt.custom_name;
+  return ev.organizer?.name ?? fallback;
+}
 
 export default function VershinyPage() {
   const { t, lang } = useLanguage();
@@ -92,8 +104,6 @@ export default function VershinyPage() {
   const defaultTag = t("vershiny.events_default_tag");
   const dateLocale = lang === "ru" ? "ru-RU" : "en-US";
 
-  // Local helper — reads `lang` at call time so flipping the switcher
-  // reformats every visible date without a memo dance.
   const formatDate = (
     start: string | null | undefined,
     end: string | null | undefined,
@@ -162,20 +172,25 @@ export default function VershinyPage() {
           className="relative py-28 md:py-32 lg:py-24"
         >
           <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-12 lg:gap-16 items-center">
-            {/* Copy — sits above the mobile background video thanks to
-                the `relative` stacking context, no z-index needed since
-                the video wrapper is a sibling and paints first. */}
+            {/* Copy */}
             <div className="relative">
-              <h1 className="text-display-2 md:text-display-1 mt-6 leading-[1.05] tracking-tight">
+              <span className="inline-flex items-center gap-2 rounded-full border border-(--outline) bg-(--card) px-3 py-1 text-body-6 uppercase tracking-[0.24em] text-(--on-bg-low) mb-6">
+                <span className="size-1.5 rounded-full bg-(--primary)" />
+                {t("vershiny.badge")}
+              </span>
+
+              <h1 className="text-display-2 md:text-display-1 leading-[1.05] tracking-tight">
                 {t("vershiny.title_1")}
                 <br />
                 <span className="text-(--primary)">
                   {t("vershiny.title_2")}
                 </span>
               </h1>
+
               <p className="text-body-3 text-(--on-bg-medium) mt-6 max-w-lg leading-relaxed">
                 {t("vershiny.subtitle")}
               </p>
+
               <div className="flex flex-col sm:flex-row gap-3 mt-8">
                 <Button size="large" shape="round" asChild>
                   <Link href="/events">
@@ -224,65 +239,145 @@ export default function VershinyPage() {
         </Container>
       </section>
 
-      {/* ─── PILLARS ──────────────────────────────────────────────── */}
-      <section className="py-20 md:py-28">
+      {/* ─── WHY ───────────────────────────────────────────────────────
+          Editorial header (asymmetric two-column) + a hairline grid of
+          three stat-like cells. The 1px gaps between cells read as
+          schematic rules, not as UI borders — that's the point.
+          Numbers `01 / 02 / 03` are printed in mono at wide tracking,
+          so the eye reads them as sequence markers, not decoration. */}
+      <section className="py-20 md:py-28 border-b border-(--outline)">
         <Container variant="full-width">
-          <div className="max-w-2xl mb-12">
-            {/* <p className="text-body-5 uppercase tracking-widest text-(--primary) mb-3">
-              {t("vershiny.pillars_eyebrow")}
-            </p> */}
-            <h2 className="text-display-3">{t("vershiny.pillars_title")}</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-8 lg:gap-16 items-end mb-14">
+            <div>
+              <p className="text-body-6 uppercase tracking-[0.32em] text-(--primary) mb-3">
+                {t("vershiny.why_eyebrow")}
+              </p>
+              <h2 className="text-display-3 md:text-display-2 leading-[1.05]">
+                {t("vershiny.why_title")}
+              </h2>
+            </div>
+            <p className="text-body-2 text-(--on-bg-medium) leading-relaxed max-w-[520px] lg:pb-2">
+              {t("vershiny.why_subtitle")}
+            </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {PILLARS.map((p) => {
-              const Icon = p.icon;
-              const linkClass =
-                "inline-flex items-center gap-1 text-body-4 text-(--primary) hover:gap-2 transition-all mt-2";
-              return (
-                <Card
-                  key={p.titleKey}
-                  className="p-6 gap-4 flex flex-col transition-colors hover:border-(--primary)/40"
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-(--outline) border border-(--outline) rounded-3xl overflow-hidden">
+            {WHY.map((w) => (
+              <div
+                key={w.n}
+                className="bg-(--bg) p-8 md:p-10 flex flex-col"
+              >
+                <span className="font-mono text-[10px] tracking-[0.28em] text-(--on-bg-low) mb-10 tabular-nums">
+                  {w.n}
+                </span>
+                <h3 className="text-heading-2 leading-tight mb-3">
+                  {t(w.titleKey)}
+                </h3>
+                <p className="text-body-4 text-(--on-bg-medium) leading-relaxed">
+                  {t(w.bodyKey)}
+                </p>
+              </div>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* ─── MENTORS ───────────────────────────────────────────────────
+          Two-column editorial split: statement on the left, numbered
+          list on the right. The list uses hairline dividers only — no
+          boxes, no icons. Reads like a document, which is the point:
+          this section is an argument, not a feature grid. */}
+      <section className="py-20 md:py-28 bg-(--card) border-b border-(--outline)">
+        <Container variant="full-width">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-12 lg:gap-20 items-start">
+            <div>
+              <p className="text-body-6 uppercase tracking-[0.32em] text-(--primary) mb-3">
+                {t("vershiny.mentors_eyebrow")}
+              </p>
+              <h2 className="text-display-3 md:text-display-2 leading-[1.05] mb-6">
+                {t("vershiny.mentors_title")}
+              </h2>
+              <p className="text-body-2 text-(--on-bg-medium) leading-relaxed max-w-[520px]">
+                {t("vershiny.mentors_body")}
+              </p>
+            </div>
+
+            <ul className="border-y border-(--outline) divide-y divide-(--outline)">
+              {MENTOR_POINTS.map((key, i) => (
+                <li
+                  key={key}
+                  className="flex items-baseline gap-4 py-4"
                 >
-                  <span className="flex size-10 items-center justify-center rounded-2xl bg-(--primary-glass) text-(--primary)">
-                    <Icon className="size-5" />
+                  <span className="font-mono text-[10px] tracking-[0.24em] text-(--on-bg-low) shrink-0 tabular-nums">
+                    {String(i + 1).padStart(2, "0")}
                   </span>
+                  <span className="text-body-3 text-(--on-bg-high) leading-snug">
+                    {t(key)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Container>
+      </section>
+
+      {/* ─── DIRECTIONS ────────────────────────────────────────────────
+          Same hairline-grid logic as the WHY block, but with four
+          cells. Each cell carries a mono index, an inverted icon tile,
+          a title, and a one-line body. The tile uses --on-bg-high as
+          fill and --bg as glyph colour — the same monochrome inversion
+          the home-page numbers section uses. */}
+      <section className="py-20 md:py-28 border-b border-(--outline)">
+        <Container variant="full-width">
+          <div className="max-w-2xl mb-14">
+            <p className="text-body-6 uppercase tracking-[0.32em] text-(--primary) mb-3">
+              {t("vershiny.directions_eyebrow")}
+            </p>
+            <h2 className="text-display-3 md:text-display-2 leading-[1.05] mb-4">
+              {t("vershiny.directions_title")}
+            </h2>
+            <p className="text-body-3 text-(--on-bg-medium) leading-relaxed">
+              {t("vershiny.directions_subtitle")}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-(--outline) border border-(--outline) rounded-3xl overflow-hidden">
+            {DIRECTIONS.map((d, i) => {
+              const Icon = d.icon;
+              return (
+                <div
+                  key={d.titleKey}
+                  className="bg-(--bg) p-7 md:p-8 flex flex-col gap-5"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="flex size-11 items-center justify-center rounded-2xl bg-(--on-bg-high) text-(--bg)">
+                      <Icon className="size-5" weight="bold" />
+                    </span>
+                    <span className="font-mono text-[10px] tracking-[0.24em] text-(--on-bg-low) tabular-nums">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                  </div>
                   <h3 className="text-heading-3 leading-tight">
-                    {t(p.titleKey)}
+                    {t(d.titleKey)}
                   </h3>
-                  <p className="text-body-4 text-(--on-bg-medium) flex-1">
-                    {t(p.descKey)}
+                  <p className="text-body-4 text-(--on-bg-medium) leading-relaxed">
+                    {t(d.bodyKey)}
                   </p>
-                  {/* {"external" in p && p.external ? (
-                    <a
-                      href={p.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={linkClass}
-                    >
-                      {t(p.ctaKey)}
-                      <ArrowUpRight className="size-4" />
-                    </a>
-                  ) : (
-                    <Link href={p.href} className={linkClass}>
-                      {t(p.ctaKey)}
-                      <ArrowUpRight className="size-4" />
-                    </Link>
-                  )} */}
-                </Card>
+                </div>
               );
             })}
           </div>
         </Container>
       </section>
 
-      {/* ─── UPCOMING EVENTS ──────────────────────────────────────── */}
-      <section className="py-20 md:py-28 bg-(--card) border-y border-(--outline)">
+      {/* ─── UPCOMING EVENTS ────────────────────────────────────────── */}
+      <section className="py-20 md:py-28 bg-(--card) border-b border-(--outline)">
         <Container variant="full-width">
           <div className="flex items-end justify-between mb-10 gap-6 flex-wrap">
             <div className="max-w-2xl">
-              {/* <p className="text-body-5 uppercase tracking-widest text-(--primary) mb-3">
+              <p className="text-body-6 uppercase tracking-[0.32em] text-(--primary) mb-3">
                 {t("vershiny.events_eyebrow")}
-              </p> */}
+              </p>
               <h2 className="text-display-3">{t("vershiny.events_title")}</h2>
             </div>
             <Button variant="outlined" size="medium" shape="round" asChild>
@@ -292,6 +387,7 @@ export default function VershinyPage() {
               </Link>
             </Button>
           </div>
+
           {events === null ? (
             <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_1fr] gap-8">
               <Card className="rounded-3xl border-(--outline) h-[360px] animate-pulse bg-muted/30" />
@@ -418,8 +514,14 @@ export default function VershinyPage() {
         </Container>
       </section>
 
-      {/* ─── CTA ────────────────────────────────────────────────────── */}
-      <section className="py-24">
+      {/* ─── CTA ───────────────────────────────────────────────────────
+          Two-column card: the argument on the left, the channels on the
+          right. The join button is the primary action; the contact
+          button is the softer alternative for people who want to talk
+          before committing. Channels listed below are plain text +
+          arrow — icons here would compete with the logo glyph in the
+          background and clutter the block. */}
+      <section className="py-24 md:py-32">
         <Container variant="full-width">
           <div className="relative overflow-hidden rounded-3xl border border-(--outline) bg-(--card) p-8 md:p-14">
             <VershinyLogo
@@ -434,30 +536,57 @@ export default function VershinyPage() {
                   "radial-gradient(circle, var(--primary) 0%, transparent 70%)",
               }}
             />
-            <div className="relative max-w-2xl">
-              <h2 className="text-display-3 mt-6 leading-tight">
-                {t("vershiny.cta_title")}
-              </h2>
-              <p className="text-body-3 text-(--on-bg-medium) mt-4">
-                {t("vershiny.cta_subtitle")}
-              </p>
-              <div className="flex flex-wrap gap-3 mt-8">
-                <Button size="large" variant="filled" shape="round" asChild>
-                  <Link href="/events">
-                    {t("vershiny.cta_join")}
-                    <ArrowRight />
-                  </Link>
-                </Button>
-                <Button size="large" variant="outlined" shape="round" asChild>
-                  <a
-                    href="https://t.me/vershiny_top"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {t("vershiny.cta_telegram")}
-                    <ArrowUpRight />
-                  </a>
-                </Button>
+
+            <div className="relative grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-10 lg:gap-16">
+              <div>
+                <p className="text-body-6 uppercase tracking-[0.32em] text-(--on-bg-low) mb-6">
+                  {t("vershiny.cta_badge")}
+                </p>
+                <h2 className="text-display-3 md:text-display-2 leading-[1.05] mb-5">
+                  {t("vershiny.cta_title")}
+                </h2>
+                <p className="text-body-3 text-(--on-bg-medium) leading-relaxed max-w-[520px] mb-8">
+                  {t("vershiny.cta_subtitle")}
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Button size="large" shape="round" asChild>
+                    <a href={JOIN_URL} target="_blank" rel="noopener noreferrer">
+                      {t("vershiny.cta_join")}
+                      <ArrowRight />
+                    </a>
+                  </Button>
+                  <Button size="large" variant="outlined" shape="round" asChild>
+                    <a
+                      href={CONTACT_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {t("vershiny.cta_contact")}
+                      <ArrowUpRight />
+                    </a>
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex flex-col lg:pt-14">
+                <p className="text-body-6 uppercase tracking-[0.32em] text-(--on-bg-low) mb-2">
+                  {t("vershiny.cta_socials_label")}
+                </p>
+                <ul>
+                  {SOCIALS.map((s) => (
+                    <li key={s.label}>
+                      <a
+                        href={s.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex items-center justify-between gap-4 py-3.5 border-b border-(--outline) text-body-3 text-(--on-bg-high) hover:text-(--primary) transition-colors"
+                      >
+                        <span>{s.label}</span>
+                        <ArrowUpRight className="size-4 opacity-40 group-hover:opacity-100 transition-opacity" />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </div>

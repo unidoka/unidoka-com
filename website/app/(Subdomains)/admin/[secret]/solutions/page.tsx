@@ -130,7 +130,7 @@ export default function AdminSolutionsPage() {
         {loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (
-              <Card key={i} className="rounded-3xl border-(--outline) aspect-[16/10] animate-pulse bg-muted/30" />
+              <Card key={i} className="rounded-3xl border-(--outline) aspect-[4/3] animate-pulse bg-muted/30" />
             ))}
           </div>
         )}
@@ -161,7 +161,7 @@ export default function AdminSolutionsPage() {
                   key={s.id}
                   className="group relative rounded-3xl border-(--outline) bg-(--card) overflow-hidden transition-all hover:border-(--primary)/40 flex flex-col"
                 >
-                  <div className="relative aspect-[16/10] bg-muted overflow-hidden">
+                  <div className="relative aspect-[4/3] bg-muted overflow-hidden">
                     <Link
                       href={`${base}/${s.slug}/edit`}
                       className="absolute inset-0 z-[1]"

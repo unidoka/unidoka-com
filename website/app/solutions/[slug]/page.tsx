@@ -93,7 +93,7 @@ export default async function SolutionPage({
       {solution.cover_image_src && (
         <section className="py-8">
           <Container>
-            <div className="relative aspect-[16/9] rounded-3xl overflow-hidden border border-(--outline)">
+            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden border border-(--outline)">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={solution.cover_image_src}

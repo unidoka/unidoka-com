@@ -1308,3 +1308,167 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 .mdx-editor-wrapper .cm-editor .cm-content {
   padding-top: 12px !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   MDXEDITOR — LIST MARKERS
+   ───────────────────────────────────────────────────────────────────
+   MDXEditor resets `list-style` on its contenteditable surface, so
+   <ul> and <ol> render as plain paragraphs — no bullets, no numbers.
+   This made the editor output unintelligible: a "list" looked like a
+   series of one-line paragraphs. Re-apply markers here so the editor
+   matches the rendered output 1:1.
+   ═══════════════════════════════════════════════════════════════════ */
+.mdx-editor-wrapper .mdxeditor-root-contenteditable ul,
+.mdx-editor-wrapper .mdx-editor-content ul {
+  list-style-type: disc !important;
+  padding-left: 1.5em !important;
+  margin: 0 0 12px !important;
+}
+.mdx-editor-wrapper .mdxeditor-root-contenteditable ul ul,
+.mdx-editor-wrapper .mdx-editor-content ul ul {
+  list-style-type: circle !important;
+}
+.mdx-editor-wrapper .mdxeditor-root-contenteditable ul ul ul,
+.mdx-editor-wrapper .mdx-editor-content ul ul ul {
+  list-style-type: square !important;
+}
+.mdx-editor-wrapper .mdxeditor-root-contenteditable ol,
+.mdx-editor-wrapper .mdx-editor-content ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5em !important;
+  margin: 0 0 12px !important;
+}
+.mdx-editor-wrapper .mdxeditor-root-contenteditable ol ol,
+.mdx-editor-wrapper .mdx-editor-content ol ol {
+  list-style-type: lower-alpha !important;
+}
+.mdx-editor-wrapper .mdxeditor-root-contenteditable ol ol ol,
+.mdx-editor-wrapper .mdx-editor-content ol ol ol {
+  list-style-type: lower-roman !important;
+}
+.mdx-editor-wrapper .mdxeditor-root-contenteditable li,
+.mdx-editor-wrapper .mdx-editor-content li {
+  display: list-item !important;
+  margin: 2px 0;
+}
+.mdx-editor-wrapper .mdxeditor-root-contenteditable li::marker,
+.mdx-editor-wrapper .mdx-editor-content li::marker {
+  color: var(--on-bg-medium);
+  font-weight: 500;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   MDXEDITOR IMAGE DIALOG — design-token overrides
+   ───────────────────────────────────────────────────────────────────
+   MDXEditor ships its own light-theme image dialog (white surface,
+   blue Save, grey Cancel) that ignores our design tokens entirely.
+   Result: a third-party-looking widget dropped into the admin panel.
+   The rules below remap the dialog chrome to our surface / border /
+   accent tokens.
+
+   The dialog is rendered via a React portal outside
+   `.mdx-editor-wrapper`, so these rules are intentionally global —
+   but scoped to MDXEditor's own class prefix (`mdxeditor-*`) so
+   they never bleed into our own Dialog primitive.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Dialog container */
+.mdxeditor-popup-container > div[role="dialog"],
+.mdxeditor-dialog,
+.mdxeditor-image-dialog {
+  background-color: var(--card) !important;
+  color: var(--on-bg-high) !important;
+  border: 1px solid var(--outline) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.35) !important;
+  font-family: var(--font-sans) !important;
+}
+
+/* Overlay scrim */
+.mdxeditor-dialog-overlay,
+.mdxeditor-popup-container > div[role="presentation"] {
+  background: rgba(0, 0, 0, 0.45) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* Headings / labels */
+.mdxeditor-dialog h1,
+.mdxeditor-dialog h2,
+.mdxeditor-dialog h3,
+.mdxeditor-image-dialog h1,
+.mdxeditor-image-dialog h2,
+.mdxeditor-image-dialog h3,
+.mdxeditor-dialog label,
+.mdxeditor-image-dialog label {
+  color: var(--on-bg-high) !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 500 !important;
+}
+.mdxeditor-dialog p,
+.mdxeditor-dialog span,
+.mdxeditor-image-dialog p,
+.mdxeditor-image-dialog span {
+  color: var(--on-bg-medium) !important;
+}
+
+/* Text inputs (URL + title) */
+.mdxeditor-dialog input:not([type="file"]),
+.mdxeditor-image-dialog input:not([type="file"]),
+.mdxeditor-dialog textarea,
+.mdxeditor-image-dialog textarea {
+  background: var(--bg) !important;
+  color: var(--on-bg-high) !important;
+  border: 1px solid var(--outline-strong) !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  font-family: var(--font-sans) !important;
+}
+.mdxeditor-dialog input::placeholder,
+.mdxeditor-image-dialog input::placeholder {
+  color: var(--on-bg-low) !important;
+  opacity: 1 !important;
+}
+
+/* Native file-picker button */
+.mdxeditor-dialog input[type="file"]::file-selector-button,
+.mdxeditor-image-dialog input[type="file"]::file-selector-button {
+  background: var(--primary) !important;
+  color: var(--on-primary) !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 6px 12px !important;
+  margin-right: 8px;
+  font-family: var(--font-sans) !important;
+  cursor: pointer;
+}
+
+/* Buttons — reset MDXEditor's blue / grey */
+.mdxeditor-dialog button,
+.mdxeditor-image-dialog button {
+  font-family: var(--font-sans) !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  padding: 8px 16px !important;
+  cursor: pointer;
+  transition: opacity 0.15s, background-color 0.15s;
+}
+.mdxeditor-dialog button[type="submit"],
+.mdxeditor-image-dialog button[type="submit"] {
+  background: var(--primary) !important;
+  color: var(--on-primary) !important;
+  border: 1px solid transparent !important;
+}
+.mdxeditor-dialog button[type="submit"]:hover,
+.mdxeditor-image-dialog button[type="submit"]:hover {
+  opacity: 0.85;
+}
+.mdxeditor-dialog button[type="button"]:not([type="submit"]),
+.mdxeditor-image-dialog button[type="button"]:not([type="submit"]) {
+  background: transparent !important;
+  color: var(--on-bg-high) !important;
+  border: 1px solid var(--outline) !important;
+}
+.mdxeditor-dialog button[type="button"]:not([type="submit"]):hover,
+.mdxeditor-image-dialog button[type="button"]:not([type="submit"]):hover {
+  background: var(--state-hover) !important;
+}
