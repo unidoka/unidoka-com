@@ -3,6 +3,7 @@
 import { CheckUser } from "@/entities/user/model/check-user";
 import { EventEditorForm } from "@/components/editor/event-editor-form";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
+import { crossSubdomainUrl } from "@/utils/root-domain";
 
 export default function NewEventPage() {
   const { secret } = useAdminSecret();
@@ -18,7 +19,7 @@ export default function NewEventPage() {
         <EventEditorForm
           editing={null}
           mode="admin"
-          redirectAfter={`/admin/${secret || ""}/events`}
+          redirectAfter={crossSubdomainUrl("admin", `/${secret || ""}/events`)}
         />
       </div>
     </CheckUser>

@@ -23,6 +23,7 @@ import {
   type Solution,
 } from "@/utils/api/solutions";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
+import { crossSubdomainUrl } from "@/utils/root-domain";
 
 const STATUS_META: Record<string, { label: string; cls: string }> = {
   published: { label: "Опубликовано", cls: "bg-emerald-500/40 text-white border-white/20" },
@@ -66,7 +67,7 @@ export default function AdminSolutionsPage() {
   if (userLoading || !user) return null;
   if (user.role !== "admin" && user.role !== "root") { router.push("/"); return null; }
 
-  const base = `/admin/${secret}/solutions`;
+  const base = crossSubdomainUrl("admin", `/${secret}/solutions`);
 
   const handleDelete = async (s: Solution) => {
     if (!confirm(`Удалить решение «${s.title}»?`)) return;

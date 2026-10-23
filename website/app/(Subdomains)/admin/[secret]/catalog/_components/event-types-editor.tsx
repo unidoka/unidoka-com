@@ -128,7 +128,7 @@ export function EventTypesEditor() {
           { key: "name", label: "Название", required: true },
           { key: "slug", label: "Slug (URL)" },
           { key: "icon", label: "Иконка (phosphor name)", placeholder: "cpu" },
-          { key: "color", label: "Цвет (hex)", placeholder: "#3b82f6" },
+          { key: "color", label: "Цвет", type: "color", placeholder: "#3b82f6" },
           { key: "sort_order", label: "Порядок", type: "number", default: 0 },
           { key: "is_active", label: "Активен", type: "boolean", default: true },
         ]}

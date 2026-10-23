@@ -284,12 +284,22 @@ function OrganizerEditorDialog({
               />
             </Field>
             <Field>
-              <FieldLabel>Цвет (hex)</FieldLabel>
-              <Input
-                value={form.color}
-                onChange={(e) => update("color", e.target.value)}
-                placeholder="#336DFF"
-              />
+              <FieldLabel>Цвет</FieldLabel>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={form.color || "#336DFF"}
+                  onChange={(e) => update("color", e.target.value)}
+                  className="size-10 rounded-lg border border-(--outline) cursor-pointer bg-transparent p-0.5 shrink-0"
+                  aria-label="Цвет организатора"
+                />
+                <Input
+                  value={form.color}
+                  onChange={(e) => update("color", e.target.value)}
+                  placeholder="#336DFF"
+                  className="font-mono text-body-4 flex-1"
+                />
+              </div>
             </Field>
             <Field className="md:col-span-2">
               <FieldLabel>Владелец (админ)</FieldLabel>

@@ -43,6 +43,7 @@ import {
   type EventTypeTaxonomy,
 } from "@/utils/api/event-taxonomies";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
+import { crossSubdomainUrl } from "@/utils/root-domain";
 
 export default function AdminEventsPage() {
   const { user, isLoading: userLoading } = useUser();
@@ -107,7 +108,7 @@ export default function AdminEventsPage() {
     return null;
   }
 
-  const base = `/admin/${secret}/events`;
+  const base = crossSubdomainUrl("admin", `/${secret}/events`);
 
   const clearFilters = () => {
     setQuery("");
@@ -135,7 +136,7 @@ export default function AdminEventsPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button variant="outlined" size="small" asChild>
-              <Link href={`/admin/${secret}/event-requests`}>
+              <Link href={crossSubdomainUrl("admin", `/${secret}/event-requests`)}>
                 <Receipt className="size-4" />
                 Все заявки
               </Link>

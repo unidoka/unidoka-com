@@ -30,7 +30,7 @@ export async function generateMetadata({
   const { username } = await params;
   const user = await fetchUserByUsernameServer(username);
   if (!user) {
-    return { title: "Пользователь не найден · Unidoka" };
+    return { title: "Пользователь не найден" };
   }
   const full = [user.name, user.surname].filter(Boolean).join(" ").trim();
   const display = full || "@" + (user.username ?? username);
@@ -41,7 +41,7 @@ export async function generateMetadata({
     ? `https://${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`
     : "http://localhost:3000";
   return {
-    title: `${display} · Unidoka`,
+    title: display,
     description: desc,
     openGraph: {
       title: display,

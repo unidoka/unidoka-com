@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { MagnifyingGlassIcon, ArrowClockwiseIcon, CircleNotchIcon, UserIcon, PhoneIcon, EnvelopeSimpleIcon, TelegramLogoIcon, ArrowSquareOutIcon } from "@phosphor-icons/react";
 import { $fetch } from "@/utils/fetch";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
+import { crossSubdomainUrl } from "@/utils/root-domain";
 interface ClientRow {
   id: string; name: string | null; phone: string | null; email: string | null;
   telegram_username: string | null; role_title: string | null;
@@ -111,7 +112,7 @@ export default function AdminClientsPage() {
                   </div>
                 </div>
                 <Button variant="outlined" size="small" asChild>
-                  <Link href={`/admin/${secret || "secret"}/orders`}><ArrowSquareOutIcon className="size-3.5" />Заявки</Link>
+                  <Link href={crossSubdomainUrl("admin", `/${secret || "secret"}/orders`)}><ArrowSquareOutIcon className="size-3.5" />Заявки</Link>
                 </Button>
               </Card>
             ))}

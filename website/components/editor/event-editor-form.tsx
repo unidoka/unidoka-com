@@ -54,7 +54,6 @@ interface Props {
 }
 
 const NO_ORGANIZER = "__none__";
-const OTHER_ORGANIZER = "__other__";
 
 export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
   const router = useRouter();
@@ -66,6 +65,7 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
 
   const [form, setForm] = useState({
     title: "",
+    slug: "",
     short_description: "",
     description: "",
     mdx_content: "",
@@ -116,6 +116,7 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
     if (!editing) return;
     setForm({
       title: editing.title,
+      slug: editing.slug,
       short_description: editing.short_description ?? "",
       description: editing.description ?? "",
       mdx_content: editing.mdx_content ?? "",
@@ -129,7 +130,7 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
       price: editing.price ?? "",
       capacity: editing.capacity ? String(editing.capacity) : "",
       registration_url: editing.registration_url ?? "",
-      organizer_id: editing.organizer?.id ?? (editing.custom_organizer_name ? OTHER_ORGANIZER : NO_ORGANIZER),
+      organizer_id: editing.organizer?.id ?? NO_ORGANIZER,
       custom_organizer_name: editing.custom_organizer_name ?? "",
       subdirection_ids: (editing.tags ?? []).map((t) => t.id),
       is_featured: editing.is_featured,
@@ -222,6 +223,7 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
 
       const payload: EventPayload = {
         title: form.title.trim(),
+        slug: form.slug.trim() || undefined,
         start_at: new Date(form.start_at).toISOString(),
         short_description: form.short_description.trim() || null,
         description: form.description.trim() || null,
@@ -239,13 +241,8 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
         capacity: form.capacity ? Number(form.capacity) : null,
         registration_url: form.registration_url.trim() || null,
         organizer_id:
-          form.organizer_id === NO_ORGANIZER || form.organizer_id === OTHER_ORGANIZER
-            ? null
-            : form.organizer_id,
-        custom_organizer_name:
-          form.organizer_id === OTHER_ORGANIZER
-            ? form.custom_organizer_name.trim() || null
-            : null,
+          form.organizer_id === NO_ORGANIZER ? null : form.organizer_id,
+        custom_organizer_name: editing?.custom_organizer_name ?? null,
         types: typeSelections.map((t) =>
           t.isCustom
             ? { custom_name: t.customName.trim() || "Другое" }
@@ -302,6 +299,22 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
           </FieldLabel>
           <Input value={form.title} onChange={(e) => set("title", e.target.value)} />
           {errors.title && <FieldError errors={[{ message: errors.title }]} />}
+        </Field>
+
+        <Field>
+          <FieldLabel>Slug (URL)</FieldLabel>
+          <Input
+            value={form.slug}
+            onChange={(e) =>
+              set("slug", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))
+            }
+            placeholder="auto from title"
+            className="font-mono text-body-4"
+          />
+          <p className="text-body-5 text-(--on-bg-low) mt-1">
+            Оставьте пустым — сгенерируется из названия. После сохранения менять
+            не рекомендуется (сломает внешние ссылки).
+          </p>
         </Field>
 
         <Field>
@@ -538,10 +551,7 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
           <FieldLabel>Кто проводит</FieldLabel>
           <Select
             value={form.organizer_id}
-            onValueChange={(v) => {
-              set("organizer_id", v);
-              if (v !== OTHER_ORGANIZER) set("custom_organizer_name", "");
-            }}
+            onValueChange={(v) => set("organizer_id", v)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Без организатора" />
@@ -575,26 +585,10 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
                   </span>
                 </SelectItem>
               ))}
-              <SelectItem value={OTHER_ORGANIZER}>
-                Другой организатор
-              </SelectItem>
             </SelectContent>
           </Select>
         </Field>
 
-        {form.organizer_id === OTHER_ORGANIZER && (
-          <Field>
-            <FieldLabel>Название организатора</FieldLabel>
-            <Input
-              value={form.custom_organizer_name}
-              onChange={(e) => set("custom_organizer_name", e.target.value)}
-              placeholder="Например, Университет ИТМО"
-            />
-            <p className="text-body-5 text-(--on-bg-low) mt-1">
-              Администратор проверит и добавит организатора в справочник.
-            </p>
-          </Field>
-        )}
 
         {selectedOrganizer && (
           <div className="flex items-center gap-3 rounded-2xl border border-(--outline) bg-(--bg) p-3">

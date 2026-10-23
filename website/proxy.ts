@@ -1,31 +1,12 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-/**
- * Host-based routing.
- *
- *   Real subdomains (have their own route folder under app/(Subdomains)/):
- *     app.*    → rewrite to /app/<path>
- *     admin.*  → rewrite to /admin/<path>
- *     0leak.*  → rewrite to /0leak/<path>
- *
- *   Vanity subdomains (no folder - they exist only as bookmarks / legacy):
- *     amorfa.*   → 302 to <root>/amorfa
- *     events.*   → 302 to <root>/events
- *     vershiny.* → 302 to <root>/vershiny_top
- *
- *   Everything else (root domain, plain routes) is served unchanged.
- *   /events, /vershiny_top, /amorfa are ROOT ROUTES, not subdomains.
- */
-
-// Subdomains that map to a single root route and should 302 there.
 const VANITY_SUBDOMAINS: Record<string, string> = {
   amorfa: '/amorfa',
   events: '/events',
   vershiny: '/vershiny_top',
 }
 
-// Subdomains that have their own route folder under app/(Subdomains)/.
 const REWRITE_SUBDOMAINS = new Set(['app', 'admin', '0leak'])
 
 export function proxy(request: NextRequest) {
@@ -39,16 +20,12 @@ export function proxy(request: NextRequest) {
   if (url.pathname.startsWith('/_next')) return NextResponse.next()
   if (url.pathname.startsWith('/api')) return NextResponse.next()
   if (url.pathname.startsWith('/dev-storage')) return NextResponse.next()
-  // Static assets - never rewrite these.
   if (url.pathname.includes('.')) return NextResponse.next()
 
-  // Root domain: normal route serving, no rewriting.
   if (!hostname || hostname === baseDomain) return NextResponse.next()
-
   const subdomain = hostname.split('.')[0]
   if (!subdomain || subdomain === baseDomain) return NextResponse.next()
 
-  // ── Vanity subdomain → 302 to the equivalent root route ──────────
   if (subdomain in VANITY_SUBDOMAINS) {
     const target = new URL(request.url)
     target.host = baseDomain
@@ -57,13 +34,19 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(target, 302)
   }
 
-  // ── Real subdomain → rewrite to its route folder ─────────────────
   if (REWRITE_SUBDOMAINS.has(subdomain)) {
-    url.pathname = `/${subdomain}${url.pathname}`
+    const prefix = `/${subdomain}`
+    // Already prefixed? (admin.example.com/admin/secret/users)
+    // Leave as-is — /admin/secret/users is a valid route.
+    // Otherwise prepend (admin.example.com/secret/users → /admin/secret/users).
+    // This makes the site work even when links were generated with the
+    // path-mode fallback (`/admin/...`) while running on a subdomain.
+    if (url.pathname !== prefix && !url.pathname.startsWith(`${prefix}/`)) {
+      url.pathname = `${prefix}${url.pathname}`
+    }
     return NextResponse.rewrite(url)
   }
 
-  // Unknown subdomain: fall through and render the root site.
   return NextResponse.next()
 }
 

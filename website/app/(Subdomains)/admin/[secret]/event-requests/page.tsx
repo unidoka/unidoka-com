@@ -34,6 +34,7 @@ import {
   type EventListItem,
 } from "@/utils/api/events";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
+import { crossSubdomainUrl } from "@/utils/root-domain";
 
 export default function AdminEventRequestsPage() {
   const { user, isLoading: userLoading } = useUser();
@@ -100,7 +101,7 @@ export default function AdminEventRequestsPage() {
     }
   };
 
-  const base = `/admin/${secret}`;
+  const base = crossSubdomainUrl("admin", `/${secret}`);
 
   return (
     <CheckUser permission="admin.events">

@@ -7,6 +7,7 @@ import { CircleNotchIcon, WarningIcon } from "@phosphor-icons/react";
 import { fetchAdminSolution, type Solution } from "@/utils/api/solutions";
 import { SolutionEditorForm } from "@/components/editor/solution-editor-form";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
+import { crossSubdomainUrl } from "@/utils/root-domain";
 
 export default function EditSolutionPage({
   params,
@@ -56,7 +57,7 @@ export default function EditSolutionPage({
         {solution && (
           <SolutionEditorForm
             editing={solution}
-            redirectAfter={`/admin/${secret || ""}/solutions`}
+            redirectAfter={crossSubdomainUrl("admin", `/${secret || ""}/solutions`)}
           />
         )}
       </div>

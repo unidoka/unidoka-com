@@ -3,6 +3,7 @@
 import { CheckUser } from "@/entities/user/model/check-user";
 import { SolutionEditorForm } from "@/components/editor/solution-editor-form";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
+import { crossSubdomainUrl } from "@/utils/root-domain";
 
 export default function NewSolutionPage() {
   const { secret } = useAdminSecret();
@@ -17,7 +18,7 @@ export default function NewSolutionPage() {
         </div>
         <SolutionEditorForm
           editing={null}
-          redirectAfter={`/admin/${secret || ""}/solutions`}
+          redirectAfter={crossSubdomainUrl("admin", `/${secret || ""}/solutions`)}
         />
       </div>
     </CheckUser>

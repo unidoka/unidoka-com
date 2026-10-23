@@ -30,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import { $fetch } from "@/utils/fetch";
 import { cn } from "@/lib/utils";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
+import { crossSubdomainUrl } from "@/utils/root-domain";
 
 interface Stats {
   total_users: number;
@@ -111,7 +112,7 @@ export default function AdminDashboard() {
     return null;
   }
 
-  const base = secret ? `/admin/${secret}` : "/admin";
+  const base = secret ? crossSubdomainUrl("admin", `/${secret}`) : "";
 
   return (
     <div className="space-y-4">

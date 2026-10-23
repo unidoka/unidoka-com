@@ -20,7 +20,7 @@ export async function generateMetadata({
   const solution = await fetchPublicSolutionServer(slug);
   if (!solution) return { title: "Solution not found" };
   return {
-    title: solution.seo_title || `${solution.title} · Unidoka`,
+    title: solution.seo_title || solution.title,
     description: solution.meta_description || solution.short_description || undefined,
     openGraph: {
       title: solution.seo_title || solution.title,

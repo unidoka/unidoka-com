@@ -76,9 +76,6 @@ export default function Header() {
             <NavLink href={rootLink(ROUTES.solutions.href)}>
               {t("nav.solutions")}
             </NavLink>
-            <NavLink href={rootLink(ROUTES.api.href)}>
-              {t("nav.api")}
-            </NavLink>
             <NavLink href={rootLink(ROUTES.crew.href)}>
               {t("nav.crew")}
             </NavLink>
@@ -133,14 +130,23 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <div className="hidden">
-              <Button size="small" variant="text" asChild>
+            <>
+              <Button
+                size="small"
+                variant="outlined"
+                className="hidden lg:inline-flex"
+                asChild
+              >
                 <Link href={rootLink("/login")}>{t("nav.login")}</Link>
               </Button>
-              <Button size="small" asChild>
+              <Button
+                size="small"
+                className="hidden xl:inline-flex"
+                asChild
+              >
                 <Link href={rootLink("/register")}>{t("nav.register")}</Link>
               </Button>
-            </div>
+            </>
           )}
 
           {/* Burger — visible below lg. On <sm it is the only control;

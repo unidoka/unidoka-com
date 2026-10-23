@@ -7,6 +7,7 @@ import { CircleNotchIcon, WarningIcon } from "@phosphor-icons/react";
 import { fetchAdminEvent, type EventDetail } from "@/utils/api/events";
 import { EventEditorForm } from "@/components/editor/event-editor-form";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
+import { crossSubdomainUrl } from "@/utils/root-domain";
 
 export default function EditEventPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
@@ -53,7 +54,7 @@ export default function EditEventPage({ params }: { params: Promise<{ slug: stri
           <EventEditorForm
             editing={event}
             mode="admin"
-            redirectAfter={`/admin/${secret || ""}/events`}
+            redirectAfter={crossSubdomainUrl("admin", `/${secret || ""}/events`)}
           />
         )}
       </div>

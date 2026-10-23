@@ -14,7 +14,6 @@ import {
   UploadSimpleIcon,
   WarningCircleIcon,
 } from "@phosphor-icons/react";
-
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { uploadImage } from "@/utils/api/uploads";
@@ -30,28 +29,13 @@ interface Props {
   variant?: "avatar" | "cover" | "square";
   className?: string;
   fallbackText?: string;
-  /**
-   * When true, the internal button row is not rendered - the parent is
-   * expected to drive the picker through the ref's `openPicker()` method.
-   * Use this when the buttons belong in a different part of the layout.
-   */
   hideActions?: boolean;
 }
 
 export interface ImageUploadFieldHandle {
-  /** Open the OS file picker. No-op if the field is unmounted. */
   openPicker: () => void;
 }
 
-/**
- * Pick → crop → upload → onChange(url).
- *
- * Renders as a plain <img> on purpose: next/image routes through the
- * server-side optimizer, which fetches `src` outside the browser and
- * bypasses next.config.ts rewrites, so dev builds get 400s on /order_files.
- * The uploaded file is already a 512×512 WebP produced by our own cropper,
- * so there is nothing to optimize.
- */
 export const ImageUploadField = forwardRef<ImageUploadFieldHandle, Props>(
   function ImageUploadField(
     {
@@ -72,18 +56,11 @@ export const ImageUploadField = forwardRef<ImageUploadFieldHandle, Props>(
     const [cropFile, setCropFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
     const [errored, setErrored] = useState(false);
+    const [dragOver, setDragOver] = useState(false);
 
-    useImperativeHandle(
-      ref,
-      () => ({
-        openPicker: () => inputRef.current?.click(),
-      }),
-      [],
-    );
+    useImperativeHandle(ref, () => ({ openPicker: () => inputRef.current?.click() }), []);
 
-    const onSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      e.target.value = "";
+    const acceptFile = (file: File | null | undefined) => {
       if (!file) return;
       if (!file.type.startsWith("image/")) {
         toast.error("Можно загружать только изображения");
@@ -96,15 +73,18 @@ export const ImageUploadField = forwardRef<ImageUploadFieldHandle, Props>(
       setCropFile(file);
     };
 
+    const onSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      e.target.value = "";
+      acceptFile(file);
+    };
+
     const onComplete = async (blob: Blob, filename: string) => {
       setCropFile(null);
       setUploading(true);
       setErrored(false);
       try {
-        const url = await uploadImage(
-          new File([blob], filename, { type: blob.type }),
-          filename,
-        );
+        const url = await uploadImage(new File([blob], filename, { type: blob.type }), filename);
         onChange(url);
         toast.success("Изображение загружено");
       } catch (err: any) {
@@ -119,31 +99,64 @@ export const ImageUploadField = forwardRef<ImageUploadFieldHandle, Props>(
       onChange("");
     };
 
+    const handleDrop = (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDragOver(false);
+      acceptFile(e.dataTransfer.files?.[0]);
+    };
+
+    const handleDragOver = (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!dragOver) setDragOver(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDragOver(false);
+    };
+
+    const handlePaste = (e: React.ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of items) {
+        if (item.type.startsWith("image/")) {
+          const file = item.getAsFile();
+          if (file) {
+            e.preventDefault();
+            acceptFile(file);
+            return;
+          }
+        }
+      }
+    };
+
     const isAvatar = variant === "avatar";
     const showImage = !!value && !errored;
     const initials = fallbackText?.slice(0, 2).toUpperCase() || "";
+    const showAspectStyle = variant === "cover" || variant === "square";
 
     return (
       <div className={cn("flex flex-col gap-3", className)}>
-        <input
-          ref={inputRef}
-          type="file"
-          accept={accept}
-          onChange={onSelect}
-          className="hidden"
-        />
+        <input ref={inputRef} type="file" accept={accept} onChange={onSelect} className="hidden" />
 
-        {/* ── Preview ─────────────────────────────────────────── */}
         <div
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onPaste={handlePaste}
+          tabIndex={0}
           className={cn(
-            "relative overflow-hidden border border-(--outline)",
+            "relative overflow-hidden border border-(--outline) outline-none transition-colors",
+            dragOver && "border-(--primary) bg-(--primary-glass)",
             isAvatar && "size-32 rounded-full",
-            variant === "cover" && "w-full aspect-[16/9] rounded-2xl",
-            variant === "square" && "w-full aspect-square rounded-2xl",
+            (variant === "cover" || variant === "square") && "w-full rounded-2xl",
           )}
+          style={showAspectStyle ? { aspectRatio: String(aspect) } : undefined}
         >
           {showImage ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
             <img
               src={value}
               alt=""
@@ -168,23 +181,24 @@ export const ImageUploadField = forwardRef<ImageUploadFieldHandle, Props>(
                   </span>
                 </>
               ) : isAvatar && initials ? (
-                <span className="text-2xl font-semibold tracking-tight">
-                  {initials}
-                </span>
+                <span className="text-2xl font-semibold tracking-tight">{initials}</span>
               ) : (
                 <CameraIcon className="size-7 opacity-70" />
               )}
             </div>
           )}
-
           {uploading && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm">
               <CircleNotchIcon className="size-6 animate-spin text-white" />
             </div>
           )}
+          {dragOver && !uploading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-(--primary-glass) backdrop-blur-sm pointer-events-none">
+              <p className="text-body-3 font-medium text-(--primary)">Отпустите, чтобы загрузить</p>
+            </div>
+          )}
         </div>
 
-        {/* ── Internal actions (opt-out via hideActions) ──────── */}
         {!hideActions && (
           <div className="flex flex-wrap gap-2">
             <Button
@@ -206,12 +220,15 @@ export const ImageUploadField = forwardRef<ImageUploadFieldHandle, Props>(
                 disabled={uploading}
                 className="text-(--error)"
               >
-                <TrashIcon className="size-4" />
-                Удалить
+                <TrashIcon className="size-4" /> Удалить
               </Button>
             )}
           </div>
         )}
+
+        <p className="text-body-5 text-(--on-bg-low) leading-relaxed">
+          Перетащите файл, вставьте из буфера или нажмите «Загрузить». До {maxSizeMb} МБ.
+        </p>
 
         <ImageCropDialog
           file={cropFile}

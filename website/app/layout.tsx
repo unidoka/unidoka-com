@@ -18,28 +18,33 @@ const SITE_URL = process.env.NEXT_PUBLIC_ROOT_DOMAIN
   ? `https://${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`
   : "http://localhost:3000";
 
+const SITE_TITLE = "Unidoka - студия цифровых продуктов";
+const SITE_DESCRIPTION =
+  "Разработка, дизайн, 3D и брендинг. Open-source фреймворк Amorfa, календарь IT-событий и сообщество специалистов.";
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "unidoka.com - IT-события для своих",
+    default: SITE_TITLE,
     template: `%s | unidoka.com`,
   },
-  description:
-    "unidoka.com - закрытое IT-сообщество. События, статьи, нетворкинг и проекты для разработчиков, дизайнеров и продактов.",
+  description: SITE_DESCRIPTION,
+  alternates: {
+    canonical: SITE_URL,
+  },
   openGraph: {
     type: "website",
     locale: "ru_RU",
     url: SITE_URL,
-    siteName: "unidoka.com",
-    title: "unidoka.com - IT-события для своих",
-    description:
-      "Закрытое IT-сообщество. События, статьи, нетворкинг и проекты.",
+    siteName: "Unidoka",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
     images: [`${SITE_URL}/og.jpg`],
   },
   twitter: {
     card: "summary_large_image",
-    title: "unidoka.com - IT-события для своих",
-    description: "Закрытое IT-сообщество. События, статьи, нетворкинг.",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
     images: [`${SITE_URL}/og.jpg`],
   },
   robots: {

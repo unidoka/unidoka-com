@@ -389,6 +389,13 @@ export function PlacementEditorDialog({
             <Field>
               <FieldLabel>Акцентный цвет (опционально)</FieldLabel>
               <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={form.accent_color || "#336DFF"}
+                  onChange={(e) => set("accent_color", e.target.value)}
+                  className="size-10 rounded-lg border border-(--outline) cursor-pointer bg-transparent p-0.5 shrink-0"
+                  aria-label="Акцентный цвет"
+                />
                 <Input
                   value={form.accent_color ?? ""}
                   onChange={(e) => set("accent_color", e.target.value)}
@@ -396,13 +403,16 @@ export function PlacementEditorDialog({
                   className="font-mono text-body-4 max-w-[180px]"
                 />
                 {form.accent_color && (
-                  <Badge variant="tonal-card-static" size="chip-small">
-                    <span
-                      className="inline-block size-3 rounded-sm mr-1"
-                      style={{ background: form.accent_color }}
-                    />
-                    {form.accent_color}
-                  </Badge>
+                  <Button
+                    type="button"
+                    variant="text"
+                    size="icon-small"
+                    onClick={() => set("accent_color", "")}
+                    aria-label="Очистить цвет"
+                    className="text-(--on-bg-low)"
+                  >
+                    <TrashIcon className="size-3.5" />
+                  </Button>
                 )}
               </div>
               <p className="text-body-5 text-(--on-bg-low) mt-1">
