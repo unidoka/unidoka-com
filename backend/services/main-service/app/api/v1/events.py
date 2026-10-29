@@ -57,6 +57,29 @@ def _unique_slug(db: Session, base: str, exclude_id: Optional[uuid.UUID] = None)
         slug = f"{base}-{n}"
 
 
+def _autofill_seo(
+    title: str,
+    short_description: Optional[str],
+    description: Optional[str],
+    seo_title: Optional[str],
+    meta_description: Optional[str],
+) -> tuple[Optional[str], Optional[str]]:
+    """Fill seo_title / meta_description if the caller left them blank.
+
+    Slug is already auto-generated from the title via slugify() +
+    _unique_slug(); this is the same idea for the two SEO strings.
+
+    Truncation targets come from Google's display limits: ~60 chars
+    for the title, ~155 for the description. Both are stored as
+    TEXT in the DB, so the truncation is a display-only convention
+    that admins can override by editing the field directly.
+    """
+    final_seo = seo_title or ((title or "")[:60] or None)
+    source = short_description or description or title or ""
+    final_meta = meta_description or (source[:155] or None)
+    return final_seo, final_meta
+
+
 def _serialize_event(event: Event, full: bool = False) -> dict:
     """Build the response dict from the ORM object."""
     tags = [
@@ -304,7 +327,29 @@ async def list_directions_public(db: Session = Depends(get_db)):
 
 @router.get("/{slug}", response_model=EventDetail)
 async def get_public_event(slug: str, db: Session = Depends(get_db)):
+    """Look up an approved event by slug, with UUID fallback.
+
+    The public URL is /events/{id}/{slug}. The frontend still calls
+    this endpoint with the slug, but if a slug is ever changed and
+    a stale link with the old ID is presented, the frontend can
+    retry the lookup by ID via this fallback. Both keys are tried
+    so old URLs and new URLs converge on the same event.
+    """
     event = _load_event(db, slug)
+    if not event:
+        try:
+            event_id = uuid.UUID(slug)
+            event = (
+                db.query(Event)
+                .options(
+                    selectinload(Event.subdirections),
+                    selectinload(Event.type_assignments),
+                )
+                .filter(Event.id == event_id, Event.deleted_at.is_(None))
+                .first()
+            )
+        except ValueError:
+            pass
     if not event or event.status != EventStatus.approved:
         raise HTTPException(404, "Event not found")
     return _serialize_event(event, full=True)
@@ -334,6 +379,10 @@ async def submit_event(
         if not exists:
             raise HTTPException(400, "Organizer not found")
 
+    seo_title, meta_desc = _autofill_seo(
+        payload.title, payload.short_description, payload.description, None, None
+    )
+
     event = Event(
         slug=slug,
         title=payload.title,
@@ -352,6 +401,8 @@ async def submit_event(
         capacity=payload.capacity,
         registration_url=payload.registration_url,
         organizer_id=org_id,
+        seo_title=seo_title,
+        meta_description=meta_desc,
         status=EventStatus.pending,
         submitted_by_id=current_user.id,
     )

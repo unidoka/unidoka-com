@@ -19,6 +19,7 @@ import {
 } from "@phosphor-icons/react";
 import {
   fetchPublishedEventsClient,
+  eventUrl,
   type EventListItem,
 } from "@/utils/api/events";
 import { useLanguage } from "@/providers/language-provider";
@@ -467,7 +468,7 @@ export default function VershinyPage() {
                       asChild
                     >
                       <Link
-                        href={`/events/${featured.slug}`}
+                        href={eventUrl(featured)}
                         aria-label={t("vershiny.events_all")}
                       >
                         <ArrowRight />
@@ -485,7 +486,7 @@ export default function VershinyPage() {
                   rest.map((e, i) => (
                     <Link
                       key={e.id}
-                      href={`/events/${e.slug}`}
+                      href={eventUrl(e)}
                       className="group flex items-start gap-5 py-5 first:pt-0 last:pb-0"
                     >
                       <span className="text-display-4 text-(--on-bg-low) tabular-nums w-10 shrink-0">

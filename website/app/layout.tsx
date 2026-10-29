@@ -14,9 +14,9 @@ export const Geist = localFont({
   variable: "--font-sans",
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_ROOT_DOMAIN
-  ? `https://${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`
-  : "http://localhost:3000";
+const rawRoot = (process.env.NEXT_PUBLIC_ROOT_DOMAIN || "").trim();
+const cleanRoot = rawRoot.replace(/^https?:\/\//i, "").replace(/\/.*$/, "");
+const SITE_URL = cleanRoot ? `https://${cleanRoot}` : "http://localhost:3000";
 
 const SITE_TITLE = "Unidoka - студия цифровых продуктов";
 const SITE_DESCRIPTION =

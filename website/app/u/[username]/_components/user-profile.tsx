@@ -24,7 +24,7 @@ import { colorForOrganizer } from "@/app/events/_components/organizer-meta";
 import { useLanguage } from "@/providers/language-provider";
 import { useUser } from "@/entities/user/model/user-context";
 import type { PublicUser } from "@/utils/api/users";
-import type { EventListItem } from "@/utils/api/events";
+import { eventUrl, type EventListItem } from "@/utils/api/events";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -410,7 +410,7 @@ function EventCard({
 
   return (
     <Link
-      href={`/events/${event.slug}`}
+      href={eventUrl(event)}
       className="group relative flex flex-col rounded-3xl border border-(--outline) bg-(--card) overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:border-(--on-bg-high)"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-(--bg-disabled)">

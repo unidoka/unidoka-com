@@ -17,7 +17,7 @@ import {
   XCircleIcon,
   WarningCircleIcon,
 } from "@phosphor-icons/react";
-import { fetchMyEventSubmissions, type EventListItem } from "@/utils/api/events";
+import { fetchMyEventSubmissions, eventUrl, type EventListItem } from "@/utils/api/events";
 import { cn } from "@/lib/utils";
 
 const STATUS_META: Record<
@@ -160,7 +160,7 @@ export default function MyEventsPage() {
                     {ev.status === "approved" && (
                       <Button variant="outlined" size="small" asChild>
                         <Link
-                          href={`/events/${ev.slug}`}
+                          href={eventUrl(ev)}
                           target="_blank"
                           rel="noopener noreferrer"
                         >

@@ -119,6 +119,18 @@ export interface EventDetail extends EventListItem {
   reviewed_at?: string | null;
 }
 
+/**
+ * Canonical public URL for a single event.
+ *
+ * Includes both the immutable id and the slug. The slug is the
+ * lookup key the backend uses; the id makes the URL stable if the
+ * slug is ever edited. A mismatch between id and slug triggers a
+ * 307 redirect to the canonical form on the page component.
+ */
+export function eventUrl(event: Pick<EventListItem, "id" | "slug">): string {
+  return `/events/${event.id}/${event.slug}`;
+}
+
 export interface EventTypeInput {
   type_id?: string | null;
   custom_name?: string | null;

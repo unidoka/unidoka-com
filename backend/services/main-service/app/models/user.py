@@ -46,6 +46,10 @@ class User(Base):
     receives_order_notifications = Column(
         Boolean, default=False, nullable=False
     )
+
+    # 2FA (TOTP)
+    two_factor_secret = Column(String, nullable=True)
+    two_factor_enabled = Column(Boolean, default=False, nullable=False)
     # Admin-panel page access. Ignored for `root` (root bypasses every
     # check) and for `user`/`client` (role gate fires first). Read on
     # every request by `app.shared.permissions.has_permission`, so a

@@ -20,7 +20,4 @@ services:
     restart: unless-stopped
 
 networks:
-  main-network-dev:
-    name: main-network-dev
-    external: false
   default:

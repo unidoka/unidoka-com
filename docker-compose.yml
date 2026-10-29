@@ -1,4 +1,4 @@
-name: rovno-dev
+name: unidoka-com
 include:
 #  - tg-bot/docker-compose.yml
   - backend/docker-compose.yml

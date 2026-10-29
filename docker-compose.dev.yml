@@ -23,3 +23,29 @@ include:
   - backend/docker-compose.dev.yml
   - tg-bot/docker-compose.yml
   - tg-bot/docker-compose.dev.yml
+services:
+  traefik-dev:
+    image: traefik:latest
+    container_name: traefik-dev
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=rovno.dev@mail.ru"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--api.insecure=${TRAEFIK_API_INSECURE:-false}"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+    networks:
+      - main-network-dev
+
+networks:
+  main-network-dev:
+    name: main-network-dev
+    driver: bridge

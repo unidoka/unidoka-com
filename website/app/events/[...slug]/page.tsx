@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -15,35 +15,79 @@ import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { fetchEventServer } from "@/utils/api/events";
-import { colorForOrganizer } from "../_components/organizer-meta";
+import { colorForOrganizer } from "@/app/events/_components/organizer-meta";
 
 export const revalidate = 60;
+
+/**
+ * Catch-all route to handle both:
+ *   - /events/[id]/[slug]  (new canonical URL)
+ *   - /events/[slug]       (legacy URL, redirects to canonical)
+ *
+ * Next.js forbids having `[slug]` and `[id]` folders side-by-side,
+ * so we use `[...slug]` (an array) and branch based on its length.
+ */
+
+function absoluteUrl(
+  path: string | null | undefined,
+  siteUrl: string,
+): string | undefined {
+  if (!path) return undefined;
+  const trimmed = path.trim();
+  if (!trimmed) return undefined;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `${siteUrl}${trimmed.startsWith("/") ? "" : "/"}${trimmed}`;
+}
+
+function siteOrigin(): string {
+  const proto = process.env.NEXT_PUBLIC_HTTP_PROTOCOL || "https";
+  const rawRoot = (process.env.NEXT_PUBLIC_ROOT_DOMAIN || "").trim();
+  const cleanRoot = rawRoot.replace(/^https?:\/\//i, "").replace(/\/.*$/, "");
+  if (cleanRoot) return `${proto}://${cleanRoot}`;
+  return "http://localhost:3000";
+}
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string[] }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const event = await fetchEventServer(slug);
-  if (!event) return { title: "Событие не найдено · unidoka.com" };
+  
+  // If it's a 1-segment URL (legacy), we'll redirect in the main component.
+  // We return a basic title here just in case, but the redirect will fire first.
+  if (!slug || slug.length !== 2) return { title: "Событие" };
+
+  const eventSlug = slug[1];
+  const event = await fetchEventServer(eventSlug);
+  if (!event) return { title: "Событие не найдено" };
+
+  const siteUrl = siteOrigin();
+  const title = event.seo_title || event.title;
+  const description = event.meta_description || event.short_description || undefined;
+  const canonicalUrl = `${siteUrl}/events/${event.id}/${event.slug}`;
+
+  const cover = absoluteUrl(event.cover_image_src, siteUrl);
+  const imageUrl = cover ?? `${siteUrl}/og-default.png`;
+
   return {
-    title: event.seo_title || event.title,
-    description:
-      event.meta_description || event.short_description || undefined,
+    title,
+    description,
+    alternates: { canonical: canonicalUrl },
     openGraph: {
-      title: event.seo_title || event.title,
-      description:
-        event.meta_description || event.short_description || undefined,
-      images: event.cover_image_src ? [event.cover_image_src] : undefined,
       type: "article",
+      url: canonicalUrl,
+      title,
+      description,
+      siteName: "Unidoka",
+      locale: "ru_RU",
+      images: [{ url: imageUrl, alt: event.title }],
     },
     twitter: {
       card: "summary_large_image",
-      title: event.seo_title || event.title,
-      description:
-        event.meta_description || event.short_description || undefined,
-      images: event.cover_image_src ? [event.cover_image_src] : undefined,
+      title,
+      description,
+      images: [imageUrl],
     },
   };
 }
@@ -51,12 +95,42 @@ export async function generateMetadata({
 export default async function EventPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string[] }>;
 }) {
   const { slug } = await params;
-  const event = await fetchEventServer(slug);
-  if (!event) notFound();
 
+  // Guard against /events or /events/a/b/c
+  if (!slug || slug.length === 0 || slug.length > 2) {
+    notFound();
+  }
+
+  // ── Case 1: Legacy /events/[slug] ────────────────────────────────
+  if (slug.length === 1) {
+    const legacySlug = slug[0];
+    const event = await fetchEventServer(legacySlug);
+    if (!event) notFound();
+    
+    // 307 redirect to the new canonical URL
+    redirect(`/events/${event.id}/${event.slug}`);
+  }
+
+  // ── Case 2: New /events/[id]/[slug] ──────────────────────────────
+  const [id, eventSlug] = slug;
+  const event = await fetchEventServer(eventSlug);
+
+  if (!event) {
+    // Slug may have been edited. Retry by ID.
+    const byId = await fetchEventServer(id);
+    if (byId) redirect(`/events/${byId.id}/${byId.slug}`);
+    notFound();
+  }
+
+  // Slug matched but ID doesn't — user edited the UUID in the URL bar.
+  if (event.id !== id) {
+    redirect(`/events/${event.id}/${event.slug}`);
+  }
+
+  // ── Render ───────────────────────────────────────────────────────
   const color = colorForOrganizer(event.organizer);
   const start = event.start_at ? new Date(event.start_at) : null;
   const end = event.end_at ? new Date(event.end_at) : null;

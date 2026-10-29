@@ -33,6 +33,11 @@ COPY . .
 # 1024 keeps V8 GCing aggressively instead.
 # The cache mount persists .next/cache across runs, so unchanged pages
 # skip recompilation. Requires BuildKit (default in Docker 23+).
+RUN if [ -z "$NEXT_PUBLIC_ROOT_DOMAIN" ]; then \
+      echo "WARN: NEXT_PUBLIC_ROOT_DOMAIN is empty at build time — cross-subdomain links will use path mode."; \
+    fi \
+    && echo "  NEXT_PUBLIC_ROOT_DOMAIN=$NEXT_PUBLIC_ROOT_DOMAIN"
+
 RUN --mount=type=cache,target=/app/.next/cache \
     NODE_OPTIONS="--max-old-space-size=1024" \
     npm run build

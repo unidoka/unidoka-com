@@ -31,6 +31,7 @@ import {
   fetchAdminEvents,
   approveEvent,
   rejectEvent,
+  eventUrl,
   type EventListItem,
 } from "@/utils/api/events";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
@@ -261,7 +262,7 @@ export default function AdminEventRequestsPage() {
                         Отклонить
                       </Button>
                       <Button size="small" variant="text" asChild className="ml-auto">
-                        <Link href={`/events/${ev.slug}`} target="_blank">
+                        <Link href={eventUrl(ev)} target="_blank">
                           <ArrowSquareOutIcon className="size-4" />
                           Открыть
                         </Link>

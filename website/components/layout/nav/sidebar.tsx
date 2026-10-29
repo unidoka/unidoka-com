@@ -58,6 +58,23 @@ function toPath(href: string): string {
   return href;
 }
 
+/**
+ * Returns all forms of a path that should be considered equivalent
+ * for active-state matching.
+ *
+ * The client router may report the subdomain-rewritten path
+ * (`/admin/secret/users`) even when the browser URL is the raw form
+ * (`/secret/users`), or vice versa depending on how the middleware
+ * rewrote the request. Comparing every combination of both forms
+ * makes the match tolerant to either.
+ */
+function pathForms(path: string): string[] {
+  const forms = new Set<string>([path]);
+  const stripped = path.replace(/^\/(admin|app|0leak)(\/.*)?$/, "$2") || "/";
+  if (stripped !== path) forms.add(stripped);
+  return [...forms];
+}
+
 export function Sidebar({
   items,
   basePath,
@@ -123,8 +140,14 @@ export function Sidebar({
 
   const isActive = (href: string, exact?: boolean): boolean => {
     const target = toPath(`${basePath}${href}`);
-    if (exact) return currentPath === target;
-    return currentPath === target || currentPath.startsWith(target + "/");
+    const targetForms = pathForms(target);
+    const currentForms = pathForms(currentPath);
+    for (const t of targetForms) {
+      for (const c of currentForms) {
+        if (exact ? c === t : c === t || c.startsWith(t + "/")) return true;
+      }
+    }
+    return false;
   };
 
   // Resolve a group's expansion state: explicit user choice wins,

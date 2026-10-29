@@ -34,6 +34,7 @@ import {
 import { cn } from "@/lib/utils";
 import {
   fetchAdminEvents,
+  eventUrl,
   type EventListItem,
 } from "@/utils/api/events";
 import {
@@ -376,7 +377,7 @@ export default function AdminEventsPage() {
                       size="icon-small"
                       asChild
                     >
-                      <Link href={`/events/${ev.slug}`} target="_blank">
+                      <Link href={eventUrl(ev)} target="_blank">
                         <ArrowSquareOutIcon className="size-4" />
                       </Link>
                     </Button>
