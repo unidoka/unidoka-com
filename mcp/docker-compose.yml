@@ -1,0 +1,46 @@
+# MCP server (prod). Included by the root docker-compose.yml.
+#
+# Routing: Traefik picks up the labels and routes PathPrefix(/mcp) to
+# this service. `priority=200` beats the frontend router (priority=1,
+# Host(unidoka.com) matches everything on the root host), and beats
+# main-service (priority=100, /api/v1 + /docs + /health).
+#
+# Networking: mcp-server talks to main-service over the internal
+# Docker network (`http://main-service:8000`). It forwards the user's
+# API key on each outgoing call, so the backend applies its own role
+# and permission checks — the MCP layer only enforces "key is present".
+services:
+  mcp-server:
+    image: unidoka-mcp:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp-server
+    environment:
+      - UNIDOKA_API_BASE=http://main-service:8000
+    networks:
+      - main-network
+    restart: unless-stopped
+    stop_grace_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mcp-server.rule=PathPrefix(`/mcp`)"
+      - "traefik.http.routers.mcp-server.priority=200"
+      - "traefik.http.routers.mcp-server.entrypoints=${ENTRYPOINT}"
+      - "traefik.http.routers.mcp-server.tls=${TLS_ENABLED}"
+      - "traefik.http.routers.mcp-server.tls.certresolver=${CERT_RESOLVER}"
+      - "traefik.http.services.mcp-server.loadbalancer.server.port=8001"
+
+networks:
+  main-network:
+    name: main-network
+    external: true

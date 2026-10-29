@@ -15,6 +15,7 @@ import {
   CalendarBlank,
   FolderSimple,
   Megaphone,
+  Key,
 } from "@phosphor-icons/react";
 
 interface AdminNavItem extends SidebarItem {
@@ -111,6 +112,12 @@ export function AdminSidebar() {
         { label: t("admin.marketing_placements"), href: "/marketing/placements" },
         { label: t("admin.marketing_tools"), href: "/marketing/tools" },
       ],
+    },
+    {
+      label: "API-ключи",
+      href: "/api-keys",
+      icon: Key,
+      permission: "admin.apikeys",
     },
   ];
 

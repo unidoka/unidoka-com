@@ -22,11 +22,17 @@ const nextConfig: NextConfig = {
   async rewrites() {
     if (!isDev || hasAbsoluteApi) return [];
     const backend = process.env.DEV_BACKEND_URL || "http://localhost:8000";
+    const mcp = process.env.DEV_MCP_URL || "http://localhost:8001";
     return [
       { source: "/api/v1/:path*", destination: `${backend}/api/v1/:path*` },
       { source: "/docs", destination: `${backend}/docs` },
       { source: "/docs/:path*", destination: `${backend}/docs/:path*` },
       { source: "/health", destination: `${backend}/health` },
+      // MCP over HTTP — same URL shape as prod (`https://.../mcp`),
+      // so clients configured in dev against `http://localhost:3000/mcp`
+      // work identically in prod against `https://unidoka.com/mcp`.
+      { source: "/mcp", destination: `${mcp}/mcp` },
+      { source: "/mcp/:path*", destination: `${mcp}/mcp/:path*` },
     ];
   },
   // LLM context: on a 1-CPU box, webpack spends most of its time

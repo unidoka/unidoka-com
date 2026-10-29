@@ -1,6 +1,7 @@
 name: unidoka-com
 include:
 #  - tg-bot/docker-compose.yml
+  - mcp/docker-compose.yml
   - backend/docker-compose.yml
   - website/docker-compose.yml
   - tg-bot/docker-compose.yml

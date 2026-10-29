@@ -6,7 +6,7 @@ import { useLanguage } from "@/providers/language-provider";
 import { Button } from "@/components/ui/button";
 import {
   SignOutIcon, UserIcon, GearIcon, BriefcaseIcon, NewspaperIcon,
-  CalendarBlankIcon,
+  CalendarBlankIcon, Key,
 } from "@phosphor-icons/react";
 
 export function ProfileSidebar() {
@@ -20,6 +20,7 @@ export function ProfileSidebar() {
     { label: "Мои события", href: "/profile/events", icon: CalendarBlankIcon },
     { label: "Настройки", href: "/profile/settings", icon: GearIcon, exact: true },
     { label: "Безопасность", href: "/profile/security", icon: BriefcaseIcon, exact: true },
+    { label: "API-ключи", href: "/profile/api-keys", icon: Key },
   ];
 
   const handleLogout = async () => {

@@ -18,6 +18,7 @@ from app.schemas.event import (
 )
 from app.api.v1.events import _serialize_event, _unique_slug, _apply_types_and_tags, slugify
 from app.shared.auth import get_current_user
+from app.shared.api_key_auth import get_current_user_or_api_key
 from app.shared.permissions import require_permission
 from database.database import get_db
 
@@ -27,7 +28,7 @@ router = APIRouter(prefix="/admin", tags=["admin-events"])
 logger = logging.getLogger(__name__)
 
 
-def require_admin(current_user: User = Depends(get_current_user)) -> User:
+def require_admin(current_user: User = Depends(get_current_user_or_api_key)) -> User:
     if current_user.user_role not in (UserRole.admin, UserRole.root):
         raise HTTPException(403, "Admin role required")
     return current_user

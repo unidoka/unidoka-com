@@ -51,6 +51,7 @@ ADMIN_PERMISSIONS: frozenset[str] = frozenset({
     "admin.catalog",
     "admin.vershiny",
     "admin.marketing",
+    "admin.apikeys",
 })
 
 

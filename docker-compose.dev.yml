@@ -23,6 +23,8 @@ include:
   - backend/docker-compose.dev.yml
   - tg-bot/docker-compose.yml
   - tg-bot/docker-compose.dev.yml
+  - mcp/docker-compose.yml
+  - mcp/docker-compose.dev.yml
 services:
   traefik-dev:
     image: traefik:latest

@@ -25,6 +25,7 @@ export const ADMIN_PERMISSIONS = [
   { key: "admin.catalog", label: "Каталоги" },
   { key: "admin.vershiny", label: "Вершины" },
   { key: "admin.marketing", label: "Маркетинг" },
+  { key: "admin.apikeys", label: "API-ключи" },
 ] as const;
 
 export type AdminPermission = (typeof ADMIN_PERMISSIONS)[number]["key"];

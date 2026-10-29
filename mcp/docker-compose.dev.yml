@@ -1,0 +1,33 @@
+# Dev override for mcp/docker-compose.yml.
+#
+# Differences from prod:
+#   • Port 8001 is forwarded to the host so `http://localhost:8001/mcp`
+#     works without Traefik.
+#   • Source tree is bind-mounted and uvicorn runs with --reload for
+#     hot reload during development.
+#   • No Traefik — Traefik-dev lives on `main-network-dev` and doesn't
+#     see this service (which needs `main-network` to reach main-service).
+services:
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./unidoka_events_mcp:/app/unidoka_events_mcp
+    command:
+      - "uvicorn"
+      - "unidoka_events_mcp.http_server:app"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "8001"
+      - "--reload"
+    environment:
+      - UNIDOKA_API_BASE=http://main-service:8000
+      - PYTHONUNBUFFERED=1
+    deploy:
+      resources:
+        limits:
+          memory: 512M
