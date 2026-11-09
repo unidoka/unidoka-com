@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { NavLink } from "./nav-link";
 import { User, CaretLeftIcon } from "@phosphor-icons/react";
 import { useUser } from "@/entities/user/model/user-context";
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, type ReactNode } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
@@ -18,18 +18,38 @@ import { CycleText } from "./cycle-text";
 import { QuickOrderDialog } from "@/components/ui/quick-order-dialog";
 import { TelemostStackIcon } from "@/components/icons/telemost-stack-icon";
 import { Container } from "@/components/ui/container";
+import { AmorfaLogo } from "@/components/icons/logotypes/amorfa-logo";
+import { VershinyLogo } from "@/components/icons/logotypes/vershiny-logo";
 
-const NAV_LINKS = [
+interface NavItem {
+  href: string;
+  labelKey: string;
+  fallback: string;
+  icon?: ReactNode;
+}
+
+const NAV_LINKS: NavItem[] = [
   { href: "/events", labelKey: "nav.events", fallback: "События" },
   { href: "/solutions", labelKey: "nav.solutions", fallback: "Решения" },
-  { href: "/amorfa", labelKey: "nav.amorfa", fallback: "Amorfa" },
-  { href: "/docs", labelKey: "nav.docs", fallback: "Документы" },
+  { 
+    href: "/amorfa", 
+    labelKey: "nav.amorfa", 
+    fallback: "Amorfa", 
+    icon: <AmorfaLogo className="size-4" /> 
+  },
+  { 
+    href: "/vershiny_top", 
+    labelKey: "nav.vershiny", 
+    fallback: "Вершины", 
+    icon: <VershinyLogo className="size-4" /> 
+  },
 ];
 
 const BACK_MAP: Record<string, { href: string; labelKey: string; fallback: string }> = {
   events: { href: "/events", labelKey: "nav.events", fallback: "События" },
   solutions: { href: "/solutions", labelKey: "nav.solutions", fallback: "Решения" },
-  docs: { href: "/docs", labelKey: "nav.docs", fallback: "Документы" },
+  amorfa: { href: "/amorfa", labelKey: "nav.amorfa", fallback: "Amorfa" },
+  vershiny_top: { href: "/vershiny_top", labelKey: "nav.vershiny", fallback: "Вершины" },
 };
 
 function useBackTarget() {
@@ -87,7 +107,7 @@ export default function Header() {
     ? { boxShadow: "0 12px 32px -8px rgba(0,0,0,0.12), 0 4px 12px -4px rgba(0,0,0,0.04)" }
     : { boxShadow: "0 6px 20px -6px rgba(0,0,0,0.08), 0 2px 8px -2px rgba(0,0,0,0.02)" };
 
-  const navLinkClass = "inline-flex items-center h-8 px-2.5 text-[13px] leading-none whitespace-nowrap transition-colors";
+  const navLinkClass = "inline-flex items-center gap-1.5 h-8 px-2.5 text-[13px] leading-none whitespace-nowrap transition-colors";
   const navActiveClass = "text-(--on-bg-high) font-medium";
   const navInactiveClass = "text-(--on-bg-medium) hover:text-(--on-bg-high)";
 
@@ -96,7 +116,6 @@ export default function Header() {
     return v === key ? fallback : v;
   };
 
-  // Premium, smooth spring animation
   const profileVariants = {
     hidden: { opacity: 0, y: -8, scale: 0.96, originY: 0 },
     visible: { opacity: 1, y: 0, scale: 1 },
@@ -148,11 +167,7 @@ export default function Header() {
               <motion.span
                 initial={{ opacity: 0, scale: 0.82, filter: "blur(6px)" }}
                 animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                transition={{
-                  duration: 0.9,
-                  ease: [0.16, 1, 0.3, 1],
-                  delay: 0.12,
-                }}
+                transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.12 }}
                 className="inline-flex items-center"
               >
                 <Logo className="!h-5" />
@@ -168,6 +183,7 @@ export default function Header() {
                   activeClassName={navActiveClass}
                   inactiveClassName={navInactiveClass}
                 >
+                  {item.icon && <span className="[&>svg]:size-4 flex items-center justify-center">{item.icon}</span>}
                   {tr(item.labelKey, item.fallback)}
                 </NavLink>
               ))}
@@ -197,7 +213,6 @@ export default function Header() {
                       transition={premiumSpring}
                       className="absolute top-full right-0 mt-4 w-[260px] sm:w-64 rounded-2xl border border-(--outline) bg-card p-2 flex flex-col gap-1 z-[9999] shadow-[0_16px_40px_-12px_rgba(0,0,0,0.15)] origin-top-right"
                     >
-                      {/* Pointer (Always aligned with center of icon) */}
                       <div className="absolute -top-1.5 right-[18px] w-3 h-3 rotate-45 bg-card border-t border-l border-(--outline)" />
                       
                       <div className="relative z-10 flex flex-col gap-1">

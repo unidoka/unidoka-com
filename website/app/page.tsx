@@ -15,6 +15,12 @@ export default function Home() {
         <BestWorksSection />
       </ScrollReveal>
       <ConsultSection />
+      <iframe
+        src="https://calendar.google.com/calendar/embed?height=600&wkst=2&ctz=Europe%2FMoscow&showPrint=0&mode=MONTH&hl=ru&src=ZDk3NTliMDI0ZTZlY2M4YmY1YzczZjBkNTA4ZjJkNDE0ODdkMjU2ZjFmMjhlZjMyNzgxNzE4YzA0OWIwOTY1M0Bncm91cC5jYWxlbmRhci5nb29nbGUuY29t&color=%23009688"
+        width="800"
+        height="600"
+        scrolling="no"
+      />
     </>
   );
 }

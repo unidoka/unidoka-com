@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ListIcon, X } from "@phosphor-icons/react";
@@ -8,12 +8,31 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/providers/language-provider";
 import { rootDomainUrl } from "@/utils/root-domain";
 import { cn } from "@/lib/utils";
+import { AmorfaLogo } from "@/components/icons/logotypes/amorfa-logo";
+import { VershinyLogo } from "@/components/icons/logotypes/vershiny-logo";
 
-const MENU_LINKS = [
+interface MenuLink {
+  href: string;
+  labelKey: string;
+  fallback: string;
+  icon?: ReactNode;
+}
+
+const MENU_LINKS: MenuLink[] = [
   { href: "/events", labelKey: "nav.events", fallback: "События" },
   { href: "/solutions", labelKey: "nav.solutions", fallback: "Решения" },
-  { href: "/amorfa", labelKey: "nav.amorfa", fallback: "Amorfa" },
-  { href: "/docs", labelKey: "nav.docs", fallback: "Документы" },
+  { 
+    href: "/amorfa", 
+    labelKey: "nav.amorfa", 
+    fallback: "Amorfa",
+    icon: <AmorfaLogo className="size-4 shrink-0" />
+  },
+  { 
+    href: "/vershiny_top", 
+    labelKey: "nav.vershiny", 
+    fallback: "Вершины",
+    icon: <VershinyLogo className="size-4 shrink-0" />
+  },
 ];
 
 interface FloatingMenuProps {
@@ -67,7 +86,6 @@ export function FloatingMenu({
     return v === key ? fallback : v;
   };
 
-  // Premium, smooth spring animation matching header
   const menuVariants = {
     hidden: { opacity: 0, y: position === "bottom" ? 8 : -8, scale: 0.96, originY: position === "bottom" ? 1 : 0 },
     visible: { opacity: 1, y: 0, scale: 1 },
@@ -109,7 +127,6 @@ export function FloatingMenu({
                 : "top-full right-0 mt-4 origin-top-right"
             )}
           >
-            {/* Pointer */}
             <div
               className={cn(
                 "absolute right-[18px] w-3 h-3 rotate-45 bg-card border-(--outline)",
@@ -129,12 +146,13 @@ export function FloatingMenu({
                     href={href}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      "block px-4 py-3 rounded-xl text-[15px] font-medium text-center transition-colors",
+                      "flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[15px] font-medium text-center transition-colors",
                       isActive
                         ? "bg-(--primary-glass) text-(--primary)"
                         : "text-(--on-bg-high) hover:bg-(--state-hover)"
                     )}
                   >
+                    {link.icon}
                     {tr(link.labelKey, link.fallback)}
                   </Link>
                 );
