@@ -86,9 +86,6 @@ export default function Footer() {
             <Link href={logoHref} className="w-fit">
               <LogoIcon className="h-8! w-auto" />
             </Link>
-            <p className="text-body-4 text-(--on-bg-medium) leading-relaxed">
-              {t("footer.tagline")}
-            </p>
             <div className="flex items-center gap-1">
               {SOCIALS.map(({ label, href, Icon }) => (
                 <Button
@@ -169,7 +166,7 @@ export default function Footer() {
           <span className="text-body-5 text-(--on-bg-low)">
             {t("footer.copyright").replace("{year}", String(year))}
           </span>
-            <MadeOnAmorfa />
+          <MadeOnAmorfa />
           <ThemeSwitcher />
         </div>
       </Container>

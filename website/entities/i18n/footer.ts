@@ -27,8 +27,7 @@ export const footerTranslations: Record<Language, Record<string, string>> = {
     'footer.legal.reviews': 'Review Consent',
   },
   ru: {
-    'footer.tagline':
-      'Юнидока делает решения, которые решают сразу несколько задач - open-source фреймворки, календари событий и полезные инструменты для IT-сообщества.',
+    'footer.tagline': 'Вместе - лучше',
     'footer.agency': 'Юнидока',
     'footer.nav': 'Навигация',
     'footer.about': 'О нас',

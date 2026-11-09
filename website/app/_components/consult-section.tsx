@@ -17,9 +17,6 @@ export default function ConsultSection() {
       <Container>
         <div className="max-w-[960px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 items-start">
           <div className="animate-reveal">
-            <p className="text-body-5 uppercase tracking-[0.32em] text-(--on-bg-low) mb-5">
-              {t("consult.eyebrow")}
-            </p>
             <h2 className="font-heading font-semibold tracking-[-0.03em] text-[2.5rem] md:text-[3.25rem] leading-[1.02] mb-6 text-(--on-bg-high)">
               {t("consult.title_prefix")}{" "}
               <span className="text-(--primary)">

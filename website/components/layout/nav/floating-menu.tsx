@@ -1,19 +1,20 @@
 "use client";
-
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ListIcon, X, User as UserIcon } from "@phosphor-icons/react";
+import { ListIcon, X } from "@phosphor-icons/react";
+import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
-import { ROUTES } from "@/utils/constants/routes";
 import { useLanguage } from "@/providers/language-provider";
-import { useUser } from "@/entities/user/model/user-context";
-import {
-  rootDomainUrl,
-  isAbsoluteUrl,
-  crossSubdomainUrl,
-} from "@/utils/root-domain";
+import { rootDomainUrl } from "@/utils/root-domain";
 import { cn } from "@/lib/utils";
+
+const MENU_LINKS = [
+  { href: "/events", labelKey: "nav.events", fallback: "События" },
+  { href: "/solutions", labelKey: "nav.solutions", fallback: "Решения" },
+  { href: "/amorfa", labelKey: "nav.amorfa", fallback: "Amorfa" },
+  { href: "/docs", labelKey: "nav.docs", fallback: "Документы" },
+];
 
 interface FloatingMenuProps {
   position?: "top" | "bottom";
@@ -31,66 +32,54 @@ export function FloatingMenu({
   triggerIconClassName,
 }: FloatingMenuProps) {
   const [open, setOpen] = useState(false);
-  const { t, lang, setLang } = useLanguage();
-  const { user, isLoading } = useUser();
+  const { t } = useLanguage();
   const pathname = usePathname();
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Close menu on route change
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [open]);
-
+  // Handle outside clicks
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent | TouchEvent) => {
       const el = wrapperRef.current;
-      if (!el) return;
-      if (!el.contains(e.target as Node)) setOpen(false);
+      const drop = dropdownRef.current;
+      if (!el || !drop) return;
+      if (el.contains(e.target as Node) || drop.contains(e.target as Node)) return;
+      setOpen(false);
     };
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("touchstart", onDown);
+    const timeout = setTimeout(() => {
+      document.addEventListener("mousedown", onDown);
+      document.addEventListener("touchstart", onDown);
+    }, 10);
     return () => {
+      clearTimeout(timeout);
       document.removeEventListener("mousedown", onDown);
       document.removeEventListener("touchstart", onDown);
     };
   }, [open]);
 
   const rootLink = (path: string) => rootDomainUrl(path);
-  const links = [
-    { href: rootLink(ROUTES.solutions.href), label: t("nav.solutions") },
-    { href: rootLink(ROUTES.api.href), label: t("nav.api") },
-    { href: rootLink(ROUTES.crew.href), label: t("nav.crew") },
-    { href: rootLink(ROUTES.amorfa.href), label: t("nav.amorfa") },
-    { href: rootLink(ROUTES.events.href), label: t("nav.events") },
-    { href: rootLink(ROUTES.vershiny.href), label: t("nav.vershiny") },
-  ];
 
-  const loginHref = rootDomainUrl("/login");
-  const registerHref = rootDomainUrl("/register");
-  const loginIsAbsolute = isAbsoluteUrl(loginHref);
-  const registerIsAbsolute = isAbsoluteUrl(registerHref);
-  const profileHref = crossSubdomainUrl("app", "/profile");
+  const tr = (key: string, fallback: string) => {
+    const v = t(key);
+    return v === key ? fallback : v;
+  };
 
   return (
-    <div ref={wrapperRef} className="contents">
+    <div ref={wrapperRef} className="relative flex items-center">
       <Button
         variant="text"
         shape={triggerShape}
         size={triggerSize}
-        className={triggerClassName}
+        className={cn(triggerClassName)}
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-controls="floating-menu-panel"
-        aria-label={t("nav.menu")}
       >
         {open ? (
           <X className={triggerIconClassName} />
@@ -99,126 +88,46 @@ export function FloatingMenu({
         )}
       </Button>
 
-      {open && (
-        <div
-          id="floating-menu-panel"
-          className={cn(
-            "fixed left-2 right-2 sm:left-auto sm:right-6 sm:w-96 z-[60]",
-            "rounded-3xl border border-(--outline)",
-            "bg-(--card) shadow-2xl p-2",
-            "animate-in fade-in duration-200",
-            position === "bottom"
-              ? "bottom-32 slide-in-from-bottom-4"
-              : "top-24 slide-in-from-top-4",
-          )}
-        >
-          <nav className="flex flex-col">
-            {links.map((link) => {
-              const isActive = pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setOpen(false)}
-                  className={cn(
-                    "px-4 py-2.5 rounded-2xl text-body-2 font-medium transition-colors",
-                    isActive
-                      ? "bg-(--primary-glass) text-(--primary)"
-                      : "text-(--on-bg-high) hover:bg-(--state-hover)",
-                  )}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* ── Language picker — mobile-only ──────────────────────────
-              Rendered as an inline segmented control rather than reusing
-              <LanguageSwitcher/>: that component opens a Radix dropdown
-              which portals to document.body, and the burger's outside-
-              click handler would fire and close the panel the moment the
-              user tapped an option. Inline buttons keep the interaction
-              in one place. */}
-          {/* <div className="mt-1.5 pt-2 border-t border-(--outline)">
-            <div className="flex items-center justify-between px-4 py-2">
-              <span className="text-body-5 uppercase tracking-[0.18em] text-(--on-bg-low)">
-                {t("nav.language")}
-              </span>
-              <div className="flex items-center gap-0.5 rounded-full border border-(--outline) bg-(--bg) p-0.5">
-                {(["ru", "en"] as const).map((l) => {
-                  const isActive = lang === l;
-                  return (
-                    <button
-                      key={l}
-                      type="button"
-                      onClick={() => setLang(l)}
-                      aria-pressed={isActive}
-                      className={cn(
-                        "px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider transition-colors",
-                        isActive
-                          ? "bg-(--on-bg-high) text-(--bg)"
-                          : "text-(--on-bg-medium) hover:text-(--on-bg-high)",
-                      )}
-                    >
-                      {l}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div> */}
-
-          {/* Auth block — mobile only. On sm+ the header already renders
-              Sign in / Sign up, so rendering them here duplicates them. */}
-          {!isLoading && (
-            <div className="mt-1.5 pt-2 border-t border-(--outline)">
-              {user ? (
-                <Button
-                  variant="outlined"
-                  size="large"
-                  className="w-full"
-                  asChild
-                >
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            id="floating-menu-panel"
+            ref={dropdownRef}
+            initial={{ opacity: 0, y: position === "bottom" ? 10 : -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: position === "bottom" ? 10 : -10, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className={cn(
+              "absolute z-[9999] flex flex-col border border-[color-mix(in_srgb,var(--outline),transparent_50%)] shadow-[0_16px_40px_-12px_rgba(0,0,0,0.15)] backdrop-blur-2xl bg-[color-mix(in_srgb,var(--card),transparent_85%)] w-64 max-w-[calc(100vw-3rem)] rounded-2xl p-2",
+              position === "bottom"
+                ? "bottom-full right-0 mb-3"
+                : "top-full right-0 mt-3"
+            )}
+          >
+            <nav className="flex flex-col gap-1">
+              {MENU_LINKS.map((link) => {
+                const href = rootLink(link.href);
+                const isActive = pathname === link.href;
+                return (
                   <Link
-                    href={profileHref}
-                    prefetch={false}
+                    key={link.href}
+                    href={href}
                     onClick={() => setOpen(false)}
+                    className={cn(
+                      "block px-4 py-3 rounded-xl text-[15px] font-medium text-center transition-colors",
+                      isActive
+                        ? "bg-(--primary-glass) text-(--primary)"
+                        : "text-(--on-bg-high) hover:bg-(--state-hover)"
+                    )}
                   >
-                    <UserIcon className="size-4" />
-                    {t("nav.profile")}
+                    {tr(link.labelKey, link.fallback)}
                   </Link>
-                </Button>
-              ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  <Button variant="outlined" size="large" asChild>
-                    {loginIsAbsolute ? (
-                      <a href={loginHref} onClick={() => setOpen(false)}>
-                        {t("nav.login")}
-                      </a>
-                    ) : (
-                      <Link href={loginHref} onClick={() => setOpen(false)}>
-                        {t("nav.login")}
-                      </Link>
-                    )}
-                  </Button>
-                  <Button size="large" asChild>
-                    {registerIsAbsolute ? (
-                      <a href={registerHref} onClick={() => setOpen(false)}>
-                        {t("nav.register")}
-                      </a>
-                    ) : (
-                      <Link href={registerHref} onClick={() => setOpen(false)}>
-                        {t("nav.register")}
-                      </Link>
-                    )}
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+                );
+              })}
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

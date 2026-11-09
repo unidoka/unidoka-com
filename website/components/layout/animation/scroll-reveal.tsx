@@ -1,6 +1,8 @@
 "use client";
-import { useEffect, useRef, ReactNode } from "react";
+import { ReactNode } from "react";
+import { motion, type Variants } from "motion/react";
 import { cn } from "@/lib/utils";
+
 interface ScrollRevealProps {
   children: ReactNode;
   className?: string;
@@ -8,6 +10,7 @@ interface ScrollRevealProps {
   threshold?: number;
   once?: boolean;
 }
+
 export function ScrollReveal({
   children,
   className,
@@ -15,31 +18,28 @@ export function ScrollReveal({
   threshold = 0.1,
   once = true,
 }: ScrollRevealProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setTimeout(() => {
-              element.classList.add("is-visible");
-            }, delay);
-            if (once) observer.unobserve(element);
-          } else if (!once) {
-            element.classList.remove("is-visible");
-          }
-        });
+  const variants: Variants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+        ease: [0.16, 1, 0.3, 1], // cubic-bezier matching the old CSS
+        delay: delay / 1000, // assuming incoming delay is in ms
       },
-      { threshold }
-    );
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [delay, threshold, once]);
+    },
+  };
+
   return (
-    <div ref={ref} className={cn("scroll-reveal-container", className)}>
+    <motion.div
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once, amount: threshold }}
+      variants={variants}
+      className={cn(className)}
+    >
       {children}
-    </div>
+    </motion.div>
   );
 }

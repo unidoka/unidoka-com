@@ -51,14 +51,9 @@ export default function NumbersSection() {
   return (
     <section ref={sectionRef} className="pt-20 sm:pt-28 pb-12 sm:pb-20">
       <Container>
-        <div className="flex items-end justify-between gap-6 mb-12 sm:mb-16 pb-6 border-b border-(--outline)">
-          <h2 className="font-heading font-medium tracking-[-0.03em] leading-[0.95] text-[2rem] sm:text-[3.5rem] text-(--on-bg-high) max-w-[720px]">
-            {t("home.numbers_title")}
-          </h2>
-          <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-(--on-bg-low) shrink-0 pb-2">
-            01 / 04
-          </span>
-        </div>
+        <h2 className="text-display-2 mb-10">
+          {t("home.numbers_title")}
+        </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-(--outline) border border-(--outline) rounded-3xl overflow-hidden">
           {cards.map((card, idx) => {
@@ -72,9 +67,6 @@ export default function NumbersSection() {
                   "transition-colors hover:bg-(--state-hover)",
                 )}
               >
-                <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-(--on-bg-low) mb-6">
-                  {String(idx + 1).padStart(2, "0")}
-                </span>
                 <div className="flex size-11 items-center justify-center rounded-xl bg-(--on-bg-high) text-(--bg) mb-6">
                   <Icon className="size-5" weight="bold" />
                 </div>

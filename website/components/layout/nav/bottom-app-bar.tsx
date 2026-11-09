@@ -1,35 +1,53 @@
 "use client";
-import { ROUTES } from "@/utils/constants/routes";
-import { Container } from "../../ui/container";
-import { Button } from "../../ui/button";
-import Link from "next/link";
+import { QuickOrderDialog } from "@/components/ui/quick-order-dialog";
 import { FloatingMenu } from "./floating-menu";
+import { CycleText } from "./cycle-text";
+import { TelemostStackIcon } from "@/components/icons/telemost-stack-icon";
+import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/providers/language-provider";
-import { rootDomainUrl } from "@/utils/root-domain";
+
 export default function BottomAppBar() {
   const { t } = useLanguage();
+
+  const tr = (key: string, fallback: string) => {
+    const v = t(key);
+    return v === key ? fallback : v;
+  };
+
   return (
-    <nav className="sm:hidden bg-(--g-dark) pt-[32px] fixed bottom-0 left-0 pb-[12px] justify-center w-full z-50">
-      <Container aria-label="Bottom app bar">
-        <div className="p-4 grid grid-cols-[1fr_60px] gap-1 rounded-full bg-(--primary-glass) backdrop-blur-glass border border-(--primary-glass) items-center">
-          <Button
-            asChild
-            shape={"round"}
-            className="flex w-full h-[60px] gap-2"
-            size="medium"
-          >
-            <Link href={rootDomainUrl(ROUTES.order.href)}>
-              <span className="text-heading-5">{t("nav.order")}</span>
-            </Link>
-          </Button>
-          <FloatingMenu
-            position="bottom"
-            triggerSize="icon-medium"
-            triggerClassName="w-[60px]! h-[60px]! sm:hidden"
-            triggerIconClassName="size-12!"
+    <nav
+      aria-label="Bottom app bar"
+      className="sm:hidden fixed bottom-4 left-4 right-4 z-50 flex gap-2 items-stretch justify-between pointer-events-none"
+    >
+      {/* CTA / Ordering Button */}
+      <QuickOrderDialog serviceName="Консультация">
+        <Button
+          size="small"
+          shape="square"
+          variant="tonal-card"
+          className="flex-1 h-14! justify-center gap-2 rounded-2xl border-none bg-card shadow-[0_8px_24px_-6px_rgba(0,0,0,0.12),0_2px_8px_-2px_rgba(0,0,0,0.04)] pointer-events-auto"
+        >
+          <TelemostStackIcon className="-ml-2" />
+          <CycleText
+            labels={[
+              tr("nav.order_cycle_1", "Оставить заявку"),
+              tr("nav.order_cycle_2", "Обсудить проект"),
+              tr("nav.order_cycle_3", "Аудит от CTO"),
+            ]}
           />
-        </div>
-      </Container>
+        </Button>
+      </QuickOrderDialog>
+
+      {/* Burger Menu Button */}
+      <div className="rounded-2xl bg-card shadow-[0_8px_24px_-6px_rgba(0,0,0,0.12),0_2px_8px_-2px_rgba(0,0,0,0.04)] pointer-events-auto shrink-0">
+        <FloatingMenu
+          position="bottom"
+          triggerSize="icon-small"
+          triggerShape="square"
+          triggerClassName="size-14! p-0! flex items-center justify-center rounded-2xl hover:bg-(--state-hover) transition-colors border-none bg-transparent!"
+          triggerIconClassName="size-6!"
+        />
+      </div>
     </nav>
   );
 }

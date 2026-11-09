@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { CaretRightIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon, CaretRightIcon } from "@phosphor-icons/react";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import ProjectCard from "@/components/layout/projects/project-card";
@@ -52,9 +52,21 @@ export default function BestWorksSection() {
   return (
     <section className="py-8 md:py-10">
       <Container>
-        <h2 className="text-display-2 sm:text-display-1 mb-10 text-center">
-          {t("home.best_works_title")}
-        </h2>
+        <div className="flex items-center justify-between gap-2 mb-8">
+          <h2 className="text-display-6 sm:text-display-4 md:text-display-3">
+            {t("home.best_works_title")}
+          </h2>
+          <Button
+            variant="text"
+            size="small"
+            asChild
+          >
+            <Link href="/projects">
+              {t("home.view_all_projects")}
+              <ArrowRightIcon className="size-4" />
+            </Link>
+          </Button>
+        </div>
         {projects === null ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(3)].map((_, i) => (
@@ -81,17 +93,6 @@ export default function BestWorksSection() {
             ))}
           </div>
         )}
-        <Button
-          className="w-full md:w-fit mt-8"
-          variant="glass"
-          size="large"
-          asChild
-        >
-          <Link href="/projects">
-            {t("home.view_all_projects")}
-            <CaretRightIcon className="size-4" />
-          </Link>
-        </Button>
       </Container>
     </section>
   );

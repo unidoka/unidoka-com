@@ -42,7 +42,8 @@
       "**/.agents/skills/image-to-code/**/*",
       "**/.agents/skills/imagegen-frontend-mobile/**/*",
       "**/.agents/skills/imagegen-frontend-web/**/*",
-      "**/.agents/skills/design-taste-frontend/**/*"
+      "**/.agents/skills/design-taste-frontend/**/*",
+      "website/components/made-on-amorfa.tsx"
     ]
   }
 }
