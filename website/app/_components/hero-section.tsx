@@ -7,6 +7,7 @@ import { ROUTES } from "@/utils/constants/routes";
 import { ArrowUpRightIcon, LightbulbIcon } from "@phosphor-icons/react";
 import { useLanguage } from "@/providers/language-provider";
 import { ConsultDialog } from "@/components/consult-dialog";
+import LogoIcon from "@/components/layout/logo/logo-icon";
 
 export default function HeroSection() {
   const { t } = useLanguage();
@@ -50,17 +51,11 @@ export default function HeroSection() {
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <ConsultDialog>
-              <Button size="large" shape="round">
-                <LightbulbIcon className="size-4" />
+              <Button size="large">
+                <LogoIcon className="[&>*]:text-(--on-primary-card)! size-5!" />
                 {t("nav.request")}
               </Button>
             </ConsultDialog>
-            <Button size="large" variant="outlined" shape="round" asChild>
-              <Link href={ROUTES.solutions.href}>
-                {t("nav.solutions")}
-                <ArrowUpRightIcon className="size-4" />
-              </Link>
-            </Button>
           </div>
         </div>
       </Container>

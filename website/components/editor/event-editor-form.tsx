@@ -1,953 +1,385 @@
 "use client";
-
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Card } from "@/components/ui/card";
+import { useLanguage } from "@/providers/language-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Field, FieldLabel, FieldError } from "@/components/ui/field";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { Switch } from "@/components/ui/switch";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import {
-  CircleNotchIcon,
-  PlusIcon,
-  TrashIcon,
-  CalendarBlankIcon,
-  CalendarCheckIcon,
-  ArrowUpRightIcon,
-  MapPinIcon,
-} from "@phosphor-icons/react";
-import {
-  createEvent,
-  updateEvent,
-  type EventDetail,
-  type EventPayload,
-  type OtherDateInput,
-} from "@/utils/api/events";
-import {
-  fetchOrganizersPublic,
-  fetchEventTypesPublic,
-  fetchDirectionsPublic,
-  type Organizer,
-  type EventTypeTaxonomy,
-  type Direction,
-} from "@/utils/api/event-taxonomies";
 import { ImageUploadField } from "./image-upload-field";
-import { DateTimePicker } from "@/components/ui/date-time-picker";
-import { MdxEditor } from "./mdx-editor";
-import { colorForOrganizer } from "@/app/events/_components/organizer-meta";
+import { UnifiedCover } from "./unified-cover";
+import { NovelEditor } from "./novel/novel-editor";
+import { FloppyDiskIcon, RocketIcon, TrashIcon, PlusIcon, XIcon } from "@phosphor-icons/react";
+import {
+  createEvent, updateEvent, deleteEvent,
+  type EventDetail, type EventPayload,
+} from "@/utils/api/events";
+import { EVENT_CUSTOM_PAGES_META } from "@/app/events/[slug]/_components/event-custom-pages-meta";
+import { revalidateTags } from "@/utils/revalidate";
 
-interface Props {
-  editing: EventDetail | null;
-  mode: "admin" | "user";
-  redirectAfter?: string;
+interface SeatType {
+  type: string;
+  count: number | "";
 }
 
-const NO_ORGANIZER = "__none__";
+interface FormState {
+  slug: string;
+  title: string;
+  short_description: string;
+  description: string;
+  cover_image_src: string;
+  cover_video_src: string;
+  start_at: string;
+  end_at: string;
+  location_name: string;
+  address: string;
+  metro: string;
+  city: string;
+  price: string;
+  registration_url: string;
+  seat_types: SeatType[];
+  custom_page: string | null;
+  is_featured: boolean;
+  publication_status: "draft" | "published";
+  content_json: any | null;
+  seo_title: string;
+  meta_description: string;
+}
 
-export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
+function isoToLocalInput(iso?: string | null): string {
+  if (!iso) return "";
+  try {
+    const d = new Date(iso);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  } catch {
+    return "";
+  }
+}
+
+function toFormState(e?: EventDetail | null): FormState {
+  if (!e) {
+    return {
+      slug: "", title: "", short_description: "", description: "",
+      cover_image_src: "", cover_video_src: "", start_at: "", end_at: "",
+      location_name: "", address: "", metro: "", city: "Москва",
+      price: "Бесплатно", registration_url: "", seat_types: [],
+      custom_page: null, is_featured: false, publication_status: "draft",
+      content_json: null, seo_title: "", meta_description: "",
+    };
+  }
+  return {
+    slug: e.slug, title: e.title || "", short_description: e.short_description || "",
+    description: e.description || "", cover_image_src: e.cover_image_src || "",
+    cover_video_src: e.cover_video_src || "", start_at: isoToLocalInput(e.start_at),
+    end_at: isoToLocalInput(e.end_at), location_name: e.location_name || "",
+    address: e.address || "", metro: e.metro || "", city: e.city || "Москва",
+    price: e.price || "", registration_url: e.registration_url || "",
+    seat_types: (e.seat_types || []).map(s => ({ type: s.type, count: s.count })),
+    custom_page: e.custom_page ?? null, is_featured: e.is_featured || false,
+    publication_status: (e.publication_status as any) || "draft",
+    content_json: (e as any).content_json ?? null, seo_title: e.seo_title || "",
+    meta_description: e.meta_description || "",
+  };
+}
+
+export function EventEditorForm({ initial }: { initial?: EventDetail | null }) {
+  const { t } = useLanguage();
   const router = useRouter();
+  const isEdit = !!initial;
+  const [form, setForm] = useState<FormState>(() => toFormState(initial));
+  const [saving, setSaving] = useState(false);
 
-  const [organizers, setOrganizers] = useState<Organizer[]>([]);
-  const [types, setTypes] = useState<EventTypeTaxonomy[]>([]);
-  const [directions, setDirections] = useState<Direction[]>([]);
-  const [metaError, setMetaError] = useState<string | null>(null);
+  const isCustomPage = !!form.custom_page;
 
-  const [form, setForm] = useState({
-    title: "",
-    slug: "",
-    short_description: "",
-    description: "",
-    mdx_content: "",
-    cover_image_src: "",
-    href: "",
-    start_at: "",
-    end_at: "",
-    registration_deadline: "",
-    location_name: "",
-    address: "",
-    price: "",
-    capacity: "",
-    registration_url: "",
-    organizer_id: NO_ORGANIZER,
-    custom_organizer_name: "",
-    subdirection_ids: [] as string[],
-    is_featured: false,
-    seo_title: "",
-    meta_description: "",
-    status: "approved" as "pending" | "approved" | "rejected",
-  });
-  const [otherDates, setOtherDates] = useState<OtherDateInput[]>([]);
-  const [typeSelections, setTypeSelections] = useState<
-    Array<{ id: string; isCustom: boolean; customName: string }>
-  >([]);
-  const [submitting, setSubmitting] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  /* ── Load taxonomy ───────────────────────────────────────────────── */
-  useEffect(() => {
-    Promise.all([
-      fetchOrganizersPublic(),
-      fetchEventTypesPublic(),
-      fetchDirectionsPublic(),
-    ])
-      .then(([o, t, d]) => {
-        setOrganizers(o);
-        setTypes(t);
-        setDirections(d.filter((x) => (x.subdirections ?? []).length > 0));
-      })
-      .catch((err) =>
-        setMetaError(err?.message || "Не удалось загрузить справочники"),
-      );
-  }, []);
-
-  /* ── Hydrate when editing ────────────────────────────────────────── */
-  useEffect(() => {
-    if (!editing) return;
-    setForm({
-      title: editing.title,
-      slug: editing.slug,
-      short_description: editing.short_description ?? "",
-      description: editing.description ?? "",
-      mdx_content: editing.mdx_content ?? "",
-      cover_image_src: editing.cover_image_src ?? "",
-      href: editing.href ?? "",
-      start_at: toLocalInput(editing.start_at),
-      end_at: toLocalInput(editing.end_at),
-      registration_deadline: toLocalInput(editing.registration_deadline),
-      location_name: editing.location_name ?? "",
-      address: editing.address ?? "",
-      price: editing.price ?? "",
-      capacity: editing.capacity ? String(editing.capacity) : "",
-      registration_url: editing.registration_url ?? "",
-      organizer_id: editing.organizer?.id ?? NO_ORGANIZER,
-      custom_organizer_name: editing.custom_organizer_name ?? "",
-      subdirection_ids: (editing.tags ?? []).map((t) => t.id),
-      is_featured: editing.is_featured,
-      seo_title: editing.seo_title ?? "",
-      meta_description: editing.meta_description ?? "",
-      status: (editing.status as any) || "approved",
-    });
-    setOtherDates(
-      (editing.other_dates ?? []).map((d) => ({
-        label: d.label,
-        at: toLocalInput(d.at),
-      })),
-    );
-    setTypeSelections(
-      (editing.types ?? []).map((a, i) =>
-        a.type
-          ? { id: a.type.id, isCustom: false, customName: "" }
-          : {
-            id: `custom-${a.id || i}`,
-            isCustom: true,
-            customName: a.custom_name ?? "",
-          },
-      ),
-    );
-  }, [editing]);
-
-  const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
+  const update = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((p) => ({ ...p, [k]: v }));
 
-  const addType = (typeId: string) => {
-    if (!typeId) return;
-    if (typeSelections.some((t) => t.id === typeId && !t.isCustom)) return;
-    setTypeSelections((prev) => [
-      ...prev,
-      { id: typeId, isCustom: false, customName: "" },
-    ]);
+  const addSeatType = () => {
+    update("seat_types", [...form.seat_types, { type: "", count: "" }]);
   };
-  const addCustomType = () =>
-    setTypeSelections((prev) => [
-      ...prev,
-      { id: `custom-${Date.now()}`, isCustom: true, customName: "" },
-    ]);
-  const updateCustomName = (id: string, name: string) =>
-    setTypeSelections((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, customName: name } : t)),
-    );
-  const removeType = (id: string) =>
-    setTypeSelections((prev) => prev.filter((t) => t.id !== id));
 
-  const toggleSubdirection = (sid: string) =>
-    setForm((prev) => ({
-      ...prev,
-      subdirection_ids: prev.subdirection_ids.includes(sid)
-        ? prev.subdirection_ids.filter((x) => x !== sid)
-        : [...prev.subdirection_ids, sid],
-    }));
+  const updateSeatType = (idx: number, key: keyof SeatType, value: string) => {
+    const next = [...form.seat_types];
+    if (key === "count") {
+      next[idx].count = value ? Number(value) : "";
+    } else {
+      next[idx].type = value;
+    }
+    update("seat_types", next);
+  };
 
-  const addOtherDate = () =>
-    setOtherDates((prev) => [...prev, { label: "", at: "" }]);
-  const updateOtherDate = (i: number, patch: Partial<OtherDateInput>) =>
-    setOtherDates((prev) =>
-      prev.map((d, idx) => (idx === i ? { ...d, ...patch } : d)),
-    );
-  const removeOtherDate = (i: number) =>
-    setOtherDates((prev) => prev.filter((_, idx) => idx !== i));
+  const removeSeatType = (idx: number) => {
+    update("seat_types", form.seat_types.filter((_, i) => i !== idx));
+  };
 
-  /* ── Submit ──────────────────────────────────────────────────────── */
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const nextErrors: Record<string, string> = {};
-    if (!form.title.trim()) nextErrors.title = "Название обязательно";
-    if (!form.start_at) nextErrors.start_at = "Дата начала обязательна";
-    if (Object.keys(nextErrors).length) {
-      setErrors(nextErrors);
-      toast.error("Проверьте форму");
+  const buildPayload = (status: "draft" | "published"): EventPayload => {
+    const cleanSeats = form.seat_types
+      .filter((s) => s.type.trim() !== "" && s.count !== "")
+      .map((s) => ({ type: s.type.trim(), count: Number(s.count) }));
+
+    return {
+      title: form.title.trim(),
+      slug: form.slug.trim() || undefined,
+      short_description: form.short_description.trim(),
+      description: form.description.trim(),
+      cover_image_src: form.cover_image_src.trim(),
+      cover_video_src: form.cover_video_src.trim(),
+      start_at: form.start_at ? new Date(form.start_at).toISOString() : null,
+      end_at: form.end_at ? new Date(form.end_at).toISOString() : null,
+      location_name: form.location_name.trim() || null,
+      address: form.address.trim() || null,
+      metro: form.metro.trim() || null,
+      city: form.city.trim() || null,
+      price: form.price.trim() || null,
+      registration_url: form.registration_url.trim() || null,
+      seat_types: cleanSeats,
+      custom_page: form.custom_page,
+      is_featured: form.is_featured,
+      publication_status: status,
+      content_json: form.content_json,
+      seo_title: form.seo_title.trim() || null,
+      meta_description: form.meta_description.trim() || null,
+    } as any;
+  };
+
+  const handleSave = async (status: "draft" | "published") => {
+    if (!form.title.trim()) {
+      toast.error(t("editor.missing_title"));
       return;
     }
-    setErrors({});
-    setSubmitting(true);
-
+    setSaving(true);
     try {
-      // other_dates: strip blank rows, convert to ISO, skip rows with
-      // no label or no date — the backend rejects empty labels.
-      const cleanOther = otherDates
-        .filter((d) => d.label.trim() && d.at)
-        .map((d) => ({
-          label: d.label.trim(),
-          at: new Date(d.at).toISOString(),
-        }));
-
-      const payload: EventPayload = {
-        title: form.title.trim(),
-        slug: form.slug.trim() || undefined,
-        start_at: new Date(form.start_at).toISOString(),
-        short_description: form.short_description.trim() || null,
-        description: form.description.trim() || null,
-        mdx_content: form.mdx_content.trim() || null,
-        cover_image_src: form.cover_image_src.trim() || null,
-        href: form.href.trim() || null,
-        end_at: form.end_at ? new Date(form.end_at).toISOString() : null,
-        registration_deadline: form.registration_deadline
-          ? new Date(form.registration_deadline).toISOString()
-          : null,
-        other_dates: cleanOther,
-        location_name: form.location_name.trim() || null,
-        address: form.address.trim() || null,
-        price: form.price.trim() || null,
-        capacity: form.capacity ? Number(form.capacity) : null,
-        registration_url: form.registration_url.trim() || null,
-        organizer_id:
-          form.organizer_id === NO_ORGANIZER ? null : form.organizer_id,
-        custom_organizer_name: editing?.custom_organizer_name ?? null,
-        types: typeSelections.map((t) =>
-          t.isCustom
-            ? { custom_name: t.customName.trim() || "Другое" }
-            : { type_id: t.id },
-        ),
-        subdirection_ids: form.subdirection_ids,
-      };
-
-      if (mode === "admin") {
-        payload.status = form.status;
-        payload.is_featured = form.is_featured;
-        payload.seo_title = form.seo_title.trim() || null;
-        payload.meta_description = form.meta_description.trim() || null;
-      }
-
-      if (editing) {
-        await updateEvent(editing.slug, payload);
-        toast.success("Событие обновлено");
+      const payload = buildPayload(status);
+      const saved = isEdit && initial ? await updateEvent(initial.slug, payload) : await createEvent(payload);
+      
+      toast.success(status === "published" ? "Событие опубликовано" : "Черновик сохранён");
+      await revalidateTags(["events"]);
+      
+      if (!isEdit) {
+        const basePath = window.location.pathname.replace(/\/new\/?$/, "");
+        router.replace(`${basePath}/${saved.slug}/edit`);
       } else {
-        await createEvent(payload);
-        toast.success(
-          mode === "admin"
-            ? "Событие создано"
-            : "Событие отправлено на модерацию",
-          { duration: 6000 },
-        );
+        router.refresh();
       }
-      router.push(redirectAfter || "/events");
-      router.refresh();
     } catch (err: any) {
-      toast.error(err?.message || "Не удалось сохранить");
+      toast.error(err?.message || "Ошибка сохранения");
     } finally {
-      setSubmitting(false);
+      setSaving(false);
     }
   };
 
-  const selectedOrganizer = useMemo(
-    () =>
-      form.organizer_id === NO_ORGANIZER
-        ? null
-        : organizers.find((o) => o.id === form.organizer_id) ?? null,
-    [form.organizer_id, organizers],
-  );
+  const handleDelete = async () => {
+    if (!initial) return;
+    if (!confirm(`Удалить событие «${initial.title}»? Заявки тоже удалятся.`)) return;
+    setSaving(true);
+    try {
+      await deleteEvent(initial.slug);
+      await revalidateTags(["events"]);
+      toast.success("Удалено");
+      router.push("../");
+    } catch (err: any) {
+      toast.error(err?.message || "Ошибка удаления");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* ── Основное ─────────────────────────────────────────────── */}
-      <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-5">
-        <h2 className="text-heading-3">Основное</h2>
+    <div className="space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-display-2 mb-1">{isEdit ? t("editor.event_title_edit") : t("editor.event_title_new")}</h1>
+          {initial && (
+            <p className="text-body-4 text-(--on-bg-low)">
+              {initial.publication_status === "published" ? t("editor.status_published") : t("editor.status_draft")} · <code className="font-mono">/events/{initial.slug}</code>
+            </p>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {isEdit && (
+            <Button variant="glass-red" size="icon-medium" onClick={handleDelete} disabled={saving}>
+              <TrashIcon className="size-4" />
+            </Button>
+          )}
+          <Button variant="outlined" onClick={() => handleSave("draft")} disabled={saving}>
+            <FloppyDiskIcon className="size-4" /> {t("editor.save_draft")}
+          </Button>
+          <Button onClick={() => handleSave("published")} disabled={saving}>
+            <RocketIcon className="size-4" /> {t("editor.publish")}
+          </Button>
+        </div>
+      </div>
 
-        <Field data-invalid={!!errors.title}>
-          <FieldLabel>
-            Название <span className="text-destructive">*</span>
-          </FieldLabel>
-          <Input value={form.title} onChange={(e) => set("title", e.target.value)} />
-          {errors.title && <FieldError errors={[{ message: errors.title }]} />}
-        </Field>
-
-        <Field>
-          <FieldLabel>Slug (URL)</FieldLabel>
-          <Input
-            value={form.slug}
-            onChange={(e) =>
-              set("slug", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))
-            }
-            placeholder="auto from title"
-            className="font-mono text-body-4"
-          />
-          <p className="text-body-5 text-(--on-bg-low) mt-1">
-            Оставьте пустым — сгенерируется из названия. После сохранения менять
-            не рекомендуется (сломает внешние ссылки).
-          </p>
-        </Field>
-
-        <Field>
-          <FieldLabel>Короткое описание</FieldLabel>
-          <Input
-            value={form.short_description}
-            onChange={(e) => set("short_description", e.target.value)}
-            placeholder="Одно предложение для карточки"
-          />
-        </Field>
-
-        <Field>
-          <FieldLabel>Краткое описание</FieldLabel>
-          <Textarea
-            value={form.description}
-            onChange={(e) => set("description", e.target.value)}
-            placeholder="Пара абзацев — что это за событие, для кого"
-            className="min-h-[100px]"
-          />
-        </Field>
-
-        <Field>
-          <FieldLabel>Контент события</FieldLabel>
-          <MdxEditor
-            value={form.mdx_content}
-            onChange={(v) => set("mdx_content", v)}
-            minHeight={320}
-          />
-          <p className="text-body-5 text-(--on-bg-low) mt-1">
-            Поддерживает Markdown. Правый столбец — превью того, как
-            событие будет выглядеть на странице.
-          </p>
-        </Field>
-
+      {/* Basics */}
+      <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4 overflow-visible">
+        <h2 className="text-heading-3">{t("editor.event_basics")}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field data-invalid={!!errors.start_at}>
-            <FieldLabel>
-              <CalendarBlankIcon className="size-3.5" />
-              Начало <span className="text-destructive">*</span>
-            </FieldLabel>
-            <DateTimePicker
-              value={form.start_at}
-              onChange={(v) => set("start_at", v)}
-              placeholder="Дата и время начала"
-              clearable={false}
-            />
-            {errors.start_at && (
-              <FieldError errors={[{ message: errors.start_at }]} />
-            )}
+          <Field className="md:col-span-2">
+            <FieldLabel>{t("editor.field_title")} <span className="text-destructive">*</span></FieldLabel>
+            <Input value={form.title} onChange={(e) => update("title", e.target.value)} />
           </Field>
           <Field>
-            <FieldLabel>
-              <CalendarBlankIcon className="size-3.5" />
-              Конец
-            </FieldLabel>
-            <DateTimePicker
-              value={form.end_at}
-              onChange={(v) => set("end_at", v)}
-              placeholder="Дата и время окончания"
-            />
+            <FieldLabel>{t("editor.field_slug")}</FieldLabel>
+            <Input value={form.slug} onChange={(e) => update("slug", e.target.value)} placeholder="генерируется из названия" />
           </Field>
           <Field>
-            <FieldLabel>
-              <CalendarCheckIcon className="size-3.5" />
-              Дедлайн регистрации
-            </FieldLabel>
-            <DateTimePicker
-              value={form.registration_deadline}
-              onChange={(v) => set("registration_deadline", v)}
-              placeholder="Дедлайн регистрации"
-            />
+            <FieldLabel>{t("editor.event_price")}</FieldLabel>
+            <Input value={form.price} onChange={(e) => update("price", e.target.value)} placeholder="Бесплатно / 500 ₽" />
           </Field>
           <Field>
-            <FieldLabel>Ссылка на регистрацию</FieldLabel>
-            <Input
-              value={form.registration_url}
-              onChange={(e) => set("registration_url", e.target.value)}
-              placeholder="https://…"
-            />
+            <FieldLabel>{t("editor.event_start")}</FieldLabel>
+            <Input type="datetime-local" value={form.start_at} onChange={(e) => update("start_at", e.target.value)} />
+          </Field>
+          <Field>
+            <FieldLabel>{t("editor.event_end")}</FieldLabel>
+            <Input type="datetime-local" value={form.end_at} onChange={(e) => update("end_at", e.target.value)} />
+          </Field>
+          <Field className="md:col-span-2">
+            <FieldLabel>{t("editor.event_short_desc")}</FieldLabel>
+            <Textarea value={form.short_description} onChange={(e) => update("short_description", e.target.value)} className="min-h-[60px]" />
+          </Field>
+          <Field className="md:col-span-2">
+            <FieldLabel>{t("editor.event_full_desc")}</FieldLabel>
+            <Textarea value={form.description} onChange={(e) => update("description", e.target.value)} className="min-h-[100px]" />
           </Field>
         </div>
       </Card>
 
-      {/* ── Дополнительные даты ──────────────────────────────────── */}
-      <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4">
-        <div>
-          <h2 className="text-heading-3">Дополнительные даты</h2>
-          <p className="text-body-5 text-(--on-bg-low) mt-0.5">
-            Отборочные, полуфиналы, объявление результатов, финалы
-          </p>
+      {/* Location */}
+      <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4 overflow-visible">
+        <h2 className="text-heading-3">{t("editor.event_location")}</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Field>
+            <FieldLabel>{t("editor.event_venue")}</FieldLabel>
+            <Input value={form.location_name} onChange={(e) => update("location_name", e.target.value)} placeholder="МЦК КИТС" />
+          </Field>
+          <Field>
+            <FieldLabel>{t("editor.event_city")}</FieldLabel>
+            <Input value={form.city} onChange={(e) => update("city", e.target.value)} />
+          </Field>
+          <Field className="md:col-span-2">
+            <FieldLabel>{t("editor.event_address")}</FieldLabel>
+            <Input value={form.address} onChange={(e) => update("address", e.target.value)} />
+          </Field>
+          <Field>
+            <FieldLabel>{t("editor.event_metro")}</FieldLabel>
+            <Input value={form.metro} onChange={(e) => update("metro", e.target.value)} />
+          </Field>
+          <Field className="md:col-span-2">
+            <FieldLabel>{t("editor.event_reg_url")}</FieldLabel>
+            <Input value={form.registration_url} onChange={(e) => update("registration_url", e.target.value)} placeholder="https://forms.yandex.com/… - если пусто, форма на сайте" />
+          </Field>
         </div>
 
-        {otherDates.length > 0 && (
-          <div className="space-y-2">
-            {otherDates.map((d, i) => (
-              <div key={i} className="flex items-start gap-2">
-                <DateTimePicker
-                  value={d.at}
-                  onChange={(v) => updateOtherDate(i, { at: v })}
-                  className="max-w-[260px] shrink-0"
-                />
-                <Input
-                  value={d.label}
-                  onChange={(e) => updateOtherDate(i, { label: e.target.value })}
-                  placeholder="Что за дата (например, «Полуфинал»)"
-                />
-                <Button
-                  type="button"
-                  variant="text"
-                  size="icon-small"
-                  onClick={() => removeOtherDate(i)}
-                  className="shrink-0 mt-1"
-                  aria-label="Удалить"
-                >
-                  <TrashIcon className="size-4" />
-                </Button>
-              </div>
-            ))}
+        {/* Dynamic Seat Types */}
+        <div className="pt-4 border-t border-(--outline)">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <Label className="text-body-3">{t("editor.event_seats_title")}</Label>
+              <p className="text-body-5 text-(--on-bg-low)">{t("editor.event_seats_hint")}</p>
+            </div>
+            <Button type="button" variant="outlined" size="small" onClick={addSeatType}>
+              <PlusIcon className="size-4" /> {t("editor.event_add_seat")}
+            </Button>
           </div>
-        )}
-
-        <Button type="button" variant="outlined" size="small" onClick={addOtherDate}>
-          <PlusIcon className="size-4" />
-          Добавить дату
-        </Button>
-      </Card>
-
-      {/* ── Место ────────────────────────────────────────────────── */}
-      <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4">
-        <h2 className="text-heading-3">Место</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field>
-            <FieldLabel>Место</FieldLabel>
-            <Input
-              value={form.location_name}
-              onChange={(e) => set("location_name", e.target.value)}
-              placeholder="Манеж, Технопарк, Отель…"
-            />
-          </Field>
-          <Field>
-            <FieldLabel>Адрес</FieldLabel>
-            <Input
-              value={form.address}
-              onChange={(e) => set("address", e.target.value)}
-              placeholder="Москва, Манежная пл., 1"
-            />
-          </Field>
-          <Field>
-            <FieldLabel>Цена</FieldLabel>
-            <Input
-              value={form.price}
-              onChange={(e) => set("price", e.target.value)}
-              placeholder="Бесплатно"
-            />
-          </Field>
-          <Field>
-            <FieldLabel>Вместимость</FieldLabel>
-            <Input
-              type="number"
-              value={form.capacity}
-              onChange={(e) => set("capacity", e.target.value)}
-              placeholder="500"
-            />
-          </Field>
+          {form.seat_types.length > 0 && (
+            <div className="space-y-2">
+              {form.seat_types.map((seat, idx) => (
+                <div key={idx} className="flex gap-2 items-center">
+                  <Input
+                    value={seat.type}
+                    onChange={(e) => updateSeatType(idx, "type", e.target.value)}
+                    placeholder={t("editor.event_seat_type_ph")}
+                    className="flex-1"
+                  />
+                  <Input
+                    type="number"
+                    value={seat.count}
+                    onChange={(e) => updateSeatType(idx, "count", e.target.value)}
+                    placeholder={t("editor.event_seat_count_ph")}
+                    className="w-32"
+                  />
+                  <Button type="button" variant="text" size="icon-small" onClick={() => removeSeatType(idx)}>
+                    <XIcon className="size-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </Card>
 
-      {/* ── Обложка ─────────────────────────────────────────────── */}
+      {/* Cover */}
       <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4">
-        <div>
-          <h2 className="text-heading-3">Обложка</h2>
-          <p className="text-body-5 text-(--on-bg-low) mt-0.5">
-            Загрузите изображение, обрежьте под 4:3. Необязательно.
-          </p>
-        </div>
-        <ImageUploadField
-          value={form.cover_image_src}
-          onChange={(url) => set("cover_image_src", url)}
-          aspect={4 / 3}
-          outputSize={1200}
-          variant="cover"
-          maxSizeMb={8}
+        <h2 className="text-heading-3">{t("editor.event_cover")}</h2>
+        <UnifiedCover
+          imageUrl={form.cover_image_src}
+          videoUrl={form.cover_video_src}
+          onChange={(img, vid) => {
+            update("cover_image_src", img);
+            update("cover_video_src", vid);
+          }}
         />
-        <Field>
-          <FieldLabel className="text-body-5 text-(--on-bg-low)">
-            Или вставьте URL
-          </FieldLabel>
-          <Input
-            value={form.cover_image_src}
-            onChange={(e) => set("cover_image_src", e.target.value)}
-            placeholder="/order_files/uploads/… или https://…"
-            className="font-mono text-body-4"
-          />
-        </Field>
-
-        {/* Live card preview — renders the exact composition the
-            events grid uses, so the author sees whether the crop
-            works before saving. */}
-        <div>
-          <p className="text-body-5 uppercase tracking-[0.18em] text-(--on-bg-low) mb-3">
-            Превью карточки
-          </p>
-          <EventCardPreview
-            title={form.title || "Название события"}
-            shortDescription={form.short_description}
-            coverUrl={form.cover_image_src}
-            startAt={form.start_at}
-            location={form.location_name}
-            organizer={selectedOrganizer}
-            customOrganizer={form.custom_organizer_name}
-            firstType={
-              typeSelections.find((t) => !t.isCustom)
-                ? types.find((t) => t.id === typeSelections.find((x) => !x.isCustom)?.id)
-                : null
-            }
-            customType={
-              typeSelections.find((t) => t.isCustom)?.customName || null
-            }
-            isFeatured={form.is_featured}
-          />
-        </div>
       </Card>
 
-      {/* ── Организатор ──────────────────────────────────────────── */}
-      <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4">
-        <div>
-          <h2 className="text-heading-3">Организатор</h2>
-          <p className="text-body-5 text-(--on-bg-low) mt-0.5">
-            Выберите из существующих. Новых добавляет администратор.
-          </p>
-        </div>
-
+      {/* Template */}
+      <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4 overflow-visible">
+        <h2 className="text-heading-3">{t("editor.event_custom_page")}</h2>
         <Field>
-          <FieldLabel>Кто проводит</FieldLabel>
-          <Select
-            value={form.organizer_id}
-            onValueChange={(v) => set("organizer_id", v)}
-          >
+          <FieldLabel>{t("editor.event_template")}</FieldLabel>
+          <Select value={form.custom_page || "__none__"} onValueChange={(v) => update("custom_page", v === "__none__" ? null : v)}>
             <SelectTrigger>
-              <SelectValue placeholder="Без организатора" />
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={NO_ORGANIZER}>Без организатора</SelectItem>
-              {organizers.map((o) => (
-                <SelectItem key={o.id} value={o.id}>
-                  <span className="flex items-center gap-2">
-                    {o.avatar_url ? (
-                      /* eslint-disable-next-line @next/next/no-img-element */
-                      <img
-                        src={o.avatar_url}
-                        alt=""
-                        className="size-5 rounded-full object-cover shrink-0"
-                      />
-                    ) : (
-                      <span
-                        className="size-5 rounded-full shrink-0 flex items-center justify-center text-[9px] "
-                        style={{
-                          background: o.color
-                            ? `color-mix(in srgb, ${o.color} 22%, transparent)`
-                            : "var(--state-hover)",
-                          color: o.color || "var(--on-bg-medium)",
-                        }}
-                      >
-                        {o.name.slice(0, 1).toUpperCase()}
-                      </span>
-                    )}
-                    <span>{o.name}</span>
-                  </span>
-                </SelectItem>
+              <SelectItem value="__none__">{t("editor.event_template_default")}</SelectItem>
+              {EVENT_CUSTOM_PAGES_META.map((m) => (
+                <SelectItem key={m.key} value={m.key}>{m.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </Field>
-
-
-        {selectedOrganizer && (
-          <div className="flex items-center gap-3 rounded-2xl border border-(--outline) bg-(--bg) p-3">
-            {selectedOrganizer.avatar_url ? (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={selectedOrganizer.avatar_url}
-                alt=""
-                className="size-10 rounded-xl object-cover shrink-0"
-              />
-            ) : (
-              <span
-                className="flex size-10 items-center justify-center rounded-xl text-body-3  shrink-0"
-                style={{
-                  background: selectedOrganizer.color
-                    ? `color-mix(in srgb, ${selectedOrganizer.color} 22%, transparent)`
-                    : "var(--state-hover)",
-                  color: selectedOrganizer.color || "var(--on-bg-high)",
-                }}
-              >
-                {selectedOrganizer.name.slice(0, 1).toUpperCase()}
-              </span>
-            )}
-            <div className="min-w-0 flex-1">
-              <p className="text-body-3 font-medium truncate">
-                {selectedOrganizer.name}
-              </p>
-              {selectedOrganizer.description && (
-                <p className="text-body-5 text-(--on-bg-low) truncate">
-                  {selectedOrganizer.description}
-                </p>
-              )}
-            </div>
-          </div>
-        )}
       </Card>
 
-      {/* ── Типы ─────────────────────────────────────────────────── */}
-      <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4">
-        <div>
-          <h2 className="text-heading-3">Типы события</h2>
-          <p className="text-body-5 text-(--on-bg-low) mt-0.5">
-            IT, Бизнес, Дизайн… Можно несколько.
-          </p>
+      {/* Novel Editor (Replacing MDX) */}
+      {!isCustomPage && (
+        <div className="space-y-3">
+          <h2 className="text-heading-3">{t("editor.section_content")}</h2>
+          <NovelEditor
+            initialContent={form.content_json}
+            onChange={(json) => update("content_json", json)}
+          />
         </div>
-
-        <div className="flex flex-wrap gap-2">
-          {types.map((t) => {
-            const selected = typeSelections.some(
-              (x) => x.id === t.id && !x.isCustom,
-            );
-            return (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => (selected ? removeType(t.id) : addType(t.id))}
-                className={
-                  "rounded-full px-3 py-1.5 text-body-4 font-medium transition-colors " +
-                  (selected
-                    ? "bg-(--primary) text-(--on-primary)"
-                    : "bg-(--card) border border-(--outline) text-(--on-bg-medium) hover:text-(--on-bg-high)")
-                }
-              >
-                {t.name}
-              </button>
-            );
-          })}
-          <button
-            type="button"
-            onClick={addCustomType}
-            className="rounded-full px-3 py-1.5 text-body-4 font-medium border border-dashed border-(--outline) text-(--on-bg-low) hover:border-(--on-bg-high) hover:text-(--on-bg-high) transition-colors inline-flex items-center gap-1"
-          >
-            <PlusIcon className="size-3.5" />
-            Другое
-          </button>
-        </div>
-
-        {types.length === 0 && !metaError && (
-          <p className="text-body-5 text-(--on-bg-low)">
-            Справочник типов пуст — можно добавить свой через «Другое».
-          </p>
-        )}
-
-        {types.length === 0 && metaError && (
-          <p className="text-body-5 text-destructive">{metaError}</p>
-        )}
-
-        {typeSelections
-          .filter((t) => t.isCustom)
-          .map((t) => (
-            <div key={t.id} className="flex items-center gap-2">
-              <Input
-                value={t.customName}
-                onChange={(e) => updateCustomName(t.id, e.target.value)}
-                placeholder="Название типа"
-              />
-              <Button
-                type="button"
-                variant="text"
-                size="icon-small"
-                onClick={() => removeType(t.id)}
-              >
-                <TrashIcon className="size-4" />
-              </Button>
-            </div>
-          ))}
-      </Card>
-
-      {/* ── Вершины / Направления ────────────────────────────────── */}
-      <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-5">
-        <div>
-          <h2 className="text-heading-3">Вершины</h2>
-          <p className="text-body-5 text-(--on-bg-low) mt-0.5">
-            Направления, к которым относится событие. Необязательно.
-          </p>
-        </div>
-
-        {metaError && (
-          <div className="rounded-2xl border border-destructive/30 bg-destructive/5 p-3">
-            <p className="text-body-5 text-destructive">{metaError}</p>
-          </div>
-        )}
-
-        {directions.length === 0 && !metaError && (
-          <div className="rounded-2xl border border-dashed border-(--outline) p-6 text-center">
-            <p className="text-body-4 text-(--on-bg-medium)">
-              Справочник направлений пока пуст.
-            </p>
-            <p className="text-body-5 text-(--on-bg-low) mt-1">
-              Администратор может заполнить его в панели «Направления».
-            </p>
-          </div>
-        )}
-
-        {directions.map((d) => (
-          <div key={d.id} className="space-y-2">
-            <p className="text-body-3 font-medium text-(--on-bg-high)">
-              {d.emoji ? `${d.emoji} ` : ""}
-              {d.name}
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {d.subdirections.map((s) => {
-                const on = form.subdirection_ids.includes(s.id);
-                return (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => toggleSubdirection(s.id)}
-                    className={
-                      "rounded-full px-3 py-1 text-body-4 font-medium transition-colors " +
-                      (on
-                        ? "bg-(--primary) text-(--on-primary)"
-                        : "bg-(--bg) border border-(--outline) text-(--on-bg-medium) hover:text-(--on-bg-high) hover:border-(--on-bg-low)")
-                    }
-                  >
-                    {s.name}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </Card>
-
-      {/* ── Admin-only ──────────────────────────────────────────── */}
-      {mode === "admin" && (
-        <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4">
-          <h2 className="text-heading-3">Администрирование</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Field>
-              <FieldLabel>Статус публикации</FieldLabel>
-              <Select
-                value={form.status}
-                onValueChange={(v) => set("status", v as any)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pending">На модерации</SelectItem>
-                  <SelectItem value="approved">Опубликовано</SelectItem>
-                  <SelectItem value="rejected">Отклонено</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-            <div className="flex items-end pb-2">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <Checkbox
-                  checked={form.is_featured}
-                  onCheckedChange={(v) => set("is_featured", v === true)}
-                />
-                <Label className="text-body-4">Избранное событие</Label>
-              </label>
-            </div>
-          </div>
-          <Field>
-            <FieldLabel>SEO title</FieldLabel>
-            <Input
-              value={form.seo_title}
-              onChange={(e) => set("seo_title", e.target.value)}
-            />
-          </Field>
-          <Field>
-            <FieldLabel>Meta description</FieldLabel>
-            <Textarea
-              value={form.meta_description}
-              onChange={(e) => set("meta_description", e.target.value)}
-              className="min-h-[70px]"
-            />
-          </Field>
-        </Card>
       )}
 
-      <div className="flex flex-wrap gap-3">
-        <Button type="submit" size="large" disabled={submitting}>
-          {submitting && <CircleNotchIcon className="size-4 animate-spin" />}
-          {editing
-            ? "Сохранить изменения"
-            : mode === "admin"
-              ? "Создать событие"
-              : "Отправить на модерацию"}
-        </Button>
-        <Button
-          type="button"
-          variant="outlined"
-          size="large"
-          onClick={() => router.back()}
-          disabled={submitting}
-        >
-          Отмена
-        </Button>
-      </div>
-    </form>
-  );
-}
-
-/** ISO → local datetime-local input string (YYYY-MM-DDTHH:MM). */
-function toLocalInput(iso: string | null | undefined): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return "";
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
-    d.getHours(),
-  )}:${pad(d.getMinutes())}`;
-}
-
-
-/* ── Card preview ──────────────────────────────────────────────────
-   A 1:1 clone of the events grid card, rendered live from the form
-   state. The `aspect-[16/10]` and the dark organizer chip in the
-   top-left match `EventCard` in the user profile page — if the
-   event card layout changes there, update both. */
-function EventCardPreview({
-  title,
-  shortDescription,
-  coverUrl,
-  startAt,
-  location,
-  organizer,
-  customOrganizer,
-  firstType,
-  customType,
-  isFeatured,
-}: {
-  title: string;
-  shortDescription?: string;
-  coverUrl?: string;
-  startAt?: string;
-  location?: string;
-  organizer: Organizer | null;
-  customOrganizer?: string;
-  firstType: EventTypeTaxonomy | null | undefined;
-  customType: string | null;
-  isFeatured: boolean;
-}) {
-  const color = organizer
-    ? colorForOrganizer(organizer)
-    : customOrganizer
-      ? "#4a4e54"
-      : "#4a4e54";
-  const orgLabel = organizer?.name || customOrganizer || "Без организатора";
-
-  const dateLabel = startAt
-    ? new Date(startAt).toLocaleDateString("ru-RU", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    })
-    : "Дата не указана";
-
-  const typeLabel = firstType?.name || customType;
-
-  return (
-    <div className="max-w-sm">
-      <div className="group relative flex flex-col rounded-3xl border border-(--outline) bg-(--card) overflow-hidden">
-        <div className="relative aspect-[4/3] overflow-hidden bg-(--bg-disabled)">
-          {coverUrl ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
-              src={coverUrl}
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-          ) : (
-            <div
-              className="absolute inset-0"
-              style={{
-                background: `linear-gradient(135deg, color-mix(in srgb, ${color} 22%, transparent), color-mix(in srgb, ${color} 4%, transparent))`,
-              }}
-            />
-          )}
-          <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/45 px-2.5 py-1 text-[10px]  uppercase tracking-wider text-white backdrop-blur-md">
-            <span
-              className="size-1.5 rounded-full"
-              style={{ backgroundColor: color }}
-            />
-            {orgLabel}
-          </span>
+      {/* SEO + flags */}
+      <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4">
+        <h2 className="text-heading-3">{t("editor.event_flags")}</h2>
+        <Field>
+          <FieldLabel>{t("editor.field_seo_title")}</FieldLabel>
+          <Input value={form.seo_title} onChange={(e) => update("seo_title", e.target.value)} />
+        </Field>
+        <Field>
+          <FieldLabel>{t("editor.field_seo_description")}</FieldLabel>
+          <Textarea value={form.meta_description} onChange={(e) => update("meta_description", e.target.value)} className="min-h-[72px]" />
+        </Field>
+        <div className="flex items-center gap-3 pt-2">
+          <Switch id="is_featured" checked={form.is_featured} onCheckedChange={(v) => update("is_featured", v)} />
+          <Label htmlFor="is_featured">{t("editor.event_featured")}</Label>
         </div>
-
-        <div className="flex-1 flex flex-col p-5">
-          <div className="flex items-center gap-2 mb-3 flex-wrap">
-            {typeLabel && (
-              <Badge variant="tonal-card-static" size="chip-small">
-                {typeLabel}
-              </Badge>
-            )}
-            {isFeatured && (
-              <Badge variant="tonal-primary-static" size="chip-small">
-                ★
-              </Badge>
-            )}
-          </div>
-
-          <h3 className="text-heading-3 leading-tight text-(--on-bg-high) mb-3 line-clamp-2">
-            {title}
-          </h3>
-
-          {shortDescription && (
-            <p className="text-body-4 text-(--on-bg-medium) leading-relaxed line-clamp-2 mb-5">
-              {shortDescription}
-            </p>
-          )}
-
-          <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-body-5 text-(--on-bg-low) mt-auto pt-4 border-t border-(--outline)">
-            <span className="inline-flex items-center gap-1.5">
-              <CalendarBlankIcon className="size-3.5" />
-              {dateLabel}
-            </span>
-            {location && (
-              <span className="inline-flex items-center gap-1.5 truncate">
-                <MapPinIcon className="size-3.5 shrink-0" />
-                <span className="truncate">{location}</span>
-              </span>
-            )}
-          </div>
+        <div className="flex items-center gap-3">
+          <Switch id="published" checked={form.publication_status === "published"} onCheckedChange={(v) => update("publication_status", v ? "published" : "draft")} />
+          <Label htmlFor="published">{t("editor.status_published")}</Label>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

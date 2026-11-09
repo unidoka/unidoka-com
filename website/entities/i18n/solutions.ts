@@ -35,10 +35,10 @@ export const solutionsTranslations: Record<Language, Record<string, string>> = {
       'Те же решения - но всё на виду. Выбирайте, что полюбится. Этот сайт тоже.',
     'solutions.item_all_title': 'Услуги',
     'solutions.item_all_desc':
-      'Решения от навыков до сложных систем. Оставьте заявку на продукт, который привлёк ваше внимание больше.',
+      'Поддержка инноваций компетенциями и опытом. Помогаем получать инвестиции и продвигать свой продукт и сами включаемся в работу проекта.',
     'solutions.item_oss_title': 'Open source',
     'solutions.item_oss_desc':
-      'Те же сильные решения, но с открытым исходным кодом - выбирайте, что полюбится. Этот сайт тоже.',
+      'Решения, которые уже сейчас решают важные задачи прямо сейчас',
     'solutions.item_amorfa_title': 'Amorfa',
     'solutions.item_amorfa_desc':
       'AI-оптимизированный fullstack-фреймворк. FastAPI, Next.js, PostgreSQL - клонируй и собирай за часы.',

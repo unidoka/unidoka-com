@@ -50,22 +50,22 @@ export const homeTranslations: Record<Language, Record<string, string>> = {
   },
   ru: {
     'home.numbers_title': 'Что мы делаем',
-    'home.card_solutions_title': 'Решения',
+    'home.card_solutions_title': 'Поддержка',
     'home.card_solutions_desc':
-      'Решения от навыков до сложных систем. Оставьте заявку на продукт, который привлёк ваше внимание больше.',
+      'Поддержка инноваций компетенциями и опытом. Помогаем получать инвестиции и продвигать свой продукт и сами включаемся в работу проекта.',
     'home.card_solutions_btn': 'Смотреть решения',
     'home.card_opensource_title': 'Open source',
     'home.card_opensource_desc':
-      'Те же сильные решения, но с открытым исходным кодом - выбирайте, что полюбится. Этот сайт тоже.',
-    'home.card_opensource_btn': 'Смотреть open source',
-    'home.card_community_title': 'Amorfa',
+      'Решения, которые уже сейчас решают важные задачи прямо сейчас.',
+    'home.card_opensource_btn': 'Наш github',
+    'home.card_community_title': 'Создаём базу',
     'home.card_community_desc':
-      'AI-оптимизированный fullstack-фреймворк. FastAPI, Next.js, PostgreSQL - клонируй и собирай за часы.',
-    'home.card_community_btn': 'Открыть Amorfa',
-    'home.card_events_title': 'События',
+      'Фреймворк Amorfa - это открытый код, новый подход к веб-разработке с ИИ без техдолга.',
+    'home.card_community_btn': 'Документация Аморфы',
+    'home.card_events_title': 'События и мероприятия',
     'home.card_events_desc':
-      'Открытый календарь событий с фильтрацией - конференции, хакатоны, форумы.',
-    'home.card_events_btn': 'Открыть календарь',
+      'Открытый календарь событий с фильтрацией - конференции, хакатоны, форумы, кейс-чемпионаты.',
+    'home.card_events_btn': 'События для созидателей',
     'home.best_works_title': 'Избранные проекты',
     'home.view_all_projects': 'Все проекты',
     'home.no_projects': 'Пока нет проектов',
