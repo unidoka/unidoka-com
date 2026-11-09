@@ -5,13 +5,13 @@ export const consultTranslations: Record<Language, Record<string, string>> = {
     // Section copy
     'consult.eyebrow': 'Consultation',
     'consult.title_prefix': "Let's discuss",
-    'consult.title_highlight': 'your project',
+    'consult.title_highlight': 'project',
     'consult.title_suffix': '?',
     'consult.body':
       'Tell us about the task - we will propose a solution, estimate the timeline and cost. No fluff, within one business day.',
     'consult.bullet_1': 'Reply within one business day',
     'consult.bullet_2': 'Free and with no obligation',
-    'consult.bullet_3': 'Then you decide',
+    'consult.bullet_3': 'Flexible cooperation conditions & support of innovations',
 
     // Form labels
     'consult.form.name_label': 'Your name *',
@@ -48,13 +48,13 @@ export const consultTranslations: Record<Language, Record<string, string>> = {
   ru: {
     'consult.eyebrow': 'Консультация',
     'consult.title_prefix': 'Обсудим',
-    'consult.title_highlight': 'ваш проект',
+    'consult.title_highlight': 'проект',
     'consult.title_suffix': '?',
     'consult.body':
       'Расскажите о задаче - предложим решение, оценим сроки и стоимость. Без воды, в течение рабочего дня.',
     'consult.bullet_1': 'Ответ в течение рабочего дня',
     'consult.bullet_2': 'Бесплатно и без обязательств',
-    'consult.bullet_3': 'Дальше - как решите',
+    'consult.bullet_3': 'Гибкие условия сотрудничества и поддержка инноваций',
 
     'consult.form.name_label': 'Ваше имя *',
     'consult.form.name_placeholder': 'Иван',

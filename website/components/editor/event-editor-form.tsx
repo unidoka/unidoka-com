@@ -149,10 +149,10 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
         a.type
           ? { id: a.type.id, isCustom: false, customName: "" }
           : {
-              id: `custom-${a.id || i}`,
-              isCustom: true,
-              customName: a.custom_name ?? "",
-            },
+            id: `custom-${a.id || i}`,
+            isCustom: true,
+            customName: a.custom_name ?? "",
+          },
       ),
     );
   }, [editing]);
@@ -570,7 +570,7 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
                       />
                     ) : (
                       <span
-                        className="size-5 rounded-full shrink-0 flex items-center justify-center text-[9px] font-semibold"
+                        className="size-5 rounded-full shrink-0 flex items-center justify-center text-[9px] "
                         style={{
                           background: o.color
                             ? `color-mix(in srgb, ${o.color} 22%, transparent)`
@@ -601,7 +601,7 @@ export function EventEditorForm({ editing, mode, redirectAfter }: Props) {
               />
             ) : (
               <span
-                className="flex size-10 items-center justify-center rounded-xl text-body-3 font-semibold shrink-0"
+                className="flex size-10 items-center justify-center rounded-xl text-body-3  shrink-0"
                 style={{
                   background: selectedOrganizer.color
                     ? `color-mix(in srgb, ${selectedOrganizer.color} 22%, transparent)`
@@ -874,10 +874,10 @@ function EventCardPreview({
 
   const dateLabel = startAt
     ? new Date(startAt).toLocaleDateString("ru-RU", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      })
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    })
     : "Дата не указана";
 
   const typeLabel = firstType?.name || customType;
@@ -901,7 +901,7 @@ function EventCardPreview({
               }}
             />
           )}
-          <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white backdrop-blur-md">
+          <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/45 px-2.5 py-1 text-[10px]  uppercase tracking-wider text-white backdrop-blur-md">
             <span
               className="size-1.5 rounded-full"
               style={{ backgroundColor: color }}

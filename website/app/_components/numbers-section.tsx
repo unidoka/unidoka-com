@@ -51,7 +51,7 @@ export default function NumbersSection() {
   return (
     <section ref={sectionRef} className="pt-20 sm:pt-28 pb-12 sm:pb-20">
       <Container>
-        <h2 className="text-display-2 mb-10">
+        <h2 className="text-display-4 sm:text-display-2 mb-10">
           {t("home.numbers_title")}
         </h2>
 

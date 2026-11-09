@@ -137,7 +137,7 @@ export function SocialPreview() {
               )}
             </div>
             <div className="p-3 border-l-[3px] border-(--primary)">
-              <p className="text-body-3 font-semibold text-(--on-bg-high) mb-1 line-clamp-2">
+              <p className="text-body-3  text-(--on-bg-high) mb-1 line-clamp-2">
                 {title || "Заголовок"}
               </p>
               <p className="text-body-5 text-(--on-bg-medium) leading-snug line-clamp-2 mb-1">

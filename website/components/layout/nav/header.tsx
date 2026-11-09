@@ -75,14 +75,14 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", onDown);
   }, [profileOpen]);
 
-  const { secret: adminSecret } = useAdminSecret(user?.id ?? null);
+  const { secret: adminSecret } = useAdminSecret();
+  
   const adminHref = adminSecret
     ? crossSubdomainUrl("admin", `/${adminSecret}`)
     : null;
   const profileHref = crossSubdomainUrl("app", "/profile");
   const rootLink = (path: string) => rootDomainUrl(path);
 
-  // Premium soft shadows
   const shadowStyle = isScrolled
     ? { boxShadow: "0 12px 32px -8px rgba(0,0,0,0.12), 0 4px 12px -4px rgba(0,0,0,0.04)" }
     : { boxShadow: "0 6px 20px -6px rgba(0,0,0,0.08), 0 2px 8px -2px rgba(0,0,0,0.02)" };
@@ -95,6 +95,13 @@ export default function Header() {
     const v = t(key);
     return v === key ? fallback : v;
   };
+
+  // Premium, smooth spring animation
+  const profileVariants = {
+    hidden: { opacity: 0, y: -8, scale: 0.96, originY: 0 },
+    visible: { opacity: 1, y: 0, scale: 1 },
+  };
+  const premiumSpring = { type: "spring", stiffness: 400, damping: 30, mass: 0.7 };
 
   return (
     <header className="sticky top-0 left-0 right-0 z-50 w-full px-3 pt-3 pointer-events-none">
@@ -183,60 +190,65 @@ export default function Header() {
                 <AnimatePresence>
                   {profileOpen && (
                     <motion.div
-                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                      transition={{ duration: 0.2, ease: "easeOut" }}
-                      className="absolute top-full right-0 mt-4 w-64 rounded-2xl border border-[color-mix(in_srgb,var(--outline),transparent_50%)] bg-[color-mix(in_srgb,var(--card),transparent_85%)] backdrop-blur-2xl p-2 flex flex-col gap-1 z-[9999] shadow-[0_16px_40px_-12px_rgba(0,0,0,0.15)]"
+                      variants={profileVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="hidden"
+                      transition={premiumSpring}
+                      className="absolute top-full right-0 mt-4 w-[260px] sm:w-64 rounded-2xl border border-(--outline) bg-card p-2 flex flex-col gap-1 z-[9999] shadow-[0_16px_40px_-12px_rgba(0,0,0,0.15)] origin-top-right"
                     >
-                      <div className="absolute -top-1.5 right-3 w-3 h-3 rotate-45 bg-[color-mix(in_srgb,var(--card),transparent_85%)] border-t border-l border-[color-mix(in_srgb,var(--outline),transparent_50%)]" />
-                      {user ? (
-                        <>
-                          <Link
-                            href={profileHref}
-                            prefetch={false}
-                            onClick={() => setProfileOpen(false)}
-                            className="block px-4 py-2.5 rounded-xl text-[15px] font-medium text-center text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
-                          >
-                            {tr("nav.profile", "Профиль")}
-                          </Link>
-                          {(user?.role === "admin" || user?.role === "root") && adminHref && (
+                      {/* Pointer (Always aligned with center of icon) */}
+                      <div className="absolute -top-1.5 right-[18px] w-3 h-3 rotate-45 bg-card border-t border-l border-(--outline)" />
+                      
+                      <div className="relative z-10 flex flex-col gap-1">
+                        {user ? (
+                          <>
                             <Link
-                              href={adminHref}
+                              href={profileHref}
+                              prefetch={false}
                               onClick={() => setProfileOpen(false)}
-                              className="block px-4 py-2.5 rounded-xl text-[15px] font-medium text-center text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
+                              className="block px-4 py-3 rounded-xl text-[15px] font-medium text-center text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
                             >
-                              {tr("nav.admin", "Админ-панель")}
+                              {tr("nav.profile", "Профиль")}
                             </Link>
-                          )}
-                          <button
-                            onClick={() => {
-                              logout();
-                              setProfileOpen(false);
-                            }}
-                            className="block w-full px-4 py-2.5 rounded-xl text-[15px] font-medium text-center text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
-                          >
-                            {tr("nav.logout", "Выйти")}
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <Link
-                            href={rootLink("/login")}
-                            onClick={() => setProfileOpen(false)}
-                            className="block px-4 py-2.5 rounded-xl text-[15px] font-medium text-center text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
-                          >
-                            {tr("nav.login", "Войти")}
-                          </Link>
-                          <Link
-                            href={rootLink("/register")}
-                            onClick={() => setProfileOpen(false)}
-                            className="block px-4 py-2.5 rounded-xl text-[15px] font-medium text-center text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
-                          >
-                            {tr("nav.register", "Регистрация")}
-                          </Link>
-                        </>
-                      )}
+                            {(user?.role === "admin" || user?.role === "root") && adminHref && (
+                              <Link
+                                href={adminHref}
+                                onClick={() => setProfileOpen(false)}
+                                className="block px-4 py-3 rounded-xl text-[15px] font-medium text-center text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
+                              >
+                                {tr("nav.admin", "Админ-панель")}
+                              </Link>
+                            )}
+                            <button
+                              onClick={() => {
+                                logout();
+                                setProfileOpen(false);
+                              }}
+                              className="block w-full px-4 py-3 rounded-xl text-[15px] font-medium text-center text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
+                            >
+                              {tr("nav.logout", "Выйти")}
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <Link
+                              href={rootLink("/login")}
+                              onClick={() => setProfileOpen(false)}
+                              className="block px-4 py-3 rounded-xl text-[15px] font-medium text-center text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
+                            >
+                              {tr("nav.login", "Войти")}
+                            </Link>
+                            <Link
+                              href={rootLink("/register")}
+                              onClick={() => setProfileOpen(false)}
+                              className="block px-4 py-3 rounded-xl text-[15px] font-medium text-center text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
+                            >
+                              {tr("nav.register", "Регистрация")}
+                            </Link>
+                          </>
+                        )}
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>

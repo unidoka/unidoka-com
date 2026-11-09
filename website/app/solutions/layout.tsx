@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Решения",
   description:
-    "Студия полного цикла, open-source фреймворк Amorfa и календарь IT-событий - продукты и сервисы Unidoka.",
+    "То, что создаёт будущее - open source решения, новые способы организации , бизнес-сообщества и многое другое",
   alternates: { canonical: "/solutions" },
 };
 

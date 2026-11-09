@@ -162,7 +162,7 @@ export default function AdminPlacementsPage() {
                   </span>
                   <Icon className="size-3.5 text-(--on-bg-low)" weight="regular" />
                 </div>
-                <p className="font-mono text-[1.5rem] font-semibold leading-none text-(--on-bg-high) tabular-nums">
+                <p className="font-mono text-[1.5rem]  leading-none text-(--on-bg-high) tabular-nums">
                   {stats[s]}
                 </p>
               </Card>
@@ -276,7 +276,7 @@ export default function AdminPlacementsPage() {
                       />
                     ) : (
                       <span
-                        className="size-16 rounded-xl shrink-0 flex items-center justify-center text-body-2 font-semibold"
+                        className="size-16 rounded-xl shrink-0 flex items-center justify-center text-body-2 "
                         style={{
                           background: p.accent_color
                             ? `color-mix(in srgb, ${p.accent_color} 15%, transparent)`

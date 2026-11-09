@@ -96,7 +96,7 @@ export default function AdminOrganizersPage() {
                   />
                 ) : (
                   <span
-                    className="size-10 rounded-full shrink-0 flex items-center justify-center text-body-3 font-semibold"
+                    className="size-10 rounded-full shrink-0 flex items-center justify-center text-body-3 "
                     style={{
                       background: o.color
                         ? `color-mix(in srgb, ${o.color} 22%, transparent)`

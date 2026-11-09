@@ -225,7 +225,7 @@ function TimeColumn({
             className={cn(
               "w-full h-8 text-center font-mono text-body-4 tabular-nums transition-colors rounded-md mx-1",
               active
-                ? "bg-(--on-bg-high) text-(--bg) font-semibold"
+                ? "bg-(--on-bg-high) text-(--bg) "
                 : "text-(--on-bg-medium) hover:bg-(--state-hover) hover:text-(--on-bg-high)",
             )}
             style={{ width: "calc(100% - 8px)" }}

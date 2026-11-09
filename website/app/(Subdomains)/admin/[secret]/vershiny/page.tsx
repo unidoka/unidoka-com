@@ -58,7 +58,7 @@ export default function VershinyPage() {
                 <p className="text-[10px] uppercase tracking-[0.14em] text-(--on-bg-low) mb-1 truncate">
                   {t.label}
                 </p>
-                <p className="font-mono text-[1.5rem] font-semibold leading-none text-(--on-bg-high) tabular-nums">
+                <p className="font-mono text-[1.5rem]  leading-none text-(--on-bg-high) tabular-nums">
                   {t.value}
                 </p>
               </Card>

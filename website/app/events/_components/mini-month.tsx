@@ -29,7 +29,7 @@ export function MiniMonth({ month, selected, eventDays, onMonthChange, onSelect 
         >
           <span className="text-base leading-none">‹</span>
         </Button>
-        <div className="text-body-4 font-semibold capitalize">
+        <div className="text-body-4  capitalize">
           {format(month, "LLLL yyyy", { locale: ru })}
         </div>
         <Button
@@ -71,7 +71,7 @@ export function MiniMonth({ month, selected, eventDays, onMonthChange, onSelect 
                 !inMonth && "text-(--on-bg-low) opacity-40",
                 inMonth && !isSel && "text-(--on-bg-high) hover:bg-(--state-hover)",
                 isSel && "bg-(--primary) text-(--on-primary)",
-                today && !isSel && "font-semibold text-(--primary)"
+                today && !isSel && " text-(--primary)"
               )}
             >
               {d.getDate()}

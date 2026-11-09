@@ -35,7 +35,7 @@ export function WeekView({ anchor, byDay, onSelectEvent }: Props) {
                   </span>
                   <span
                     className={cn(
-                      "flex items-center justify-center size-8 rounded-full text-body-3 font-semibold tabular-nums",
+                      "flex items-center justify-center size-8 rounded-full text-body-3  tabular-nums",
                       today ? "bg-(--primary) text-(--on-primary)" : "text-(--on-bg-high)",
                     )}
                   >
@@ -56,7 +56,7 @@ export function WeekView({ anchor, byDay, onSelectEvent }: Props) {
                     "flex flex-col gap-1 p-2 min-h-full snap-start",
                     i !== 6 && "border-r border-(--outline)",
                     isSameDay(d, new Date()) &&
-                      "bg-[color-mix(in_srgb,var(--primary)_4%,transparent)]",
+                    "bg-[color-mix(in_srgb,var(--primary)_4%,transparent)]",
                   )}
                 >
                   {events.map((ev) => (

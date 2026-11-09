@@ -57,7 +57,7 @@ export default function ErrorPage({
             <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-(--on-bg-low) mb-6">
               ERR / INTERNAL
             </p>
-            <p className="font-heading font-semibold leading-[0.85] tracking-[-0.06em] text-(--on-bg-high) text-[6rem] md:text-[10rem] tabular-nums">
+            <p className="font-heading  leading-[0.85] tracking-[-0.06em] text-(--on-bg-high) text-[6rem] md:text-[10rem] tabular-nums">
               500
             </p>
             <div className="mt-8 pt-4 border-t border-(--outline) font-mono text-[11px] text-(--on-bg-low) space-y-1">

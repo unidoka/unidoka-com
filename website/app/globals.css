@@ -1525,3 +1525,54 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 .mdxeditor-image-dialog button[type="button"]:not([type="submit"]):hover {
   background: var(--state-hover) !important;
 }
+/* ── Project Mesh Gradient Animations ──────────────────────────────── */
+@keyframes mesh-drift-1 {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(3%, -2%, 0); }
+}
+@keyframes mesh-drift-2 {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(-2%, 3%, 0); }
+}
+@keyframes mesh-drift-3 {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(2%, -3%, 0); }
+}
+@keyframes mesh-drift-4 {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(-3%, 2%, 0); }
+}
+.mesh-blob-1 { animation: mesh-drift-1 22s ease-in-out infinite; will-change: transform; }
+.mesh-blob-2 { animation: mesh-drift-2 28s ease-in-out infinite; will-change: transform; }
+.mesh-blob-3 { animation: mesh-drift-3 32s ease-in-out infinite; will-change: transform; }
+.mesh-blob-4 { animation: mesh-drift-4 26s ease-in-out infinite; will-change: transform; }
+
+@keyframes hero-grain-drift {
+  0% { transform: translate3d(0, 0, 0); }
+  12.5% { transform: translate3d(-2%, -3%, 0); }
+  25% { transform: translate3d(3%, -1%, 0); }
+  37.5% { transform: translate3d(-1%, 2%, 0); }
+  50% { transform: translate3d(2%, 3%, 0); }
+  62.5% { transform: translate3d(-3%, 1%, 0); }
+  75% { transform: translate3d(1%, -2%, 0); }
+  87.5% { transform: translate3d(-2%, -1%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+.hero-grain-drift { animation: hero-grain-drift 7s steps(8) infinite; will-change: transform; }
+
+@keyframes hero-dot-drift { to { background-position: 22px 22px; } }
+.hero-dot-drift { animation: hero-dot-drift 20s linear infinite; }
+
+@keyframes hero-light-sweep {
+  0% { transform: translate3d(0, 0, 0); }
+  25% { transform: translate3d(8%, -6%, 0); }
+  50% { transform: translate3d(-4%, 10%, 0); }
+  75% { transform: translate3d(6%, 4%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+.hero-light-sweep { animation: hero-light-sweep 26s ease-in-out infinite; will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mesh-blob-1, .mesh-blob-2, .mesh-blob-3, .mesh-blob-4,
+  .hero-grain-drift, .hero-dot-drift, .hero-light-sweep { animation: none; }
+}

@@ -37,12 +37,10 @@ export function FloatingMenu({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close menu on route change
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  // Handle outside clicks
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent | TouchEvent) => {
@@ -64,11 +62,17 @@ export function FloatingMenu({
   }, [open]);
 
   const rootLink = (path: string) => rootDomainUrl(path);
-
   const tr = (key: string, fallback: string) => {
     const v = t(key);
     return v === key ? fallback : v;
   };
+
+  // Premium, smooth spring animation matching header
+  const menuVariants = {
+    hidden: { opacity: 0, y: position === "bottom" ? 8 : -8, scale: 0.96, originY: position === "bottom" ? 1 : 0 },
+    visible: { opacity: 1, y: 0, scale: 1 },
+  };
+  const premiumSpring = { type: "spring", stiffness: 400, damping: 30, mass: 0.7 };
 
   return (
     <div ref={wrapperRef} className="relative flex items-center">
@@ -93,18 +97,29 @@ export function FloatingMenu({
           <motion.div
             id="floating-menu-panel"
             ref={dropdownRef}
-            initial={{ opacity: 0, y: position === "bottom" ? 10 : -10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: position === "bottom" ? 10 : -10, scale: 0.95 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
+            variants={menuVariants}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            transition={premiumSpring}
             className={cn(
-              "absolute z-[9999] flex flex-col border border-[color-mix(in_srgb,var(--outline),transparent_50%)] shadow-[0_16px_40px_-12px_rgba(0,0,0,0.15)] backdrop-blur-2xl bg-[color-mix(in_srgb,var(--card),transparent_85%)] w-64 max-w-[calc(100vw-3rem)] rounded-2xl p-2",
+              "absolute z-[9999] flex flex-col border border-(--outline) shadow-[0_16px_40px_-12px_rgba(0,0,0,0.15)] bg-card w-64 max-w-[calc(100vw-3rem)] rounded-2xl p-2",
               position === "bottom"
-                ? "bottom-full right-0 mb-3"
-                : "top-full right-0 mt-3"
+                ? "bottom-full right-0 mb-4 origin-bottom-right"
+                : "top-full right-0 mt-4 origin-top-right"
             )}
           >
-            <nav className="flex flex-col gap-1">
+            {/* Pointer */}
+            <div
+              className={cn(
+                "absolute right-[18px] w-3 h-3 rotate-45 bg-card border-(--outline)",
+                position === "bottom"
+                  ? "-bottom-1.5 border-b border-r"
+                  : "-top-1.5 border-t border-l"
+              )}
+            />
+
+            <nav className="relative z-10 flex flex-col gap-1">
               {MENU_LINKS.map((link) => {
                 const href = rootLink(link.href);
                 const isActive = pathname === link.href;

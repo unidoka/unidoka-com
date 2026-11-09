@@ -18,9 +18,9 @@ const rawRoot = (process.env.NEXT_PUBLIC_ROOT_DOMAIN || "").trim();
 const cleanRoot = rawRoot.replace(/^https?:\/\//i, "").replace(/\/.*$/, "");
 const SITE_URL = cleanRoot ? `https://${cleanRoot}` : "http://localhost:3000";
 
-const SITE_TITLE = "Unidoka - студия цифровых продуктов";
+const SITE_TITLE = "Unidoka: вместе - лучше";
 const SITE_DESCRIPTION =
-  "Разработка, дизайн, 3D и брендинг. Open-source фреймворк Amorfa, календарь IT-событий и сообщество специалистов.";
+  "Создание решений будущего и развитие специалистов и созидателей уже сегодня.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     // Both files live in /public so Next.js serves them verbatim.
     icon: [
       { url: "/icon-light.svg", type: "image/svg+xml", media: "(prefers-color-scheme: light)" },
-      { url: "/icon-dark.svg",  type: "image/svg+xml", media: "(prefers-color-scheme: dark)"  },
+      { url: "/icon-dark.svg", type: "image/svg+xml", media: "(prefers-color-scheme: dark)" },
       // Legacy fallback for browsers that don't support SVG favicons
       // (old Safari <16, old Edge). Kept as .ico so those still get a mark.
       { url: "/favicon.ico", type: "image/x-icon" },

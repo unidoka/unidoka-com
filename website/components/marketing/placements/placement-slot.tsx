@@ -64,7 +64,7 @@ function loadDismissed(): Set<string> {
 function saveDismissed(ids: Set<string>) {
   try {
     localStorage.setItem(DISMISS_KEY, JSON.stringify([...ids]));
-  } catch {}
+  } catch { }
 }
 
 export function PlacementSlot({
@@ -170,9 +170,9 @@ function PlacementRenderer({
         className={cn(
           "group relative",
           isStacked &&
-            "flex flex-col sm:flex-row sm:items-center gap-3 rounded-xl border border-(--outline) bg-(--card) p-3 sm:p-4",
+          "flex flex-col sm:flex-row sm:items-center gap-3 rounded-xl border border-(--outline) bg-(--card) p-3 sm:p-4",
           isCard &&
-            "flex flex-col rounded-2xl border border-(--outline) bg-(--card) p-4",
+          "flex flex-col rounded-2xl border border-(--outline) bg-(--card) p-4",
         )}
         {...withAccent}
       >
@@ -190,7 +190,7 @@ function PlacementRenderer({
 
         <div className="min-w-0 flex-1">
           {placement.heading && (
-            <p className="text-body-3 font-semibold text-(--on-bg-high) mb-1">
+            <p className="text-body-3  text-(--on-bg-high) mb-1">
               {placement.heading}
             </p>
           )}

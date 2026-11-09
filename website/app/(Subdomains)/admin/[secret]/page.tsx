@@ -126,7 +126,7 @@ export default function AdminDashboard() {
               year: "numeric",
             })}
           </p>
-          <h1 className="text-display-3 font-semibold tracking-tight text-(--on-bg-high) leading-none">
+          <h1 className="text-display-3  tracking-tight text-(--on-bg-high) leading-none">
             Обзор
           </h1>
         </div>
@@ -494,7 +494,7 @@ function KpiPanel({ stats }: { stats: Stats }) {
               <span className="flex-1 text-body-4 text-(--on-bg-medium) truncate">
                 {r.label}
               </span>
-              <span className="font-mono text-[15px] font-semibold text-(--on-bg-high) tabular-nums">
+              <span className="font-mono text-[15px]  text-(--on-bg-high) tabular-nums">
                 {r.value}
               </span>
             </div>
@@ -513,31 +513,31 @@ function MetricStrip({ stats, base }: { stats: Stats; base: string }) {
     icon: React.ComponentType<{ className?: string; weight?: "bold" | "regular" }>;
     href: string;
   }[] = [
-    {
-      label: "Компании",
-      value: stats.total_companies,
-      icon: Buildings,
-      href: `${base}/companies`,
-    },
-    {
-      label: "Проекты",
-      value: stats.total_projects,
-      icon: Cube,
-      href: `${base}/projects`,
-    },
-    {
-      label: "События",
-      value: stats.total_events ?? 0,
-      icon: CalendarBlank,
-      href: `${base}/events`,
-    },
-    {
-      label: "Статьи",
-      value: stats.total_articles ?? 0,
-      icon: NewspaperIcon,
-      href: `${base}/articles`,
-    },
-  ];
+      {
+        label: "Компании",
+        value: stats.total_companies,
+        icon: Buildings,
+        href: `${base}/companies`,
+      },
+      {
+        label: "Проекты",
+        value: stats.total_projects,
+        icon: Cube,
+        href: `${base}/projects`,
+      },
+      {
+        label: "События",
+        value: stats.total_events ?? 0,
+        icon: CalendarBlank,
+        href: `${base}/events`,
+      },
+      {
+        label: "Статьи",
+        value: stats.total_articles ?? 0,
+        icon: NewspaperIcon,
+        href: `${base}/articles`,
+      },
+    ];
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -555,7 +555,7 @@ function MetricStrip({ stats, base }: { stats: Stats; base: string }) {
               <p className="text-[10px] uppercase tracking-[0.14em] text-(--on-bg-low) mb-1 truncate">
                 {t.label}
               </p>
-              <p className="font-mono text-[1.5rem] font-semibold leading-none text-(--on-bg-high) tabular-nums">
+              <p className="font-mono text-[1.5rem]  leading-none text-(--on-bg-high) tabular-nums">
                 {t.value}
               </p>
             </div>
@@ -594,7 +594,7 @@ function WideTile({
         <p className="text-[10px] uppercase tracking-[0.14em] text-(--on-bg-low) mb-1.5 truncate">
           {label}
         </p>
-        <p className="font-mono text-[2rem] font-semibold leading-none text-(--on-bg-high) tabular-nums mb-2">
+        <p className="font-mono text-[2rem]  leading-none text-(--on-bg-high) tabular-nums mb-2">
           {value}
         </p>
         {sub && (

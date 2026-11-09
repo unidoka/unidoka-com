@@ -17,7 +17,7 @@ export default function ConsultSection() {
       <Container>
         <div className="max-w-[960px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 items-start">
           <div className="animate-reveal">
-            <h2 className="font-heading font-semibold tracking-[-0.03em] text-[2.5rem] md:text-[3.25rem] leading-[1.02] mb-6 text-(--on-bg-high)">
+            <h2 className="font-heading  tracking-[-0.03em] text-[2.5rem] md:text-[3.25rem] leading-[1.02] mb-6 text-(--on-bg-high)">
               {t("consult.title_prefix")}{" "}
               <span className="text-(--primary)">
                 {t("consult.title_highlight")}

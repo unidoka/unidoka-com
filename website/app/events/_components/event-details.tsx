@@ -43,7 +43,7 @@ export function EventDetails({ event, onOpenChange }: Props) {
   const author = event.submitted_by;
   const authorName = author
     ? [author.name, author.surname].filter(Boolean).join(" ").trim() ||
-      (author.username ? "@" + author.username : null)
+    (author.username ? "@" + author.username : null)
     : null;
   const authorHref = author?.username ? `/u/${author.username}` : null;
 
@@ -53,7 +53,7 @@ export function EventDetails({ event, onOpenChange }: Props) {
         <DialogHeader>
           {event.organizer && (
             <div
-              className="inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider mb-2"
+              className="inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px]  uppercase tracking-wider mb-2"
               style={{
                 color,
                 backgroundColor: `color-mix(in srgb, ${color} 14%, transparent)`,

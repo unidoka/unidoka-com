@@ -70,7 +70,7 @@ export default function Footer() {
 
           {/* Nav column - driven by host, links may be cross-subdomain */}
           <div>
-            <h4 className="text-body-5 font-semibold uppercase tracking-widest text-(--on-bg-low) mb-4">
+            <h4 className="text-body-5  uppercase tracking-widest text-(--on-bg-low) mb-4">
               {navTitle}
             </h4>
             <ul className="flex flex-col gap-2.5">
@@ -124,7 +124,7 @@ export default function Footer() {
 
           {/* Agency column - name comes from i18n so it localises. */}
           <div>
-            <h4 className="text-body-5 font-semibold uppercase tracking-widest text-(--on-bg-low) mb-4">
+            <h4 className="text-body-5  uppercase tracking-widest text-(--on-bg-low) mb-4">
               {t("footer.agency")}
             </h4>
             <ul className="flex flex-col gap-2.5">
@@ -175,7 +175,7 @@ export default function Footer() {
 
           {/* Legal / docs column - links into /docs/* */}
           <div>
-            <h4 className="text-body-5 font-semibold uppercase tracking-widest text-(--on-bg-low) mb-4">
+            <h4 className="text-body-5  uppercase tracking-widest text-(--on-bg-low) mb-4">
               {t("footer.legal")}
             </h4>
             <ul className="flex flex-col gap-2.5">

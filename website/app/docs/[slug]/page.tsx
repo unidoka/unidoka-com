@@ -83,7 +83,7 @@ const mdxComponents = {
     <li className="pl-1">{children}</li>
   ),
   strong: ({ children }: { children: React.ReactNode }) => (
-    <strong className="font-semibold text-(--on-bg-high)">{children}</strong>
+    <strong className=" text-(--on-bg-high)">{children}</strong>
   ),
   a: ({ href, children }: { href?: string; children: React.ReactNode }) => (
     <a

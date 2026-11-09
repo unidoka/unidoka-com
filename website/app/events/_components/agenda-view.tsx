@@ -52,7 +52,7 @@ export function AgendaView({ days, onSelectEvent }: Props) {
                         style={{ backgroundColor: color }}
                       />
                       <span
-                        className="text-[11px] font-semibold uppercase tracking-wider"
+                        className="text-[11px]  uppercase tracking-wider"
                         style={{ color }}
                       >
                         {ev.organizer.name}

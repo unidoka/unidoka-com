@@ -45,7 +45,7 @@ function inlineMd(text: string, k: { n: number }): ReactNode[] {
       );
     } else {
       out.push(
-        <strong key={k.n++} className="font-semibold text-(--on-bg-high)">
+        <strong key={k.n++} className=" text-(--on-bg-high)">
           {t.slice(2, -2)}
         </strong>
       );
@@ -186,7 +186,7 @@ export function ShortVideo({ video, title, description, className }: ShortVideoP
         controls
       />
       <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 via-black/50 to-transparent pt-12">
-        <h3 className="text-sm font-semibold text-white line-clamp-1">
+        <h3 className="text-sm  text-white line-clamp-1">
           {title}
         </h3>
         <p className="text-[11px] text-gray-300 line-clamp-2 mt-1 leading-relaxed">
@@ -346,7 +346,7 @@ export function SocialContentPreview({
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="font-semibold text-sm truncate">{authorName}</span>
+                  <span className=" text-sm truncate">{authorName}</span>
                   {isVerified && (
                     <span className="inline-flex items-center justify-center bg-[#0088cc] text-white rounded-full p-0.5 w-3.5 h-3.5 text-[8px] font-bold">✓</span>
                   )}
@@ -358,7 +358,7 @@ export function SocialContentPreview({
               </div>
             </div>
             <div className="p-4 space-y-2.5 overflow-y-auto min-h-0 flex-1">
-              <h3 className="text-sm font-semibold">{title}</h3>
+              <h3 className="text-sm ">{title}</h3>
               {description && <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>}
               {thumbnail && (
                 <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-muted border border-border/60 mt-2">

@@ -129,7 +129,7 @@ function EventCard({ event, onOpen }: { event: EventListItem; onOpen: () => void
         <div className="flex items-center gap-2 flex-wrap mb-2">
           {event.organizer && (
             <span
-              className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
+              className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px]  uppercase tracking-wider"
               style={{
                 color,
                 background: `color-mix(in srgb, ${color} 14%, transparent)`,

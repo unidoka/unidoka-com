@@ -266,7 +266,7 @@ export function ImageCropDialog({
               onClick={resetView}
               disabled={!ready}
             >
-              <span className="text-[11px] font-semibold tracking-wider">
+              <span className="text-[11px]  tracking-wider">
                 СБРОС
               </span>
             </ToolButton>

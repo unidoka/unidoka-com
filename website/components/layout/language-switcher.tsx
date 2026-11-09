@@ -34,7 +34,7 @@ export function LanguageSwitcher() {
           aria-label={lang === "en" ? "Change language" : "Изменить язык"}
         >
           <Globe className="size-4 text-(--on-bg-low) group-hover:text-(--primary) transition-colors" />
-          {mounted && <span className="uppercase font-semibold tracking-wide">{lang}</span>}
+          {mounted && <span className="uppercase  tracking-wide">{lang}</span>}
           <CaretDown className="size-3 text-(--on-bg-low) transition-transform duration-200 group-data-[state=open]:rotate-180" />
         </button>
       </DropdownMenuTrigger>

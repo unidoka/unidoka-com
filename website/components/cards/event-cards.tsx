@@ -84,14 +84,14 @@ export function EventCardEditorial({ event }: { event: CardEventData }) {
           className="size-2 rounded-full ring-2 ring-black/30"
           style={{ backgroundColor: dot }}
         />
-        <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/90 drop-shadow">
+        <span className="text-[11px]  uppercase tracking-[0.18em] text-white/90 drop-shadow">
           {event.organizerName ?? "Событие"}
         </span>
       </div>
 
       {/* Top-right: featured star */}
       {event.isFeatured && (
-        <span className="absolute right-5 top-5 inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-white backdrop-blur-md">
+        <span className="absolute right-5 top-5 inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-2.5 py-1 text-[10px]  uppercase tracking-[0.16em] text-white backdrop-blur-md">
           <StarIcon className="size-3" weight="fill" />
           Featured
         </span>
@@ -100,7 +100,7 @@ export function EventCardEditorial({ event }: { event: CardEventData }) {
       {/* Bottom: title, date, location */}
       <div className="absolute inset-x-0 bottom-0 p-6 text-white">
         {event.typeLabel && (
-          <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-white/60 mb-3">
+          <p className="text-[10px]  uppercase tracking-[0.24em] text-white/60 mb-3">
             {event.typeLabel}
           </p>
         )}
@@ -183,12 +183,12 @@ export function EventCardStandard({ event }: { event: CardEventData }) {
             }}
           />
         )}
-        <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white backdrop-blur-md">
+        <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/45 px-2.5 py-1 text-[10px]  uppercase tracking-wider text-white backdrop-blur-md">
           <span className="size-1.5 rounded-full" style={{ backgroundColor: dot }} />
           {event.organizerName ?? "Событие"}
         </span>
         {event.isFeatured && (
-          <span className="absolute right-3 top-3 rounded-full border border-white/20 bg-black/45 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-white backdrop-blur-md">
+          <span className="absolute right-3 top-3 rounded-full border border-white/20 bg-black/45 px-2 py-1 text-[10px]  uppercase tracking-wider text-white backdrop-blur-md">
             ★
           </span>
         )}

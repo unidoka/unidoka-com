@@ -181,7 +181,7 @@ export const ImageUploadField = forwardRef<ImageUploadFieldHandle, Props>(
                   </span>
                 </>
               ) : isAvatar && initials ? (
-                <span className="text-2xl font-semibold tracking-tight">{initials}</span>
+                <span className="text-2xl  tracking-tight">{initials}</span>
               ) : (
                 <CameraIcon className="size-7 opacity-70" />
               )}

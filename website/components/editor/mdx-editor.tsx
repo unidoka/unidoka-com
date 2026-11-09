@@ -381,7 +381,7 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
 
     if (tok.startsWith("**")) {
       out.push(
-        <strong key={`${keyPrefix}-b-${k++}`} className="font-semibold text-(--on-bg-high)">
+        <strong key={`${keyPrefix}-b-${k++}`} className=" text-(--on-bg-high)">
           {tok.slice(2, -2)}
         </strong>,
       );

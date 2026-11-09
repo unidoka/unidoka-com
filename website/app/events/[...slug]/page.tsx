@@ -53,7 +53,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string[] }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  
+
   // If it's a 1-segment URL (legacy), we'll redirect in the main component.
   // We return a basic title here just in case, but the redirect will fire first.
   if (!slug || slug.length !== 2) return { title: "Событие" };
@@ -109,7 +109,7 @@ export default async function EventPage({
     const legacySlug = slug[0];
     const event = await fetchEventServer(legacySlug);
     if (!event) notFound();
-    
+
     // 307 redirect to the new canonical URL
     redirect(`/events/${event.id}/${event.slug}`);
   }
@@ -158,7 +158,7 @@ export default async function EventPage({
           <div className="mb-8">
             {event.organizer && (
               <div
-                className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wider mb-4"
+                className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px]  uppercase tracking-wider mb-4"
                 style={{
                   color,
                   backgroundColor: `color-mix(in srgb, ${color} 14%, transparent)`,

@@ -51,7 +51,7 @@ export function FilterPanel({ allEvents, value, onChange, compact }: Props) {
       )}
     >
       <div className="flex items-center justify-between">
-        <h3 className="text-body-5 font-semibold uppercase tracking-widest text-(--on-bg-low)">
+        <h3 className="text-body-5  uppercase tracking-widest text-(--on-bg-low)">
           Фильтры
         </h3>
         {!empty && (
@@ -221,7 +221,7 @@ function ToggleRow({
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-2">
-      <h4 className="text-body-5 font-semibold text-(--on-bg-low) uppercase tracking-wider">
+      <h4 className="text-body-5  text-(--on-bg-low) uppercase tracking-wider">
         {title}
       </h4>
       {children}

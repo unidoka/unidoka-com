@@ -219,7 +219,7 @@ function UpcomingList({
   if (items.length === 0) return null;
   return (
     <div className="rounded-2xl border border-(--outline) bg-(--card) p-3">
-      <h3 className="text-body-5 font-semibold uppercase tracking-wider text-(--on-bg-low) mb-2 px-1">
+      <h3 className="text-body-5  uppercase tracking-wider text-(--on-bg-low) mb-2 px-1">
         Скоро
       </h3>
       <ul className="flex flex-col">

@@ -52,9 +52,9 @@ export function UserProfile({ user, events }: Props) {
 
   const daysOnPlatform = joinedDate
     ? Math.max(
-        0,
-        Math.floor((Date.now() - joinedDate.getTime()) / 86_400_000),
-      )
+      0,
+      Math.floor((Date.now() - joinedDate.getTime()) / 86_400_000),
+    )
     : 0;
 
   const ghUrl =
@@ -431,7 +431,7 @@ function EventCard({
         )}
         <span
           aria-hidden
-          className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/45 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white backdrop-blur-md"
+          className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/45 px-2.5 py-1 text-[10px]  uppercase tracking-wider text-white backdrop-blur-md"
         >
           <span className="size-1.5 rounded-full" style={{ backgroundColor: color }} />
           {event.organizer?.name ?? "—"}
