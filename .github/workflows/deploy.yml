@@ -43,6 +43,9 @@ jobs:
             git fetch --quiet origin main
             git reset --hard origin/main
             NEW_SHA=$(git rev-parse HEAD)
+            # Exported so compose interpolates ${GIT_SHA}.
+            # Forces the frontend builder layer to invalidate on every deploy.
+            export GIT_SHA="$NEW_SHA"
 
             # ── 3. Work out which files changed ─────────────────────
             # Three cases fall back to "rebuild everything":
@@ -125,6 +128,19 @@ jobs:
             # compose file) triggers a recreate.
             echo "==> Reconciling compose state"
             docker compose --profile prod up -d
+
+            # Verify the frontend image actually rebuilt. If BUILD_INFO
+            # is missing or the sha does not match, this deploy silently
+            # shipped the old image — fail loudly instead.
+            if [ "$need_frontend" = "true" ]; then
+              echo "==> Verifying frontend build stamp"
+              STAMP=$(docker run --rm --entrypoint sh \
+                  "$(docker compose images -q next-js 2>/dev/null | head -1)" \
+                  -c 'cat /app/BUILD_INFO' 2>/dev/null || echo "MISSING")
+              echo "$STAMP"
+              echo "$STAMP" | grep -q "git_sha=$NEW_SHA" \
+                || { echo "ERROR: deployed frontend does not match $NEW_SHA"; exit 1; }
+            fi
 
             # ── 7. Wait for health ──────────────────────────────────
             echo "==> Waiting for services to become healthy"

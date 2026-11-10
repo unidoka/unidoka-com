@@ -16,6 +16,7 @@ services:
         NEXT_PUBLIC_ROOT_DOMAIN: ${NEXT_PUBLIC_ROOT_DOMAIN}
         NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL}
         NEXT_PUBLIC_PROTOCOL: ${NEXT_PUBLIC_HTTP_PROTOCOL:-https}
+        GIT_SHA: ${GIT_SHA:-unknown}
     volumes:
       - ./public:/app/public
       - ../backend/services/main-service/storage/order_files:/app/public/order_files
