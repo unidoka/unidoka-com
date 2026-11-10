@@ -119,7 +119,7 @@ export function QuickOrderDialog({
             <div className="space-y-2">
               <Label className="text-(--on-bg-high)">Телефон *</Label>
               <PhoneInputField
-                value={phone}
+                value={phone ?? ""}
                 onChange={setPhone}
                 className="bg-(--card) border-(--outline) h-11"
               />

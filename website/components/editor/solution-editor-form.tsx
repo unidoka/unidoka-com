@@ -11,18 +11,21 @@ import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { CircleNotchIcon, PlusIcon, TrashIcon } from "@phosphor-icons/react";
 import { ImageUploadField } from "./image-upload-field";
-import { MdxEditor } from "./mdx-editor";
 import {
-  createSolution, updateSolution,
-  type Solution, type SolutionPayload,
+  createSolution,
+  updateSolution,
+  type Solution,
+  type SolutionPayload,
 } from "@/utils/api/solutions";
-import {
-  SOLUTION_CUSTOM_PAGES_META,
-} from "@/app/solutions/[slug]/_components/solution-custom-pages-meta";
+import { SOLUTION_CUSTOM_PAGES_META } from "@/app/solutions/[slug]/_components/solution-custom-pages-meta";
 
 interface Props {
   editing: Solution | null;
@@ -86,8 +89,10 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
     });
   }, [editing]);
 
-  const set = <K extends keyof SolutionPayload>(k: K, v: SolutionPayload[K]) =>
-    setForm((p) => ({ ...p, [k]: v }));
+  const set = <K extends keyof SolutionPayload>(
+    k: K,
+    v: SolutionPayload[K],
+  ) => setForm((p) => ({ ...p, [k]: v }));
 
   const addTech = () => {
     const v = techInput.trim();
@@ -149,15 +154,22 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
       <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-5">
         <h2 className="text-heading-3">Основное</h2>
         <Field data-invalid={!!errors.title}>
-          <FieldLabel>Название <span className="text-destructive">*</span></FieldLabel>
-          <Input value={form.title} onChange={(e) => set("title", e.target.value)} />
+          <FieldLabel>
+            Название <span className="text-destructive">*</span>
+          </FieldLabel>
+          <Input
+            value={form.title}
+            onChange={(e) => set("title", e.target.value)}
+          />
           {errors.title && <FieldError errors={[{ message: errors.title }]} />}
         </Field>
         <Field>
           <FieldLabel>Slug (URL)</FieldLabel>
           <Input
             value={form.slug}
-            onChange={(e) => set("slug", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+            onChange={(e) =>
+              set("slug", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))
+            }
             placeholder="auto-generated from title"
           />
         </Field>
@@ -223,18 +235,23 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
         <div>
           <h2 className="text-heading-3">Кастомная страница</h2>
           <p className="text-body-5 text-(--on-bg-low) mt-1">
-            Если выбрана кастомная страница, публичный URL /solutions/{form.slug || "slug"} отрендерит её вместо MDX ниже.
+            Если выбрана кастомная страница, публичный URL /solutions/
+            {form.slug || "slug"} отрендерит её вместо содержимого ниже.
           </p>
         </div>
         <Field>
           <FieldLabel>Страница</FieldLabel>
           <Select
             value={form.custom_page ?? NO_CUSTOM_PAGE}
-            onValueChange={(v) => set("custom_page", v === NO_CUSTOM_PAGE ? null : v)}
+            onValueChange={(v) =>
+              set("custom_page", v === NO_CUSTOM_PAGE ? null : v)
+            }
           >
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
-              <SelectItem value={NO_CUSTOM_PAGE}>— Обычная (MDX) —</SelectItem>
+              <SelectItem value={NO_CUSTOM_PAGE}>— Обычная —</SelectItem>
               {SOLUTION_CUSTOM_PAGES_META.map((p) => (
                 <SelectItem key={p.key} value={p.key}>
                   {p.label}
@@ -244,22 +261,42 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
           </Select>
           {form.custom_page && (
             <p className="text-body-5 text-(--on-bg-low) mt-1">
-              {SOLUTION_CUSTOM_PAGES_META.find((p) => p.key === form.custom_page)?.description}
+              {
+                SOLUTION_CUSTOM_PAGES_META.find(
+                  (p) => p.key === form.custom_page,
+                )?.description
+              }
             </p>
           )}
         </Field>
       </Card>
 
-      {/* MDX */}
+      {/* Content (plain textarea — MDX editor intentionally not used) */}
       <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4">
-        <h2 className="text-heading-3">Содержимое (MDX)</h2>
-        <p className="text-body-5 text-(--on-bg-low)">
-          Используется, если кастомная страница не выбрана.
-        </p>
-        <MdxEditor
-          value={form.mdx_content ?? ""}
-          onChange={(v) => set("mdx_content", v)}
-        />
+        <div>
+          <h2 className="text-heading-3">Содержимое (MDX / Markdown)</h2>
+          <p className="text-body-5 text-(--on-bg-low)">
+            Обычное текстовое поле. Используется, если кастомная страница
+            не выбрана.
+          </p>
+        </div>
+        <Field>
+          <FieldLabel>Описание</FieldLabel>
+          <Textarea
+            value={form.mdx_content ?? ""}
+            onChange={(e) => set("mdx_content", e.target.value)}
+            className="min-h-[280px] font-mono text-body-4"
+            placeholder={"## Заголовок\n\nТекст в **Markdown**…"}
+          />
+        </Field>
+        <Field>
+          <FieldLabel>Полное описание (fallback)</FieldLabel>
+          <Textarea
+            value={form.description ?? ""}
+            onChange={(e) => set("description", e.target.value)}
+            className="min-h-[100px]"
+          />
+        </Field>
       </Card>
 
       {/* Tech + tags */}
@@ -268,16 +305,33 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
         <Field>
           <FieldLabel>Технологии</FieldLabel>
           <div className="flex gap-2">
-            <Input value={techInput} onChange={(e) => setTechInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTech(); } }}
-              placeholder="Figma, Next.js, …" />
-            <Button type="button" variant="outlined" onClick={addTech}><PlusIcon className="size-4" /></Button>
+            <Input
+              value={techInput}
+              onChange={(e) => setTechInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addTech();
+                }
+              }}
+              placeholder="Figma, Next.js, …"
+            />
+            <Button type="button" variant="outlined" onClick={addTech}>
+              <PlusIcon className="size-4" />
+            </Button>
           </div>
           <div className="flex flex-wrap gap-1.5 mt-2">
             {(form.tech_stack ?? []).map((t, i) => (
-              <span key={i} className="inline-flex items-center gap-1 rounded-full bg-(--bg) border border-(--outline) px-2.5 py-1 text-body-5">
+              <span
+                key={i}
+                className="inline-flex items-center gap-1 rounded-full bg-(--bg) border border-(--outline) px-2.5 py-1 text-body-5"
+              >
                 {t}
-                <button type="button" onClick={() => removeTech(i)} className="text-(--on-bg-low) hover:text-(--error)">
+                <button
+                  type="button"
+                  onClick={() => removeTech(i)}
+                  className="text-(--on-bg-low) hover:text-(--error)"
+                >
                   <TrashIcon className="size-3" />
                 </button>
               </span>
@@ -287,16 +341,33 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
         <Field>
           <FieldLabel>Теги</FieldLabel>
           <div className="flex gap-2">
-            <Input value={tagInput} onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
-              placeholder="Редизайн, Брендинг, …" />
-            <Button type="button" variant="outlined" onClick={addTag}><PlusIcon className="size-4" /></Button>
+            <Input
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  addTag();
+                }
+              }}
+              placeholder="Редизайн, Брендинг, …"
+            />
+            <Button type="button" variant="outlined" onClick={addTag}>
+              <PlusIcon className="size-4" />
+            </Button>
           </div>
           <div className="flex flex-wrap gap-1.5 mt-2">
             {(form.tags ?? []).map((t, i) => (
-              <span key={i} className="inline-flex items-center gap-1 rounded-full bg-(--bg) border border-(--outline) px-2.5 py-1 text-body-5">
+              <span
+                key={i}
+                className="inline-flex items-center gap-1 rounded-full bg-(--bg) border border-(--outline) px-2.5 py-1 text-body-5"
+              >
                 {t.title}
-                <button type="button" onClick={() => removeTag(i)} className="text-(--on-bg-low) hover:text-(--error)">
+                <button
+                  type="button"
+                  onClick={() => removeTag(i)}
+                  className="text-(--on-bg-low) hover:text-(--error)"
+                >
                   <TrashIcon className="size-3" />
                 </button>
               </span>
@@ -310,7 +381,10 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
         <h2 className="text-heading-3">SEO и статус</h2>
         <Field>
           <FieldLabel>SEO title</FieldLabel>
-          <Input value={form.seo_title ?? ""} onChange={(e) => set("seo_title", e.target.value)} />
+          <Input
+            value={form.seo_title ?? ""}
+            onChange={(e) => set("seo_title", e.target.value)}
+          />
         </Field>
         <Field>
           <FieldLabel>Meta description</FieldLabel>
@@ -323,8 +397,18 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Field>
             <FieldLabel>Статус</FieldLabel>
-            <Select value={form.status} onValueChange={(v) => set("status", v as any)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+            <Select
+              value={form.status}
+              onValueChange={(v) =>
+                set(
+                  "status",
+                  v as "draft" | "published" | "archived",
+                )
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="draft">Черновик</SelectItem>
                 <SelectItem value="published">Опубликовано</SelectItem>
@@ -349,7 +433,13 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
           {submitting && <CircleNotchIcon className="size-4 animate-spin" />}
           {editing ? "Сохранить изменения" : "Создать решение"}
         </Button>
-        <Button type="button" variant="outlined" size="large" onClick={() => router.back()} disabled={submitting}>
+        <Button
+          type="button"
+          variant="outlined"
+          size="large"
+          onClick={() => router.back()}
+          disabled={submitting}
+        >
           Отмена
         </Button>
       </div>

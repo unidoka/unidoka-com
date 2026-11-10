@@ -120,7 +120,7 @@ export default function Header() {
     hidden: { opacity: 0, y: -8, scale: 0.96, originY: 0 },
     visible: { opacity: 1, y: 0, scale: 1 },
   };
-  const premiumSpring = { type: "spring", stiffness: 400, damping: 30, mass: 0.7 };
+  const premiumSpring = { type: "spring" as const, stiffness: 400, damping: 30, mass: 0.7 };
 
   return (
     <header className="sticky top-0 left-0 right-0 z-50 w-full px-3 pt-3 pointer-events-none">

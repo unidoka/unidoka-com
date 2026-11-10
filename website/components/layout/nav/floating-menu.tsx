@@ -90,7 +90,7 @@ export function FloatingMenu({
     hidden: { opacity: 0, y: position === "bottom" ? 8 : -8, scale: 0.96, originY: position === "bottom" ? 1 : 0 },
     visible: { opacity: 1, y: 0, scale: 1 },
   };
-  const premiumSpring = { type: "spring", stiffness: 400, damping: 30, mass: 0.7 };
+  const premiumSpring = { type: "spring" as const, stiffness: 400, damping: 30, mass: 0.7 };
 
   return (
     <div ref={wrapperRef} className="relative flex items-center">
