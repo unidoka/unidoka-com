@@ -36,8 +36,7 @@ def _clean(payload: dict) -> dict:
     return {k: v for k, v in payload.items() if v is not None and v != [] and v != ""}
 
 
-@mcp.tool()
-async def create_event(
+# @mcp.tool()  # DISABLED: public calendar is now iCal-backed.\n# Event writes via MCP are hidden to prevent external injection.\nasync def create_event(
     title: str,
     start_at: str,
     end_at: Optional[str] = None,
@@ -114,8 +113,7 @@ async def get_event(slug: str) -> dict:
         return {"error": str(e)}
 
 
-@mcp.tool()
-async def update_event(slug: str, patch: dict) -> dict:
+# @mcp.tool()  # DISABLED: public calendar is now iCal-backed.\n# Event writes via MCP are hidden to prevent external injection.\nasync def update_event(slug: str, patch: dict) -> dict:
     """PATCH an event. patch is a partial event payload — only keys
     present in it are applied."""
     try:
@@ -124,8 +122,7 @@ async def update_event(slug: str, patch: dict) -> dict:
         return {"error": str(e)}
 
 
-@mcp.tool()
-async def delete_event(slug: str) -> dict:
+# @mcp.tool()  # DISABLED: public calendar is now iCal-backed.\n# Event writes via MCP are hidden to prevent external injection.\nasync def delete_event(slug: str) -> dict:
     """Soft-delete an event by slug."""
     try:
         await _client_or_raise().delete_event(slug)
@@ -134,8 +131,7 @@ async def delete_event(slug: str) -> dict:
         return {"error": str(e)}
 
 
-@mcp.tool()
-async def approve_event(slug: str) -> dict:
+# @mcp.tool()  # DISABLED: public calendar is now iCal-backed.\n# Event writes via MCP are hidden to prevent external injection.\nasync def approve_event(slug: str) -> dict:
     """Approve a pending event."""
     try:
         return await _client_or_raise().approve_event(slug)
@@ -143,8 +139,7 @@ async def approve_event(slug: str) -> dict:
         return {"error": str(e)}
 
 
-@mcp.tool()
-async def reject_event(slug: str, reason: str) -> dict:
+# @mcp.tool()  # DISABLED: public calendar is now iCal-backed.\n# Event writes via MCP are hidden to prevent external injection.\nasync def reject_event(slug: str, reason: str) -> dict:
     """Reject a pending event with a rejection reason."""
     try:
         return await _client_or_raise().reject_event(slug, reason)

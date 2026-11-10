@@ -32,6 +32,7 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libpq5 \
+        tzdata \
     && rm -rf /var/lib/apt/lists/*
 
 # Pull the fully-built site-packages into the system Python's search

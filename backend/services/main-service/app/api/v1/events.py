@@ -232,30 +232,88 @@ async def list_public_events(
     tag: Optional[str] = Query(None),
     submitted_by_username: Optional[str] = Query(None),
 ):
-    q = (
-        db.query(Event)
-        .options(
-            selectinload(Event.subdirections),
-            selectinload(Event.type_assignments),
-        )
-        .filter(
-            Event.deleted_at.is_(None),
-            Event.status == EventStatus.approved,
-        )
-        .order_by(Event.start_at.asc().nulls_last())
-    )
-    if upcoming_only:
-        q = q.filter(or_(Event.end_at.is_(None), Event.end_at >= datetime.utcnow()))
-    if tag:
-        q = q.join(Event.subdirections).filter(EventSubdirection.slug == tag)
+    # ── iCal-backed public calendar ────────────────────────────────
+    # The main public calendar now sources from an external iCal feed
+    # (Google Calendar or any RFC 5545 source). See
+    # app/services/ical_service.py for the SSRF / size / timeout
+    # guard rails — the URL is server-side only and https-only.
+    #
+    # The previous DB-backed implementation is preserved below,
+    # commented, for easy rollback. To revert: delete this function's
+    # body and uncomment the block at the end of the function.
+    #
+    # SECURITY: no client-controlled URL is ever fetched. The feed
+    # URL comes exclusively from PUBLIC_ICAL_URL.
+    #
+    # submitted_by_username still falls back to the DB — that filter
+    # powers the public user-profile page, and iCal events have no
+    # author field.
     if submitted_by_username:
         q = (
-            q.join(User, User.id == Event.submitted_by_id)
-            .filter(User.username == submitted_by_username.strip().lower().lstrip("@"))
+            db.query(Event)
+            .options(
+                selectinload(Event.subdirections),
+                selectinload(Event.type_assignments),
+            )
+            .filter(
+                Event.deleted_at.is_(None),
+                Event.status == EventStatus.approved,
+            )
+            .join(User, User.id == Event.submitted_by_id)
+            .filter(
+                User.username
+                == submitted_by_username.strip().lower().lstrip("@")
+            )
+            .order_by(Event.start_at.asc().nulls_last())
         )
+        if limit:
+            q = q.limit(limit)
+        return [_serialize_event(e) for e in q.all()]
+
+    from app.services.ical_service import get_cached_events
+
+    try:
+        events = await get_cached_events()
+    except Exception as exc:
+        logger.error("iCal public event fetch failed: %s", exc)
+        return []
+
+    if upcoming_only:
+        now = datetime.utcnow()
+        events = [
+            e for e in events
+            if e.get("end_at") is None or e["end_at"] >= now
+        ]
+
+    # `tag` is a no-op for iCal (no taxonomy in the feed).
     if limit:
-        q = q.limit(limit)
-    return [_serialize_event(e) for e in q.all()]
+        events = events[:limit]
+    return events
+
+    # ── PREVIOUS DB-BACKED IMPLEMENTATION (kept for reference) ─────
+    # q = (
+    #     db.query(Event)
+    #     .options(
+    #         selectinload(Event.subdirections),
+    #         selectinload(Event.type_assignments),
+    #     )
+    #     .filter(
+    #         Event.deleted_at.is_(None),
+    #         Event.status == EventStatus.approved,
+    #     )
+    #     .order_by(Event.start_at.asc().nulls_last())
+    # )
+    # if upcoming_only:
+    #     q = q.filter(
+    #         or_(Event.end_at.is_(None), Event.end_at >= datetime.utcnow())
+    #     )
+    # if tag:
+    #     q = q.join(Event.subdirections).filter(
+    #         EventSubdirection.slug == tag
+    #     )
+    # if limit:
+    #     q = q.limit(limit)
+    # return [_serialize_event(e) for e in q.all()]
 
 
 @router.get("/me", response_model=List[EventListItem])
@@ -327,35 +385,52 @@ async def list_directions_public(db: Session = Depends(get_db)):
 
 @router.get("/{slug}", response_model=EventDetail)
 async def get_public_event(slug: str, db: Session = Depends(get_db)):
-    """Look up an approved event by slug, with UUID fallback.
+    # Public event detail — iCal-backed.
+    #
+    # Lookup is by slug, with a UUID-id fallback (the frontend's
+    # canonical URL is /events/{id}/{slug}). Same SSRF / timeout /
+    # size guard rails apply as in list_public_events — see
+    # app/services/ical_service.py.
+    #
+    # The previous DB-backed implementation is preserved below,
+    # commented, for easy rollback.
+    from app.services.ical_service import get_cached_events, find_event
 
-    The public URL is /events/{id}/{slug}. The frontend still calls
-    this endpoint with the slug, but if a slug is ever changed and
-    a stale link with the old ID is presented, the frontend can
-    retry the lookup by ID via this fallback. Both keys are tried
-    so old URLs and new URLs converge on the same event.
-    """
-    event = _load_event(db, slug)
+    try:
+        events = await get_cached_events()
+    except Exception as exc:
+        logger.error("iCal public event fetch failed: %s", exc)
+        raise HTTPException(503, "Event source unavailable")
+
+    event = find_event(events, slug)
     if not event:
-        try:
-            event_id = uuid.UUID(slug)
-            event = (
-                db.query(Event)
-                .options(
-                    selectinload(Event.subdirections),
-                    selectinload(Event.type_assignments),
-                )
-                .filter(Event.id == event_id, Event.deleted_at.is_(None))
-                .first()
-            )
-        except ValueError:
-            pass
-    if not event or event.status != EventStatus.approved:
         raise HTTPException(404, "Event not found")
-    return _serialize_event(event, full=True)
+    return event
+
+    # ── PREVIOUS DB-BACKED IMPLEMENTATION (kept for reference) ─────
+    # event = _load_event(db, slug)
+    # if not event:
+    #     try:
+    #         event_id = uuid.UUID(slug)
+    #         event = (
+    #             db.query(Event)
+    #             .options(
+    #                 selectinload(Event.subdirections),
+    #                 selectinload(Event.type_assignments),
+    #             )
+    #             .filter(
+    #                 Event.id == event_id,
+    #                 Event.deleted_at.is_(None),
+    #             )
+    #             .first()
+    #         )
+    #     except ValueError:
+    #         pass
+    # if not event or event.status != EventStatus.approved:
+    #     raise HTTPException(404, "Event not found")
+    # return _serialize_event(event, full=True)
 
 
-# ── User submission ──────────────────────────────────────────────────────
 @router.post("/submit", response_model=EventDetail, status_code=201)
 async def submit_event(
     payload: EventSubmitRequest,

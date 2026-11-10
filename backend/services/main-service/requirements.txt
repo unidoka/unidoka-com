@@ -18,3 +18,5 @@ phonenumbers==9.0.34
 python-multipart==0.0.20
 pyotp==2.9.0
 qrcode[pil]==7.4.2
+icalendar==6.1.0
+recurring-ical-events==3.3.2
