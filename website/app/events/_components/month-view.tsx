@@ -12,7 +12,6 @@ import { cn } from "@/lib/utils";
 const WEEKDAYS_LONG = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 const WEEKDAYS_SHORT = ["П", "В", "С", "Ч", "П", "С", "В"];
 const MAX_CHIPS = 3;
-const MAX_DOTS = 3;
 
 interface Props {
   month: Date;
@@ -85,7 +84,7 @@ export function MonthView({
                       "flex items-center justify-center min-w-5 sm:min-w-6 h-5 sm:h-6 px-1 sm:px-1.5 rounded-full text-[11px] sm:text-body-5 font-medium tabular-nums",
                       !inMonth && "text-(--on-bg-low)",
                       inMonth && !isToday(day) && "text-(--on-bg-medium)",
-                      isToday(day) && "bg-(--primary) text-(--on-primary)",
+                      isToday(day) && "bg-(--on-bg-high) text-(--bg)", // Minimalist inverted today marker
                     )}
                   >
                     {format(day, "d")}
@@ -96,6 +95,8 @@ export function MonthView({
                     </span>
                   )}
                 </div>
+
+                {/* Desktop chips */}
                 <div className="hidden lg:flex flex-col gap-0.5 min-h-0">
                   {events.slice(0, MAX_CHIPS).map((ev) => (
                     <EventChip
@@ -113,24 +114,26 @@ export function MonthView({
                         e.stopPropagation();
                         onShowMore(day);
                       }}
-                      className="text-[10px] text-left px-1.5 text-(--on-bg-medium) hover:text-(--primary) transition-colors"
+                      className="text-[10px] text-left px-1.5 text-(--on-bg-medium) hover:text-(--on-bg-high) transition-colors"
                     >
                       +{overflow} ещё
                     </button>
                   )}
                 </div>
+
+                {/* Mobile/Tablet: minimalist text snippet instead of dots */}
                 {events.length > 0 && (
-                  <div className="lg:hidden mt-auto flex items-center gap-0.5 justify-center pb-1">
-                    {events.slice(0, MAX_DOTS).map((ev) => (
-                      <span
-                        key={ev.id}
-                        className="size-1.5 rounded-full"
-                        style={{ backgroundColor: colorForOrganizer(ev.organizer) }}
-                      />
-                    ))}
-                    {events.length > MAX_DOTS && (
-                      <span className="text-[9px] tabular-nums text-(--on-bg-low) ml-0.5">
-                        +{events.length - MAX_DOTS}
+                  <div className="lg:hidden mt-auto flex items-center gap-1.5 justify-start pb-1 w-full overflow-hidden px-0.5">
+                    <span
+                      className="size-1.5 rounded-full shrink-0"
+                      style={{ backgroundColor: colorForOrganizer(events[0].organizer) }}
+                    />
+                    <span className="text-[10px] text-(--on-bg-medium) truncate leading-none">
+                      {events[0].title}
+                    </span>
+                    {events.length > 1 && (
+                      <span className="text-[9px] text-(--on-bg-low) tabular-nums ml-auto shrink-0">
+                        +{events.length - 1}
                       </span>
                     )}
                   </div>
