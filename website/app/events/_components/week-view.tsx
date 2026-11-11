@@ -1,7 +1,6 @@
 "use client";
 
-import { format, isSameDay, isToday } from "date-fns";
-import { ru } from "date-fns/locale";
+import { format, isToday } from "date-fns";
 import { weekGrid } from "./date-utils";
 import { EventChip } from "./event-chip";
 import type { EventListItem } from "@/utils/api/events";
@@ -13,30 +12,35 @@ interface Props {
   onSelectEvent: (e: EventListItem) => void;
 }
 
+const WEEKDAYS = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"];
+
 export function WeekView({ anchor, byDay, onSelectEvent }: Props) {
   const days = weekGrid(anchor);
+
   return (
-    <div className="rounded-2xl border border-(--outline) bg-(--card) overflow-hidden min-h-[520px] sm:min-h-[680px] flex flex-col">
-      <div className="flex-1 overflow-x-auto snap-x snap-mandatory sm:snap-none">
-        <div className="min-w-[840px] h-full flex flex-col">
+    <div className="rounded-2xl border border-(--outline) bg-(--card) overflow-hidden flex flex-col">
+      {/* Horizontal scroll wrapper for mobile/small screens, full width on desktop */}
+      <div className="w-full overflow-x-auto scrollbar-admin">
+        <div className="min-w-[700px] flex flex-col h-full">
+          {/* Header Row */}
           <div className="grid grid-cols-7 border-b border-(--outline)">
-            {days.map((d) => {
+            {days.map((d, i) => {
               const today = isToday(d);
               return (
                 <div
                   key={d.toISOString()}
                   className={cn(
-                    "h-16 flex flex-col items-center justify-center gap-0.5",
-                    today && "bg-(--primary-glass)",
+                    "h-20 flex flex-col items-center justify-center gap-1 border-r border-(--outline) last:border-r-0",
+                    today && "bg-(--state-hover)"
                   )}
                 >
-                  <span className="text-body-5 uppercase tracking-wider text-(--on-bg-low)">
-                    {format(d, "EEE", { locale: ru })}
+                  <span className="text-[11px] font-medium uppercase tracking-wider text-(--on-bg-low)">
+                    {WEEKDAYS[i]}
                   </span>
                   <span
                     className={cn(
-                      "flex items-center justify-center size-8 rounded-full text-body-3  tabular-nums",
-                      today ? "bg-(--primary) text-(--on-primary)" : "text-(--on-bg-high)",
+                      "flex items-center justify-center size-8 rounded-full text-body-3 font-semibold tabular-nums",
+                      today ? "bg-(--on-bg-high) text-(--bg)" : "text-(--on-bg-high)"
                     )}
                   >
                     {format(d, "d")}
@@ -45,18 +49,20 @@ export function WeekView({ anchor, byDay, onSelectEvent }: Props) {
               );
             })}
           </div>
-          <div className="grid grid-cols-7 flex-1">
+
+          {/* Content Cells */}
+          <div className="grid grid-cols-7 flex-1 min-h-[400px]">
             {days.map((d, i) => {
               const key = format(d, "yyyy-MM-dd");
               const events = byDay.get(key) ?? [];
+              const today = isToday(d);
+              
               return (
                 <div
                   key={key}
                   className={cn(
-                    "flex flex-col gap-1 p-2 min-h-full snap-start",
-                    i !== 6 && "border-r border-(--outline)",
-                    isSameDay(d, new Date()) &&
-                    "bg-[color-mix(in_srgb,var(--primary)_4%,transparent)]",
+                    "flex flex-col gap-1.5 p-2 border-r border-(--outline) last:border-r-0 min-w-0",
+                    today && "bg-[color-mix(in_srgb,var(--primary)_2%,transparent)]"
                   )}
                 >
                   {events.map((ev) => (
@@ -68,7 +74,7 @@ export function WeekView({ anchor, byDay, onSelectEvent }: Props) {
                     />
                   ))}
                   {events.length === 0 && (
-                    <div className="flex-1 rounded-lg border border-dashed border-(--outline) opacity-40" />
+                    <div className="flex-1 rounded-lg border border-dashed border-(--outline) opacity-20" />
                   )}
                 </div>
               );

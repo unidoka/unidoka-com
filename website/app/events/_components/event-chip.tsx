@@ -1,7 +1,6 @@
 "use client";
 
-import { isSameDay } from "date-fns";
-import { ArrowUpRight } from "@phosphor-icons/react";
+import { isSameDay, format } from "date-fns";
 import { colorForOrganizer } from "./organizer-meta";
 import type { EventListItem } from "@/utils/api/events";
 import { cn } from "@/lib/utils";
@@ -13,15 +12,35 @@ interface Props {
   onClick?: (e: EventListItem) => void;
 }
 
+const stripHtml = (str: string) => str.replace(/<[^>]*>?/gm, '');
+
 export function EventChip({ event, day, compact, onClick }: Props) {
   const color = colorForOrganizer(event.organizer);
   const start = event.start_at ? new Date(event.start_at) : null;
-  const end = event.end_at ? new Date(event.end_at) : start;
   const startsToday = start ? isSameDay(start, day) : false;
-  const endsToday = end ? isSameDay(end, day) : false;
-  const leftFlush = !startsToday;
-  const rightFlush = !endsToday;
+  const timeString = start ? format(start, "HH:mm") : "";
 
+  if (compact) {
+    // Compact mode for Month View (single line, tight)
+    return (
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick?.(event);
+        }}
+        title={stripHtml(event.title)}
+        style={{ "--ev": color } as React.CSSProperties}
+        className="group/chip w-full text-left transition-all duration-150 flex flex-col gap-0.5 w-full overflow-hidden p-1.5 rounded-md hover:bg-(--state-hover) border-l-2 border-[var(--ev)] bg-[color-mix(in_srgb,var(--ev)_8%,transparent)]"
+      >
+        <span className="truncate font-medium text-[11px] leading-tight text-(--on-bg-high)">
+          {stripHtml(event.title)}
+        </span>
+      </button>
+    );
+  }
+
+  // Block mode for Week View (stacked time + title, multi-line)
   return (
     <button
       type="button"
@@ -29,29 +48,23 @@ export function EventChip({ event, day, compact, onClick }: Props) {
         e.stopPropagation();
         onClick?.(event);
       }}
-      title={event.title}
+      title={stripHtml(event.title)}
       style={{ "--ev": color } as React.CSSProperties}
       className={cn(
-        "group/chip w-full text-left transition-all duration-150",
-        "border-l-[3px] border-[var(--ev)]",
-        "bg-[color-mix(in_srgb,var(--ev)_12%,transparent)]",
-        "hover:bg-[color-mix(in_srgb,var(--ev)_20%,transparent)]",
-        "text-[var(--ev)] font-medium",
-        compact
-          ? "px-1.5 py-0.5 rounded text-[11px] leading-tight truncate"
-          : "px-2 py-1 rounded-md text-[12px] leading-snug",
-        leftFlush && "rounded-l-none border-l-0",
-        rightFlush && "rounded-r-none",
+        "group/chip w-full text-left transition-all duration-150 flex flex-col gap-1 p-2 rounded-md border border-(--outline) bg-(--card) hover:border-[var(--ev)] overflow-hidden",
+        startsToday && "border-l-[3px] border-l-[var(--ev)]"
       )}
     >
-      <span className="flex items-center gap-1">
-        {startsToday && (
-          <span className="shrink-0 size-1.5 rounded-full bg-[var(--ev)]" />
+      <div className="flex items-center gap-1.5 w-full min-w-0">
+        <span className="shrink-0 size-1.5 rounded-full bg-[var(--ev)]" />
+        {timeString && (
+          <span className="shrink-0 text-[10px] tabular-nums tracking-wider font-semibold text-(--on-bg-medium)">
+            {timeString}
+          </span>
         )}
-        <span className="truncate">{event.title}</span>
-        {!compact && startsToday && event.registration_url && (
-          <ArrowUpRight className="ml-auto size-3 opacity-0 group-hover/chip:opacity-100 transition-opacity" />
-        )}
+      </div>
+      <span className="text-[11px] font-medium leading-snug text-(--on-bg-high) line-clamp-2 break-words">
+        {stripHtml(event.title)}
       </span>
     </button>
   );

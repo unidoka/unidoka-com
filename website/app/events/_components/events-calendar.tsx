@@ -17,15 +17,6 @@ import { indexByDay } from "./date-utils";
 import { applyFilters, EMPTY_FILTER, type FilterState } from "./filters";
 import { fetchPublishedEventsClient, type EventListItem } from "@/utils/api/events";
 
-/**
- * The calendar reads from GET /api/v1/events (approved events only).
- * There is no local seed — whatever the DB has is what renders.
- *
- * Three states:
- *   loading  → skeleton spinner
- *   error    → retry card with the backend message
- *   ready    → calendar
- */
 type LoadState =
   | { kind: "loading" }
   | { kind: "ready"; events: EventListItem[] }
@@ -53,9 +44,7 @@ export function EventsCalendar() {
           });
       }
     })();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   const allEvents = state.kind === "ready" ? state.events : [];
@@ -106,15 +95,18 @@ export function EventsCalendar() {
           allEvents={allEvents}
           filter={filter}
           onFilterChange={setFilter}
+          eventDays={eventDays}
+          selected={selected}
+          onSelectDate={setSelected}
         />
-
+        
         {state.kind === "loading" && (
           <Card className="rounded-3xl border-(--outline) p-16 text-center">
             <CircleNotchIcon className="size-6 animate-spin mx-auto text-(--on-bg-low)" />
             <p className="text-body-4 text-(--on-bg-medium) mt-4">Загрузка событий…</p>
           </Card>
         )}
-
+        
         {state.kind === "error" && (
           <Card className="rounded-3xl border border-[color-mix(in_srgb,var(--error),transparent_70%)] bg-[color-mix(in_srgb,var(--error),transparent_96%)] p-8 text-center">
             <WarningCircleIcon className="size-6 mx-auto text-(--error) mb-3" />
@@ -128,11 +120,12 @@ export function EventsCalendar() {
             </Button>
           </Card>
         )}
-
+        
         {state.kind === "ready" && (
-          <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-5">
+          <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-5">
             <aside className="hidden lg:flex flex-col gap-4">
               <FilterPanel allEvents={allEvents} value={filter} onChange={setFilter} />
+              
               <MiniMonth
                 month={anchor}
                 selected={selected}
@@ -143,24 +136,19 @@ export function EventsCalendar() {
                   setAnchor(d);
                 }}
               />
+              
               <UpcomingList byDay={byDay} onSelectEvent={setActive} />
             </aside>
-
+            
             <main className="min-w-0">
               {allEvents.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-(--outline) p-12 text-center">
-                  <p className="text-body-3 text-(--on-bg-medium) mb-1">
-                    Пока нет событий
-                  </p>
-                  <p className="text-body-5 text-(--on-bg-low)">
-                    События появятся здесь после одобрения модератором.
-                  </p>
+                  <p className="text-body-3 text-(--on-bg-medium) mb-1">Пока нет событий</p>
+                  <p className="text-body-5 text-(--on-bg-low)">События появятся здесь после одобрения модератором.</p>
                 </div>
               ) : filtered.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-(--outline) p-12 text-center">
-                  <p className="text-body-3 text-(--on-bg-medium)">
-                    Ничего не найдено по этим фильтрам.
-                  </p>
+                  <p className="text-body-3 text-(--on-bg-medium)">Ничего не найдено по этим фильтрам.</p>
                 </div>
               ) : (
                 <>
@@ -204,6 +192,7 @@ function UpcomingList({
   const now = Date.now();
   const items: { date: Date; event: EventListItem }[] = [];
   const seen = new Set<string>();
+  
   for (let i = 0; i < 60 && items.length < 5; i++) {
     const d = new Date(now + i * 86400000);
     const key = format(d, "yyyy-MM-dd");
@@ -216,10 +205,12 @@ function UpcomingList({
       if (items.length >= 5) break;
     }
   }
+  
   if (items.length === 0) return null;
+  
   return (
-    <div className="rounded-2xl border border-(--outline) bg-(--card) p-3">
-      <h3 className="text-body-5  uppercase tracking-wider text-(--on-bg-low) mb-2 px-1">
+    <div className="rounded-xl border border-(--outline) bg-(--card) p-3">
+      <h3 className="text-[11px] font-medium uppercase tracking-wider text-(--on-bg-low) mb-2 px-1">
         Скоро
       </h3>
       <ul className="flex flex-col">
@@ -230,11 +221,11 @@ function UpcomingList({
               onClick={() => onSelectEvent(event)}
               className="w-full text-left px-2 py-2 rounded-lg hover:bg-(--state-hover) transition-colors"
             >
-              <div className="text-body-5 text-(--on-bg-low) tabular-nums">
+              <div className="text-[11px] text-(--on-bg-low) tabular-nums font-medium">
                 {format(date, "d MMM")}
               </div>
-              <div className="text-body-4 font-medium leading-snug line-clamp-2">
-                {event.title}
+              <div className="text-body-4 font-medium leading-snug line-clamp-2 mt-0.5">
+                {event.title.replace(/<[^>]*>?/gm, '')}
               </div>
             </button>
           </li>
