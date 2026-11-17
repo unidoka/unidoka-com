@@ -1,64 +1,27 @@
-"use client";
-
-import { forwardRef, type HTMLAttributes } from "react";
-import { cn } from "@/lib/utils";
-import LogoIcon from "./logo-icon";
 import Logo from "./logo";
+import { cn } from "@/lib/utils";
+
+interface AnimatedLogoProps {
+  className?: string;
+  /** Change this value to replay the rise entrance. */
+  replayKey?: number | string;
+}
 
 /**
- * Animated variants of the logo.
- *
- * Adding `animated` makes the rays grow outward from the centre - the
- * wrapper gets a radial mask whose inner stop expands and contracts,
- * so the sunburst appears to reach out and retract. No rotation, no
- * pulse rings. The wordmark gets the same reveal so both variants
- * read as one family.
- *
- * The original `Logo` and `LogoIcon` are untouched - these wrappers
- * are additive, so every existing call site keeps working.
+ * The full logotype with a one-shot rise entrance and a quiet ambient
+ * glow (`.logo-radial-glow`). Two nested wrappers because each class
+ * owns the `animation` shorthand — rise on the outer, glow on the inner.
+ * No rotation: a rotating wordmark reads as broken. Both motions are
+ * disabled under prefers-reduced-motion in globals.css.
  */
-
-interface AnimatedLogoIconProps extends HTMLAttributes<HTMLDivElement> {
-  animated?: boolean;
-  /** ClassName forwarded to the inner LogoIcon SVG (colour, filters…). */
-  svgClassName?: string;
-}
-
-export const AnimatedLogoIcon = forwardRef<
-  HTMLDivElement,
-  AnimatedLogoIconProps
->(({ animated = false, className, svgClassName, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "relative inline-flex items-center justify-center",
-      animated && "logo-radial-grow",
-      className,
-    )}
-    {...props}
-  >
-    <LogoIcon className={cn("size-full", svgClassName)} />
-  </div>
-));
-AnimatedLogoIcon.displayName = "AnimatedLogoIcon";
-
-interface AnimatedLogoProps extends HTMLAttributes<HTMLDivElement> {
-  animated?: boolean;
-}
-
-export const AnimatedLogo = forwardRef<HTMLDivElement, AnimatedLogoProps>(
-  ({ animated = false, className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn(
-        "relative inline-flex items-center",
-        animated && "logo-radial-grow",
-        className,
-      )}
-      {...props}
-    >
-      <Logo />
+export function AnimatedLogo({ className, replayKey = 0 }: AnimatedLogoProps) {
+  return (
+    <div key={replayKey} className={cn("logo-anim-rise inline-flex", className)}>
+      <div className="logo-radial-glow inline-flex h-full w-auto">
+        <Logo className="h-full w-auto [&_path]:fill-current [&_circle]:fill-current [&_rect]:fill-current" />
+      </div>
     </div>
-  ),
-);
-AnimatedLogo.displayName = "AnimatedLogo";
+  );
+}
+
+export default AnimatedLogo;

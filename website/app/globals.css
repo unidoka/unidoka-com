@@ -1800,3 +1800,338 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     stroke-dashoffset: 0;
   }
 }
+
+/* ═══ terminal-scrollbar-ondemand ═══════════════════════════════════
+   TerminalStyledInline: the scrollbar is fully transparent at rest.
+   It fades in on hover / keyboard focus, and only when the component
+   reports actual overflow (data-overflow="true"). A hairline fade on
+   the right edge hints at hidden content and retracts at scroll end.
+   ═══════════════════════════════════════════════════════════════════ */
+.terminal-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.25s ease;
+  -webkit-mask-image: linear-gradient(to right, #000 0%, #000 100%);
+  mask-image: linear-gradient(to right, #000 0%, #000 100%);
+}
+.terminal-scroll[data-overflow="true"][data-at-end="false"] {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent 100%);
+  mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent 100%);
+}
+.terminal-scroll::-webkit-scrollbar {
+  height: 5px;
+}
+.terminal-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.terminal-scroll::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: transparent;
+  transition: background-color 0.25s ease;
+}
+.terminal-scroll::-webkit-scrollbar-corner {
+  background: transparent;
+}
+.terminal-scroll[data-overflow="true"]:hover,
+.terminal-scroll[data-overflow="true"]:focus-within {
+  scrollbar-color: color-mix(in srgb, var(--on-bg-low), transparent 45%) transparent;
+}
+.terminal-scroll[data-overflow="true"]:hover::-webkit-scrollbar-thumb,
+.terminal-scroll[data-overflow="true"]:focus-within::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--on-bg-low), transparent 45%);
+}
+.terminal-scroll[data-overflow="true"]::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--on-bg-low), transparent 15%);
+}
+
+/* ═══ amorfa-logo-draw-anim ═════════════════════════════════════════
+   Same choreography as the Vershiny lockup: the stroke draws itself,
+   then the fill floods in. --amorfa-len is measured per shape at
+   runtime (getTotalLength), so the dash never repeats or leaves gaps.
+   Applied by <AnimatedAmorfaLogo>; stagger is set inline per shape.
+   ═══════════════════════════════════════════════════════════════════ */
+@keyframes amorfa-draw-and-fill {
+  0% {
+    stroke-dashoffset: var(--amorfa-len, 300);
+    fill-opacity: 0;
+  }
+  70% {
+    stroke-dashoffset: 0;
+    fill-opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    fill-opacity: 1;
+  }
+}
+.amorfa-anim-draw {
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill-opacity: 0;
+  stroke-dasharray: var(--amorfa-len, 300);
+  stroke-dashoffset: var(--amorfa-len, 300);
+  animation: amorfa-draw-and-fill 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: stroke-dashoffset, fill-opacity;
+}
+@media (prefers-reduced-motion: reduce) {
+  .amorfa-anim-draw {
+    animation: none;
+    fill-opacity: 1;
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+  }
+  .terminal-scroll {
+    transition: none;
+  }
+}
+
+/* ═══ amorfa-logo-bloom ═════════════════════════════════════════════
+   Stroke-free reveal for the layered Amorfa mark. Each filled layer
+   scales open from its own center with a soft overshoot, staggered
+   outer → inner. Fills are never modified — the white/blue layering
+   is the brand asset. The old dash-draw class is fully neutralized
+   below so no outline can ever render on this mark again.
+   ═══════════════════════════════════════════════════════════════════ */
+@keyframes amorfa-layer-bloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.52);
+  }
+  55% {
+    opacity: 1;
+  }
+  78% {
+    transform: scale(1.045);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.amorfa-anim-bloom {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: amorfa-layer-bloom 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* One quiet exhale of light as the last layer lands. Not a loop —
+   the mark settles and stays still. */
+@keyframes amorfa-settle-glow {
+  0% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  45% {
+    filter: drop-shadow(
+      0 0 22px color-mix(in srgb, currentColor 20%, transparent)
+    );
+  }
+  100% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+}
+.amorfa-bloom-stage {
+  animation: amorfa-settle-glow 1.9s cubic-bezier(0.16, 1, 0.3, 1) 0.7s 1 both;
+}
+
+/* Legacy stroke draw — retired. The mark is layered fills; any stroke
+   reads as a chunky outline around every layer. Force it inert even
+   if a stale chunk still applies the class. */
+.amorfa-anim-draw {
+  stroke: none !important;
+  stroke-width: 0 !important;
+  stroke-dasharray: none !important;
+  stroke-dashoffset: 0 !important;
+  fill-opacity: 1 !important;
+  opacity: 1 !important;
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .amorfa-anim-bloom {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .amorfa-bloom-stage {
+    animation: none;
+  }
+}
+
+/* ═══ vershiny-icon-draw-precise ════════════════════════════════════
+   The shared 300-unit dash made short arcs surface late (the two big
+   arcs appeared first). VershinyLogoMono now measures each arc with
+   getTotalLength() and sets --vershiny-len + inline dash values; this
+   keyframe animates against the exact perimeter, so every arc draws
+   across the same timeline slice and the bottom-to-top stagger reads
+   in order. Applied via inline animation-name, which outranks the
+   .vershiny-anim-icon shorthand while keeping its stagger delay.
+   ═══════════════════════════════════════════════════════════════════ */
+@keyframes vershiny-draw-and-fill-precise {
+  0% {
+    stroke-dashoffset: var(--vershiny-len, 300);
+    fill-opacity: 0;
+  }
+  70% {
+    stroke-dashoffset: 0;
+    fill-opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    fill-opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vershiny-anim-icon {
+    animation: none !important;
+    stroke-dasharray: none !important;
+    stroke-dashoffset: 0 !important;
+    fill-opacity: 1 !important;
+  }
+}
+
+/* ═══ unidoka-logo-anim ═════════════════════════════════════════════
+   Entrance primitives for <AnimatedLogoIcon> / <AnimatedLogo>.
+   Stroke-free: layers bloom / rise with opacity + transform only, so
+   the brand fills are never touched. Ambient motion (spin / glow)
+   reuses the existing .logo-radial-* classes above, which are already
+   reduced-motion guarded.
+   ═══════════════════════════════════════════════════════════════════ */
+@keyframes logo-layer-bloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.52);
+  }
+  55% {
+    opacity: 1;
+  }
+  78% {
+    transform: scale(1.045);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.logo-anim-bloom {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: logo-layer-bloom 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes logo-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.logo-anim-rise {
+  opacity: 0;
+  animation: logo-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-anim-bloom,
+  .logo-anim-rise {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ═══ unidoka-logo-bloom-v2 ═════════════════════════════════════════
+   The Unidoka mark no longer rotates. Motion is a stroke-free layered
+   bloom (opacity + transform only, fills untouched) followed by one
+   quiet settle-glow. `.logo-radial-spin` is fully neutralized so no
+   stale chunk can reintroduce rotation.
+   ═══════════════════════════════════════════════════════════════════ */
+.logo-radial-spin {
+  animation: none !important;
+  transform: none !important;
+}
+
+@keyframes logo-layer-bloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.52);
+  }
+  55% {
+    opacity: 1;
+  }
+  78% {
+    transform: scale(1.045);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.logo-anim-bloom {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: logo-layer-bloom 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes logo-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.logo-anim-rise {
+  opacity: 0;
+  animation: logo-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* One quiet exhale of light as the last layer lands. Not a loop. */
+@keyframes logo-settle-glow {
+  0% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  45% {
+    filter: drop-shadow(
+      0 0 22px color-mix(in srgb, currentColor 20%, transparent)
+    );
+  }
+  100% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+}
+.logo-bloom-stage {
+  animation: logo-settle-glow 1.9s cubic-bezier(0.16, 1, 0.3, 1) 0.7s 1 both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-anim-bloom,
+  .logo-anim-rise,
+  .logo-bloom-stage {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* hero-reveal-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-reveal,
+  .animate-reveal-slow {
+    animation: none;
+  }
+}

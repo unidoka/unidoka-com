@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { GitBranchIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
-import { Container } from "@/components/ui/container";
+import { AnimatedAmorfaLogo } from "@/components/icons/logotypes/animated-amorfa-logo";
 import { Button } from "@/components/ui/button";
-import { AmorfaLogo } from "@/components/icons/logotypes/amorfa-logo";
+import { Container } from "@/components/ui/container";
 import { useLanguage } from "@/providers/language-provider";
 
 const GITHUB = "https://github.com/unidoka/amorfa";
@@ -15,34 +14,21 @@ export function CtaSection() {
   return (
     <section className="py-24 md:py-32">
       <Container variant="full-width">
-        <div className="relative overflow-hidden rounded-3xl border border-(--outline) bg-(--card) p-8 text-center md:p-14">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -top-24 left-1/2 size-72 -translate-x-1/2 rounded-full bg-(--primary-glass) blur-3xl"
-          />
-          <div className="relative">
-            <AmorfaLogo className="mx-auto mb-6 size-14 text-(--on-bg-high)" />
-            <h2 className="mb-4 text-display-3 leading-[1.05] md:text-display-2">
-              {t("amorfa.cta_title_1")}
-              <br />
+        <div className="rounded-3xl border border-(--outline) bg-(--card) px-8 py-16 text-center md:py-20">
+          <AnimatedAmorfaLogo className="mx-auto mb-8 size-12 text-(--on-bg-high)" />
+          <h2 className="mb-10 text-display-4 leading-[1.05] md:text-display-3">
+            {t("amorfa.cta_title_1")}{" "}
+            <span className="text-(--on-bg-medium)">
               {t("amorfa.cta_title_2")}
-            </h2>
-            <p className="mx-auto mb-8 max-w-lg text-body-2 leading-relaxed text-(--on-bg-medium)">
-              {t("amorfa.cta_body")}
-            </p>
-            <div className="flex flex-col justify-center gap-3 sm:flex-row">
-              <Button size="large" shape="round" asChild>
-                <a href={GITHUB} target="_blank" rel="noopener noreferrer">
-                  <GitBranchIcon />
-                  github.com/unidoka/amorfa
-                  <ArrowUpRightIcon />
-                </a>
-              </Button>
-              <Button size="large" variant="outlined" shape="round" asChild>
-                <Link href="/">{t("amorfa.cta_home")}</Link>
-              </Button>
-            </div>
-          </div>
+            </span>
+          </h2>
+          <Button size="large" shape="round" asChild>
+            <a href={GITHUB} target="_blank" rel="noopener noreferrer">
+              <GitBranchIcon />
+              {t("amorfa.cta_github")}
+              <ArrowUpRightIcon />
+            </a>
+          </Button>
         </div>
       </Container>
     </section>

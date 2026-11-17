@@ -1,83 +1,59 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { motion } from "motion/react";
-import {
-  GitBranchIcon,
-  ArrowUpRightIcon,
-  ArrowRightIcon,
-} from "@phosphor-icons/react";
-import { AmorfaLogo } from "@/components/icons/logotypes/amorfa-logo";
+import { GitBranchIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
+import { AnimatedAmorfaLogo } from "@/components/icons/logotypes/animated-amorfa-logo";
 import { Button } from "@/components/ui/button";
+import { Container } from "@/components/ui/container";
 import { useLanguage } from "@/providers/language-provider";
 
 const GITHUB = "https://github.com/unidoka/amorfa";
 
 export function HeroSection() {
   const { t } = useLanguage();
-  const [replay, setReplay] = useState(0);
 
   return (
-    <section className="relative flex min-h-[82vh] items-center justify-center overflow-hidden border-b border-(--outline) bg-(--bg) px-4 pt-28 pb-16 md:pt-32">
-      <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-16 lg:flex-row lg:gap-8">
-        <div className="flex w-full flex-1 flex-col items-start gap-6">
-          <h1 className="text-4xl font-semibold leading-[1.08] tracking-tight text-(--on-bg-high) lg:text-6xl">
-            <span className="mb-6 flex items-center gap-3 lg:hidden">
-              <AmorfaLogo className="size-10 text-(--on-bg-high)" />
-              <span className="text-2xl font-semibold tracking-tight">
-                Amorfa
-              </span>
+    <section className="relative flex min-h-[86vh] items-center overflow-hidden border-b border-(--outline) bg-(--bg) pt-28 pb-20 md:pt-36 md:pb-28">
+      <Container
+        variant="full-width"
+        className="flex flex-col items-center gap-14 lg:flex-row lg:gap-20"
+      >
+        <div className="flex w-full flex-1 flex-col items-start gap-10 md:gap-12">
+          <h1 className="animate-reveal fill-mode-both text-[2.5rem] font-semibold leading-[1.04] tracking-tight text-(--on-bg-high) [animation-delay:120ms] md:text-6xl md:leading-[1.02] lg:text-7xl">
+            <span className="flex items-center gap-[0.35em]">
+              <AnimatedAmorfaLogo className="size-[1.05em] shrink-0 lg:hidden" />
+              <span>{t("amorfa.hero_title_1")}</span>
             </span>
-            {t("amorfa.title_1")}
-            <br />
-            <span className="text-(--on-bg-medium)">{t("amorfa.title_2")}</span>
+            <span className="block text-(--on-bg-medium)">
+              {t("amorfa.hero_title_2")}
+            </span>
           </h1>
 
-          <p className="max-w-md text-lg leading-relaxed text-(--on-bg-medium)">
-            {t("amorfa.description")}
-          </p>
-
-          <div className="mt-4 flex flex-wrap items-center gap-4">
-            <Button size="large" shape="round" asChild>
+          <div className="animate-reveal fill-mode-both [animation-delay:280ms]">
+            <Button
+              size="large"
+              shape="round"
+              asChild
+              className="md:h-16 md:px-10 md:text-heading-3!"
+            >
               <a href={GITHUB} target="_blank" rel="noopener noreferrer">
                 <GitBranchIcon />
                 {t("amorfa.cta_github")}
                 <ArrowUpRightIcon />
               </a>
             </Button>
-            <Button size="large" variant="outlined" shape="round" asChild>
-              <Link href="#quickstart">
-                {t("amorfa.cta_quickstart")}
-                <ArrowRightIcon />
-              </Link>
-            </Button>
-            <button
-              type="button"
-              onClick={() => setReplay((n) => n + 1)}
-              className="text-sm font-medium text-(--on-bg-low) transition-colors hover:text-(--on-bg-high)"
-            >
-              {t("amorfa.hero_replay")}
-            </button>
           </div>
         </div>
 
-        <div className="relative hidden w-full flex-1 items-center justify-end lg:flex">
+        <div className="relative hidden w-full flex-1 items-center justify-center lg:flex">
           <div
             aria-hidden
-            className="pointer-events-none absolute top-1/2 right-8 size-[380px] -translate-y-1/2 rounded-full bg-(--primary-glass) blur-3xl"
+            className="pointer-events-none absolute top-1/2 left-1/2 size-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-(--primary-glass) blur-3xl"
           />
-          <motion.div
-            key={replay}
-            initial={{ opacity: 0, scale: 0.92, filter: "blur(10px)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-            className="relative"
-          >
-            <AmorfaLogo className="size-44 text-(--on-bg-high) xl:size-56" />
-          </motion.div>
+          <AnimatedAmorfaLogo className="relative size-48 animate-reveal-slow fill-mode-both text-(--on-bg-high) [animation-delay:200ms] xl:size-56" />
         </div>
-      </div>
+      </Container>
     </section>
   );
 }
+
+export default HeroSection;
