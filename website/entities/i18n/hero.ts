@@ -7,6 +7,8 @@ export const heroTranslations: Record<Language, Record<string, string>> = {
     'hero.title.part2': 'together',
     'hero.subtitle':
       'Solutions that unifies creators of future today. Open way to find hidden answers',
+    'hero.bottom_statement':
+      'Searching the hidden paths to innovate. Giving open source projects to speed it up, and making professionals to make future creators.',
   },
   ru: {
     'hero.order': 'Оформить заказ',
@@ -14,5 +16,7 @@ export const heroTranslations: Record<Language, Record<string, string>> = {
     'hero.title.part2': 'лучше',
     'hero.subtitle':
       'Решения, объединяющие создателей будущего уже сегодня. Открытый подход к скрытым ответам',
+    'hero.bottom_statement':
+      'Ищем скрытые пути к инновациям. Открываем open source проекты, чтобы ускорить прогресс, и растим профессионалов, создающих будущее.',
   },
 };

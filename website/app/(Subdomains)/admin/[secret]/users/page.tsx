@@ -804,7 +804,7 @@ function UserEditorDialog({
           }
         }
       } else {
-        // Payload for the main PATCH — everything except the two
+        // Payload for the main PATCH - everything except the two
         // root-only fields, which go to their dedicated endpoints.
         const payload: any = {
           email: form.email.trim(),
@@ -821,7 +821,7 @@ function UserEditorDialog({
         };
         if (form.password) payload.password = form.password;
 
-        // Permissions — root only, admin targets only. Matches the
+        // Permissions - root only, admin targets only. Matches the
         // backend guard; sending for other cases earns a 403/422.
         if (isRoot && form.role === "admin") {
           payload.permissions = form.permissions;
@@ -849,13 +849,13 @@ function UserEditorDialog({
         }
 
         // Order notifications have their own root-only endpoint.
-        // Send only when the value actually changed — an unchanged
+        // Send only when the value actually changed - an unchanged
         // PUT is a no-op but still generates a 200 and an audit trail
         // entry. Skip it.
         if (
           showOrderNotifications &&
           form.receives_order_notifications !==
-            (user!.receives_order_notifications ?? false)
+          (user!.receives_order_notifications ?? false)
         ) {
           const ordRes = await $fetch(
             `/api/v1/admin/users/${user!.id}/order-notifications`,
@@ -872,7 +872,7 @@ function UserEditorDialog({
           }
         }
 
-        // Topics — same PATCH endpoint, part of the same payload as
+        // Topics - same PATCH endpoint, part of the same payload as
         // channel toggles. Backend whitelists against ALLOWED_TOPICS.
         // Send a second PATCH only if the topics differ, to avoid a
         // pointless write.
@@ -1077,13 +1077,13 @@ function UserEditorDialog({
                 <SettingRow
                   icon={ShieldCheck}
                   label="Транзакционные"
-                  description="Сброс пароля, подтверждение email, чеки — всегда отправляются"
+                  description="Сброс пароля, подтверждение email, чеки - всегда отправляются"
                   locked
                 />
                 <SettingRow
                   icon={EnvelopeOpen}
                   label="Правовые"
-                  description="Обновления политики, условий и согласий — всегда отправляются"
+                  description="Обновления политики, условий и согласий - всегда отправляются"
                   locked
                 />
               </div>

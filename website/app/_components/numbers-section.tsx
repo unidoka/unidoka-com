@@ -1,90 +1,37 @@
-"use client";
-
-import { useRef } from "react";
-import Link from "next/link";
-import { Container } from "@/components/ui/container";
-import {
-  ArrowUpRightIcon,
-  GitBranchIcon,
-  StackIcon,
-  CalendarBlankIcon,
-  CubeIcon,
-} from "@phosphor-icons/react";
-import { useLanguage } from "@/providers/language-provider";
-import { cn } from "@/lib/utils";
-
-export default function NumbersSection() {
-  const { t } = useLanguage();
-  const sectionRef = useRef<HTMLElement>(null);
-
-  const cards = [
-    {
-      titleKey: "home.card_solutions_title",
-      descKey: "home.card_solutions_desc",
-      btnKey: "home.card_solutions_btn",
-      href: "/solutions",
-      Icon: StackIcon,
+export function NumbersSection() {
+  const features = [
+    { 
+      title: "Чаще побеждают", 
+      desc: "Разбор задач и кейсов с менторами." 
     },
-    {
-      titleKey: "home.card_opensource_title",
-      descKey: "home.card_opensource_desc",
-      btnKey: "home.card_opensource_btn",
-      href: "/solutions?type=open_source",
-      Icon: GitBranchIcon,
+    { 
+      title: "Быстрее получают работу", 
+      desc: "Стажировки и контакт с командами." 
     },
-    {
-      titleKey: "home.card_community_title",
-      descKey: "home.card_community_desc",
-      btnKey: "home.card_community_btn",
-      href: "/amorfa",
-      Icon: CubeIcon,
+    { 
+      title: "Сильнее портфолио", 
+      desc: "Реальные проекты для показа." 
     },
-    {
-      titleKey: "home.card_events_title",
-      descKey: "home.card_events_desc",
-      btnKey: "home.card_events_btn",
-      href: "/events",
-      Icon: CalendarBlankIcon,
-    },
+    { 
+      title: "Шире связи", 
+      desc: "Нетворкинг и единомышленники." 
+    }
   ];
 
   return (
-    <section ref={sectionRef} className="pt-20 sm:pt-28 pb-12 sm:pb-20">
-      <Container>
-        <h2 className="text-display-4 sm:text-display-2 mb-10">
-          {t("home.numbers_title")}
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-(--outline) border border-(--outline) rounded-3xl overflow-hidden">
-          {cards.map((card, idx) => {
-            const Icon = card.Icon;
-            return (
-              <Link
-                key={idx}
-                href={card.href}
-                className={cn(
-                  "group relative bg-(--card) p-6 sm:p-8 flex flex-col min-h-[320px]",
-                  "transition-colors hover:bg-(--state-hover)",
-                )}
-              >
-                <div className="flex size-11 items-center justify-center rounded-xl bg-(--on-bg-high) text-(--bg) mb-6">
-                  <Icon className="size-5" weight="bold" />
-                </div>
-                <h3 className="text-heading-2 text-(--on-bg-high) mb-3 leading-tight">
-                  {t(card.titleKey)}
-                </h3>
-                <p className="text-body-3 text-(--on-bg-medium) leading-relaxed mb-6 flex-1">
-                  {t(card.descKey)}
-                </p>
-                <span className="inline-flex items-center gap-1.5 text-body-4 font-medium text-(--on-bg-high) border-t border-(--outline) pt-4 group-hover:gap-2.5 transition-all mt-auto">
-                  {t(card.btnKey)}
-                  <ArrowUpRightIcon className="size-3.5" />
-                </span>
-              </Link>
-            );
-          })}
-        </div>
-      </Container>
+    <section className="py-24 px-4 bg-[#FAFAFA]">
+      <div className="max-w-6xl mx-auto border border-neutral-200 rounded-3xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 divide-y md:divide-y-0 lg:divide-x divide-neutral-200 bg-white">
+        {features.map((f, i) => (
+          <div key={i} className="p-8 lg:p-10 flex flex-col gap-3">
+            <h3 className="text-xl lg:text-2xl font-semibold tracking-tight text-neutral-900">
+              {f.title}
+            </h3>
+            <p className="text-neutral-500 leading-relaxed text-sm lg:text-base">
+              {f.desc}
+            </p>
+          </div>
+        ))}
+      </div>
     </section>
   );
 }

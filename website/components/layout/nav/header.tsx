@@ -19,7 +19,7 @@ import { QuickOrderDialog } from "@/components/ui/quick-order-dialog";
 import { TelemostStackIcon } from "@/components/icons/telemost-stack-icon";
 import { Container } from "@/components/ui/container";
 import { AmorfaLogo } from "@/components/icons/logotypes/amorfa-logo";
-import { VershinyLogo } from "@/components/icons/logotypes/vershiny-logo";
+import { VershinyLogoIcon } from "@/components/icons/logotypes/vershiny-logo-icon";
 
 interface NavItem {
   href: string;
@@ -31,17 +31,17 @@ interface NavItem {
 const NAV_LINKS: NavItem[] = [
   { href: "/events", labelKey: "nav.events", fallback: "События" },
   { href: "/solutions", labelKey: "nav.solutions", fallback: "Решения" },
-  { 
-    href: "/amorfa", 
-    labelKey: "nav.amorfa", 
-    fallback: "Amorfa", 
-    icon: <AmorfaLogo className="size-4" /> 
+  {
+    href: "/amorfa",
+    labelKey: "nav.amorfa",
+    fallback: "Amorfa",
+    icon: <AmorfaLogo className="size-6" />
   },
-  { 
-    href: "/vershiny_top", 
-    labelKey: "nav.vershiny", 
-    fallback: "Вершины", 
-    icon: <VershinyLogo className="size-4" /> 
+  {
+    href: "/vershiny_top",
+    labelKey: "nav.vershiny",
+    fallback: "Вершины",
+    icon: <VershinyLogoIcon className="size-6" />
   },
 ];
 
@@ -96,7 +96,7 @@ export default function Header() {
   }, [profileOpen]);
 
   const { secret: adminSecret } = useAdminSecret();
-  
+
   const adminHref = adminSecret
     ? crossSubdomainUrl("admin", `/${adminSecret}`)
     : null;
@@ -126,7 +126,7 @@ export default function Header() {
     <header className="sticky top-0 left-0 right-0 z-50 w-full px-3 pt-3 pointer-events-none">
       <div className="mx-auto max-w-7xl w-full pointer-events-auto">
         <Container className="grid grid-cols-1 sm:grid-cols-[1fr_2fr_1fr] items-center justify-center gap-3">
-          
+
           {/* Left: Back Button */}
           <div className="hidden sm:flex min-w-0 items-center">
             <AnimatePresence initial={false}>
@@ -173,7 +173,7 @@ export default function Header() {
                 <Logo className="!h-5" />
               </motion.span>
             </Link>
-            
+
             <nav className="hidden lg:flex items-center h-8 ml-2">
               {NAV_LINKS.map((item) => (
                 <NavLink
@@ -202,7 +202,7 @@ export default function Header() {
                 >
                   <User className="size-[18px]" />
                 </Button>
-                
+
                 <AnimatePresence>
                   {profileOpen && (
                     <motion.div
@@ -214,7 +214,7 @@ export default function Header() {
                       className="absolute top-full right-0 mt-4 w-[260px] sm:w-64 rounded-2xl border border-(--outline) bg-card p-2 flex flex-col gap-1 z-[9999] shadow-[0_16px_40px_-12px_rgba(0,0,0,0.15)] origin-top-right"
                     >
                       <div className="absolute -top-1.5 right-[18px] w-3 h-3 rotate-45 bg-card border-t border-l border-(--outline)" />
-                      
+
                       <div className="relative z-10 flex flex-col gap-1">
                         {user ? (
                           <>
@@ -296,7 +296,7 @@ export default function Header() {
               </Button>
             </QuickOrderDialog>
           </div>
-          
+
         </Container>
       </div>
     </header>

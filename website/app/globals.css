@@ -1576,3 +1576,227 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
   .mesh-blob-1, .mesh-blob-2, .mesh-blob-3, .mesh-blob-4,
   .hero-grain-drift, .hero-dot-drift, .hero-light-sweep { animation: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   RADIAL LOGO ANIMATION
+   ───────────────────────────────────────────────────────────────────
+   Drives the `animated` prop on <AnimatedLogoIcon> / <AnimatedLogo>.
+   Two concentric pulse rings scale outward from the core while the
+   sunburst slowly rotates underneath — together they read as a
+   radial ripple emanating from the mark. The wordmark gets a gentle
+   glow pulse instead of rotation (a rotating wordmark looks broken).
+   All motion is disabled under prefers-reduced-motion.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.logo-radial {
+  isolation: isolate;
+}
+
+/* Slow sunburst rotation. 45s is deliberately long — the rays should
+   creep rather than spin. */
+.logo-radial-spin {
+  animation: logo-spin 45s linear infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Radial pulse ring — starts near the core and scales out to just
+   past the SVG bounds. Two copies offset by half a cycle so the
+   ripple reads as continuous, not staccato. */
+.logo-radial-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--on-bg-high) 22%, transparent);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--on-bg-high) 3%, transparent) 0%,
+    transparent 65%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.35);
+  animation: logo-pulse 4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  will-change: transform, opacity;
+}
+
+.logo-radial-pulse--delayed {
+  animation-delay: 2s;
+}
+
+@keyframes logo-pulse {
+  0% {
+    transform: scale(0.35);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.15);
+    opacity: 0;
+  }
+}
+
+/* Wordmark glow pulse — replaces the rotation for <AnimatedLogo>. */
+.logo-radial-glow {
+  animation: logo-glow 4s ease-in-out infinite;
+}
+
+@keyframes logo-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  50% {
+    filter: drop-shadow(
+      0 0 10px color-mix(in srgb, var(--on-bg-high) 22%, transparent)
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-radial-spin,
+  .logo-radial-pulse,
+  .logo-radial-glow {
+    animation: none;
+  }
+  .logo-radial-pulse {
+    opacity: 0;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   RADIAL LOGO ANIMATION — rays growing from center
+   ───────────────────────────────────────────────────────────────────
+   Drives the `animated` prop on <AnimatedLogoIcon> / <AnimatedLogo>.
+   A radial mask is applied to the wrapper and its inner stop expands
+   from ~8% (only the core visible) to ~72% (the full sunburst
+   visible) and back. Because the mask is radial and centred, the
+   rays appear to extend out of the centre and retract — no rotation,
+   no pulse rings.
+   Disabled under prefers-reduced-motion.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.logo-radial-grow {
+  animation: logo-radial-grow 3.6s ease-in-out infinite;
+  will-change: mask-image, -webkit-mask-image;
+}
+
+@keyframes logo-radial-grow {
+  0%,
+  100% {
+    -webkit-mask-image: radial-gradient(
+      circle at center,
+      #000 8%,
+      transparent 18%
+    );
+    mask-image: radial-gradient(
+      circle at center,
+      #000 8%,
+      transparent 18%
+    );
+  }
+  50% {
+    -webkit-mask-image: radial-gradient(
+      circle at center,
+      #000 72%,
+      transparent 82%
+    );
+    mask-image: radial-gradient(
+      circle at center,
+      #000 72%,
+      transparent 82%
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-radial-grow {
+    animation: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+/* --- Vershiny Logo Animations --- */
+@keyframes vershiny-slide-up {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes vershiny-draw-and-fill {
+  0% { stroke-dashoffset: 300; fill-opacity: 0; }
+  70% { stroke-dashoffset: 0; fill-opacity: 0; }
+  100% { stroke-dashoffset: 0; fill-opacity: 1; }
+}
+
+.vershiny-anim-text {
+  opacity: 0;
+  transform-origin: center;
+  animation: vershiny-slide-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.vershiny-anim-icon {
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill-opacity: 0;
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+  animation: vershiny-draw-and-fill 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: stroke-dashoffset, fill-opacity;
+}
+
+/* --- Vershiny Logo Animations --- */
+@keyframes vershiny-slide-up {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes vershiny-draw-and-fill {
+  0% { stroke-dashoffset: 300; fill-opacity: 0; }
+  70% { stroke-dashoffset: 0; fill-opacity: 0; }
+  100% { stroke-dashoffset: 0; fill-opacity: 1; }
+}
+
+.vershiny-anim-text {
+  opacity: 0;
+  transform-origin: center;
+  animation: vershiny-slide-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.vershiny-anim-icon {
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill-opacity: 0;
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+  animation: vershiny-draw-and-fill 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: stroke-dashoffset, fill-opacity;
+}
+
+/* vershiny-reduced-motion-guard */
+@media (prefers-reduced-motion: reduce) {
+  .vershiny-anim-text,
+  .vershiny-anim-icon {
+    animation: none;
+    opacity: 1;
+    fill-opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}

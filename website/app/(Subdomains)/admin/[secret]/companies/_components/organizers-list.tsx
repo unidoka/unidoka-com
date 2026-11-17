@@ -311,7 +311,7 @@ function OrganizerEditorDialog({
                   <SelectValue placeholder="Не назначен" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NO_OWNER}>— Не назначен —</SelectItem>
+                  <SelectItem value={NO_OWNER}>- Не назначен -</SelectItem>
                   {users.map((u) => (
                     <SelectItem key={u.id} value={u.id}>
                       {u.name || u.username || u.email}

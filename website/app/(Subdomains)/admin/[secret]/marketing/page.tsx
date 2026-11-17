@@ -13,8 +13,8 @@ import {
  * Marketing hub.
  *
  * Two entry points:
- *   /marketing/placements  — list of campaigns, create/edit dialogs
- *   /marketing/tools       — UTM builder, OG preview, slug generator
+ *   /marketing/placements  - list of campaigns, create/edit dialogs
+ *   /marketing/tools       - UTM builder, OG preview, slug generator
  *
  * The four placement types are still described here, but the actionable
  * content is a pair of nav cards. The placement-type explainer moved

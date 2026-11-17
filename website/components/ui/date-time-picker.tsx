@@ -140,7 +140,7 @@ export function DateTimePicker({
         align="start"
         sideOffset={6}
         collisionPadding={12}
-        /* Match trigger width but never go below 320px — the calendar
+        /* Match trigger width but never go below 320px - the calendar
            needs at least that to lay out 7 columns comfortably. On a
            narrow trigger (260px in "other dates" rows) it grows to
            the minimum and Radix slides it inside the viewport. */
@@ -156,7 +156,7 @@ export function DateTimePicker({
           className="w-full p-3 [--cell-size:--spacing(9)]"
         />
 
-        {/* Time picker — segmented hour / minute / AM-PM. Three fixed
+        {/* Time picker - segmented hour / minute / AM-PM. Three fixed
             columns so the fields align with the calendar above and the
             whole strip fills the popover width. */}
         <div className="border-t border-(--outline) px-3 py-3">

@@ -2,19 +2,18 @@ import type { Language } from './translations';
 
 export const amorfaTranslations: Record<Language, Record<string, string>> = {
   en: {
-    // ── Hero ────────────────────────────────────────────────────────
-    'amorfa.eyebrow': 'Open source · Unidoka',
+    // ── Hero ────────────────────────────────────────────────────────────────
     'amorfa.title_1': 'Amorfa.',
     'amorfa.title_2': 'Fullstack in hours, not weeks.',
     'amorfa.description':
-      'AI-optimized fullstack framework: FastAPI, Next.js, PostgreSQL, and Valkey — pre-wired, documented, and self-hostable. Clone the repo and start building the thing you actually wanted to build.',
+      'AI-optimized fullstack framework: FastAPI, Next.js, PostgreSQL, and Valkey - pre-wired, documented, and self-hostable. Clone the repo and start building the thing you actually wanted to build.',
     'amorfa.cta_github': 'Open on GitHub',
     'amorfa.cta_quickstart': 'Quick start',
+    'amorfa.hero_replay': 'Replay animation',
 
-    // ── Features ────────────────────────────────────────────────────
-    'amorfa.features_eyebrow': "What's inside",
+    // ── Features ────────────────────────────────────────────────────────────
     'amorfa.features_title':
-      'Everything you need for production — and nothing extra.',
+      'Everything you need for production - and nothing extra.',
     'amorfa.feature_1_title': 'Ship in hours',
     'amorfa.feature_1_body':
       'Batteries-included scaffold with auth, DB, caching, proxy, and CI already wired. Clone, edit .env, run.',
@@ -26,96 +25,100 @@ export const amorfaTranslations: Record<Language, Record<string, string>> = {
       'FastAPI + SQLAlchemy 2.0 + Alembic on the backend. Next.js 16 App Router + Tailwind v4 on the frontend. One repo.',
     'amorfa.feature_4_title': 'Zero lock-in',
     'amorfa.feature_4_body':
-      'No SaaS dashboards required. Docker Compose, Traefik, Postgres, Valkey — all self-hostable on a single VPS.',
+      'No SaaS dashboards required. Docker Compose, Traefik, Postgres, Valkey - all self-hostable on a single VPS.',
     'amorfa.feature_5_title': 'Multi-service ready',
     'amorfa.feature_5_body':
       'The /services folder is a convention, not a constraint. Split into microservices when you actually need to.',
     'amorfa.feature_6_title': 'Documented defaults',
     'amorfa.feature_6_body':
       'Comments explain why, not what. JWT rotation, OTP, rate limiting, and email flows come pre-wired.',
+    'amorfa.feature_7_title': 'Typed end to end',
+    'amorfa.feature_7_body':
+      'TypeScript on the frontend, Pydantic and SQLAlchemy 2.0 on the backend. Contracts break at build time, not in production.',
+    'amorfa.feature_8_title': 'One-command deploys',
+    'amorfa.feature_8_body':
+      'Docker Compose + Traefik with TLS out of the box. Push to a VPS and production is ready.',
 
-    // ── Structure ───────────────────────────────────────────────────
-    'amorfa.structure_eyebrow': 'Structure',
-    'amorfa.structure_title': 'One repo — two services.',
+    // ── Structure ───────────────────────────────────────────────────────────
+    'amorfa.structure_title': 'One repo - two services.',
     'amorfa.structure_body_1':
       'Monorepo by default: backend and frontend side by side, but isolated. Splitting into microservices is one docker-compose away, not a rewrite.',
     'amorfa.structure_body_2':
-      'Every file carries LLM-agent context: comments, structure, .agents/skills. A Repomix config packs the whole project into a single readable document — feed it to the model whole.',
+      'Every file carries LLM-agent context: comments, structure, .agents/skills. A Repomix config packs the whole project into a single readable document - feed it to the model whole.',
 
-    // ── Stack ───────────────────────────────────────────────────────
-    'amorfa.stack_eyebrow': 'Stack',
+    // ── Stack ───────────────────────────────────────────────────────────────
     'amorfa.stack_title': 'Modern, boring, reliable.',
 
-    // ── Quickstart ──────────────────────────────────────────────────
-    'amorfa.quickstart_eyebrow': 'Quick start',
+    // ── Quickstart ──────────────────────────────────────────────────────────
     'amorfa.quickstart_title': 'Three commands to a working app.',
     'amorfa.step_1_title': 'Clone and configure',
     'amorfa.step_2_title': 'Bring up containers',
     'amorfa.step_3_title': 'Run migrations',
     'amorfa.quickstart_cta': 'All instructions on GitHub',
 
-    // ── CTA ─────────────────────────────────────────────────────────
+    // ── CTA ─────────────────────────────────────────────────────────────────
     'amorfa.cta_title_1': 'Open source.',
     'amorfa.cta_title_2': 'Your move.',
     'amorfa.cta_body':
       'Fork it, extend it, send a PR. Amorfa lives as long as people use it.',
     'amorfa.cta_home': '← Back home',
   },
-
   ru: {
-    // ── Hero ────────────────────────────────────────────────────────
-    'amorfa.eyebrow': 'Open source · Юнидока',
+    // ── Hero ───────────────────────────────────────────────────────────────
     'amorfa.title_1': 'Amorfa.',
     'amorfa.title_2': 'Fullstack за часы, а не недели.',
     'amorfa.description':
-      'AI-оптимизированный fullstack-фреймворк: FastAPI, Next.js, PostgreSQL и Valkey — всё подключено, задокументировано и самохостится. Клонируйте репозиторий и начинайте строить то, что действительно хотели.',
+      'AI-оптимизированный fullstack-фреймворк: FastAPI, Next.js, PostgreSQL и Valkey - всё подключено, задокументировано и самохостится. Клонируйте репозиторий и начинайте строить то, что действительно хотели.',
     'amorfa.cta_github': 'Открыть на GitHub',
     'amorfa.cta_quickstart': 'Быстрый старт',
+    'amorfa.hero_replay': 'Смотреть анимацию',
 
-    // ── Features ────────────────────────────────────────────────────
-    'amorfa.features_eyebrow': 'Что внутри',
+    // ── Features ────────────────────────────────────────────────────────────
     'amorfa.features_title':
-      'Всё, что нужно для продакшена — и ничего лишнего.',
+      'Всё, что нужно для продакшена - и ничего лишнего.',
     'amorfa.feature_1_title': 'Запуск за часы',
     'amorfa.feature_1_body':
       'Скаффолд со всем включённым: авторизация, БД, кэш, прокси и CI уже настроены. Клонируй, отредактируй .env, запускай.',
     'amorfa.feature_2_title': 'AI-first структура',
     'amorfa.feature_2_body':
-      'Каждый файл несёт LLM-читаемый контекст. Конфиг Repomix, .agents/skills и задокументированное дерево файлов — из коробки.',
+      'Каждый файл несёт LLM-читаемый контекст. Конфиг Repomix, .agents/skills и задокументированное дерево файлов - из коробки.',
     'amorfa.feature_3_title': 'Fullstack, честно',
     'amorfa.feature_3_body':
       'FastAPI + SQLAlchemy 2.0 + Alembic на бэкенде. Next.js 16 App Router + Tailwind v4 на фронтенде. Один репозиторий.',
     'amorfa.feature_4_title': 'Ноль lock-in',
     'amorfa.feature_4_body':
-      'Никаких SaaS-панелей. Docker Compose, Traefik, Postgres, Valkey — всё самохостится на одном VPS.',
+      'Никаких SaaS-панелей. Docker Compose, Traefik, Postgres, Valkey - всё самохостится на одном VPS.',
     'amorfa.feature_5_title': 'Готов к микросервисам',
     'amorfa.feature_5_body':
-      'Папка /services — это конвенция, а не ограничение. Разделяйте на микросервисы, когда это реально нужно.',
+      'Папка /services - это конвенция, а не ограничение. Разделяйте на микросервисы, когда это реально нужно.',
     'amorfa.feature_6_title': 'Задокументированные дефолты',
     'amorfa.feature_6_body':
-      'Комментарии объясняют «почему», а не «что». JWT-ротация, OTP, rate limiting и email-флоу — уже подключены.',
+      'Комментарии объясняют «почему», а не «что». JWT-ротация, OTP, rate limiting и email-флоу - уже подключены.',
+    'amorfa.feature_7_title': 'Типы end to end',
+    'amorfa.feature_7_body':
+      'TypeScript на фронтенде, Pydantic и SQLAlchemy 2.0 на бэкенде. Контракты проверяются при сборке, а не в продакшене.',
+    'amorfa.feature_8_title': 'Деплой одной командой',
+    'amorfa.feature_8_body':
+      'Docker Compose + Traefik с TLS из коробки. Пуш на VPS - и продакшен готов.',
 
-    // ── Structure ───────────────────────────────────────────────────
-    'amorfa.structure_eyebrow': 'Структура',
-    'amorfa.structure_title': 'Один репозиторий — два сервиса.',
+    // ── Structure ───────────────────────────────────────────────────────────
+    'amorfa.structure_title': 'Один репозиторий - два сервиса.',
     'amorfa.structure_body_1':
-      'Монорепо по умолчанию: бэкенд и фронтенд рядом, но изолированы. Разделение на микросервисы — вопрос одного docker-compose, а не переписывания.',
+      'Монорепо по умолчанию: бэкенд и фронтенд рядом, но изолированы. Разделение на микросервисы - вопрос одного docker-compose, а не переписывания.',
     'amorfa.structure_body_2':
-      'Каждый файл несёт контекст для LLM-агента: комментарии, структура, .agents/skills. Repomix-конфиг собирает весь проект в один читаемый документ — можно скармливать модели целиком.',
+      'Каждый файл несёт контекст для LLM-агента: комментарии, структура, .agents/skills. Repomix-конфиг собирает весь проект в один читаемый документ - можно скармливать модели целиком.',
 
-    // ── Stack ───────────────────────────────────────────────────────
-    'amorfa.stack_eyebrow': 'Стек',
+    // ── Stack ───────────────────────────────────────────────────────────────
     'amorfa.stack_title': 'Современный, простой, надёжный.',
 
-    // ── Quickstart ──────────────────────────────────────────────────
-    'amorfa.quickstart_eyebrow': 'Быстрый старт',
+    // ── Quickstart ──────────────────────────────────────────────────────────
     'amorfa.quickstart_title': 'Три команды до работающего приложения.',
     'amorfa.step_1_title': 'Клонировать и настроить',
     'amorfa.step_2_title': 'Поднять контейнеры',
     'amorfa.step_3_title': 'Применить миграции',
     'amorfa.quickstart_cta': 'Все инструкции на GitHub',
 
-    // ── CTA ─────────────────────────────────────────────────────────
+    // ── CTA ─────────────────────────────────────────────────────────────────
     'amorfa.cta_title_1': 'Открытый исходный код.',
     'amorfa.cta_title_2': 'Ваш ход.',
     'amorfa.cta_body':

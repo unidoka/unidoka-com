@@ -1,64 +1,64 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Container } from "@/components/ui/container";
+import { VershinyLogoMono } from "@/components/icons/logotypes/vershiny-logo-mono";
+import { VershinyLogoIcon } from "@/components/icons/logotypes/vershiny-logo-icon";
 import { Button } from "@/components/ui/button";
-import { ROUTES } from "@/utils/constants/routes";
-import { ArrowUpRightIcon, LightbulbIcon } from "@phosphor-icons/react";
-import { useLanguage } from "@/providers/language-provider";
-import { ConsultDialog } from "@/components/consult-dialog";
-import LogoIcon from "@/components/layout/logo/logo-icon";
 
-export default function HeroSection() {
-  const { t } = useLanguage();
+export function HeroSection() {
+  const [replay, setReplay] = useState(0);
+
   return (
-    <section className="relative overflow-hidden bg-(--bg) text-(--on-bg-high) border-b border-(--outline)">
-      {/* Blueprint grid - very faint, masked to the top of the viewport */}
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none opacity-[0.035] dark:opacity-[0.06]"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, var(--on-bg-high) 1px, transparent 1px), linear-gradient(to bottom, var(--on-bg-high) 1px, transparent 1px)",
-          backgroundSize: "96px 96px",
-          maskImage:
-            "radial-gradient(ellipse 80% 55% at 50% 0%, black 20%, transparent 90%)",
-          WebkitMaskImage:
-            "radial-gradient(ellipse 80% 55% at 50% 0%, black 20%, transparent 90%)",
-        }}
-      />
-      {/* Single soft bloom - monochrome */}
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 55% 40% at 50% 8%, color-mix(in srgb, var(--on-bg-high), transparent 92%), transparent 70%)",
-        }}
-      />
-
-      <Container className="relative pt-40 sm:pt-56 pb-24 sm:pb-36">
-        <div className="max-w-[1100px] mx-auto text-center animate-reveal">
-          <h1 className="font-heading font-medium tracking-[-0.045em] leading-[0.88] text-[3.25rem] sm:text-[6rem] lg:text-[8.5rem] mb-10 text-balance">
-            {t("hero.title.part1")}
-            <br />
-            <span className="text-(--on-bg-low)">
-              {t("hero.title.part2")}
+    <section className="relative flex min-h-[80vh] items-center justify-center bg-(--bg) px-4 py-20">
+      <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-16 lg:flex-row lg:gap-8">
+        {/* Left: copy + CTA */}
+        <div className="flex w-full flex-1 flex-col items-start gap-6">
+          <h1 className="text-4xl font-semibold leading-[1.1] tracking-tight text-(--on-bg-high) lg:text-6xl">
+            <span className="mb-6 flex flex-col lg:hidden">
+              <span className="mb-2 flex items-center gap-3">
+                <VershinyLogoIcon
+                  replayKey={replay}
+                  className="size-10 text-(--on-bg-high)"
+                />
+                <span className="text-2xl font-bold uppercase tracking-tighter">
+                  Vershiny Top
+                </span>
+              </span>
             </span>
+            Платформа для роста <br className="hidden lg:block" />
+            в IT-сфере
           </h1>
-          <p className="text-body-2 md:text-body-1 text-(--on-bg-medium) leading-relaxed max-w-[600px] mx-auto mb-12">
-            {t("hero.subtitle")}
+
+          <p className="max-w-md text-lg leading-relaxed text-(--on-bg-medium)">
+            Менторство, стажировки и реальные проекты для тех, кто хочет
+            расти быстрее.
           </p>
-          <div className="flex flex-wrap gap-3 justify-center">
-            <ConsultDialog>
-              <Button size="large">
-                <LogoIcon className="[&>*]:text-(--on-primary-card)! size-5!" />
-                {t("nav.request")}
-              </Button>
-            </ConsultDialog>
+
+          <div className="mt-4 flex flex-wrap items-center gap-4">
+            <Button size="large" shape="round" asChild>
+              <Link href="/vershiny_top">Начать</Link>
+            </Button>
+            <button
+              type="button"
+              onClick={() => setReplay((n) => n + 1)}
+              className="text-sm font-medium text-(--on-bg-low) transition-colors hover:text-(--on-bg-high)"
+            >
+              Смотреть анимацию
+            </button>
           </div>
         </div>
-      </Container>
+
+        {/* Right: the mono lockup already includes the icon — one SVG */}
+        <div className="hidden w-full flex-1 items-center justify-end lg:flex">
+          <VershinyLogoMono
+            replayKey={replay}
+            className="h-auto w-[320px] text-(--on-bg-high) xl:w-[380px]"
+          />
+        </div>
+      </div>
     </section>
   );
 }
+
+export default HeroSection;

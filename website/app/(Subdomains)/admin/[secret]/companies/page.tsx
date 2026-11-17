@@ -13,7 +13,7 @@ import { OrganizersList } from "./_components/organizers-list";
  * The two admin areas were separate top-level routes. They both deal
  * with "external entities the org works with", so they now live behind
  * a single sidebar entry (/companies) and split by tab. Tab state is
- * in `?tab=` — a `router.replace(..., { scroll: false })` swaps it
+ * in `?tab=` - a `router.replace(..., { scroll: false })` swaps it
  * without a navigation.
  */
 function CompaniesInner() {

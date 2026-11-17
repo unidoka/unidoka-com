@@ -28,7 +28,7 @@ const nextConfig: NextConfig = {
       { source: "/docs", destination: `${backend}/docs` },
       { source: "/docs/:path*", destination: `${backend}/docs/:path*` },
       { source: "/health", destination: `${backend}/health` },
-      // MCP over HTTP — same URL shape as prod (`https://.../mcp`),
+      // MCP over HTTP - same URL shape as prod (`https://.../mcp`),
       // so clients configured in dev against `http://localhost:3000/mcp`
       // work identically in prod against `https://unidoka.com/mcp`.
       { source: "/mcp", destination: `${mcp}/mcp` },

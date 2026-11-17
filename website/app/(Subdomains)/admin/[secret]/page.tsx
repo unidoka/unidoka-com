@@ -454,7 +454,7 @@ function ChartTooltip({ active, payload, label }: any) {
   );
 }
 
-/* ─── KPI rail — monochrome tiles ────────────────────────────────── */
+/* ─── KPI rail - monochrome tiles ────────────────────────────────── */
 function KpiPanel({ stats }: { stats: Stats }) {
   const rows = [
     { label: "Пользователи", value: stats.total_users, icon: Users },
@@ -485,7 +485,7 @@ function KpiPanel({ stats }: { stats: Stats }) {
               key={r.label}
               className="flex items-center gap-3 px-4 py-3 hover:bg-(--state-hover) transition-colors"
             >
-              {/* Monochrome tile — inverted fill, matches the home-page
+              {/* Monochrome tile - inverted fill, matches the home-page
                   numbers section: solid on-bg-high on the tile, on-bg bg
                   for the glyph. No color, no gradient. */}
               <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-(--on-bg-high) text-(--bg)">

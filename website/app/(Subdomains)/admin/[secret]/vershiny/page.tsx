@@ -11,17 +11,17 @@ import {
 } from "@phosphor-icons/react";
 
 /**
- * Vershiny admin — placeholder dashboard.
+ * Vershiny admin - placeholder dashboard.
  *
  * The program has three moving parts that will each get their own
  * stats panel once the data model exists:
- *   • Participants  — users flagged as Vershiny members
- *   • Mentors       — users with the mentor role
- *   • Requests      — applications to events / the program itself
+ *   • Participants  - users flagged as Vershiny members
+ *   • Mentors       - users with the mentor role
+ *   • Requests      - applications to events / the program itself
  *
  * Every tile below is a static zero. When the backend endpoints land,
  * they render real counts and the two chart panels fill in with
- * timeseries — same pattern as /admin (the main dashboard): area chart
+ * timeseries - same pattern as /admin (the main dashboard): area chart
  * for activity, KPI rail for point-in-time totals.
  */
 export default function VershinyPage() {
@@ -38,7 +38,7 @@ export default function VershinyPage() {
         <div>
           <h1 className="text-display-2 mb-1">Вершины</h1>
           <p className="text-body-3 text-(--on-bg-medium)">
-            Программа развития специалистов — участники, менторы, заявки
+            Программа развития специалистов - участники, менторы, заявки
           </p>
         </div>
 

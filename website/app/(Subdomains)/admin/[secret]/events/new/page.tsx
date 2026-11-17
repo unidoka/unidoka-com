@@ -13,7 +13,7 @@ export default function NewEventPage() {
         <div>
           <h1 className="text-display-2 mb-1">Новое событие</h1>
           <p className="text-body-3 text-(--on-bg-medium)">
-            Создание события от имени администратора — сразу попадает в календарь.
+            Создание события от имени администратора - сразу попадает в календарь.
           </p>
         </div>
         <EventEditorForm

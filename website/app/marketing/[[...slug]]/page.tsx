@@ -8,7 +8,7 @@ import { useAdminSecret } from "@/hooks/use-admin-secret";
  * Short-URL redirect for the admin marketing section.
  *
  * In local dev there is no reverse proxy, so admin routes live at
- * `/admin/{secret}/marketing/…` — the secret is part of the path.
+ * `/admin/{secret}/marketing/…` - the secret is part of the path.
  * Typing that by hand is tedious; typing `/marketing/tools` is
  * natural. This route captures the short form, reads the session's
  * admin secret, and forwards.
@@ -18,7 +18,7 @@ import { useAdminSecret } from "@/hooks/use-admin-secret";
  * dev affordance and as a link-friendly alias for anyone who types a
  * bare `/marketing/...`.
  *
- * The exact same pattern works for any other admin section — copy
+ * The exact same pattern works for any other admin section - copy
  * this file into `app/<section>/[[...slug]]/page.tsx` and adjust the
  * section name in the replace regex and the destination path.
  */

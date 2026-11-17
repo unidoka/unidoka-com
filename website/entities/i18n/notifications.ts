@@ -3,19 +3,19 @@
  *
  * Mirrors ALLOWED_TOPICS in
  * backend/services/main-service/app/api/v1/notifications.py. Adding a
- * topic means adding it to both lists — the backend filters stored
+ * topic means adding it to both lists - the backend filters stored
  * topics against its set on read, so a topic the frontend offers but
  * the backend doesn't know about would be silently dropped.
  *
  * Topics are the *content* dimension of subscriptions. The *channel*
- * dimension (email vs telegram) is separate and orthogonal — a user
+ * dimension (email vs telegram) is separate and orthogonal - a user
  * can subscribe to "events" over email but not telegram, etc.
  *
  * The following are intentionally absent because they aren't
  * subscriptions:
- *   • Transactional (password resets, order confirmations) — always sent.
- *   • Legal (terms/privacy changes) — always sent.
- *   • Order notifications — routed to root-configured recipients only.
+ *   • Transactional (password resets, order confirmations) - always sent.
+ *   • Legal (terms/privacy changes) - always sent.
+ *   • Order notifications - routed to root-configured recipients only.
  */
 export const USER_TOPICS = [
   {

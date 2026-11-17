@@ -41,7 +41,7 @@ import {
  * Page targets. Kept as pills rather than a free-text field so the
  * admin can't typo a route and silently produce a placement that never
  * renders. Adding a new page means adding one entry here AND mounting
- * `<PlacementSlot page="…" />` in that page's tree — see the comment
+ * `<PlacementSlot page="…" />` in that page's tree - see the comment
  * in components/marketing/placements/placement-slot.tsx.
  */
 const PAGE_OPTIONS: { value: string; label: string }[] = [
@@ -157,7 +157,7 @@ export function PlacementEditorDialog({
         heading: form.heading?.trim() || null,
         body: form.body?.trim() || null,
         image_url: form.image_url?.trim() || null,
-        // Drop empty action rows before sending — the admin might have
+        // Drop empty action rows before sending - the admin might have
         // added a row and left it blank, and a blank action would
         // render as an unlabeled button.
         actions: (form.actions ?? []).filter(
@@ -275,7 +275,7 @@ export function PlacementEditorDialog({
                 })}
               </div>
               <p className="text-body-5 text-(--on-bg-low) mt-2">
-                «Везде» — на всех страницах, где смонтирован слот этого типа.
+                «Везде» - на всех страницах, где смонтирован слот этого типа.
                 Категория совпадает с префиксом маршрута.
               </p>
             </Field>
@@ -290,7 +290,7 @@ export function PlacementEditorDialog({
                 className="max-w-[140px]"
               />
               <p className="text-body-5 text-(--on-bg-low) mt-1">
-                Если в одном слоте несколько активных размещений — показываются
+                Если в одном слоте несколько активных размещений - показываются
                 все, отсортированные по убыванию приоритета.
               </p>
             </Field>
@@ -334,7 +334,7 @@ export function PlacementEditorDialog({
               <div>
                 <Label className="text-body-4 font-medium">Активно</Label>
                 <p className="text-body-5 text-(--on-bg-low) mt-0.5">
-                  Выключите, чтобы поставить на паузу — расписание сохранится.
+                  Выключите, чтобы поставить на паузу - расписание сохранится.
                 </p>
               </div>
               <Switch
@@ -539,9 +539,9 @@ function ActionsEditor({
       )}
 
       <p className="text-body-5 text-(--on-bg-low) mt-2">
-        До трёх кнопок. Основная — залитая, контурная — с обводкой,
-        текстовая — без фона. Внутренние ссылки начинаются с «/»,
-        внешние — с «http».
+        До трёх кнопок. Основная - залитая, контурная - с обводкой,
+        текстовая - без фона. Внутренние ссылки начинаются с «/»,
+        внешние - с «http».
       </p>
     </Field>
   );

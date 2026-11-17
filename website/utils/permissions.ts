@@ -1,5 +1,5 @@
 /**
- * Admin permission model — frontend mirror.
+ * Admin permission model - frontend mirror.
  *
  * The authoritative list lives in
  * `backend/services/main-service/app/shared/permissions.py`. These
@@ -10,7 +10,7 @@
  * mismatch.
  *
  * Frontend enforcement is UX, not security. Hiding a sidebar entry
- * or a page block is a courtesy — every admin endpoint independently
+ * or a page block is a courtesy - every admin endpoint independently
  * verifies the same permission on the DB-loaded user. If someone
  * bookmarks a hidden page or calls the API directly, they get a 403.
  */
@@ -42,12 +42,12 @@ interface UserLike {
  * Resolve whether a user can access a permission-gated surface.
  *
  * Mirrors the backend's `has_permission` exactly:
- *   • Root always passes — they bypass the model entirely.
+ *   • Root always passes - they bypass the model entirely.
  *   • Non-admin roles never pass, even if the DB row contains grants.
  *   • Admin passes only when the grant is present.
  *
  * The user argument is optional so call sites in components that
- * render before the session resolves don't have to branch — an
+ * render before the session resolves don't have to branch - an
  * undefined user is treated as "no access".
  */
 export function hasPermission(

@@ -37,7 +37,7 @@ export function proxy(request: NextRequest) {
   if (REWRITE_SUBDOMAINS.has(subdomain)) {
     const prefix = `/${subdomain}`
     // Already prefixed? (admin.example.com/admin/secret/users)
-    // Leave as-is — /admin/secret/users is a valid route.
+    // Leave as-is - /admin/secret/users is a valid route.
     // Otherwise prepend (admin.example.com/secret/users → /admin/secret/users).
     // This makes the site work even when links were generated with the
     // path-mode fallback (`/admin/...`) while running on a subdomain.

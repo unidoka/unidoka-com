@@ -9,7 +9,7 @@ import { useLanguage } from "@/providers/language-provider";
 import { rootDomainUrl } from "@/utils/root-domain";
 import { cn } from "@/lib/utils";
 import { AmorfaLogo } from "@/components/icons/logotypes/amorfa-logo";
-import { VershinyLogo } from "@/components/icons/logotypes/vershiny-logo";
+import { VershinyLogoIcon } from "@/components/icons/logotypes/vershiny-logo-icon";
 
 interface MenuLink {
   href: string;
@@ -21,17 +21,17 @@ interface MenuLink {
 const MENU_LINKS: MenuLink[] = [
   { href: "/events", labelKey: "nav.events", fallback: "События" },
   { href: "/solutions", labelKey: "nav.solutions", fallback: "Решения" },
-  { 
-    href: "/amorfa", 
-    labelKey: "nav.amorfa", 
+  {
+    href: "/amorfa",
+    labelKey: "nav.amorfa",
     fallback: "Amorfa",
-    icon: <AmorfaLogo className="size-4 shrink-0" />
+    icon: <AmorfaLogo className="size-6" />
   },
-  { 
-    href: "/vershiny_top", 
-    labelKey: "nav.vershiny", 
+  {
+    href: "/vershiny_top",
+    labelKey: "nav.vershiny",
     fallback: "Вершины",
-    icon: <VershinyLogo className="size-4 shrink-0" />
+    icon: <VershinyLogoIcon className="size-6" />
   },
 ];
 

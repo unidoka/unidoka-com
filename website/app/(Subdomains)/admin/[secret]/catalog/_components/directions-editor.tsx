@@ -77,7 +77,7 @@ export function DirectionsEditor() {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
         <p className="text-body-4 text-(--on-bg-medium)">
-          Вершины — направления и поднаправления (теги событий)
+          Вершины - направления и поднаправления (теги событий)
         </p>
         <Button
           onClick={() => {

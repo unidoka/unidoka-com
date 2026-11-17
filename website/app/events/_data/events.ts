@@ -4,7 +4,7 @@
  * module is now just a thin re-export of the API types, kept so the
  * dozens of existing imports don't need to change.
  *
- * `EventItem` is an alias of `EventListItem` from the API — one shape,
+ * `EventItem` is an alias of `EventListItem` from the API - one shape,
  * one source of truth.
  */
 export type {

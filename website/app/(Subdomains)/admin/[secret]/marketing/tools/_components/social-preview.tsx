@@ -28,7 +28,7 @@ const DESC_SOFT = 160;
 const DESC_HARD = 200;
 
 export function SocialPreview() {
-  const [title, setTitle] = useState("Хакатон «Вершины 2026» — регистрация открыта");
+  const [title, setTitle] = useState("Хакатон «Вершины 2026» - регистрация открыта");
   const [description, setDescription] = useState(
     "Соревнования по разработке, дизайну и анализу данных. Призовой фонд, менторы и стажировки для участников.",
   );

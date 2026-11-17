@@ -1,7 +1,7 @@
 import type { OrganizerRef } from "@/utils/api/events";
 
 /* Fallback palette for organizers that have no `color` set in the DB.
-   Matches the neutral house style — muted, not decorative. */
+   Matches the neutral house style - muted, not decorative. */
 const FALLBACK = ["#4a4e54", "#6b6f75", "#2b2e33", "#8a8e93"];
 
 function hash(s: string): number {

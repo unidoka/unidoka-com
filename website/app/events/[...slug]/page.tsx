@@ -125,7 +125,7 @@ export default async function EventPage({
     notFound();
   }
 
-  // Slug matched but ID doesn't — user edited the UUID in the URL bar.
+  // Slug matched but ID doesn't - user edited the UUID in the URL bar.
   if (event.id !== id) {
     redirect(`/events/${event.id}/${event.slug}`);
   }

@@ -11,7 +11,7 @@ import { SlugGenerator } from "./_components/slug-generator";
 /**
  * Marketing tools.
  *
- * Three client-only utilities. No backend, no persistence — they run
+ * Three client-only utilities. No backend, no persistence - they run
  * entirely in the browser. Tab state lives in `?tab=` so a bookmark
  * reopens the same tool, and switching tabs doesn't push a history
  * entry (router.replace + scroll: false).

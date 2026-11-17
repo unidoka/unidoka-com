@@ -12,11 +12,11 @@ import { ArrowClockwiseIcon } from "@phosphor-icons/react";
  * UTM parameter builder.
  *
  * Builds a tracked URL from a base and five standard UTM fields. The
- * output updates live — every input is derived from a single useMemo,
+ * output updates live - every input is derived from a single useMemo,
  * so there's no "build" step to forget.
  *
  * Presets cover the four sources this site actually uses in practice.
- * Clicking one fills source + medium and leaves campaign for the user —
+ * Clicking one fills source + medium and leaves campaign for the user -
  * campaign names are campaign-specific and can't be guessed.
  */
 
@@ -56,7 +56,7 @@ export function UtmBuilder() {
 
   const reset = () => setState(EMPTY);
 
-  // Build the final URL. We only append parameters that have a value —
+  // Build the final URL. We only append parameters that have a value -
   // blank UTM fields produce noise in analytics and are easy to
   // misread as "the campaign had no source".
   const output = useMemo(() => {
@@ -84,10 +84,10 @@ export function UtmBuilder() {
   const isValid = output.length > 0;
   const hasAnyUtm = Boolean(
     state.source.trim() ||
-      state.medium.trim() ||
-      state.campaign.trim() ||
-      state.term.trim() ||
-      state.content.trim(),
+    state.medium.trim() ||
+    state.campaign.trim() ||
+    state.term.trim() ||
+    state.content.trim(),
   );
 
   return (
@@ -228,15 +228,15 @@ export function UtmBuilder() {
           </p>
           <ul className="text-body-5 text-(--on-bg-medium) space-y-1 leading-relaxed">
             <li>
-              <span className="font-mono text-(--on-bg-high)">source</span> —
+              <span className="font-mono text-(--on-bg-high)">source</span> -
               площадка: telegram, vk, email, qr
             </li>
             <li>
-              <span className="font-mono text-(--on-bg-high)">medium</span> —
+              <span className="font-mono text-(--on-bg-high)">medium</span> -
               тип: social, email, print, cpc
             </li>
             <li>
-              <span className="font-mono text-(--on-bg-high)">campaign</span> —
+              <span className="font-mono text-(--on-bg-high)">campaign</span> -
               snake_case, с годом: spring_2026
             </li>
           </ul>
