@@ -2229,3 +2229,96 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     transform: none;
   }
 }
+
+/* ═══ amorfa-mark-entrance ══════════════════════════════════════════
+   Stroke-free reveal for the layered Amorfa trefoil, declared in the
+   stylesheet rather than applied from a React effect. An effect runs
+   after the first paint, which let the finished logo flash for a frame
+   before its animation started. Because these rules ship with the CSS,
+   every painted layer is at opacity 0 on the very first painted frame
+   (server render included) and only ever appears by blooming open.
+
+   Only painted leaves are targeted — anything inside <defs>, <clipPath>,
+   <mask>, a gradient or a <foreignObject> is excluded, so clipping and
+   paint-server geometry is never transformed. Groups are left alone so
+   nested layers never compound their parent's scale.
+
+   `both` holds the 0% keyframe through the stagger delay, so a late
+   layer is never visible early. --amorfa-delay offsets a whole copy
+   (used by the CTA's ghost), --amorfa-step is the per-layer stagger.
+   ═══════════════════════════════════════════════════════════════════ */
+@keyframes amorfa-layer-bloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.52);
+  }
+  55% {
+    opacity: 1;
+  }
+  78% {
+    transform: scale(1.045);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):not(:is(defs, clipPath, mask, linearGradient, radialGradient, pattern, foreignObject) *) {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: amorfa-layer-bloom 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--amorfa-delay, 0ms) + var(--amorfa-step, 0ms));
+  will-change: transform, opacity;
+}
+
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(1) { --amorfa-step: 0ms; }
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(2) { --amorfa-step: 110ms; }
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(3) { --amorfa-step: 220ms; }
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(4) { --amorfa-step: 330ms; }
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(5) { --amorfa-step: 440ms; }
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(6) { --amorfa-step: 550ms; }
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(7) { --amorfa-step: 660ms; }
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(8) { --amorfa-step: 770ms; }
+
+/* Ambient life for the CTA plate. The mark breathes; the hairline rings
+   breathe on a slower, offset cycle so the pair never pulses in lockstep. */
+@keyframes amorfa-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0) scale(1.025);
+  }
+}
+.amorfa-mark-float {
+  animation: amorfa-drift 11s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes amorfa-ring-breathe {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.05;
+  }
+}
+.amorfa-ring {
+  animation: amorfa-ring-breathe 9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .amorfa-mark-enter svg :is(path, circle, rect, ellipse):not(:is(defs, clipPath, mask, linearGradient, radialGradient, pattern, foreignObject) *) {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .amorfa-mark-float,
+  .amorfa-ring {
+    animation: none;
+  }
+}

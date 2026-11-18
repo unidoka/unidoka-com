@@ -38,13 +38,13 @@ export function QuickstartSection() {
           {t("amorfa.quickstart_title")}
         </h2>
 
-        <div className="divide-y divide-(--outline) border-y border-(--outline)">
+        <div className="">
           {STEPS.map((s) => (
             <div
               key={s.titleKey}
               className="grid grid-cols-1 items-center gap-4 py-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-10"
             >
-              <h3 className="text-heading-3 leading-tight text-(--on-bg-high)">
+              <h3 className="text-heading-3 leading-tight text-(--on-bg-medium)">
                 {t(s.titleKey)}
               </h3>
               <div className="min-w-0 [&>div]:mb-0">
