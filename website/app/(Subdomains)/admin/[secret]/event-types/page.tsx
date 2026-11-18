@@ -61,7 +61,7 @@ export default function AdminEventTypesPage() {
               <div key={t.id} className="grid grid-cols-[auto_1fr_auto] gap-3 items-center p-4">
                 <span className="size-6 rounded-md" style={{ background: t.color || "#888" }} />
                 <div className="min-w-0">
-                  <p className="text-body-3 font-medium truncate">{t.name}</p>
+                  <p className="text-body-3  truncate">{t.name}</p>
                   <p className="text-body-5 text-(--on-bg-low) font-mono">/{t.slug}</p>
                 </div>
                 <div className="flex gap-1">

@@ -139,7 +139,7 @@ export default function ProfileApiKeysPage() {
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <p className="text-body-3 font-medium truncate">{k.name}</p>
+                    <p className="text-body-3  truncate">{k.name}</p>
                     {!k.is_active && (
                       <Badge variant="tonal-card-static" size="chip-small">Отозван</Badge>
                     )}

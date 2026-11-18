@@ -179,7 +179,7 @@ export default function AdminEventsPage() {
               <FunnelIcon className="size-4" />
               Фильтры
               {hasActiveFilters && (
-                <span className="ml-1 inline-flex items-center justify-center min-w-[16px] h-4 px-1 text-[9px] font-medium rounded-full bg-white/20">
+                <span className="ml-1 inline-flex items-center justify-center min-w-[16px] h-4 px-1 text-[9px]  rounded-full bg-white/20">
                   !
                 </span>
               )}

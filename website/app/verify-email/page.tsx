@@ -172,7 +172,7 @@ function VerifyEmailInner() {
                       <InputOTPSlot
                         key={i}
                         index={i}
-                        className="flex-1 aspect-square h-auto! rounded-xl! text-lg sm:text-2xl font-medium"
+                        className="flex-1 aspect-square h-auto! rounded-xl! text-lg sm:text-2xl "
                       />
                     ))}
                   </InputOTPGroup>

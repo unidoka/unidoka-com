@@ -315,7 +315,7 @@ export default function SettingsPage() {
                         <span className="min-w-0 flex-1">
                           <span
                             className={cn(
-                              "block text-body-4 font-medium",
+                              "block text-body-4 ",
                               active ? "text-(--primary)" : "text-(--on-bg-high)",
                             )}
                           >
@@ -448,7 +448,7 @@ function ChannelRow({
           {icon}
         </div>
         <div className="min-w-0">
-          <Label className="text-body-3 font-medium cursor-pointer">
+          <Label className="text-body-3  cursor-pointer">
             {label}
           </Label>
           <p className="text-body-5 text-(--on-bg-low)">{hint}</p>

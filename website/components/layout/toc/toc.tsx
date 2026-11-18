@@ -95,7 +95,7 @@ export function Toc({ headings, label, ariaLabel }: TocProps) {
                       "text-left w-full leading-snug py-1 transition-colors border-l-2 pl-3",
                       h.level === 3 && "pl-6 text-body-5",
                       isActive
-                        ? "border-(--primary) text-(--primary) font-medium"
+                        ? "border-(--primary) text-(--primary) "
                         : "border-transparent text-(--on-bg-medium) hover:text-(--on-bg-high) hover:border-(--outline)",
                     )}
                   >
@@ -118,7 +118,7 @@ export function Toc({ headings, label, ariaLabel }: TocProps) {
           className={cn(
             "fixed bottom-24 right-4 z-40 inline-flex items-center gap-2 rounded-full",
             "border border-(--outline) bg-(--card) shadow-lg px-4 py-3",
-            "text-body-4 font-medium text-(--on-bg-high) transition-all active:scale-[0.97]",
+            "text-body-4  text-(--on-bg-high) transition-all active:scale-[0.97]",
             "max-w-[min(80vw,320px)]",
           )}
         >
@@ -172,7 +172,7 @@ export function Toc({ headings, label, ariaLabel }: TocProps) {
                           "text-left w-full leading-snug py-2 px-3 rounded-lg transition-colors",
                           h.level === 3 && "pl-6 text-body-5",
                           isActive
-                            ? "bg-(--primary-glass) text-(--primary) font-medium"
+                            ? "bg-(--primary-glass) text-(--primary) "
                             : "text-(--on-bg-medium) hover:bg-(--state-hover)",
                         )}
                       >

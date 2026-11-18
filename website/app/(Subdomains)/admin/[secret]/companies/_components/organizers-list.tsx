@@ -121,7 +121,7 @@ export function OrganizersList() {
                 </span>
               )}
               <div className="min-w-0">
-                <p className="text-body-3 font-medium truncate">{o.name}</p>
+                <p className="text-body-3  truncate">{o.name}</p>
                 <p className="text-body-5 text-(--on-bg-low) font-mono">
                   /{o.slug}
                 </p>

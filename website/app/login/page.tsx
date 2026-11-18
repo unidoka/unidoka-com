@@ -216,7 +216,7 @@ export default function LoginPage() {
             </Button>
             <div className="text-center text-sm">
               <span className="text-[var(--text-secondary)]">Нет аккаунта? </span>
-              <Link href="/register" className="text-[var(--accent-color)] hover:text-[var(--accent-hover)] font-medium transition-colors underline-offset-2 hover:underline">Зарегистрироваться</Link>
+              <Link href="/register" className="text-[var(--accent-color)] hover:text-[var(--accent-hover)]  transition-colors underline-offset-2 hover:underline">Зарегистрироваться</Link>
             </div>
           </form>
           )}

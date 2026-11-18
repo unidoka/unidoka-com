@@ -67,7 +67,7 @@ export function CalendarHeader({
   const startDay = anchor;
   const endDay = new Date(anchor.getTime() + 6 * 86400000);
   const isSameMonth = startDay.getMonth() === endDay.getMonth();
-  
+
   const weekTitle = isSameMonth
     ? `${format(startDay, "d", { locale: ru })} – ${format(endDay, "d MMM yyyy", { locale: ru })}`
     : `${format(startDay, "d MMM", { locale: ru })} – ${format(endDay, "d MMM yyyy", { locale: ru })}`;
@@ -79,7 +79,7 @@ export function CalendarHeader({
         <Button variant="outlined" size="small" onClick={onToday}>
           Сегодня
         </Button>
-        
+
         <div className="flex items-center rounded-xl border border-(--outline) bg-(--card) overflow-hidden shrink-0">
           <button
             type="button"
@@ -98,15 +98,15 @@ export function CalendarHeader({
             ›
           </button>
         </div>
-        
+
         {view === "week" ? (
-          <h1 className="text-heading-3 md:text-heading-2 font-medium tracking-tight truncate ml-1">
+          <h1 className="text-heading-3 md:text-heading-2  tracking-tight truncate ml-1">
             {weekTitle}
           </h1>
         ) : (
           <MonthYearPicker anchor={anchor} onSelect={onAnchorChange} />
         )}
-        
+
         {/* Mobile: MiniMonth Popover (Choose day) */}
         <div className="lg:hidden ml-1">
           <Popover>
@@ -132,7 +132,7 @@ export function CalendarHeader({
 
         <div className="hidden lg:flex items-center gap-2 ml-auto shrink-0">
           <AddEventDialog>
-            <Button size="medium" shape="round">
+            <Button size="medium" >
               <Plus /> Добавить событие
             </Button>
           </AddEventDialog>
@@ -148,7 +148,7 @@ export function CalendarHeader({
               type="button"
               onClick={() => onViewChange(v.id)}
               className={cn(
-                "px-2.5 sm:px-3 h-8 rounded-lg text-body-5 sm:text-body-4 font-medium transition-colors whitespace-nowrap shrink-0",
+                "px-2.5 sm:px-3 h-8 rounded-lg text-body-5 sm:text-body-4  transition-colors whitespace-nowrap shrink-0",
                 view === v.id
                   ? "bg-(--on-bg-high) text-(--bg)"
                   : "text-(--on-bg-medium) hover:text-(--on-bg-high)"
@@ -175,7 +175,7 @@ export function CalendarHeader({
             </DialogContent>
           </Dialog>
           <AddEventDialog>
-            <Button size="icon-small" shape="round" className="size-9" aria-label="Добавить событие">
+            <Button size="icon-small" className="size-9" aria-label="Добавить событие">
               <Plus className="size-4" />
             </Button>
           </AddEventDialog>

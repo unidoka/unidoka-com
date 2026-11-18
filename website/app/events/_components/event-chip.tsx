@@ -33,7 +33,7 @@ export function EventChip({ event, day, compact, onClick }: Props) {
         style={{ "--ev": color } as React.CSSProperties}
         className="group/chip w-full text-left transition-all duration-150 flex flex-col gap-0.5 w-full overflow-hidden p-1.5 rounded-md hover:bg-(--state-hover) border-l-2 border-[var(--ev)] bg-[color-mix(in_srgb,var(--ev)_8%,transparent)]"
       >
-        <span className="truncate font-medium text-[11px] leading-tight text-(--on-bg-high)">
+        <span className="truncate  text-[11px] leading-tight text-(--on-bg-high)">
           {stripHtml(event.title)}
         </span>
       </button>
@@ -63,7 +63,7 @@ export function EventChip({ event, day, compact, onClick }: Props) {
           </span>
         )}
       </div>
-      <span className="text-[11px] font-medium leading-snug text-(--on-bg-high) line-clamp-2 break-words">
+      <span className="text-[11px]  leading-snug text-(--on-bg-high) line-clamp-2 break-words">
         {stripHtml(event.title)}
       </span>
     </button>

@@ -47,7 +47,7 @@ export default function MarketingPage() {
                     Кампании на сайте: верхние полосы, карточки, уведомления,
                     модальные окна. Расписание и таргетинг по страницам.
                   </p>
-                  <span className="inline-flex items-center gap-1.5 text-body-4 font-medium text-(--primary) transition-transform group-hover:translate-x-0.5">
+                  <span className="inline-flex items-center gap-1.5 text-body-4  text-(--primary) transition-transform group-hover:translate-x-0.5">
                     Открыть список
                     <ArrowRightIcon className="size-3.5" />
                   </span>
@@ -70,7 +70,7 @@ export default function MarketingPage() {
                     UTM-конструктор, превью для соцсетей и генератор слагов.
                     Клиентские утилиты без сохранения.
                   </p>
-                  <span className="inline-flex items-center gap-1.5 text-body-4 font-medium text-(--primary) transition-transform group-hover:translate-x-0.5">
+                  <span className="inline-flex items-center gap-1.5 text-body-4  text-(--primary) transition-transform group-hover:translate-x-0.5">
                     Открыть инструменты
                     <ArrowRightIcon className="size-3.5" />
                   </span>

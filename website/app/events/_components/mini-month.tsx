@@ -46,7 +46,7 @@ export function MiniMonth({ month, selected, eventDays, onMonthChange, onSelect 
         {WEEKDAYS.map((d, i) => (
           <div
             key={i}
-            className="h-7 flex items-center justify-center text-[10px] font-medium text-(--on-bg-low) uppercase"
+            className="h-7 flex items-center justify-center text-[10px]  text-(--on-bg-low) uppercase"
           >
             {d}
           </div>
@@ -67,7 +67,7 @@ export function MiniMonth({ month, selected, eventDays, onMonthChange, onSelect 
               type="button"
               onClick={() => onSelect(d)}
               className={cn(
-                "relative aspect-square rounded-full flex items-center justify-center text-[12px] font-medium transition-colors",
+                "relative aspect-square rounded-full flex items-center justify-center text-[12px]  transition-colors",
                 !inMonth && "text-(--on-bg-low) opacity-40",
                 inMonth && !isSel && "text-(--on-bg-high) hover:bg-(--state-hover)",
                 isSel && "bg-(--on-bg-high) text-(--bg)", // Inverted selected state

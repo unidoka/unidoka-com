@@ -157,7 +157,7 @@ export default function AdminOrdersPage() {
                 <div className="flex justify-between items-start gap-3">
                   <div className="flex items-center gap-2 min-w-0">
                     <h3 className="text-heading-4 truncate">#{order.id.slice(0, 8)}</h3>
-                    <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium whitespace-nowrap", meta.className)}>{meta.label}</span>
+                    <span className={cn("inline-flex items-center rounded-full border px-2 py-0.5 text-[11px]  whitespace-nowrap", meta.className)}>{meta.label}</span>
                   </div>
                   <span className="text-xs text-muted-foreground whitespace-nowrap">{new Date(order.created_at).toLocaleDateString()}</span>
                 </div>
@@ -175,17 +175,17 @@ export default function AdminOrdersPage() {
                   </div>
                 )}
                 <div className="grid grid-cols-2 gap-4">
-                  <div><span className="font-medium text-body-3">О проекте:</span><p className="text-muted-foreground line-clamp-2">{order.about || "-"}</p></div>
-                  <div><span className="font-medium text-body-3">Услуги:</span><p className="text-muted-foreground line-clamp-2">{order.service_types_json?.join(", ") || "-"}</p></div>
+                  <div><span className=" text-body-3">О проекте:</span><p className="text-muted-foreground line-clamp-2">{order.about || "-"}</p></div>
+                  <div><span className=" text-body-3">Услуги:</span><p className="text-muted-foreground line-clamp-2">{order.service_types_json?.join(", ") || "-"}</p></div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-body-5 space-y-1">
-                    <p><span className="font-medium">Срок:</span> {order.estimate_deadline || "-"}</p>
-                    <p><span className="font-medium">Бюджет:</span> {order.estimate_budget || "-"}</p>
-                    <p><span className="font-medium">Нейминг:</span> {order.naming_help || "-"}</p>
+                    <p><span className="">Срок:</span> {order.estimate_deadline || "-"}</p>
+                    <p><span className="">Бюджет:</span> {order.estimate_budget || "-"}</p>
+                    <p><span className="">Нейминг:</span> {order.naming_help || "-"}</p>
                   </div>
                   <div className="text-body-5 space-y-1">
-                    <p><span className="font-medium">Имя:</span> {order.contact?.name || "-"}</p>
+                    <p><span className="">Имя:</span> {order.contact?.name || "-"}</p>
                     <div className="flex gap-1 items-center"><PhoneIcon className="size-3" /><p>{order.contact?.phone || "-"}</p></div>
                     <div className="flex gap-1 items-center"><EnvelopeIcon className="size-3" /><p>{order.contact?.email || "-"}</p></div>
                     <div className="flex gap-1 items-center"><TelegramLogotypeMonoIcon className="size-3! [&>path]:fill-(--on-bg-high)" /><p>{order.contact?.telegram_username || "-"}</p></div>
@@ -296,9 +296,9 @@ export default function AdminOrdersPage() {
 }
 function StatusChip({ label, count, active, onClick }: { label: string; count: number; active: boolean; onClick: () => void }) {
   return (
-    <Button size="chip-small" shape="round" variant={active ? "filled" : "tonal-card"} onClick={onClick}>
+    <Button size="chip-small" variant={active ? "filled" : "tonal-card"} onClick={onClick}>
       {label}
-      <span className={cn("ml-1 inline-flex items-center justify-center min-w-[18px] h-4 px-1 text-[10px] font-medium tabular-nums rounded-full",
+      <span className={cn("ml-1 inline-flex items-center justify-center min-w-[18px] h-4 px-1 text-[10px]  tabular-nums rounded-full",
         active ? "bg-white/25 text-white" : "bg-(--state-hover) text-(--on-bg-low)")}>{count}</span>
     </Button>
   );

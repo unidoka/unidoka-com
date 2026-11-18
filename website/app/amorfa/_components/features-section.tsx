@@ -34,17 +34,17 @@ export function FeaturesSection() {
           {t("amorfa.features_title")}
         </h2>
 
-        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-3xl border border-(--outline) bg-(--outline) sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 overflow-hidden sm:grid-cols-2 lg:grid-cols-4 gap-y-18 gap-x-10">
           {FEATURES.map((f) => {
             const Icon = f.icon;
             return (
               <article
                 key={f.titleKey}
-                className="group flex flex-col gap-5 bg-(--bg) p-8 transition-colors duration-300 hover:bg-(--card)"
+                className="group flex flex-col gap-3 bg-(--bg) transition-colors duration-300 hover:bg-(--card)"
               >
-                <span className="flex size-12 items-center justify-center rounded-2xl bg-(--on-bg-high) text-(--bg) transition-transform duration-300 group-hover:-translate-y-1">
+                {/* <span className="flex size-12 items-center justify-center rounded- bg-(--on-bg-high) text-(--bg) transition-transform duration-300 group-hover:-translate-y-1">
                   <Icon className="size-5" weight="bold" />
-                </span>
+                </span> */}
                 <h3 className="text-heading-3 leading-tight text-(--on-bg-high)">
                   {t(f.titleKey)}
                 </h3>

@@ -118,7 +118,7 @@ export function DirectionsEditor() {
                   </button>
                   <span className="text-2xl">{d.emoji}</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-body-3 font-medium truncate">{d.name}</p>
+                    <p className="text-body-3  truncate">{d.name}</p>
                     <p className="text-body-5 text-(--on-bg-low) font-mono">
                       /{d.slug} · {d.subdirections.length} поднаправл.
                     </p>

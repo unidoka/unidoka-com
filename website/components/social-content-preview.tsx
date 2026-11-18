@@ -154,7 +154,7 @@ function RepoReadme() {
 }
 function ClickHint() {
   return (
-    <div className="flex items-center gap-1.5 pt-3 mt-2 border-t border-border text-[11px] font-medium text-(--on-bg-low) group-hover:text-primary transition-colors">
+    <div className="flex items-center gap-1.5 pt-3 mt-2 border-t border-border text-[11px]  text-(--on-bg-low) group-hover:text-primary transition-colors">
       <span>Click and see more</span>
       <ArrowUpRightIcon
         size={12}
@@ -294,7 +294,7 @@ export function SocialContentPreview({
         {type === "article" && (
           <Card className="mx-auto w-full max-w-xl lg:max-w-2xl shadow-lg border-border flex flex-col max-h-full overflow-hidden">
             <div className="px-4 py-2 border-b border-border bg-muted/30">
-              <p className="text-xs font-medium text-muted-foreground">Articles</p>
+              <p className="text-xs  text-muted-foreground">Articles</p>
             </div>
             <div className="p-5 space-y-3 overflow-y-auto min-h-0 flex-1">
               <h3 className="text-xl  tracking-tight">{title}</h3>
@@ -321,7 +321,7 @@ export function SocialContentPreview({
         {type === "repo" && (
           <Card className="mx-auto w-full max-w-xl lg:max-w-2xl shadow-lg border-border flex flex-col max-h-full overflow-hidden">
             <div className="px-4 py-2 border-b border-border bg-muted/30">
-              <p className="text-xs font-medium text-muted-foreground">Dev</p>
+              <p className="text-xs  text-muted-foreground">Dev</p>
             </div>
             <div className="p-5 space-y-3 overflow-y-auto min-h-0 flex-1">
               <TerminalStyledInline className="w-full!" />

@@ -210,7 +210,7 @@ function UpcomingList({
   
   return (
     <div className="rounded-xl border border-(--outline) bg-(--card) p-3">
-      <h3 className="text-[11px] font-medium uppercase tracking-wider text-(--on-bg-low) mb-2 px-1">
+      <h3 className="text-[11px]  uppercase tracking-wider text-(--on-bg-low) mb-2 px-1">
         Скоро
       </h3>
       <ul className="flex flex-col">
@@ -221,10 +221,10 @@ function UpcomingList({
               onClick={() => onSelectEvent(event)}
               className="w-full text-left px-2 py-2 rounded-lg hover:bg-(--state-hover) transition-colors"
             >
-              <div className="text-[11px] text-(--on-bg-low) tabular-nums font-medium">
+              <div className="text-[11px] text-(--on-bg-low) tabular-nums ">
                 {format(date, "d MMM")}
               </div>
-              <div className="text-body-4 font-medium leading-snug line-clamp-2 mt-0.5">
+              <div className="text-body-4  leading-snug line-clamp-2 mt-0.5">
                 {event.title.replace(/<[^>]*>?/gm, '')}
               </div>
             </button>

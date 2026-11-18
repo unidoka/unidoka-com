@@ -35,7 +35,7 @@ export function AgendaView({ days, onSelectEvent }: Props) {
             <span className="text-display-4 tabular-nums text-(--on-bg-high)">
               {format(date, "d", { locale: ru })}
             </span>
-            <span className="text-body-4 uppercase tracking-widest text-(--on-bg-low) font-medium">
+            <span className="text-body-4 uppercase tracking-widest text-(--on-bg-low) ">
               {format(date, "EEEE, MMMM", { locale: ru })}
             </span>
           </div>
@@ -65,7 +65,7 @@ export function AgendaView({ days, onSelectEvent }: Props) {
                 >
                   <div className="flex items-center gap-2">
                     <span className="size-1.5 rounded-full" style={{ backgroundColor: color }} />
-                    <span className="text-[11px] font-medium uppercase tracking-wider text-(--on-bg-medium)">
+                    <span className="text-[11px]  uppercase tracking-wider text-(--on-bg-medium)">
                       {ev.organizer?.name || "Событие"}
                     </span>
                   </div>

@@ -25,11 +25,11 @@ export function WhySection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-3xl border border-(--outline) bg-(--outline) sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-px overflow-hidden sm:grid-cols-2 lg:grid-cols-4">
           {CARDS.map((c) => (
             <article
               key={c.titleKey}
-              className="group flex flex-col gap-4 bg-(--bg) p-8 transition-colors duration-300 hover:bg-(--card) md:p-9"
+              className="group flex flex-col gap-4 bg-(--bg) p-4 transition-colors duration-300 hover:bg-(--card) md:p-6"
             >
               <h3 className="text-heading-2 leading-tight text-(--on-bg-high)">
                 {t(c.titleKey)}

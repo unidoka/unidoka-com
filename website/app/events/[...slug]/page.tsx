@@ -234,7 +234,7 @@ export default async function EventPage({
 
           {event.registration_url && (
             <div className="mb-8">
-              <Button size="large" shape="round" asChild>
+              <Button size="large" asChild>
                 <Link
                   href={event.registration_url}
                   target="_blank"
@@ -264,7 +264,7 @@ export default async function EventPage({
                 {(event.other_dates ?? []).map((d, i) => (
                   <li key={i} className="flex items-center gap-3">
                     <ClockIcon className="size-4 text-(--on-bg-low)" />
-                    <span className="font-medium">{d.label}</span>
+                    <span className="">{d.label}</span>
                     <span className="text-body-4 text-(--on-bg-medium)">
                       {format(new Date(d.at), "d MMMM yyyy, HH:mm", {
                         locale: ru,
@@ -294,11 +294,11 @@ function MetaCard({
     <div className="rounded-2xl border border-(--outline) bg-(--card) p-4">
       <div className="flex items-center gap-2 mb-1.5 text-(--on-bg-low)">
         {icon}
-        <span className="text-[10px] uppercase tracking-wider font-medium">
+        <span className="text-[10px] uppercase tracking-wider ">
           {label}
         </span>
       </div>
-      <p className="text-body-3 font-medium text-(--on-bg-high)">{value}</p>
+      <p className="text-body-3  text-(--on-bg-high)">{value}</p>
     </div>
   );
 }

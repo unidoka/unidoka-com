@@ -37,7 +37,7 @@ const TREE_RU = `/
 │   └── docker-compose.yml
 ├── .agents/skills/                # LLM-контекст для агента
 ├── env.example                    # общие .env-переменные
-├── docker-compose.yml             #顶层 compose
+├── docker-compose.yml             # docker compose
 └── README.md`;
 
 export function StructureSection() {

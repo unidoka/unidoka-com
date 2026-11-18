@@ -96,7 +96,7 @@ export default function AdminClientsPage() {
           <div className="space-y-3">
             {filtered.map((c) => (
               <Card key={c.id} className="rounded-3xl border-(--outline) p-5 flex flex-col sm:flex-row sm:items-center gap-4">
-                <div className="size-12 shrink-0 rounded-full bg-(--primary-card) flex items-center justify-center text-(--primary) font-medium">
+                <div className="size-12 shrink-0 rounded-full bg-(--primary-card) flex items-center justify-center text-(--primary) ">
                   {(c.name || "?").trim().slice(0, 2).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0 space-y-1">

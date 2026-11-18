@@ -76,7 +76,7 @@ export function EventsSection() {
           <h2 className="text-display-3 leading-[1.05] md:text-display-2">
             {t("vershiny.events_title")}
           </h2>
-          <Button variant="outlined" size="medium" shape="round" asChild>
+          <Button variant="outlined" size="medium" asChild>
             <Link href="/events">
               {t("vershiny.events_all")}
               <ArrowRight />
@@ -150,7 +150,7 @@ export function EventsSection() {
                   ) : (
                     <div />
                   )}
-                  <Button variant="glass" size="icon-large" shape="round" asChild>
+                  <Button variant="glass" size="icon-large" asChild>
                     <Link
                       href={eventUrl(featured)}
                       aria-label={t("vershiny.events_all")}

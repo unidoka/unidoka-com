@@ -42,7 +42,7 @@ export default function EventsClientLayout({
                   key={t.path}
                   href={href}
                   className={cn(
-                    "px-4 py-2 rounded-full text-body-4 font-medium transition-colors whitespace-nowrap",
+                    "px-4 py-2 rounded-full text-body-4  transition-colors whitespace-nowrap",
                     active
                       ? "bg-(--primary-glass) text-(--primary)"
                       : "text-(--on-bg-medium) hover:bg-(--state-hover)"

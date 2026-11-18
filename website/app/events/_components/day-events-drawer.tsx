@@ -78,9 +78,9 @@ export function DayEventsDrawer({ day, events, onClose, onSelectEvent }: Props) 
     <Sheet open={day !== null} onOpenChange={(o) => !o && onClose()}>
       <SheetContent side="right" className="w-full sm:max-w-md p-0 gap-0 flex flex-col bg-(--bg)">
         <SheetHeader className="px-6 pt-6 pb-4 border-b border-(--outline) shrink-0 bg-(--card)">
-          <SheetTitle className="capitalize text-left text-heading-3 font-medium">{title}</SheetTitle>
+          <SheetTitle className="capitalize text-left text-heading-3 ">{title}</SheetTitle>
           {events.length > 0 && (
-            <p className="text-body-5 text-(--on-bg-low) text-left mt-1 font-medium uppercase tracking-wider">
+            <p className="text-body-5 text-(--on-bg-low) text-left mt-1  uppercase tracking-wider">
               {events.length} {pluralizeEvents(events.length)}
             </p>
           )}
@@ -133,7 +133,7 @@ function EventCard({ event, onOpen }: { event: EventListItem; onOpen: () => void
       {/* Content column */}
       <div className="flex-1 min-w-0 flex flex-col gap-1">
         <div className="flex items-start justify-between gap-2">
-          <h4 className="text-body-3 font-medium leading-snug text-(--on-bg-high) line-clamp-2">
+          <h4 className="text-body-3  leading-snug text-(--on-bg-high) line-clamp-2">
             {stripHtml(event.title)}
           </h4>
           <ArrowUpRight className="size-4 shrink-0 text-(--on-bg-low) opacity-0 group-hover/card:opacity-100 transition-opacity mt-0.5" />
@@ -156,7 +156,7 @@ function EmptyDay() {
       <div className="flex size-12 items-center justify-center rounded-2xl bg-(--state-hover) text-(--on-bg-medium) mb-4">
         <CalendarX className="size-6" />
       </div>
-      <p className="text-body-3 text-(--on-bg-high) font-medium mb-1">Нет событий</p>
+      <p className="text-body-3 text-(--on-bg-high)  mb-1">Нет событий</p>
       <p className="text-body-4 text-(--on-bg-medium)">На этот день ничего не запланировано</p>
     </div>
   );

@@ -155,7 +155,7 @@ export default function AdminDashboard() {
       {/* ── Error ──────────────────────────────────────────────── */}
       {state.kind === "error" && (
         <div className="rounded-2xl border border-[color-mix(in_srgb,var(--error),transparent_70%)] bg-[color-mix(in_srgb,var(--error),transparent_94%)] p-4">
-          <p className="text-body-4 font-medium text-(--error) mb-1">
+          <p className="text-body-4  text-(--error) mb-1">
             Не удалось загрузить статистику
           </p>
           <p className="text-body-5 text-(--on-bg-medium) mb-3">
@@ -261,7 +261,7 @@ function ChartPanel({ series }: { series: Point[] }) {
           <p className="text-[10px] uppercase tracking-[0.18em] text-(--on-bg-low)">
             Activity
           </p>
-          <p className="text-body-3 font-medium text-(--on-bg-high) mt-0.5">
+          <p className="text-body-3  text-(--on-bg-high) mt-0.5">
             Активность за период
           </p>
         </div>
@@ -421,7 +421,7 @@ function LegendChip({
         style={{ background: color }}
       />
       <span className="text-body-5 text-(--on-bg-medium)">{label}</span>
-      <span className="font-mono text-body-5 text-(--on-bg-high) font-medium tabular-nums">
+      <span className="font-mono text-body-5 text-(--on-bg-high)  tabular-nums">
         {value}
       </span>
     </button>
@@ -445,7 +445,7 @@ function ChartTooltip({ active, payload, label }: any) {
             style={{ background: p.stroke }}
           />
           <span className="text-(--on-bg-medium)">{p.name}</span>
-          <span className="font-mono text-(--on-bg-high) font-medium ml-auto pl-3 tabular-nums">
+          <span className="font-mono text-(--on-bg-high)  ml-auto pl-3 tabular-nums">
             {p.value}
           </span>
         </div>
@@ -473,7 +473,7 @@ function KpiPanel({ stats }: { stats: Stats }) {
         <p className="text-[10px] uppercase tracking-[0.18em] text-(--on-bg-low)">
           Key metrics
         </p>
-        <p className="text-body-3 font-medium text-(--on-bg-high) mt-0.5">
+        <p className="text-body-3  text-(--on-bg-high) mt-0.5">
           Ключевые показатели
         </p>
       </div>
@@ -630,7 +630,7 @@ function RangeTabs({
           disabled={disabled}
           onClick={() => onChange(o.v)}
           className={cn(
-            "px-2.5 py-1 text-body-5 font-medium rounded-md transition-colors",
+            "px-2.5 py-1 text-body-5  rounded-md transition-colors",
             value === o.v
               ? "bg-(--on-bg-high) text-(--bg)"
               : "text-(--on-bg-medium) hover:text-(--on-bg-high) hover:bg-(--state-hover)",

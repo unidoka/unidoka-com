@@ -77,7 +77,7 @@ export function SettingRow({
         <label
           htmlFor={isToggle ? rowId : undefined}
           className={cn(
-            "block text-body-3 font-medium leading-snug",
+            "block text-body-3  leading-snug",
             locked ? "text-(--on-bg-medium)" : "text-(--on-bg-high)",
             isToggle && !disabled && "cursor-pointer",
           )}

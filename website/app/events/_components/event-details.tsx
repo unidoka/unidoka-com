@@ -102,7 +102,7 @@ export function EventDetails({ event, onOpenChange }: Props) {
             )}
           </div>
 
-          <DialogTitle className="text-2xl font-heading font-medium tracking-tight leading-tight">
+          <DialogTitle className="text-2xl font-heading  tracking-tight leading-tight">
             {event.title.replace(/<[^>]*>?/gm, '')}
           </DialogTitle>
         </DialogHeader>
@@ -119,7 +119,7 @@ export function EventDetails({ event, onOpenChange }: Props) {
               <div className="flex items-start gap-3">
                 <CalendarBlank className="size-5 text-(--on-bg-low) shrink-0 mt-0.5" weight="fill" />
                 <div>
-                  <p className="text-body-4 font-medium text-(--on-bg-high)">{dateLabel}</p>
+                  <p className="text-body-4  text-(--on-bg-high)">{dateLabel}</p>
                   <p className="text-body-5 text-(--on-bg-medium) flex items-center gap-1.5 mt-0.5">
                     <Clock className="size-3.5" /> {timeLabel}
                   </p>
@@ -133,7 +133,7 @@ export function EventDetails({ event, onOpenChange }: Props) {
                 <div>
                   <HtmlRenderer
                     html={event.location_name}
-                    className="text-body-4 font-medium text-(--on-bg-high) leading-snug"
+                    className="text-body-4  text-(--on-bg-high) leading-snug"
                   />
                   {event.city && <p className="text-body-5 text-(--on-bg-medium) mt-0.5">{event.city}</p>}
                 </div>
@@ -144,7 +144,7 @@ export function EventDetails({ event, onOpenChange }: Props) {
               <div className="flex items-start gap-3">
                 <UserIcon className="size-5 text-(--on-bg-low) shrink-0 mt-0.5" weight="fill" />
                 <div>
-                  <p className="text-body-4 font-medium text-(--on-bg-high)">
+                  <p className="text-body-4  text-(--on-bg-high)">
                     {authorHref ? (
                       <Link href={authorHref} className="hover:text-(--primary) transition-colors">
                         {authorName}
@@ -164,17 +164,17 @@ export function EventDetails({ event, onOpenChange }: Props) {
             <div className="flex flex-wrap gap-1.5">
               {(event.types ?? []).map((t) =>
                 t.type ? (
-                  <span key={t.id} className="text-[11px] font-medium text-(--on-bg-medium) px-2 py-1 rounded-md border border-(--outline) bg-(--bg)">
+                  <span key={t.id} className="text-[11px]  text-(--on-bg-medium) px-2 py-1 rounded-md border border-(--outline) bg-(--bg)">
                     {t.type.name}
                   </span>
                 ) : t.custom_name ? (
-                  <span key={t.id} className="text-[11px] font-medium text-(--on-bg-medium) px-2 py-1 rounded-md border border-(--outline) bg-(--bg)">
+                  <span key={t.id} className="text-[11px]  text-(--on-bg-medium) px-2 py-1 rounded-md border border-(--outline) bg-(--bg)">
                     {t.custom_name}
                   </span>
                 ) : null
               )}
               {(event.tags ?? []).map((tag) => (
-                <span key={tag.id} className="text-[11px] font-medium text-(--on-bg-medium) px-2 py-1 rounded-md border border-(--outline) bg-(--bg)">
+                <span key={tag.id} className="text-[11px]  text-(--on-bg-medium) px-2 py-1 rounded-md border border-(--outline) bg-(--bg)">
                   #{tag.name}
                 </span>
               ))}

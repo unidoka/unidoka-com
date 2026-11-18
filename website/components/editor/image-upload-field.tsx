@@ -176,7 +176,7 @@ export const ImageUploadField = forwardRef<ImageUploadFieldHandle, Props>(
               {errored ? (
                 <>
                   <WarningCircleIcon className="size-6" />
-                  <span className="text-[10px] font-medium leading-tight text-center px-2">
+                  <span className="text-[10px]  leading-tight text-center px-2">
                     Не загрузилось
                   </span>
                 </>
@@ -194,7 +194,7 @@ export const ImageUploadField = forwardRef<ImageUploadFieldHandle, Props>(
           )}
           {dragOver && !uploading && (
             <div className="absolute inset-0 flex items-center justify-center bg-(--primary-glass) backdrop-blur-sm pointer-events-none">
-              <p className="text-body-3 font-medium text-(--primary)">Отпустите, чтобы загрузить</p>
+              <p className="text-body-3  text-(--primary)">Отпустите, чтобы загрузить</p>
             </div>
           )}
         </div>

@@ -80,7 +80,7 @@ export function EventTypesEditor() {
                 style={{ background: t.color || "#888" }}
               />
               <div className="min-w-0">
-                <p className="text-body-3 font-medium truncate">{t.name}</p>
+                <p className="text-body-3  truncate">{t.name}</p>
                 <p className="text-body-5 text-(--on-bg-low) font-mono">
                   /{t.slug}
                 </p>

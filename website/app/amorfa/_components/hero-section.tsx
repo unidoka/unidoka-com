@@ -31,7 +31,7 @@ export function HeroSection() {
           <div className="animate-reveal fill-mode-both [animation-delay:280ms]">
             <Button
               size="large"
-              shape="round"
+
               asChild
               className="md:h-16 md:px-10 md:text-heading-3!"
             >

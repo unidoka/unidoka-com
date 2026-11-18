@@ -78,7 +78,7 @@ export default function DocsIndexPage() {
                     <p className="text-body-3 text-(--on-bg-medium) leading-relaxed mb-5">
                       {doc.description}
                     </p>
-                    <span className="inline-flex items-center gap-1.5 text-body-4 font-medium text-(--primary) transition-transform group-hover:translate-x-0.5">
+                    <span className="inline-flex items-center gap-1.5 text-body-4  text-(--primary) transition-transform group-hover:translate-x-0.5">
                       Читать документ
                       <ArrowRight className="size-4" />
                     </span>

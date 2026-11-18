@@ -104,7 +104,7 @@ export function EventCardEditorial({ event }: { event: CardEventData }) {
             {event.typeLabel}
           </p>
         )}
-        <h3 className="font-heading font-medium text-[1.5rem] md:text-[1.75rem] leading-[1.05] tracking-[-0.02em] mb-4 line-clamp-2 drop-shadow-sm">
+        <h3 className="font-heading  text-[1.5rem] md:text-[1.75rem] leading-[1.05] tracking-[-0.02em] mb-4 line-clamp-2 drop-shadow-sm">
           {event.title}
         </h3>
         <div className="flex items-end justify-between gap-4">
@@ -197,7 +197,7 @@ export function EventCardStandard({ event }: { event: CardEventData }) {
       <div className="flex flex-1 flex-col p-5">
         {event.typeLabel && (
           <div className="mb-3 flex flex-wrap gap-1.5">
-            <span className="inline-flex items-center rounded-full border border-(--outline) bg-(--bg) px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.14em] text-(--on-bg-medium)">
+            <span className="inline-flex items-center rounded-full border border-(--outline) bg-(--bg) px-2.5 py-0.5 text-[10px]  uppercase tracking-[0.14em] text-(--on-bg-medium)">
               {event.typeLabel}
             </span>
           </div>

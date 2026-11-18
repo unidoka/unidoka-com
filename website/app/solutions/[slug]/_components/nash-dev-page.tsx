@@ -16,7 +16,7 @@ export function NashDevPage({ solution }: CustomSolutionPageProps) {
           <p className="text-body-5 uppercase tracking-[0.3em] text-(--on-bg-low) mb-4">
             {solution.category ?? "Custom page"}
           </p>
-          <h1 className="text-display-1 md:text-display-0 font-heading font-medium tracking-tight text-(--on-bg-high) leading-[0.95] mb-6">
+          <h1 className="text-display-1 md:text-display-0 font-heading  tracking-tight text-(--on-bg-high) leading-[0.95] mb-6">
             {solution.title}
           </h1>
           {solution.short_description && (

@@ -31,7 +31,7 @@ function CheckboxCard({
       {...props}
     >
       <Checkbox checked={checked} onCheckedChange={onCheckedChange} />
-      <span className="text-body-4 font-medium leading-tight select-none flex-1">
+      <span className="text-body-4  leading-tight select-none flex-1">
         {children}
       </span>
     </label>

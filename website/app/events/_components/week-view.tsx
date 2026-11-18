@@ -34,7 +34,7 @@ export function WeekView({ anchor, byDay, onSelectEvent }: Props) {
                     today && "bg-(--state-hover)"
                   )}
                 >
-                  <span className="text-[11px] font-medium uppercase tracking-wider text-(--on-bg-low)">
+                  <span className="text-[11px]  uppercase tracking-wider text-(--on-bg-low)">
                     {WEEKDAYS[i]}
                   </span>
                   <span

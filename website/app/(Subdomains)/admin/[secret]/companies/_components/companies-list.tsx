@@ -169,7 +169,7 @@ export function CompaniesList() {
                 </span>
               )}
               <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/85 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                <p className="text-body-3 font-medium text-white truncate">
+                <p className="text-body-3  text-white truncate">
                   {c.name}
                 </p>
                 <p className="text-body-6 text-white/70 font-mono truncate">

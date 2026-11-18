@@ -173,7 +173,7 @@ export function SocialPreview() {
                 <p className="text-body-5 text-(--on-bg-low) font-mono mb-1 truncate">
                   {host}
                 </p>
-                <p className="text-body-3 font-medium text-(--on-bg-high) leading-snug line-clamp-2 mb-1">
+                <p className="text-body-3  text-(--on-bg-high) leading-snug line-clamp-2 mb-1">
                   {title || "Заголовок"}
                 </p>
                 <p className="text-body-5 text-(--on-bg-medium) leading-snug line-clamp-1">

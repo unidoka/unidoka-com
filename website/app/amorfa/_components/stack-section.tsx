@@ -28,7 +28,7 @@ export function StackSection() {
           {t("amorfa.stack_title")}
         </h2>
 
-        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-3xl border border-(--outline) bg-(--outline) sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-px overflow-hidden border border-(--outline) bg-(--outline) sm:grid-cols-2 lg:grid-cols-4">
           {STACK.map((s) => (
             <div
               key={s}

@@ -239,7 +239,7 @@ export default function RegisterPage() {
               </span>
               <Link
                 href="/login"
-                className="text-(--primary) hover:opacity-80 font-medium transition-opacity underline-offset-2 hover:underline"
+                className="text-(--primary) hover:opacity-80  transition-opacity underline-offset-2 hover:underline"
               >
                 {t("forms.register.login_link")}
               </Link>

@@ -108,7 +108,7 @@ export default function Header() {
     : { boxShadow: "0 6px 20px -6px rgba(0,0,0,0.08), 0 2px 8px -2px rgba(0,0,0,0.02)" };
 
   const navLinkClass = "inline-flex items-center gap-1.5 h-8 px-2.5 text-[13px] leading-none whitespace-nowrap transition-colors";
-  const navActiveClass = "text-(--on-bg-high) font-medium";
+  const navActiveClass = "text-(--on-bg-high) ";
   const navInactiveClass = "text-(--on-bg-medium) hover:text-(--on-bg-high)";
 
   const tr = (key: string, fallback: string) => {
@@ -148,7 +148,7 @@ export default function Header() {
                   >
                     <Link href={back.href}>
                       <CaretLeftIcon className="size-4" weight="bold" />
-                      <span className="text-[13px] font-medium truncate max-w-[120px]">
+                      <span className="text-[13px]  truncate max-w-[120px]">
                         {back.label}
                       </span>
                     </Link>
@@ -222,7 +222,7 @@ export default function Header() {
                               href={profileHref}
                               prefetch={false}
                               onClick={() => setProfileOpen(false)}
-                              className="block px-4 py-3 rounded-xl text-[15px] font-medium text-center text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
+                              className="block px-4 py-3 rounded-xl text-[15px]  text-center text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
                             >
                               {tr("nav.profile", "Профиль")}
                             </Link>
@@ -230,7 +230,7 @@ export default function Header() {
                               <Link
                                 href={adminHref}
                                 onClick={() => setProfileOpen(false)}
-                                className="block px-4 py-3 rounded-xl text-[15px] font-medium text-center text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
+                                className="block px-4 py-3 rounded-xl text-[15px]  text-center text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
                               >
                                 {tr("nav.admin", "Админ-панель")}
                               </Link>
@@ -240,7 +240,7 @@ export default function Header() {
                                 logout();
                                 setProfileOpen(false);
                               }}
-                              className="block w-full px-4 py-3 rounded-xl text-[15px] font-medium text-center text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
+                              className="block w-full px-4 py-3 rounded-xl text-[15px]  text-center text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
                             >
                               {tr("nav.logout", "Выйти")}
                             </button>
@@ -250,14 +250,14 @@ export default function Header() {
                             <Link
                               href={rootLink("/login")}
                               onClick={() => setProfileOpen(false)}
-                              className="block px-4 py-3 rounded-xl text-[15px] font-medium text-center text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
+                              className="block px-4 py-3 rounded-xl text-[15px]  text-center text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
                             >
                               {tr("nav.login", "Войти")}
                             </Link>
                             <Link
                               href={rootLink("/register")}
                               onClick={() => setProfileOpen(false)}
-                              className="block px-4 py-3 rounded-xl text-[15px] font-medium text-center text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
+                              className="block px-4 py-3 rounded-xl text-[15px]  text-center text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
                             >
                               {tr("nav.register", "Регистрация")}
                             </Link>

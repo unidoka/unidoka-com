@@ -49,32 +49,12 @@ export function HeroSection() {
             <QuickOrderDialog serviceName="Консультация">
               <Button
                 size="large"
-                shape="round"
+
                 className="md:h-16 md:px-10 md:text-heading-3!"
               >
                 {t("hero.order")}
-                <ArrowRightIcon />
               </Button>
             </QuickOrderDialog>
-            <Button
-              size="large"
-              variant="outlined"
-              shape="round"
-              asChild
-              className="md:h-16 md:px-10 md:text-heading-3!"
-            >
-              <Link href="/solutions">
-                {t("home.card_solutions_btn")}
-                <ArrowUpRightIcon />
-              </Link>
-            </Button>
-            <button
-              type="button"
-              onClick={() => setReplay((n) => n + 1)}
-              className="text-heading-6 text-(--on-bg-low) transition-colors hover:text-(--on-bg-high) md:text-heading-5"
-            >
-              {t("hero.replay")}
-            </button>
           </div>
         </div>
 
@@ -87,10 +67,6 @@ export function HeroSection() {
           <AnimatedLogoIcon
             replayKey={replay}
             className="relative size-52 text-(--on-bg-high) xl:size-64"
-          />
-          <AnimatedLogo
-            replayKey={replay}
-            className="relative h-10 text-(--on-bg-high) md:h-12"
           />
         </div>
       </Container>

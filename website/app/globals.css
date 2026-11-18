@@ -70,32 +70,32 @@
   --lh-body: 1.5;
 
   --display-1-size: 4.5rem;
-  --display-1-weight: 500;
+  --display-1-weight: 400;
   --display-1-font-face: var(--font-sans);
   --display-1-lh: var(--lh-heading);
 
   --display-2-size: 3.5rem;
-  --display-2-weight: 500;
+  --display-2-weight: 400;
   --display-2-font-face: var(--font-sans);
   --display-2-lh: var(--lh-heading);
 
   --display-3-size: 3rem;
-  --display-3-weight: 500;
+  --display-3-weight: 400;
   --display-3-font-face: var(--font-sans);
   --display-3-lh: var(--lh-heading);
 
   --display-4-size: 2.5rem;
-  --display-4-weight: 500;
+  --display-4-weight: 400;
   --display-4-font-face: var(--font-sans);
   --display-4-lh: var(--lh-heading);
 
   --display-5-size: 2rem;
-  --display-5-weight: 500;
+  --display-5-weight: 400;
   --display-5-font-face: var(--font-sans);
   --display-5-lh: var(--lh-heading);
 
   --display-6-size: 1.5rem;
-  --display-6-weight: 500;
+  --display-6-weight: 400;
   --display-6-font-face: var(--font-sans);
   --display-6-lh: var(--lh-heading);
 
@@ -709,7 +709,7 @@ html::-webkit-scrollbar-corner {
   border-color: rgba(255, 255, 255, 0.35) !important;
 }
 
-/* Prevent the circle mask from react-easy-crop's `cropShape="round"`
+/* Prevent the circle mask from react-easy-crop's `crop`
    ever coming back via a stale hot-reload chunk. We render the
    circular preview ourselves, on top, as a non-masking overlay. */
 .reactEasyCrop_CropAreaRound {
@@ -1525,56 +1525,167 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 .mdxeditor-image-dialog button[type="button"]:not([type="submit"]):hover {
   background: var(--state-hover) !important;
 }
+
 /* ── Project Mesh Gradient Animations ──────────────────────────────── */
 @keyframes mesh-drift-1 {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  50% { transform: translate3d(3%, -2%, 0); }
+
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(3%, -2%, 0);
+  }
 }
+
 @keyframes mesh-drift-2 {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  50% { transform: translate3d(-2%, 3%, 0); }
+
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(-2%, 3%, 0);
+  }
 }
+
 @keyframes mesh-drift-3 {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  50% { transform: translate3d(2%, -3%, 0); }
+
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(2%, -3%, 0);
+  }
 }
+
 @keyframes mesh-drift-4 {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  50% { transform: translate3d(-3%, 2%, 0); }
+
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(-3%, 2%, 0);
+  }
 }
-.mesh-blob-1 { animation: mesh-drift-1 22s ease-in-out infinite; will-change: transform; }
-.mesh-blob-2 { animation: mesh-drift-2 28s ease-in-out infinite; will-change: transform; }
-.mesh-blob-3 { animation: mesh-drift-3 32s ease-in-out infinite; will-change: transform; }
-.mesh-blob-4 { animation: mesh-drift-4 26s ease-in-out infinite; will-change: transform; }
+
+.mesh-blob-1 {
+  animation: mesh-drift-1 22s ease-in-out infinite;
+  will-change: transform;
+}
+
+.mesh-blob-2 {
+  animation: mesh-drift-2 28s ease-in-out infinite;
+  will-change: transform;
+}
+
+.mesh-blob-3 {
+  animation: mesh-drift-3 32s ease-in-out infinite;
+  will-change: transform;
+}
+
+.mesh-blob-4 {
+  animation: mesh-drift-4 26s ease-in-out infinite;
+  will-change: transform;
+}
 
 @keyframes hero-grain-drift {
-  0% { transform: translate3d(0, 0, 0); }
-  12.5% { transform: translate3d(-2%, -3%, 0); }
-  25% { transform: translate3d(3%, -1%, 0); }
-  37.5% { transform: translate3d(-1%, 2%, 0); }
-  50% { transform: translate3d(2%, 3%, 0); }
-  62.5% { transform: translate3d(-3%, 1%, 0); }
-  75% { transform: translate3d(1%, -2%, 0); }
-  87.5% { transform: translate3d(-2%, -1%, 0); }
-  100% { transform: translate3d(0, 0, 0); }
-}
-.hero-grain-drift { animation: hero-grain-drift 7s steps(8) infinite; will-change: transform; }
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
 
-@keyframes hero-dot-drift { to { background-position: 22px 22px; } }
-.hero-dot-drift { animation: hero-dot-drift 20s linear infinite; }
+  12.5% {
+    transform: translate3d(-2%, -3%, 0);
+  }
+
+  25% {
+    transform: translate3d(3%, -1%, 0);
+  }
+
+  37.5% {
+    transform: translate3d(-1%, 2%, 0);
+  }
+
+  50% {
+    transform: translate3d(2%, 3%, 0);
+  }
+
+  62.5% {
+    transform: translate3d(-3%, 1%, 0);
+  }
+
+  75% {
+    transform: translate3d(1%, -2%, 0);
+  }
+
+  87.5% {
+    transform: translate3d(-2%, -1%, 0);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.hero-grain-drift {
+  animation: hero-grain-drift 7s steps(8) infinite;
+  will-change: transform;
+}
+
+@keyframes hero-dot-drift {
+  to {
+    background-position: 22px 22px;
+  }
+}
+
+.hero-dot-drift {
+  animation: hero-dot-drift 20s linear infinite;
+}
 
 @keyframes hero-light-sweep {
-  0% { transform: translate3d(0, 0, 0); }
-  25% { transform: translate3d(8%, -6%, 0); }
-  50% { transform: translate3d(-4%, 10%, 0); }
-  75% { transform: translate3d(6%, 4%, 0); }
-  100% { transform: translate3d(0, 0, 0); }
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  25% {
+    transform: translate3d(8%, -6%, 0);
+  }
+
+  50% {
+    transform: translate3d(-4%, 10%, 0);
+  }
+
+  75% {
+    transform: translate3d(6%, 4%, 0);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
 }
-.hero-light-sweep { animation: hero-light-sweep 26s ease-in-out infinite; will-change: transform; }
+
+.hero-light-sweep {
+  animation: hero-light-sweep 26s ease-in-out infinite;
+  will-change: transform;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .mesh-blob-1, .mesh-blob-2, .mesh-blob-3, .mesh-blob-4,
-  .hero-grain-drift, .hero-dot-drift, .hero-light-sweep { animation: none; }
+
+  .mesh-blob-1,
+  .mesh-blob-2,
+  .mesh-blob-3,
+  .mesh-blob-4,
+  .hero-grain-drift,
+  .hero-dot-drift,
+  .hero-light-sweep {
+    animation: none;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -1604,6 +1715,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -1617,11 +1729,9 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
   inset: 0;
   border-radius: 9999px;
   border: 1px solid color-mix(in srgb, var(--on-bg-high) 22%, transparent);
-  background: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--on-bg-high) 3%, transparent) 0%,
-    transparent 65%
-  );
+  background: radial-gradient(circle,
+      color-mix(in srgb, var(--on-bg-high) 3%, transparent) 0%,
+      transparent 65%);
   opacity: 0;
   pointer-events: none;
   transform: scale(0.35);
@@ -1638,9 +1748,11 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     transform: scale(0.35);
     opacity: 0;
   }
+
   20% {
     opacity: 0.55;
   }
+
   100% {
     transform: scale(1.15);
     opacity: 0;
@@ -1653,23 +1765,25 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 }
 
 @keyframes logo-glow {
+
   0%,
   100% {
     filter: drop-shadow(0 0 0 transparent);
   }
+
   50% {
-    filter: drop-shadow(
-      0 0 10px color-mix(in srgb, var(--on-bg-high) 22%, transparent)
-    );
+    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--on-bg-high) 22%, transparent));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .logo-radial-spin,
   .logo-radial-pulse,
   .logo-radial-glow {
     animation: none;
   }
+
   .logo-radial-pulse {
     opacity: 0;
   }
@@ -1693,30 +1807,24 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 }
 
 @keyframes logo-radial-grow {
+
   0%,
   100% {
-    -webkit-mask-image: radial-gradient(
-      circle at center,
-      #000 8%,
-      transparent 18%
-    );
-    mask-image: radial-gradient(
-      circle at center,
-      #000 8%,
-      transparent 18%
-    );
+    -webkit-mask-image: radial-gradient(circle at center,
+        #000 8%,
+        transparent 18%);
+    mask-image: radial-gradient(circle at center,
+        #000 8%,
+        transparent 18%);
   }
+
   50% {
-    -webkit-mask-image: radial-gradient(
-      circle at center,
-      #000 72%,
-      transparent 82%
-    );
-    mask-image: radial-gradient(
-      circle at center,
-      #000 72%,
-      transparent 82%
-    );
+    -webkit-mask-image: radial-gradient(circle at center,
+        #000 72%,
+        transparent 82%);
+    mask-image: radial-gradient(circle at center,
+        #000 72%,
+        transparent 82%);
   }
 }
 
@@ -1730,14 +1838,32 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 
 /* --- Vershiny Logo Animations --- */
 @keyframes vershiny-slide-up {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes vershiny-draw-and-fill {
-  0% { stroke-dashoffset: 300; fill-opacity: 0; }
-  70% { stroke-dashoffset: 0; fill-opacity: 0; }
-  100% { stroke-dashoffset: 0; fill-opacity: 1; }
+  0% {
+    stroke-dashoffset: 300;
+    fill-opacity: 0;
+  }
+
+  70% {
+    stroke-dashoffset: 0;
+    fill-opacity: 0;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+    fill-opacity: 1;
+  }
 }
 
 .vershiny-anim-text {
@@ -1761,14 +1887,32 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 
 /* --- Vershiny Logo Animations --- */
 @keyframes vershiny-slide-up {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes vershiny-draw-and-fill {
-  0% { stroke-dashoffset: 300; fill-opacity: 0; }
-  70% { stroke-dashoffset: 0; fill-opacity: 0; }
-  100% { stroke-dashoffset: 0; fill-opacity: 1; }
+  0% {
+    stroke-dashoffset: 300;
+    fill-opacity: 0;
+  }
+
+  70% {
+    stroke-dashoffset: 0;
+    fill-opacity: 0;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+    fill-opacity: 1;
+  }
 }
 
 .vershiny-anim-text {
@@ -1792,6 +1936,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 
 /* vershiny-reduced-motion-guard */
 @media (prefers-reduced-motion: reduce) {
+
   .vershiny-anim-text,
   .vershiny-anim-icon {
     animation: none;
@@ -1814,32 +1959,40 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
   -webkit-mask-image: linear-gradient(to right, #000 0%, #000 100%);
   mask-image: linear-gradient(to right, #000 0%, #000 100%);
 }
+
 .terminal-scroll[data-overflow="true"][data-at-end="false"] {
   -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent 100%);
   mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent 100%);
 }
+
 .terminal-scroll::-webkit-scrollbar {
   height: 5px;
 }
+
 .terminal-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .terminal-scroll::-webkit-scrollbar-thumb {
   border-radius: 9999px;
   background: transparent;
   transition: background-color 0.25s ease;
 }
+
 .terminal-scroll::-webkit-scrollbar-corner {
   background: transparent;
 }
+
 .terminal-scroll[data-overflow="true"]:hover,
 .terminal-scroll[data-overflow="true"]:focus-within {
   scrollbar-color: color-mix(in srgb, var(--on-bg-low), transparent 45%) transparent;
 }
+
 .terminal-scroll[data-overflow="true"]:hover::-webkit-scrollbar-thumb,
 .terminal-scroll[data-overflow="true"]:focus-within::-webkit-scrollbar-thumb {
   background: color-mix(in srgb, var(--on-bg-low), transparent 45%);
 }
+
 .terminal-scroll[data-overflow="true"]::-webkit-scrollbar-thumb:hover {
   background: color-mix(in srgb, var(--on-bg-low), transparent 15%);
 }
@@ -1855,15 +2008,18 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     stroke-dashoffset: var(--amorfa-len, 300);
     fill-opacity: 0;
   }
+
   70% {
     stroke-dashoffset: 0;
     fill-opacity: 0;
   }
+
   100% {
     stroke-dashoffset: 0;
     fill-opacity: 1;
   }
 }
+
 .amorfa-anim-draw {
   stroke: currentColor;
   stroke-width: 1.5;
@@ -1875,6 +2031,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
   animation: amorfa-draw-and-fill 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   will-change: stroke-dashoffset, fill-opacity;
 }
+
 @media (prefers-reduced-motion: reduce) {
   .amorfa-anim-draw {
     animation: none;
@@ -1882,6 +2039,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     stroke-dasharray: none;
     stroke-dashoffset: 0;
   }
+
   .terminal-scroll {
     transition: none;
   }
@@ -1899,17 +2057,21 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     opacity: 0;
     transform: scale(0.52);
   }
+
   55% {
     opacity: 1;
   }
+
   78% {
     transform: scale(1.045);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
   }
 }
+
 .amorfa-anim-bloom {
   opacity: 0;
   transform-box: fill-box;
@@ -1924,15 +2086,16 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
   0% {
     filter: drop-shadow(0 0 0 transparent);
   }
+
   45% {
-    filter: drop-shadow(
-      0 0 22px color-mix(in srgb, currentColor 20%, transparent)
-    );
+    filter: drop-shadow(0 0 22px color-mix(in srgb, currentColor 20%, transparent));
   }
+
   100% {
     filter: drop-shadow(0 0 0 transparent);
   }
 }
+
 .amorfa-bloom-stage {
   animation: amorfa-settle-glow 1.9s cubic-bezier(0.16, 1, 0.3, 1) 0.7s 1 both;
 }
@@ -1956,6 +2119,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     opacity: 1;
     transform: none;
   }
+
   .amorfa-bloom-stage {
     animation: none;
   }
@@ -1975,15 +2139,18 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     stroke-dashoffset: var(--vershiny-len, 300);
     fill-opacity: 0;
   }
+
   70% {
     stroke-dashoffset: 0;
     fill-opacity: 0;
   }
+
   100% {
     stroke-dashoffset: 0;
     fill-opacity: 1;
   }
 }
+
 @media (prefers-reduced-motion: reduce) {
   .vershiny-anim-icon {
     animation: none !important;
@@ -2005,17 +2172,21 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     opacity: 0;
     transform: scale(0.52);
   }
+
   55% {
     opacity: 1;
   }
+
   78% {
     transform: scale(1.045);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
   }
 }
+
 .logo-anim-bloom {
   opacity: 0;
   transform-box: fill-box;
@@ -2029,11 +2200,13 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     opacity: 0;
     transform: translateY(16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
+
 .logo-anim-rise {
   opacity: 0;
   animation: logo-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -2041,6 +2214,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .logo-anim-bloom,
   .logo-anim-rise {
     animation: none;
@@ -2065,17 +2239,21 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     opacity: 0;
     transform: scale(0.52);
   }
+
   55% {
     opacity: 1;
   }
+
   78% {
     transform: scale(1.045);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
   }
 }
+
 .logo-anim-bloom {
   opacity: 0;
   transform-box: fill-box;
@@ -2089,11 +2267,13 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     opacity: 0;
     transform: translateY(16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
+
 .logo-anim-rise {
   opacity: 0;
   animation: logo-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -2105,20 +2285,22 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
   0% {
     filter: drop-shadow(0 0 0 transparent);
   }
+
   45% {
-    filter: drop-shadow(
-      0 0 22px color-mix(in srgb, currentColor 20%, transparent)
-    );
+    filter: drop-shadow(0 0 22px color-mix(in srgb, currentColor 20%, transparent));
   }
+
   100% {
     filter: drop-shadow(0 0 0 transparent);
   }
 }
+
 .logo-bloom-stage {
   animation: logo-settle-glow 1.9s cubic-bezier(0.16, 1, 0.3, 1) 0.7s 1 both;
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .logo-anim-bloom,
   .logo-anim-rise,
   .logo-bloom-stage {
@@ -2130,6 +2312,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 
 /* hero-reveal-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
+
   .animate-reveal,
   .animate-reveal-slow {
     animation: none;
@@ -2165,19 +2348,22 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     opacity: 0;
     transform: scale(0.52);
   }
+
   55% {
     opacity: 1;
   }
+
   78% {
     transform: scale(1.045);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
   }
 }
 
-.logo-mark-enter svg > :is(path, circle, rect, ellipse, g) {
+.logo-mark-enter svg> :is(path, circle, rect, ellipse, g) {
   opacity: 0;
   transform-box: fill-box;
   transform-origin: center;
@@ -2185,43 +2371,80 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
   will-change: transform, opacity;
 }
 
-.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(1) { animation-delay: 0ms; }
-.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(2) { animation-delay: 55ms; }
-.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(3) { animation-delay: 110ms; }
-.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(4) { animation-delay: 165ms; }
-.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(5) { animation-delay: 220ms; }
-.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(6) { animation-delay: 275ms; }
-.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(7) { animation-delay: 330ms; }
-.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(8) { animation-delay: 385ms; }
-.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(9) { animation-delay: 440ms; }
-.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(10) { animation-delay: 495ms; }
-.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(11) { animation-delay: 550ms; }
-.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(12) { animation-delay: 605ms; }
+.logo-mark-enter svg> :is(path, circle, rect, ellipse, g):nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.logo-mark-enter svg> :is(path, circle, rect, ellipse, g):nth-child(2) {
+  animation-delay: 55ms;
+}
+
+.logo-mark-enter svg> :is(path, circle, rect, ellipse, g):nth-child(3) {
+  animation-delay: 110ms;
+}
+
+.logo-mark-enter svg> :is(path, circle, rect, ellipse, g):nth-child(4) {
+  animation-delay: 165ms;
+}
+
+.logo-mark-enter svg> :is(path, circle, rect, ellipse, g):nth-child(5) {
+  animation-delay: 220ms;
+}
+
+.logo-mark-enter svg> :is(path, circle, rect, ellipse, g):nth-child(6) {
+  animation-delay: 275ms;
+}
+
+.logo-mark-enter svg> :is(path, circle, rect, ellipse, g):nth-child(7) {
+  animation-delay: 330ms;
+}
+
+.logo-mark-enter svg> :is(path, circle, rect, ellipse, g):nth-child(8) {
+  animation-delay: 385ms;
+}
+
+.logo-mark-enter svg> :is(path, circle, rect, ellipse, g):nth-child(9) {
+  animation-delay: 440ms;
+}
+
+.logo-mark-enter svg> :is(path, circle, rect, ellipse, g):nth-child(10) {
+  animation-delay: 495ms;
+}
+
+.logo-mark-enter svg> :is(path, circle, rect, ellipse, g):nth-child(11) {
+  animation-delay: 550ms;
+}
+
+.logo-mark-enter svg> :is(path, circle, rect, ellipse, g):nth-child(12) {
+  animation-delay: 605ms;
+}
 
 /* One quiet exhale of light as the last ray lands. Not a loop. */
 @keyframes logo-settle-glow {
   0% {
     filter: drop-shadow(0 0 0 transparent);
   }
+
   45% {
-    filter: drop-shadow(
-      0 0 22px color-mix(in srgb, currentColor 20%, transparent)
-    );
+    filter: drop-shadow(0 0 22px color-mix(in srgb, currentColor 20%, transparent));
   }
+
   100% {
     filter: drop-shadow(0 0 0 transparent);
   }
 }
+
 .logo-bloom-stage {
   animation: logo-settle-glow 1.9s cubic-bezier(0.16, 1, 0.3, 1) 0.75s 1 both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .logo-mark-enter svg > :is(path, circle, rect, ellipse, g) {
+  .logo-mark-enter svg> :is(path, circle, rect, ellipse, g) {
     animation: none;
     opacity: 1;
     transform: none;
   }
+
   .logo-bloom-stage,
   .logo-anim-rise {
     animation: none;
@@ -2252,12 +2475,15 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     opacity: 0;
     transform: scale(0.52);
   }
+
   55% {
     opacity: 1;
   }
+
   78% {
     transform: scale(1.045);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
@@ -2273,40 +2499,69 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
   will-change: transform, opacity;
 }
 
-.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(1) { --amorfa-step: 0ms; }
-.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(2) { --amorfa-step: 110ms; }
-.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(3) { --amorfa-step: 220ms; }
-.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(4) { --amorfa-step: 330ms; }
-.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(5) { --amorfa-step: 440ms; }
-.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(6) { --amorfa-step: 550ms; }
-.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(7) { --amorfa-step: 660ms; }
-.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(8) { --amorfa-step: 770ms; }
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(1) {
+  --amorfa-step: 0ms;
+}
+
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(2) {
+  --amorfa-step: 110ms;
+}
+
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(3) {
+  --amorfa-step: 220ms;
+}
+
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(4) {
+  --amorfa-step: 330ms;
+}
+
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(5) {
+  --amorfa-step: 440ms;
+}
+
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(6) {
+  --amorfa-step: 550ms;
+}
+
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(7) {
+  --amorfa-step: 660ms;
+}
+
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(8) {
+  --amorfa-step: 770ms;
+}
 
 /* Ambient life for the CTA plate. The mark breathes; the hairline rings
    breathe on a slower, offset cycle so the pair never pulses in lockstep. */
 @keyframes amorfa-drift {
+
   0%,
   100% {
     transform: translate3d(0, 0, 0) scale(1);
   }
+
   50% {
     transform: translate3d(0, -10px, 0) scale(1.025);
   }
 }
+
 .amorfa-mark-float {
   animation: amorfa-drift 11s ease-in-out infinite;
   will-change: transform;
 }
 
 @keyframes amorfa-ring-breathe {
+
   0%,
   100% {
     scale: 1;
   }
+
   50% {
     scale: 1.05;
   }
 }
+
 .amorfa-ring {
   animation: amorfa-ring-breathe 9s ease-in-out infinite;
 }
@@ -2317,8 +2572,143 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     opacity: 1;
     transform: none;
   }
+
   .amorfa-mark-float,
   .amorfa-ring {
+    animation: none;
+  }
+}
+/* ═══ amorfa-cta-leaves ═════════════════════════════════════════════
+   The CTA no longer crops the mark, draws concentric rings, or emits
+   any glow. Its ornament is the mark's own lobes, detached.
+
+   Entrance is opacity-only and declared here, so a leaf is invisible
+   on the first painted frame and fades to its own --leaf-o. Transform
+   is left free for the pointer parallax on the same element; the
+   ambient drift lives on an inner wrapper and the base rotation on
+   the SVG, so the three transforms never fight over one property.
+   ═══════════════════════════════════════════════════════════════════ */
+@keyframes amorfa-leaf-in {
+  from { opacity: 0; }
+  to   { opacity: var(--leaf-o, 0.08); }
+}
+.amorfa-leaf {
+  opacity: 0;
+  animation: amorfa-leaf-in 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--leaf-enter, 0ms);
+}
+
+@keyframes amorfa-leaf-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%      { transform: translate3d(0, -9px, 0) rotate(5deg); }
+}
+.amorfa-leaf-drift {
+  animation: amorfa-leaf-drift 20s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Retired: the settle-glow drop-shadow. The mark is flat now. */
+.amorfa-bloom-stage {
+  animation: none !important;
+  filter: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .amorfa-leaf {
+    animation: none;
+    opacity: var(--leaf-o, 0.08);
+  }
+  .amorfa-leaf-drift {
+    animation: none;
+  }
+}
+
+/* ═══ amorfa-nest-motion ════════════════════════════════════════════
+   The CTA ornament is the mark's own silhouette nested outward, not
+   circles and not scattered leaves. Mark and contours share one
+   viewBox and one pivot, so the nesting is exact at every scale.
+
+   Hidden states are declared here, not applied from an effect, so
+   nothing flashes complete on the first painted frame. Three separate
+   transform owners per contour — parallax on the outer wrapper,
+   ambient breathe on the inner one, entrance on the path — so no two
+   animations ever fight over the same property.
+
+   No glow: the retired settle-glow stays neutralised.
+   ═══════════════════════════════════════════════════════════════════ */
+@keyframes amorfa-nest-layer-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.52);
+  }
+  55% {
+    opacity: 1;
+  }
+  78% {
+    transform: scale(1.045);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.amorfa-nest-layer {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: amorfa-nest-layer-in 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+@keyframes amorfa-nest-ring-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: var(--ring-o, 0.12);
+    transform: scale(1);
+  }
+}
+.amorfa-nest-ring {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: amorfa-nest-ring-in 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+@keyframes amorfa-nest-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+.amorfa-nest-breathe {
+  animation: amorfa-nest-breathe 16s ease-in-out infinite;
+  will-change: transform;
+}
+
+.amorfa-bloom-stage {
+  animation: none !important;
+  filter: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .amorfa-nest-layer {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .amorfa-nest-ring {
+    animation: none;
+    opacity: var(--ring-o, 0.12);
+    transform: none;
+  }
+  .amorfa-nest-breathe {
     animation: none;
   }
 }

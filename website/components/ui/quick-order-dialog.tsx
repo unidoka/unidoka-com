@@ -136,7 +136,7 @@ export function QuickOrderDialog({
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-12 text-base font-medium mt-2"
+              className="w-full h-12 text-base  mt-2"
             >
               {loading ? (
                 <CircleNotchIcon className="size-5 animate-spin mr-2" />

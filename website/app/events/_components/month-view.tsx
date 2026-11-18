@@ -49,7 +49,7 @@ export function MonthView({
           {WEEKDAYS_LONG.map((long, i) => (
             <div
               key={long + i}
-              className="h-8 sm:h-10 flex items-center justify-center text-[11px] sm:text-body-5 font-medium uppercase tracking-wider text-(--on-bg-low)"
+              className="h-8 sm:h-10 flex items-center justify-center text-[11px] sm:text-body-5  uppercase tracking-wider text-(--on-bg-low)"
             >
               <span className="sm:hidden">{WEEKDAYS_SHORT[i]}</span>
               <span className="hidden sm:inline">{long}</span>
@@ -81,7 +81,7 @@ export function MonthView({
                 <div className="flex items-center justify-between">
                   <span
                     className={cn(
-                      "flex items-center justify-center min-w-5 sm:min-w-6 h-5 sm:h-6 px-1 sm:px-1.5 rounded-full text-[11px] sm:text-body-5 font-medium tabular-nums",
+                      "flex items-center justify-center min-w-5 sm:min-w-6 h-5 sm:h-6 px-1 sm:px-1.5 rounded-full text-[11px] sm:text-body-5  tabular-nums",
                       !inMonth && "text-(--on-bg-low)",
                       inMonth && !isToday(day) && "text-(--on-bg-medium)",
                       isToday(day) && "bg-(--on-bg-high) text-(--bg)", // Minimalist inverted today marker

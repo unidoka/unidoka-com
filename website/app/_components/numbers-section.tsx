@@ -67,7 +67,7 @@ export function NumbersSection() {
                 <p className="text-body-3 leading-relaxed text-(--on-bg-medium)">
                   {t(c.descKey)}
                 </p>
-                <span className="mt-auto inline-flex items-center gap-1.5 pt-2 text-body-4 font-medium text-(--on-bg-high) transition-opacity group-hover:opacity-70">
+                <span className="mt-auto inline-flex items-center gap-1.5 pt-2 text-body-4  text-(--on-bg-high) transition-opacity group-hover:opacity-70">
                   {t(c.btnKey)}
                   <ArrowUpRightIcon className="size-3.5" />
                 </span>

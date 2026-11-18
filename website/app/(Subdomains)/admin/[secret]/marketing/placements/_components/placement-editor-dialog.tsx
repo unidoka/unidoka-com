@@ -237,7 +237,7 @@ export function PlacementEditorDialog({
                     >
                       <p
                         className={cn(
-                          "text-body-4 font-medium mb-1",
+                          "text-body-4  mb-1",
                           active ? "text-(--primary)" : "text-(--on-bg-high)",
                         )}
                       >
@@ -263,7 +263,7 @@ export function PlacementEditorDialog({
                       type="button"
                       onClick={() => set("page", p.value)}
                       className={cn(
-                        "rounded-full px-3 py-1.5 text-body-4 font-medium transition-colors",
+                        "rounded-full px-3 py-1.5 text-body-4  transition-colors",
                         active
                           ? "bg-(--primary) text-(--on-primary)"
                           : "bg-(--card) border border-(--outline) text-(--on-bg-medium) hover:text-(--on-bg-high)",
@@ -332,7 +332,7 @@ export function PlacementEditorDialog({
 
             <div className="flex items-center justify-between gap-3 rounded-xl border border-(--outline) bg-(--bg) px-4 py-3">
               <div>
-                <Label className="text-body-4 font-medium">Активно</Label>
+                <Label className="text-body-4 ">Активно</Label>
                 <p className="text-body-5 text-(--on-bg-low) mt-0.5">
                   Выключите, чтобы поставить на паузу - расписание сохранится.
                 </p>

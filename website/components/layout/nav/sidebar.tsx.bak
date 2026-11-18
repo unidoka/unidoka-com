@@ -303,7 +303,7 @@ export function Sidebar({
                           className={cn(
                             "block px-2.5 py-1.5 rounded-md text-[13px] leading-snug transition-colors",
                             active
-                              ? "bg-(--primary-glass) text-(--primary) font-medium"
+                              ? "bg-(--primary-glass) text-(--primary) "
                               : "text-(--on-bg-medium) hover:text-(--on-bg-high) hover:bg-(--state-hover)",
                           )}
                         >
@@ -393,7 +393,7 @@ function MobileTabs({
               href={`${basePath}${item.href}`}
               ref={active ? activeRef : undefined}
               className={cn(
-                "flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors shrink-0",
+                "flex items-center gap-2 px-3 py-2 rounded-full text-sm  transition-colors shrink-0",
                 active
                   ? "bg-(--primary-glass) text-(--primary)"
                   : "text-(--on-bg-medium) hover:bg-(--state-hover) hover:text-(--on-bg-high)",

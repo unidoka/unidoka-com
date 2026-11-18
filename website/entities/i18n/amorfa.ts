@@ -57,8 +57,8 @@ export const amorfaTranslations: Record<Language, Record<string, string>> = {
   },
   ru: {
     // ── Hero ────────────────────────────────────────────────────────────────
-    'amorfa.hero_title_1': 'ИИ-кодинг',
-    'amorfa.hero_title_2': 'без технической рутины',
+    'amorfa.hero_title_1': 'ИИ-разработка',
+    'amorfa.hero_title_2': 'без техдолга',
     'amorfa.title_1': 'Amorfa.',
     'amorfa.title_2': 'Fullstack за часы, а не недели.',
     'amorfa.description':
@@ -68,23 +68,23 @@ export const amorfaTranslations: Record<Language, Record<string, string>> = {
     'amorfa.hero_replay': 'Смотреть анимацию',
 
     // ── Features ────────────────────────────────────────────────────────────
-    'amorfa.features_title': 'Всё для продакшена. Ничего лишнего',
-    'amorfa.feature_1_title': 'Запуск за часы',
-    'amorfa.feature_1_body': 'Клонируй, правь .env, запускай',
+    'amorfa.features_title': 'Всё вместе. Ничего лишнего',
+    'amorfa.feature_1_title': 'Быстрый запуск',
+    'amorfa.feature_1_body': 'Заполните .env, сгенерируйте логику и запускайтесь',
     'amorfa.feature_2_title': 'AI-first структура',
-    'amorfa.feature_2_body': 'LLM-контекст в каждом файле',
-    'amorfa.feature_3_title': 'Fullstack, честно',
-    'amorfa.feature_3_body': 'FastAPI + Next.js. Один репозиторий',
-    'amorfa.feature_4_title': 'Ноль lock-in',
-    'amorfa.feature_4_body': 'Самохостинг на одном VPS',
-    'amorfa.feature_5_title': 'Готов к микросервисам',
-    'amorfa.feature_5_body': 'Разделяйте, когда это реально нужно',
-    'amorfa.feature_6_title': 'Задокументированные дефолты',
-    'amorfa.feature_6_body': 'Авторизация, OTP и email уже подключены',
-    'amorfa.feature_7_title': 'Типы end to end',
-    'amorfa.feature_7_body': 'TypeScript и Pydantic по всему стеку',
+    'amorfa.feature_2_body': 'Передача контекста без лишнего расхода токенов',
+    'amorfa.feature_3_title': 'Всё самое нужное',
+    'amorfa.feature_3_body': 'FastAPI + Next.js и код для работы с ботами',
+    'amorfa.feature_4_title': 'Только OpenSource',
+    'amorfa.feature_4_body': 'Только лучшие представители OpenSource решений',
+    'amorfa.feature_5_title': 'Разделение логики',
+    'amorfa.feature_5_body': 'Чтобы было легко перейти на микросервисы',
+    'amorfa.feature_6_title': 'Базовая логика в комплекте',
+    'amorfa.feature_6_body': 'Самая важная логика уже реализована, остаётся только запустить',
+    'amorfa.feature_7_title': 'Языки с типизацией',
+    'amorfa.feature_7_body': 'В решении используются только языки с типизацией для предотвращения ошибок из-за галлюцинаций LLM',
     'amorfa.feature_8_title': 'Деплой одной командой',
-    'amorfa.feature_8_body': 'Docker Compose + Traefik с TLS',
+    'amorfa.feature_8_body': 'Docker Compose + Traefik с TLS. Минимальная настройка и максимально быстрое добавление новых сервисов',
 
     // ── Structure ───────────────────────────────────────────────────────────
     'amorfa.structure_title': 'Один репозиторий - ∞ сервисов',
@@ -94,14 +94,14 @@ export const amorfaTranslations: Record<Language, Record<string, string>> = {
       'Удобная организация документации и самые нужные SKILLS для ИИ по умолчанию.',
 
     // ── Stack ───────────────────────────────────────────────────────────────
-    'amorfa.stack_title': 'Современный, простой, надёжный.',
+    'amorfa.stack_title': 'Простой и современный стек',
 
     // ── Quickstart ──────────────────────────────────────────────────────────
-    'amorfa.quickstart_title': 'Три команды до работающего приложения.',
+    'amorfa.quickstart_title': 'Всего 3 команды для старта',
     'amorfa.step_1_title': 'Клонировать и настроить',
     'amorfa.step_2_title': 'Поднять контейнеры',
     'amorfa.step_3_title': 'Применить миграции',
-    'amorfa.quickstart_cta': 'Все инструкции на GitHub',
+    'amorfa.quickstart_cta': 'Подробнее на GitHub',
 
     // ── CTA ─────────────────────────────────────────────────────────────────
     'amorfa.cta_title_1': 'Разработка без техдолга',

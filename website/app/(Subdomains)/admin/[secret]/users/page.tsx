@@ -235,7 +235,7 @@ export default function AdminUsersPage() {
                     onClick={() => setView(opt.id)}
                     title={opt.label}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-full px-3 h-8 text-xs font-medium transition-colors",
+                      "inline-flex items-center gap-1.5 rounded-full px-3 h-8 text-xs  transition-colors",
                       isActive
                         ? "bg-(--on-bg-high) text-(--bg)"
                         : "text-(--on-bg-medium) hover:text-(--on-bg-high) hover:bg-(--state-hover)",
@@ -407,7 +407,7 @@ function UserCard({
       <div className="flex items-start gap-4">
         <Avatar className="size-14 shrink-0 ring-1 ring-(--outline)">
           {user.avatar_url && <AvatarImage src={user.avatar_url} alt="" />}
-          <AvatarFallback className="text-heading-4 font-medium">{initials(user)}</AvatarFallback>
+          <AvatarFallback className="text-heading-4 ">{initials(user)}</AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">
@@ -492,7 +492,7 @@ function NotifChip({
 }) {
   return (
     <span className={cn(
-      "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium",
+      "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] ",
       on
         ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
         : "border-(--outline) bg-(--bg) text-(--on-bg-low) line-through",
@@ -539,11 +539,11 @@ function UserTable({
                     <div className="flex items-center gap-3">
                       <Avatar className="size-9 shrink-0 ring-1 ring-(--outline)">
                         {u.avatar_url && <AvatarImage src={u.avatar_url} alt="" />}
-                        <AvatarFallback className="text-body-4 font-medium">{initials(u)}</AvatarFallback>
+                        <AvatarFallback className="text-body-4 ">{initials(u)}</AvatarFallback>
                       </Avatar>
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-body-3 font-medium truncate">{displayName(u)}</span>
+                          <span className="text-body-3  truncate">{displayName(u)}</span>
                           {u.verified && (
                             <CheckCircleIcon className="size-3 text-emerald-500 shrink-0" weight="fill" />
                           )}
@@ -642,7 +642,7 @@ function Th({
 }) {
   return (
     <th className={cn(
-      "px-4 py-3 text-[11px] uppercase tracking-[0.08em] font-medium text-(--on-bg-low) whitespace-nowrap",
+      "px-4 py-3 text-[11px] uppercase tracking-[0.08em]  text-(--on-bg-low) whitespace-nowrap",
       align === "right" ? "text-right" : "text-left",
     )}>
       {children}
@@ -1054,7 +1054,7 @@ function UserEditorDialog({
                       <span
                         className={cn(
                           "text-body-4",
-                          checked ? "text-(--primary) font-medium" : "text-(--on-bg-high)",
+                          checked ? "text-(--primary) " : "text-(--on-bg-high)",
                         )}
                       >
                         {p.label}
@@ -1169,7 +1169,7 @@ function UserEditorDialog({
                         <span className="min-w-0 flex-1">
                           <span
                             className={cn(
-                              "block text-body-4 font-medium leading-snug",
+                              "block text-body-4  leading-snug",
                               checked ? "text-(--primary)" : "text-(--on-bg-high)",
                             )}
                           >
@@ -1258,7 +1258,7 @@ function Section({
 
 function Subheading({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-body-5 text-(--on-bg-medium) font-medium">{children}</p>
+    <p className="text-body-5 text-(--on-bg-medium) ">{children}</p>
   );
 }
 

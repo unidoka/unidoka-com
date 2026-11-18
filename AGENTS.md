@@ -45,6 +45,7 @@ docs/                            the spec — source of truth
 - No new dependencies without a strong reason. Prefer the stdlib and what's already installed.
 - When you change a public interface, update its `spec.md` in the same change. If a table changes, update the `.dbml` too.
 - Extending is expected. Add auth, uploads, queues, whatever a feature needs — just keep each concern in its own module and update the spec.
+- Use repomapper tool before reading files please.
 
 ## Changelog & Versioning
 

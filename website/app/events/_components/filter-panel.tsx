@@ -119,7 +119,7 @@ export function FilterPanel({ allEvents, value, onChange, compact }: Props) {
                   type="button"
                   onClick={() => toggleType(t.id)}
                   className={cn(
-                    "px-2.5 py-1 rounded-full text-body-5 font-medium transition-colors",
+                    "px-2.5 py-1 rounded-full text-body-5  transition-colors",
                     active
                       ? "bg-(--primary) text-(--on-primary)"
                       : "bg-(--state-hover) text-(--on-bg-medium) hover:text-(--on-bg-high)",
@@ -194,7 +194,7 @@ function ToggleRow({
         className={cn(
           "text-body-4 leading-tight transition-colors",
           checked
-            ? "text-(--primary) font-medium"
+            ? "text-(--primary) "
             : "text-(--on-bg-high)",
         )}
       >

@@ -81,7 +81,7 @@ export function SlugGenerator() {
           <p className="text-body-5 uppercase tracking-[0.18em] text-(--on-bg-low) mb-1">
             Результат
           </p>
-          <p className="text-body-3 font-medium text-(--on-bg-high)">URL-слаг</p>
+          <p className="text-body-3  text-(--on-bg-high)">URL-слаг</p>
         </div>
 
         <div

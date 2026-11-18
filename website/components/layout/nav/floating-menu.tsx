@@ -146,7 +146,7 @@ export function FloatingMenu({
                     href={href}
                     onClick={() => setOpen(false)}
                     className={cn(
-                      "flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[15px] font-medium text-center transition-colors",
+                      "flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[15px]  text-center transition-colors",
                       isActive
                         ? "bg-(--primary-glass) text-(--primary)"
                         : "text-(--on-bg-high) hover:bg-(--state-hover)"

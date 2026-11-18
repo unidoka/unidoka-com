@@ -73,7 +73,7 @@ export default function VershinyPage() {
                 <ChartLineUp className="size-3.5" weight="bold" />
               </span>
               <div>
-                <p className="text-body-3 font-medium text-(--on-bg-high)">
+                <p className="text-body-3  text-(--on-bg-high)">
                   Динамика участников
                 </p>
                 <p className="text-body-5 text-(--on-bg-low)">
@@ -92,7 +92,7 @@ export default function VershinyPage() {
                 <Ticket className="size-3.5" weight="bold" />
               </span>
               <div>
-                <p className="text-body-3 font-medium text-(--on-bg-high)">
+                <p className="text-body-3  text-(--on-bg-high)">
                   Заявки по направлениям
                 </p>
                 <p className="text-body-5 text-(--on-bg-low)">

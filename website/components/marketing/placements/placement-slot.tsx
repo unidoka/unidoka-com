@@ -298,7 +298,7 @@ function CloseControl({
           sideOffset={6}
           className="w-64 p-3"
         >
-          <p className="text-body-4 font-medium text-(--on-bg-high) mb-2">
+          <p className="text-body-4  text-(--on-bg-high) mb-2">
             Скрыть размещение?
           </p>
           <label className="flex items-start gap-2.5 cursor-pointer mb-3">

@@ -46,7 +46,7 @@ export function MonthYearPicker({ anchor, onSelect }: Props) {
           className={cn(
             "group flex items-center gap-1.5 rounded-lg px-2 py-1 -mx-2",
             // Reduced from display-4 to heading sizes for a more balanced look
-            "text-heading-3 md:text-heading-2 font-medium tracking-tight capitalize truncate ml-1",
+            "text-heading-3 md:text-heading-2  tracking-tight capitalize truncate ml-1",
             "hover:bg-(--state-hover) transition-colors"
           )}
           aria-label="Выбрать месяц и год"
@@ -67,7 +67,7 @@ export function MonthYearPicker({ anchor, onSelect }: Props) {
           >
             ‹
           </button>
-          <span className="text-body-3 font-medium tabular-nums">{viewYear}</span>
+          <span className="text-body-3  tabular-nums">{viewYear}</span>
           <button
             type="button"
             onClick={() => setViewYear((y) => y + 1)}
@@ -86,7 +86,7 @@ export function MonthYearPicker({ anchor, onSelect }: Props) {
                 type="button"
                 onClick={() => pick(i)}
                 className={cn(
-                  "h-9 rounded-lg text-body-4 font-medium capitalize transition-colors",
+                  "h-9 rounded-lg text-body-4  capitalize transition-colors",
                   isCurrent
                     ? "bg-(--primary) text-(--on-primary)"
                     : "text-(--on-bg-high) hover:bg-(--state-hover)"

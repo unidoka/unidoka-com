@@ -133,7 +133,7 @@ export function UserProfile({ user, events }: Props) {
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center bg-(--on-bg-high) text-(--bg)">
-                    <span className="font-heading font-medium text-[3.5rem] md:text-[4.5rem] tracking-tighter leading-none select-none">
+                    <span className="font-heading  text-[3.5rem] md:text-[4.5rem] tracking-tighter leading-none select-none">
                       {initials}
                     </span>
                   </div>
@@ -143,7 +143,7 @@ export function UserProfile({ user, events }: Props) {
 
             {/* Identity column */}
             <div className="min-w-0">
-              <h1 className="font-heading font-medium tracking-[-0.04em] leading-[0.92] text-[2.75rem] md:text-[4.5rem] lg:text-[5.5rem] text-(--on-bg-high) mb-3 break-words">
+              <h1 className="font-heading  tracking-[-0.04em] leading-[0.92] text-[2.75rem] md:text-[4.5rem] lg:text-[5.5rem] text-(--on-bg-high) mb-3 break-words">
                 {display}
               </h1>
 
@@ -179,7 +179,7 @@ export function UserProfile({ user, events }: Props) {
 
               <div className="flex flex-wrap gap-2">
                 {ghUrl && (
-                  <Button variant="outlined" size="medium" shape="round" asChild>
+                  <Button variant="outlined" size="medium" asChild>
                     <a href={ghUrl} target="_blank" rel="noopener noreferrer">
                       <GithubLogo className="size-4" />
                       {t("profile.link_github")}
@@ -188,7 +188,7 @@ export function UserProfile({ user, events }: Props) {
                   </Button>
                 )}
                 {tgUrl && (
-                  <Button variant="outlined" size="medium" shape="round" asChild>
+                  <Button variant="outlined" size="medium" asChild>
                     <a href={tgUrl} target="_blank" rel="noopener noreferrer">
                       <TelegramLogo className="size-4" />
                       {t("profile.link_telegram")}
@@ -245,7 +245,7 @@ export function UserProfile({ user, events }: Props) {
         <Container>
           <div className="flex flex-wrap items-end justify-between gap-4 mb-10 pb-6 border-b border-(--outline)">
             <div>
-              <h2 className="font-heading font-medium tracking-[-0.03em] text-[2rem] md:text-[3rem] text-(--on-bg-high) leading-tight">
+              <h2 className="font-heading  tracking-[-0.03em] text-[2rem] md:text-[3rem] text-(--on-bg-high) leading-tight">
                 {t("profile.section_events")}
               </h2>
             </div>
@@ -363,7 +363,7 @@ function StatCard({
         </p>
         <Icon className="size-4 text-(--on-bg-low) opacity-50" weight="regular" />
       </div>
-      <p className="relative font-heading font-medium tracking-[-0.045em] leading-[0.9] text-[3rem] md:text-[4.5rem] text-(--on-bg-high) tabular-nums mb-3">
+      <p className="relative font-heading  tracking-[-0.045em] leading-[0.9] text-[3rem] md:text-[4.5rem] text-(--on-bg-high) tabular-nums mb-3">
         {primary}
       </p>
       <p className="relative text-body-4 text-(--on-bg-medium) mb-4">

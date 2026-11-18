@@ -26,7 +26,7 @@ export function CookieConsent() {
       <p className="flex-1 text-body-4 text-(--on-bg-medium)">
         Мы используем cookie для аналитики и улучшения сайта.
       </p>
-      <Button size="small" shape="round" onClick={accept}>
+      <Button size="small" onClick={accept}>
         Принять
       </Button>
     </div>

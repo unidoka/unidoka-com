@@ -123,7 +123,7 @@ export function UtmBuilder() {
                   type="button"
                   onClick={() => applyPreset(p.source, p.medium)}
                   className={
-                    "rounded-full px-3 py-1.5 text-body-4 font-medium transition-colors " +
+                    "rounded-full px-3 py-1.5 text-body-4  transition-colors " +
                     (active
                       ? "bg-(--primary) text-(--on-primary)"
                       : "bg-(--card) border border-(--outline) text-(--on-bg-medium) hover:text-(--on-bg-high)")
@@ -198,7 +198,7 @@ export function UtmBuilder() {
           <p className="text-body-5 uppercase tracking-[0.18em] text-(--on-bg-low) mb-1">
             Результат
           </p>
-          <p className="text-body-3 font-medium text-(--on-bg-high)">
+          <p className="text-body-3  text-(--on-bg-high)">
             Отслеживаемая ссылка
           </p>
         </div>

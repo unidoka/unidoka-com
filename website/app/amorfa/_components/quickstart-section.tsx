@@ -38,11 +38,11 @@ export function QuickstartSection() {
           {t("amorfa.quickstart_title")}
         </h2>
 
-        <div className="">
+        <div className="flex flex-col gap-8">
           {STEPS.map((s) => (
             <div
               key={s.titleKey}
-              className="grid grid-cols-1 items-center gap-4 py-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-10"
+              className="grid grid-cols-1 items-center gap-4 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-10"
             >
               <h3 className="text-heading-3 leading-tight text-(--on-bg-medium)">
                 {t(s.titleKey)}
@@ -55,7 +55,7 @@ export function QuickstartSection() {
         </div>
 
         <div className="mt-10">
-          <Button size="large" shape="round" asChild>
+          <Button size="large" asChild>
             <a href={GITHUB} target="_blank" rel="noopener noreferrer">
               <GitBranchIcon />
               {t("amorfa.quickstart_cta")}

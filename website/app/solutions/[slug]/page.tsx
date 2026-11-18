@@ -67,7 +67,7 @@ export default async function SolutionPage({
                 {solution.period && ` · ${solution.period}`}
               </p>
             )}
-            <h1 className="text-display-1 font-heading font-medium tracking-tight text-(--on-bg-high) leading-[0.95] mb-6">
+            <h1 className="text-display-1 font-heading  tracking-tight text-(--on-bg-high) leading-[0.95] mb-6">
               {solution.title}
             </h1>
             {solution.short_description && (

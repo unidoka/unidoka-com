@@ -147,7 +147,7 @@ export default function SecurityPage() {
         
         {user.two_factor_enabled ? (
           <div className="flex items-center justify-between p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5">
-            <span className="text-body-3 font-medium text-emerald-600 dark:text-emerald-400">2FA включена</span>
+            <span className="text-body-3  text-emerald-600 dark:text-emerald-400">2FA включена</span>
             <Button variant="outlined" size="small" onClick={handleDisable2FA} disabled={is2FALoading}>Отключить</Button>
           </div>
         ) : qrCode ? (
@@ -180,7 +180,7 @@ export default function SecurityPage() {
           {sessions.map((s) => (
             <div key={s.id} className="flex items-center justify-between p-3 rounded-xl border border-(--outline) bg-(--bg)">
               <div>
-                <p className="text-body-4 font-medium">{s.user_agent || "Неизвестное устройство"}</p>
+                <p className="text-body-4 ">{s.user_agent || "Неизвестное устройство"}</p>
                 <p className="text-body-5 text-(--on-bg-low)">IP: {s.ip_address} • {new Date(s.last_used_at).toLocaleDateString()}</p>
               </div>
               <Button variant="text" size="small" className="text-(--error)" onClick={() => handleRevokeSession(s.id)}>Завершить</Button>

@@ -192,7 +192,7 @@ export default function VershinyPage() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 mt-8">
-                <Button size="large" shape="round" asChild>
+                <Button size="large"  asChild>
                   <Link href="/events">
                     {t("vershiny.cta_community")}
                     <ArrowRight />
@@ -201,7 +201,7 @@ export default function VershinyPage() {
                 <Button
                   size="large"
                   variant="outlined"
-                  shape="round"
+                  
                   asChild
                 >
                   <Link href="/amorfa">
@@ -380,7 +380,7 @@ export default function VershinyPage() {
               </p>
               <h2 className="text-display-3">{t("vershiny.events_title")}</h2>
             </div>
-            <Button variant="outlined" size="medium" shape="round" asChild>
+            <Button variant="outlined" size="medium"  asChild>
               <Link href="/events">
                 {t("vershiny.events_all")}
                 <ArrowRight />
@@ -463,7 +463,7 @@ export default function VershinyPage() {
                     <Button
                       variant="glass"
                       size="icon-large"
-                      shape="round"
+                      
                       asChild
                     >
                       <Link
@@ -549,13 +549,13 @@ export default function VershinyPage() {
                   {t("vershiny.cta_subtitle")}
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  <Button size="large" shape="round" asChild>
+                  <Button size="large"  asChild>
                     <a href={JOIN_URL} target="_blank" rel="noopener noreferrer">
                       {t("vershiny.cta_join")}
                       <ArrowRight />
                     </a>
                   </Button>
-                  <Button size="large" variant="outlined" shape="round" asChild>
+                  <Button size="large" variant="outlined"  asChild>
                     <a
                       href={CONTACT_URL}
                       target="_blank"

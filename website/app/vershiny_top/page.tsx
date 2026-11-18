@@ -8,9 +8,9 @@ import { EventsSection } from "./_components/events-section";
 import { CtaSection } from "./_components/cta-section";
 
 export const metadata: Metadata = {
-  title: "Вершины — платформа для роста в IT",
+  title: "Вершины - сообщество создателей будущего",
   description:
-    "Менторство, стажировки и реальные проекты для тех, кто хочет расти быстрее.",
+    "Менторство, стажировки и реальные проекты для тех, кто хочет создавать будущее.",
 };
 
 export default function VershinyTopPage() {

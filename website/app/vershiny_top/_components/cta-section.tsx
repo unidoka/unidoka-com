@@ -36,13 +36,13 @@ export function CtaSection() {
                 {t("vershiny.cta_subtitle")}
               </p>
               <div className="flex flex-wrap gap-3">
-                <Button size="large" shape="round" asChild>
+                <Button size="large" asChild>
                   <a href={JOIN_URL} target="_blank" rel="noopener noreferrer">
                     {t("vershiny.cta_join")}
                     <ArrowRight />
                   </a>
                 </Button>
-                <Button size="large" variant="outlined" shape="round" asChild>
+                <Button size="large" variant="outlined" asChild>
                   <a href={CONTACT_URL} target="_blank" rel="noopener noreferrer">
                     {t("vershiny.cta_contact")}
                     <ArrowUpRight />
