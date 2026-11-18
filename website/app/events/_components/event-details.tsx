@@ -90,13 +90,13 @@ export function EventDetails({ event, onOpenChange }: Props) {
         <DialogHeader className="px-6 pt-6 pb-4">
           <div className="flex items-center gap-2 mb-2">
             {event.organizer && (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-(--on-bg-medium)">
+              <span className="inline-flex items-center gap-1.5 text-[10px]  uppercase tracking-[0.15em] text-(--on-bg-medium)">
                 <span className="size-2 rounded-full" style={{ backgroundColor: color }} />
                 {event.organizer.name}
               </span>
             )}
             {event.is_featured && (
-              <span className="text-[10px] font-bold uppercase tracking-wider text-(--primary)">
+              <span className="text-[10px]  uppercase tracking-wider text-(--primary)">
                 ★
               </span>
             )}

@@ -18,7 +18,7 @@ export function HeroSection() {
         className="flex flex-col items-center gap-14 lg:flex-row lg:gap-20"
       >
         <div className="flex w-full flex-1 flex-col items-start gap-10 md:gap-12">
-          <h1 className="animate-reveal fill-mode-both text-[2.5rem] font-semibold leading-[1.04] tracking-tight text-(--on-bg-high) [animation-delay:120ms] md:text-6xl md:leading-[1.02] lg:text-7xl">
+          <h1 className="animate-reveal fill-mode-both text-[2.5rem]  leading-[1.04] tracking-tight text-(--on-bg-high) [animation-delay:120ms] md:text-6xl md:leading-[1.02] lg:text-7xl">
             <span className="flex items-center gap-[0.35em]">
               <AnimatedAmorfaLogo className="size-[1.05em] shrink-0 lg:hidden" />
               <span>{t("amorfa.hero_title_1")}</span>

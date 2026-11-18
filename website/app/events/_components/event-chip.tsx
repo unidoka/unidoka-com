@@ -58,7 +58,7 @@ export function EventChip({ event, day, compact, onClick }: Props) {
       <div className="flex items-center gap-1.5 w-full min-w-0">
         <span className="shrink-0 size-1.5 rounded-full bg-[var(--ev)]" />
         {timeString && (
-          <span className="shrink-0 text-[10px] tabular-nums tracking-wider font-semibold text-(--on-bg-medium)">
+          <span className="shrink-0 text-[10px] tabular-nums tracking-wider  text-(--on-bg-medium)">
             {timeString}
           </span>
         )}

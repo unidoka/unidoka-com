@@ -233,7 +233,7 @@ export function SolutionFilterBar({
                 />
                 <span className="hidden sm:inline">Фильтры</span>
                 {activeFilterCount > 0 && (
-                  <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-(--on-primary)/25 text-(--on-primary) text-[10px] font-bold tabular-nums">
+                  <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-(--on-primary)/25 text-(--on-primary) text-[10px]  tabular-nums">
                     {activeFilterCount}
                   </span>
                 )}

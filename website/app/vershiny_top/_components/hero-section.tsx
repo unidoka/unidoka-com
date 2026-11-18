@@ -28,7 +28,7 @@ export function HeroSection() {
             className="mb-8 block h-11 w-auto text-(--on-bg-high) md:mb-10 md:h-16 lg:hidden"
           />
 
-          <h1 className="animate-reveal fill-mode-both text-[2.5rem] font-semibold leading-[1.04] tracking-tight text-(--on-bg-high) [animation-delay:120ms] md:text-6xl md:leading-[1.02] lg:text-7xl">
+          <h1 className="animate-reveal fill-mode-both text-[2.5rem]  leading-[1.04] tracking-tight text-(--on-bg-high) [animation-delay:120ms] md:text-6xl md:leading-[1.02] lg:text-7xl">
             <span className="block">{t("vershiny.hero_title_1")}</span>
             <span className="block">{t("vershiny.hero_title_2")}</span>
           </h1>

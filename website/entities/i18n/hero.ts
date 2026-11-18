@@ -2,23 +2,21 @@ import type { Language } from './translations';
 
 export const heroTranslations: Record<Language, Record<string, string>> = {
   en: {
-    'hero.order': 'Make an Order',
+    'hero.order': 'Share an idea',
     'hero.title.part1': 'Better',
     'hero.title.part2': 'together',
     'hero.subtitle':
       'Solutions that unifies creators of future today. Open way to find hidden answers',
     'hero.bottom_statement':
       'Searching the hidden paths to innovate. Giving open source projects to speed it up, and making professionals to make future creators.',
-    'hero.replay': 'Replay animation',
   },
   ru: {
-    'hero.order': 'Оформить заказ',
+    'hero.order': 'Поделиться идеей',
     'hero.title.part1': 'Вместе -',
     'hero.title.part2': 'лучше',
     'hero.subtitle':
       'Решения, объединяющие создателей будущего уже сегодня. Открытый подход к скрытым ответам',
     'hero.bottom_statement':
       'Ищем скрытые пути к инновациям. Открываем open source проекты, чтобы ускорить прогресс, и растим профессионалов, создающих будущее.',
-    'hero.replay': 'Смотреть анимацию',
   },
 };

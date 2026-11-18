@@ -1,58 +1,120 @@
-import type { CSSProperties } from 'react';
+"use client";
 
-type VershinyLogoIconProps = {
-  className?: string;
-  style?: CSSProperties;
-  /** Bump this value to replay the animation (forces SVG remount). */
+import * as React from "react";
+import { cn } from "@/lib/utils";
+
+export interface VershinyLogoIconProps
+  extends React.SVGProps<SVGSVGElement> {
+  /** Change this value to restart the draw animation. */
   replayKey?: number | string;
-};
+}
 
-const ICON_PATHS: { d: string; delay: string }[] = [
-  {
-    d: 'M64.1437 30.928C78.314 30.928 89.8014 42.4153 89.8014 56.5856H76.9725C76.9725 49.5005 71.2289 43.7568 64.1437 43.7568V30.928Z',
-    delay: '0.5s',
-  },
-  {
-    d: 'M54.5221 46.964C65.1498 46.964 73.7653 55.5795 73.7653 66.2073H64.1437C64.1437 60.8934 59.836 56.5856 54.5221 56.5856V46.964Z',
-    delay: '0.4s',
-  },
-  {
-    d: 'M44.9005 59.7928C53.7569 59.7928 60.9365 66.9724 60.9365 75.8289H52.9185C52.9185 71.4007 49.3287 67.8109 44.9005 67.8109V59.7928Z',
-    delay: '0.3s',
-  },
-  {
-    d: 'M36.8825 71.0181C43.9676 71.0181 49.7113 76.7617 49.7113 83.8469H43.2969C43.2969 80.3043 40.425 77.4325 36.8825 77.4325V71.0181Z',
-    delay: '0.2s',
-  },
-  {
-    d: 'M32.0716 82.2433C35.6142 82.2433 38.4861 85.1151 38.4861 88.6577C35.6883 88.6577 34.7602 88.6577 32.0716 88.6577V82.2433Z',
-    delay: '0.1s',
-  },
-];
+/**
+ * The Vershiny staircase mark on its own.
+ *
+ * This is the exact icon that sits inside <VershinyLogoMono>, in the same
+ * coordinate space (the lockup draws it at x16–70 / y14–68), so the two
+ * components are visually interchangeable. The viewBox is that box plus
+ * two units of padding on every side — enough room for the 1.5-unit
+ * draw stroke so it never clips at the edges.
+ *
+ * Motion is shared with the lockup, not duplicated:
+ *   .vershiny-anim-icon                 → stroke draw, then fill flood
+ *   vershiny-draw-and-fill-precise      → same curve, per-arc dash length
+ *
+ * The stagger runs smallest (bottom) arc first and rises to the largest
+ * (top) arc, so the mark grows upward. Each arc's perimeter is measured
+ * with getTotalLength() before the animation is named — a shared 300-unit
+ * dash would keep short arcs hidden until late in the timeline and make
+ * the two big arcs surface first, which is the bug this avoids.
+ *
+ * Fills use `currentColor`, so the mark inherits any design-token text
+ * color (`text-(--on-bg-high)`, etc.) in both themes.
+ */
+const ICON_DELAYS = ["400ms", "300ms", "200ms", "100ms", "0ms"];
 
 export function VershinyLogoIcon({
-  className,
-  style,
   replayKey = 0,
+  className,
+  ...props
 }: VershinyLogoIconProps) {
+  const svgRef = React.useRef<SVGSVGElement>(null);
+
+  React.useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    svg
+      .querySelectorAll<SVGPathElement>(".vershiny-anim-icon")
+      .forEach((path) => {
+        let length = 300;
+        try {
+          length = Math.max(1, Math.ceil(path.getTotalLength()));
+        } catch {
+          /* detached node - keep the fallback */
+        }
+        // Exact perimeter → every arc draws across the same slice of the
+        // timeline instead of appearing late and snapping in.
+        path.style.setProperty("--vershiny-len", String(length));
+        path.style.strokeDasharray = String(length);
+        path.style.strokeDashoffset = String(length);
+        // Inline animation-name beats the class shorthand; the inline
+        // animation-delay (stagger) survives the override.
+        path.style.animationName = "vershiny-draw-and-fill-precise";
+      });
+    // The svg is keyed by replayKey, so a replay remounts fresh nodes
+    // and this effect re-measures them - nothing to clean up.
+  }, [replayKey]);
+
   return (
     <svg
+      ref={svgRef}
       key={replayKey}
-      viewBox="30 28 62 64"
+      width="58"
+      height="58"
+      viewBox="14 12 58 58"
+      fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      style={style}
-      fill="currentColor"
+      focusable="false"
       aria-hidden="true"
+      className={cn("shrink-0", className)}
+      {...props}
     >
-      {ICON_PATHS.map((p, i) => (
-        <path
-          key={i}
-          className="vershiny-anim-icon"
-          style={{ animationDelay: p.delay }}
-          d={p.d}
-        />
-      ))}
+      <path
+        className="vershiny-anim-icon"
+        style={{ animationDelay: ICON_DELAYS[0] }}
+        d="M46 14C59.2548 14 70 24.7452 70 38H58C58 31.3726 52.6274 26 46 26V14Z"
+        fill="currentColor"
+      />
+      <path
+        className="vershiny-anim-icon"
+        style={{ animationDelay: ICON_DELAYS[1] }}
+        d="M37 29C46.9411 29 55 37.0589 55 47H46C46 42.0294 41.9706 38 37 38V29Z"
+        fill="currentColor"
+      />
+      <path
+        className="vershiny-anim-icon"
+        style={{ animationDelay: ICON_DELAYS[2] }}
+        d="M28 41C36.2843 41 43 47.7157 43 56H35.5C35.5 51.8579 32.1421 48.5 28 48.5V41Z"
+        fill="currentColor"
+      />
+      <path
+        className="vershiny-anim-icon"
+        style={{ animationDelay: ICON_DELAYS[3] }}
+        d="M20.5 51.5C27.1274 51.5 32.5 56.8726 32.5 63.5H26.5C26.5 60.1863 23.8137 57.5 20.5 57.5V51.5Z"
+        fill="currentColor"
+      />
+      <path
+        className="vershiny-anim-icon"
+        style={{ animationDelay: ICON_DELAYS[4] }}
+        d="M16 62C19.3137 62 22 64.6863 22 68C19.383 68 18.5149 68 16 68V62Z"
+        fill="currentColor"
+      />
     </svg>
   );
 }
+
+export default VershinyLogoIcon;

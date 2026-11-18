@@ -1,30 +1,32 @@
-/* LLM context: Keeping JS config focused on simple font-scaling utilities while moving experimental CSS to globals.css for parser safety. */
+/* LLM context: Typography utilities are generated from CSS design tokens.
+   Every `.text-*` utility carries family, size, weight AND line-height, so
+   call sites never need `font-*` classes — the token is the single source
+   of truth for how a level of type looks.
+   display-0 is the hero step (largest); heading/body keep steps 1–6. */
 import plugin from 'tailwindcss/plugin';
 
-export default plugin(function ({ addUtilities }) {
-  const newUtilities = {
-    ...Array.from({ length: 6 }, (_, i) => i + 1).reduce((acc, n) => {
-      acc[`.text-display-${n}`] = {
-        fontFamily: `var(--display-${n}-font-face)`,
-        fontSize: `var(--display-${n}-size)`,
-        fontWeight: `var(--display-${n}-weight)`,
-        lineHeight: `var(--display-${n}-lh)`,
-      };
-      acc[`.text-heading-${n}`] = {
-        fontFamily: `var(--heading-${n}-font-face)`,
-        fontSize: `var(--heading-${n}-size)`,
-        fontWeight: `var(--heading-${n}-weight)`,
-        lineHeight: `var(--heading-${n}-lh)`,
-      };
-      acc[`.text-body-${n}`] = {
-        fontFamily: `var(--body-${n}-font-face)`,
-        fontSize: `var(--body-${n}-size)`,
-        fontWeight: `var(--body-${n}-weight)`,
-        lineHeight: `var(--body-${n}-lh)`,
-      };
-      return acc;
-    }, {}),
-  };
+const DISPLAY_STEPS = [0, 1, 2, 3, 4, 5, 6];
+const STEPS = [1, 2, 3, 4, 5, 6];
 
-  addUtilities(newUtilities);
+function level(kind, n) {
+  return {
+    fontFamily: `var(--${kind}-${n}-font-face)`,
+    fontSize: `var(--${kind}-${n}-size)`,
+    fontWeight: `var(--${kind}-${n}-weight)`,
+    lineHeight: `var(--${kind}-${n}-lh)`,
+  };
+}
+
+export default plugin(function ({ addUtilities }) {
+  const utilities = {};
+
+  for (const n of DISPLAY_STEPS) {
+    utilities[`.text-display-${n}`] = level('display', n);
+  }
+  for (const n of STEPS) {
+    utilities[`.text-heading-${n}`] = level('heading', n);
+    utilities[`.text-body-${n}`] = level('body', n);
+  }
+
+  addUtilities(utilities);
 });

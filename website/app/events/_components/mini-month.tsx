@@ -19,7 +19,7 @@ const WEEKDAYS = ["П", "В", "С", "Ч", "П", "С", "В"];
 
 export function MiniMonth({ month, selected, eventDays, onMonthChange, onSelect }: Props) {
   const cells = monthGrid(month);
-  
+
   return (
     <div className="rounded-xl border border-(--outline) bg-(--card) p-3 w-full max-w-[280px]">
       <div className="flex items-center justify-between mb-3 px-1">
@@ -30,7 +30,7 @@ export function MiniMonth({ month, selected, eventDays, onMonthChange, onSelect 
         >
           <CaretLeft className="size-3.5" />
         </button>
-        <div className="text-body-4 font-semibold capitalize text-(--on-bg-high)">
+        <div className="text-body-4  capitalize text-(--on-bg-high)">
           {format(month, "LLLL yyyy", { locale: ru })}
         </div>
         <button
@@ -41,7 +41,7 @@ export function MiniMonth({ month, selected, eventDays, onMonthChange, onSelect 
           <CaretRight className="size-3.5" />
         </button>
       </div>
-      
+
       <div className="grid grid-cols-7 gap-0.5 mb-1">
         {WEEKDAYS.map((d, i) => (
           <div
@@ -52,7 +52,7 @@ export function MiniMonth({ month, selected, eventDays, onMonthChange, onSelect 
           </div>
         ))}
       </div>
-      
+
       <div className="grid grid-cols-7 gap-0.5">
         {cells.map((d) => {
           const key = format(d, "yyyy-MM-dd");
@@ -60,7 +60,7 @@ export function MiniMonth({ month, selected, eventDays, onMonthChange, onSelect 
           const isSel = isSameDay(d, selected);
           const today = isToday(d);
           const hasEvent = eventDays.has(key);
-          
+
           return (
             <button
               key={key}
@@ -71,7 +71,7 @@ export function MiniMonth({ month, selected, eventDays, onMonthChange, onSelect 
                 !inMonth && "text-(--on-bg-low) opacity-40",
                 inMonth && !isSel && "text-(--on-bg-high) hover:bg-(--state-hover)",
                 isSel && "bg-(--on-bg-high) text-(--bg)", // Inverted selected state
-                today && !isSel && "text-(--primary) font-bold"
+                today && !isSel && "text-(--primary) "
               )}
             >
               {d.getDate()}

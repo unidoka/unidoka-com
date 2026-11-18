@@ -2135,3 +2135,97 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     animation: none;
   }
 }
+
+/* ═══ hero-mark-entrance ════════════════════════════════════════════
+   display-0 — the hero step of the type ramp, above display-1.
+   Consumed by the `.text-display-0` utility generated in
+   tailwind.config.js, so it carries family / size / weight / leading
+   together and needs no font-* classes at the call site.
+   ═══════════════════════════════════════════════════════════════════ */
+:root {
+  --display-0-size: 6rem;
+  --display-0-weight: 500;
+  --display-0-font-face: var(--font-sans);
+  --display-0-lh: 1.02;
+}
+
+/* ═══ Mark entrance ═════════════════════════════════════════════════
+   The hidden state is declared here, not applied from a React effect.
+   An effect runs after the first paint, which let the finished mark
+   flash for a frame before its animation started. Because these rules
+   ship with the stylesheet, the mark is at opacity 0 on the very first
+   painted frame (SSR included) and only ever appears by animating in.
+
+   `both` fill holds the 0% keyframe through the stagger delay, so a
+   late-starting ray is never visible early. Only direct children of the
+   <svg> are targeted: <defs> / <clipPath> geometry is never transformed.
+   ═══════════════════════════════════════════════════════════════════ */
+@keyframes logo-layer-bloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.52);
+  }
+  55% {
+    opacity: 1;
+  }
+  78% {
+    transform: scale(1.045);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g) {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: logo-layer-bloom 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(1) { animation-delay: 0ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(2) { animation-delay: 55ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(3) { animation-delay: 110ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(4) { animation-delay: 165ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(5) { animation-delay: 220ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(6) { animation-delay: 275ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(7) { animation-delay: 330ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(8) { animation-delay: 385ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(9) { animation-delay: 440ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(10) { animation-delay: 495ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(11) { animation-delay: 550ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(12) { animation-delay: 605ms; }
+
+/* One quiet exhale of light as the last ray lands. Not a loop. */
+@keyframes logo-settle-glow {
+  0% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  45% {
+    filter: drop-shadow(
+      0 0 22px color-mix(in srgb, currentColor 20%, transparent)
+    );
+  }
+  100% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+}
+.logo-bloom-stage {
+  animation: logo-settle-glow 1.9s cubic-bezier(0.16, 1, 0.3, 1) 0.75s 1 both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-mark-enter svg > :is(path, circle, rect, ellipse, g) {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .logo-bloom-stage,
+  .logo-anim-rise {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

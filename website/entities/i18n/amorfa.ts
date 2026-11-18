@@ -14,30 +14,30 @@ export const amorfaTranslations: Record<Language, Record<string, string>> = {
     'amorfa.hero_replay': 'Replay animation',
 
     // ── Features ────────────────────────────────────────────────────────────
-    'amorfa.features_title': 'Everything for production. Nothing extra.',
+    'amorfa.features_title': 'Everything for production. Nothing extra',
     'amorfa.feature_1_title': 'Ship in hours',
-    'amorfa.feature_1_body': 'Clone, edit .env, run.',
+    'amorfa.feature_1_body': 'Clone, edit .env, run',
     'amorfa.feature_2_title': 'AI-first structure',
-    'amorfa.feature_2_body': 'LLM-readable context in every file.',
+    'amorfa.feature_2_body': 'LLM-readable context in every file',
     'amorfa.feature_3_title': 'Fullstack, honestly',
-    'amorfa.feature_3_body': 'FastAPI + Next.js. One repo.',
+    'amorfa.feature_3_body': 'FastAPI + Next.js. One repo',
     'amorfa.feature_4_title': 'Zero lock-in',
-    'amorfa.feature_4_body': 'Self-hosted on a single VPS.',
+    'amorfa.feature_4_body': 'Self-hosted on a single VPS',
     'amorfa.feature_5_title': 'Multi-service ready',
-    'amorfa.feature_5_body': 'Split into microservices when you need to.',
+    'amorfa.feature_5_body': 'Split into microservices when you need to',
     'amorfa.feature_6_title': 'Documented defaults',
-    'amorfa.feature_6_body': 'Auth, OTP and email flows pre-wired.',
+    'amorfa.feature_6_body': 'Auth, OTP and email flows pre-wired',
     'amorfa.feature_7_title': 'Typed end to end',
-    'amorfa.feature_7_body': 'TypeScript and Pydantic across the stack.',
+    'amorfa.feature_7_body': 'TypeScript and Pydantic across the stack',
     'amorfa.feature_8_title': 'One-command deploys',
-    'amorfa.feature_8_body': 'Docker Compose + Traefik with TLS.',
+    'amorfa.feature_8_body': 'Docker Compose + Traefik with TLS',
 
     // ── Structure ───────────────────────────────────────────────────────────
-    'amorfa.structure_title': 'One repo - two services.',
+    'amorfa.structure_title': 'One repo - ∞ services',
     'amorfa.structure_body_1':
-      'Monorepo by default: backend and frontend side by side, but isolated. Splitting into microservices is one docker-compose away, not a rewrite.',
+      'New look on monorepo - everyting together without overload.',
     'amorfa.structure_body_2':
-      'Every file carries LLM-agent context: comments, structure, .agents/skills. A Repomix config packs the whole project into a single readable document - feed it to the model whole.',
+      'Organized documentation and essential SKILLS for AI.',
 
     // ── Stack ───────────────────────────────────────────────────────────────
     'amorfa.stack_title': 'Modern, boring, reliable.',
@@ -50,8 +50,8 @@ export const amorfaTranslations: Record<Language, Record<string, string>> = {
     'amorfa.quickstart_cta': 'All instructions on GitHub',
 
     // ── CTA ─────────────────────────────────────────────────────────────────
-    'amorfa.cta_title_1': 'Open source.',
-    'amorfa.cta_title_2': 'Your move.',
+    'amorfa.cta_title_1': 'Development without tech debt ',
+    'amorfa.cta_title_2': 'is waiting for you',
     'amorfa.cta_body': 'Fork it, extend it, send a PR.',
     'amorfa.cta_home': '← Back home',
   },
@@ -68,30 +68,30 @@ export const amorfaTranslations: Record<Language, Record<string, string>> = {
     'amorfa.hero_replay': 'Смотреть анимацию',
 
     // ── Features ────────────────────────────────────────────────────────────
-    'amorfa.features_title': 'Всё для продакшена. Ничего лишнего.',
+    'amorfa.features_title': 'Всё для продакшена. Ничего лишнего',
     'amorfa.feature_1_title': 'Запуск за часы',
-    'amorfa.feature_1_body': 'Клонируй, правь .env, запускай.',
+    'amorfa.feature_1_body': 'Клонируй, правь .env, запускай',
     'amorfa.feature_2_title': 'AI-first структура',
-    'amorfa.feature_2_body': 'LLM-контекст в каждом файле.',
+    'amorfa.feature_2_body': 'LLM-контекст в каждом файле',
     'amorfa.feature_3_title': 'Fullstack, честно',
-    'amorfa.feature_3_body': 'FastAPI + Next.js. Один репозиторий.',
+    'amorfa.feature_3_body': 'FastAPI + Next.js. Один репозиторий',
     'amorfa.feature_4_title': 'Ноль lock-in',
-    'amorfa.feature_4_body': 'Самохостинг на одном VPS.',
+    'amorfa.feature_4_body': 'Самохостинг на одном VPS',
     'amorfa.feature_5_title': 'Готов к микросервисам',
-    'amorfa.feature_5_body': 'Разделяйте, когда это реально нужно.',
+    'amorfa.feature_5_body': 'Разделяйте, когда это реально нужно',
     'amorfa.feature_6_title': 'Задокументированные дефолты',
-    'amorfa.feature_6_body': 'Авторизация, OTP и email уже подключены.',
+    'amorfa.feature_6_body': 'Авторизация, OTP и email уже подключены',
     'amorfa.feature_7_title': 'Типы end to end',
-    'amorfa.feature_7_body': 'TypeScript и Pydantic по всему стеку.',
+    'amorfa.feature_7_body': 'TypeScript и Pydantic по всему стеку',
     'amorfa.feature_8_title': 'Деплой одной командой',
-    'amorfa.feature_8_body': 'Docker Compose + Traefik с TLS.',
+    'amorfa.feature_8_body': 'Docker Compose + Traefik с TLS',
 
     // ── Structure ───────────────────────────────────────────────────────────
-    'amorfa.structure_title': 'Один репозиторий - два сервиса.',
+    'amorfa.structure_title': 'Один репозиторий - ∞ сервисов',
     'amorfa.structure_body_1':
-      'Монорепо по умолчанию: бэкенд и фронтенд рядом, но изолированы. Разделение на микросервисы - вопрос одного docker-compose, а не переписывания.',
+      'Новый взгляд на монорепо - всё вместе и без перегрузки.',
     'amorfa.structure_body_2':
-      'Каждый файл несёт контекст для LLM-агента: комментарии, структура, .agents/skills. Repomix-конфиг собирает весь проект в один читаемый документ - можно скармливать модели целиком.',
+      'Удобная организация документации и самые нужные SKILLS для ИИ по умолчанию.',
 
     // ── Stack ───────────────────────────────────────────────────────────────
     'amorfa.stack_title': 'Современный, простой, надёжный.',
@@ -104,8 +104,8 @@ export const amorfaTranslations: Record<Language, Record<string, string>> = {
     'amorfa.quickstart_cta': 'Все инструкции на GitHub',
 
     // ── CTA ─────────────────────────────────────────────────────────────────
-    'amorfa.cta_title_1': 'Открытый код.',
-    'amorfa.cta_title_2': 'Ваш ход.',
+    'amorfa.cta_title_1': 'Разработка без техдолга',
+    'amorfa.cta_title_2': 'уже ждёт тебя',
     'amorfa.cta_body': 'Форкайте, дописывайте, присылайте PR.',
     'amorfa.cta_home': '← На главную',
   },

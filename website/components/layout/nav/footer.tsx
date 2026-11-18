@@ -105,7 +105,7 @@ export default function Footer() {
 
           {/* Agency column */}
           <div className="flex flex-col gap-4">
-            <h4 className="text-body-4 font-bold uppercase tracking-widest text-(--on-bg-low)">
+            <h4 className="text-body-4  uppercase tracking-widest text-(--on-bg-low)">
               {t("footer.agency")}
             </h4>
             <ul className="flex flex-col gap-2">
@@ -124,7 +124,7 @@ export default function Footer() {
 
           {/* Services column */}
           <div className="flex flex-col gap-4">
-            <h4 className="text-body-4 font-bold uppercase tracking-widest text-(--on-bg-low)">
+            <h4 className="text-body-4  uppercase tracking-widest text-(--on-bg-low)">
               {t("footer.services")}
             </h4>
             <ul className="flex flex-col gap-2">
@@ -143,7 +143,7 @@ export default function Footer() {
 
           {/* Legal column - links to /docs/* */}
           <div className="flex flex-col gap-4">
-            <h4 className="text-body-4 font-bold uppercase tracking-widest text-(--on-bg-low)">
+            <h4 className="text-body-4  uppercase tracking-widest text-(--on-bg-low)">
               {t("footer.legal")}
             </h4>
             <ul className="flex flex-col gap-2">

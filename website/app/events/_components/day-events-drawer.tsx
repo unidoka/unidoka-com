@@ -59,7 +59,7 @@ export function DayEventsDrawer({ day, events, onClose, onSelectEvent }: Props) 
       <Drawer open={day !== null} onOpenChange={(o) => !o && onClose()}>
         <DrawerContent className="max-h-[85dvh] flex flex-col">
           <DrawerHeader className="pb-2 shrink-0">
-            <DrawerTitle className="capitalize text-left text-heading-4 font-semibold">{title}</DrawerTitle>
+            <DrawerTitle className="capitalize text-left text-heading-4 ">{title}</DrawerTitle>
             {events.length > 0 && (
               <p className="text-body-5 text-(--on-bg-low) text-left mt-1">
                 {events.length} {pluralizeEvents(events.length)}
@@ -97,7 +97,7 @@ function EventCard({ event, onOpen }: { event: EventListItem; onOpen: () => void
   const color = colorForOrganizer(event.organizer);
   const start = event.start_at ? new Date(event.start_at) : null;
   const end = event.end_at ? new Date(event.end_at) : null;
-  
+
   const sameDay = start && end ? isSameDay(start, end) : false;
   let timeLabel = "Время не указано";
   if (start) {
@@ -120,7 +120,7 @@ function EventCard({ event, onOpen }: { event: EventListItem; onOpen: () => void
     >
       {/* Time column */}
       <div className="flex flex-col items-start shrink-0 pt-0.5">
-        <span className="text-body-3 font-semibold tabular-nums text-(--on-bg-high)">
+        <span className="text-body-3  tabular-nums text-(--on-bg-high)">
           {start ? format(start, "HH:mm") : "--:--"}
         </span>
         {end && (
@@ -138,7 +138,7 @@ function EventCard({ event, onOpen }: { event: EventListItem; onOpen: () => void
           </h4>
           <ArrowUpRight className="size-4 shrink-0 text-(--on-bg-low) opacity-0 group-hover/card:opacity-100 transition-opacity mt-0.5" />
         </div>
-        
+
         {locationText && (
           <p className="text-body-5 text-(--on-bg-medium) truncate flex items-center gap-1.5 mt-1">
             <MapPin className="size-3.5 shrink-0" />
