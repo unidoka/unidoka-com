@@ -77,7 +77,7 @@ export default function AdminEventsPage() {
         setOrganizers(o);
         setTypes(t);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const load = useCallback(async () => {
@@ -364,11 +364,11 @@ export default function AdminEventsPage() {
                             .filter(Boolean)
                             .join(" ") ||
                             ev.submitted_by.username ||
-                            "—"}
+                            "-"}
                         </span>
                       </>
                     ) : (
-                      ev.location_name || "—"
+                      ev.location_name || "-"
                     )}
                   </div>
                   <div className="flex gap-1 shrink-0">

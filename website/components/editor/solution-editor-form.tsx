@@ -251,7 +251,7 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={NO_CUSTOM_PAGE}>— Обычная —</SelectItem>
+              <SelectItem value={NO_CUSTOM_PAGE}>- Обычная -</SelectItem>
               {SOLUTION_CUSTOM_PAGES_META.map((p) => (
                 <SelectItem key={p.key} value={p.key}>
                   {p.label}
@@ -271,7 +271,7 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
         </Field>
       </Card>
 
-      {/* Content (plain textarea — MDX editor intentionally not used) */}
+      {/* Content (plain textarea - MDX editor intentionally not used) */}
       <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4">
         <div>
           <h2 className="text-heading-3">Содержимое (MDX / Markdown)</h2>

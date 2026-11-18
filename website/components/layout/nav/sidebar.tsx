@@ -44,7 +44,7 @@ interface SidebarProps {
  *  The admin sidebar builds hrefs with crossSubdomainUrl(), which
  *  returns a full URL in subdomain mode (`https://admin.x/y`) and a
  *  bare path in path mode (`/admin/x/y`). usePathname() always returns
- *  the browser-visible path — the internal rewrite done by proxy.ts is
+ *  the browser-visible path - the internal rewrite done by proxy.ts is
  *  invisible to it. Comparing `https://…` to `/…` never matches, so
  *  strip the origin first. */
 function toPath(href: string): string {
@@ -88,7 +88,7 @@ export function Sidebar({
   const isMobile = useIsMobile();
   const [isCollapsed, setIsCollapsed] = useState(false);
   // Per-group expansion. Keyed by the group's `href` so a group's
-  // state survives reordering. Empty object on first render — the
+  // state survives reordering. Empty object on first render - the
   // `isGroupExpanded` helper defaults to "open if it contains the
   // current route, else closed", so only the relevant group starts
   // open without needing an effect to figure that out.
@@ -104,7 +104,7 @@ export function Sidebar({
       if (localStorage.getItem(storageKey) === "1") setIsCollapsed(true);
       const rawGroups = localStorage.getItem(`${storageKey}-groups`);
       if (rawGroups) setExpandedGroups(JSON.parse(rawGroups));
-    } catch {}
+    } catch { }
   }, [storageKey]);
 
   const toggleCollapsed = () => {
@@ -113,7 +113,7 @@ export function Sidebar({
       if (storageKey) {
         try {
           localStorage.setItem(storageKey, next ? "1" : "0");
-        } catch {}
+        } catch { }
       }
       return next;
     });
@@ -130,7 +130,7 @@ export function Sidebar({
             `${storageKey}-groups`,
             JSON.stringify(next),
           );
-        } catch {}
+        } catch { }
       }
       return next;
     });
@@ -169,7 +169,7 @@ export function Sidebar({
 
   if (isMobile) {
     // Flatten the tree into one horizontal strip. Children reuse the
-    // parent's icon — on a 40px-tall pill, icon variety is noise.
+    // parent's icon - on a 40px-tall pill, icon variety is noise.
     const flat: MobileTab[] = [];
     for (const item of items) {
       flat.push({
@@ -249,7 +249,7 @@ export function Sidebar({
                     : "hover:bg-(--state-hover)",
                 )}
               >
-                {/* Label row — navigates. `min-w-0` lets the label
+                {/* Label row - navigates. `min-w-0` lets the label
                     truncate when the sidebar is narrow. */}
                 <Tooltip
                   delayDuration={0}
@@ -282,7 +282,7 @@ export function Sidebar({
                   )}
                 </Tooltip>
 
-                {/* Caret — a separate hit target so the row can be both
+                {/* Caret - a separate hit target so the row can be both
                     "navigate" and "expand" without ambiguity. Hidden
                     when the sidebar is fully collapsed (icons-only
                     mode); the child list is hidden there too, so the

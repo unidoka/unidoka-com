@@ -106,7 +106,7 @@ export default function MyEventsPage() {
               Пока нет событий
             </p>
             <p className="text-body-5 text-(--on-bg-low) mb-6">
-              Отправьте своё первое событие — после проверки оно появится
+              Отправьте своё первое событие - после проверки оно появится
               в общем календаре.
             </p>
             <Button asChild>

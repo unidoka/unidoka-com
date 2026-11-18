@@ -40,10 +40,10 @@ import { PlacementEditorDialog } from "./_components/placement-editor-dialog";
  * Compute the effective status of a placement.
  *
  * Four states the admin actually needs to distinguish:
- *   scheduled  — start_at is in the future
- *   active     — inside the window and is_active=true
- *   expired    — end_at has passed
- *   paused     — is_active=false (outside all time logic)
+ *   scheduled  - start_at is in the future
+ *   active     - inside the window and is_active=true
+ *   expired    - end_at has passed
+ *   paused     - is_active=false (outside all time logic)
  *
  * The order matters: paused wins over scheduled/expired, because the
  * admin paused it and that's what they meant regardless of the clock.
@@ -145,7 +145,7 @@ export default function AdminPlacementsPage() {
           </Button>
         </div>
 
-        {/* Status summary — four counts, not a chart. These are small
+        {/* Status summary - four counts, not a chart. These are small
             numbers, and the admin reads them once per visit. */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {(Object.keys(STATUS_META) as Status[]).map((s) => {
@@ -172,7 +172,7 @@ export default function AdminPlacementsPage() {
 
         {/* Filters.
             Two rows on narrow, one row on sm+. The search box owns its
-            row because it's the primary control — the select and
+            row because it's the primary control - the select and
             refresh are secondary and share the second row. The previous
             layout used a single wrapping flex where search had
             min-w-[200px] and the select was fixed at w-[200px]; on a
@@ -180,7 +180,7 @@ export default function AdminPlacementsPage() {
             its own line and the card looked broken. */}
         <Card className="rounded-2xl border-(--outline) p-4">
           <div className="flex flex-col sm:flex-row gap-2">
-            {/* Search — full width on its own row on mobile,
+            {/* Search - full width on its own row on mobile,
                 flex-1 alongside the other controls on sm+. */}
             <div className="relative flex-1 min-w-0">
               <MagnifyingGlassIcon className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-(--on-bg-low) pointer-events-none" />
@@ -284,7 +284,7 @@ export default function AdminPlacementsPage() {
                           color: p.accent_color || "var(--primary)",
                         }}
                       >
-                        {TYPE_LABEL[p.placement_type]?.slice(0, 2).toUpperCase() || "—"}
+                        {TYPE_LABEL[p.placement_type]?.slice(0, 2).toUpperCase() || "-"}
                       </span>
                     )}
 

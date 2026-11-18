@@ -115,7 +115,7 @@ function VerifyEmailInner() {
       <div className="flex items-center justify-center min-h-[80vh] px-4 py-12">
         <div className="w-full max-w-md">
           {/* ── Header ─────────────────────────────────────────────────
-              No icon — the headline carries the page. Three stacked
+              No icon - the headline carries the page. Three stacked
               blocks: big title, explanatory subtitle, and the target
               email in mono so it reads as data, not prose. */}
           <div className="mb-10 text-center">
@@ -132,7 +132,7 @@ function VerifyEmailInner() {
             )}
           </div>
           {/* ── Form ─────────────────────────────────────────────────
-              No local max-width — the parent `max-w-md` already caps
+              No local max-width - the parent `max-w-md` already caps
               the whole column at 448px, and every child below (OTP row,
               button) is `w-full`, so both share the exact same
               horizontal track. Adding a narrower `max-w-*` on the form
@@ -146,7 +146,7 @@ function VerifyEmailInner() {
                   on the group fills that shell; `flex-1` on each slot
                   gives every box an equal share of the remaining width
                   after the gaps. `aspect-square` computes height from
-                  the flex-assigned width — which requires `h-auto!`,
+                  the flex-assigned width - which requires `h-auto!`,
                   because InputOTPSlot's base `size-8` sets a fixed
                   height that would otherwise squash the aspect ratio.
                   `rounded-xl!` overrides the base first:/last: side
@@ -185,7 +185,7 @@ function VerifyEmailInner() {
                 />
               )}
               {/* Inline spam hint. The register page fires a toast about
-                  this, but toasts are transient — a user who alt-tabbed
+                  this, but toasts are transient - a user who alt-tabbed
                   to their inbox and back loses it. This line is always
                   visible while the user is looking at the form, which is
                   where the "check spam" advice actually needs to live. */}

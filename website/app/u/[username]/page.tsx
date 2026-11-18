@@ -36,7 +36,7 @@ export async function generateMetadata({
   const display = full || "@" + (user.username ?? username);
   const desc =
     user.description?.slice(0, 155) ||
-    `Профиль ${display} на Unidoka — события, публичная активность, ссылки.`;
+    `Профиль ${display} на Unidoka - события, публичная активность, ссылки.`;
   const siteUrl = process.env.NEXT_PUBLIC_ROOT_DOMAIN
     ? `https://${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`
     : "http://localhost:3000";
@@ -63,7 +63,7 @@ export default async function UserPage({
   if (!user) {
     // notFound() is only reached when the backend genuinely says 404.
     // With `force-dynamic` above, that no longer trips the Turbopack
-    // timing bug — the page renders a clean 404 instead.
+    // timing bug - the page renders a clean 404 instead.
     notFound();
   }
   const events = await fetchUserEventsServer(user.username ?? username);

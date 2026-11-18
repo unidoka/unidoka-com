@@ -13,7 +13,7 @@ import { hasPermission, type AdminPermission } from "@/utils/permissions"
 /**
  * Auth + (optional) permission gate.
  *
- * Behaviour without `permission` is unchanged from the original —
+ * Behaviour without `permission` is unchanged from the original -
  * unauthenticated visitors get bounced to /login.
  *
  * With `permission`, an authenticated user who lacks the grant sees a
@@ -22,7 +22,7 @@ import { hasPermission, type AdminPermission } from "@/utils/permissions"
  * and direct API calls are both covered.
  *
  * The permission check runs after the loading guard, so it never
- * fires against a half-resolved session — that would briefly flash
+ * fires against a half-resolved session - that would briefly flash
  * the forbidden block for users who do have access.
  */
 export function CheckUser({

@@ -38,7 +38,7 @@ export function UserProfile({ user, events }: Props) {
   const locale = lang === "ru" ? ruLocale : enUS;
 
   const fullName = [user.name, user.surname].filter(Boolean).join(" ").trim();
-  const display = fullName || (user.username ? "@" + user.username : "—");
+  const display = fullName || (user.username ? "@" + user.username : "-");
   const initials = initialsOf(user, display);
   const handle = user.username ? "@" + user.username : null;
 
@@ -143,9 +143,6 @@ export function UserProfile({ user, events }: Props) {
 
             {/* Identity column */}
             <div className="min-w-0">
-              <p className="font-mono text-[10px] uppercase tracking-[0.32em] text-(--on-bg-low) mb-4">
-                {t("profile.eyebrow")}
-              </p>
               <h1 className="font-heading font-medium tracking-[-0.04em] leading-[0.92] text-[2.75rem] md:text-[4.5rem] lg:text-[5.5rem] text-(--on-bg-high) mb-3 break-words">
                 {display}
               </h1>
@@ -205,7 +202,7 @@ export function UserProfile({ user, events }: Props) {
         </Container>
       </section>
 
-      {/* ─── STATS — two cards ───────────────────────────────────── */}
+      {/* ─── STATS - two cards ───────────────────────────────────── */}
       <section className="border-b border-(--outline)">
         <Container>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-(--outline) rounded-3xl overflow-hidden border border-(--outline)">
@@ -231,7 +228,7 @@ export function UserProfile({ user, events }: Props) {
               index="02"
               label={t("profile.stats_member")}
               icon={SparkleIcon}
-              primary={joinedShort ?? "—"}
+              primary={joinedShort ?? "-"}
               secondary={
                 daysOnPlatform > 3
                   ? `${daysOnPlatform} ${t("profile.stat_member_subtitle")}`
@@ -248,9 +245,6 @@ export function UserProfile({ user, events }: Props) {
         <Container>
           <div className="flex flex-wrap items-end justify-between gap-4 mb-10 pb-6 border-b border-(--outline)">
             <div>
-              <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-(--on-bg-low) mb-3">
-                {t("profile.section_events_eyebrow")}
-              </p>
               <h2 className="font-heading font-medium tracking-[-0.03em] text-[2rem] md:text-[3rem] text-(--on-bg-high) leading-tight">
                 {t("profile.section_events")}
               </h2>
@@ -288,7 +282,7 @@ export function UserProfile({ user, events }: Props) {
   );
 }
 
-/* ── Copyable handle — Telegram-style ──────────────────────────────── */
+/* ── Copyable handle - Telegram-style ──────────────────────────────── */
 
 function CopyableHandle({ handle }: { handle: string }) {
   const { t } = useLanguage();
@@ -309,7 +303,7 @@ function CopyableHandle({ handle }: { handle: string }) {
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => setCopied(false), 1600);
     } catch {
-      /* clipboard blocked — silently ignore */
+      /* clipboard blocked - silently ignore */
     }
   };
 
@@ -402,9 +396,9 @@ function EventCard({
 
   const dateLabel = start
     ? end && start.toDateString() !== end.toDateString()
-      ? `${format(start, "d MMM", { locale })} — ${format(end, "d MMM yyyy", { locale })}`
+      ? `${format(start, "d MMM", { locale })} - ${format(end, "d MMM yyyy", { locale })}`
       : format(start, "d MMM yyyy", { locale })
-    : "—";
+    : "-";
 
   const firstType = event.types?.[0];
 
@@ -434,7 +428,7 @@ function EventCard({
           className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/45 px-2.5 py-1 text-[10px]  uppercase tracking-wider text-white backdrop-blur-md"
         >
           <span className="size-1.5 rounded-full" style={{ backgroundColor: color }} />
-          {event.organizer?.name ?? "—"}
+          {event.organizer?.name ?? "-"}
         </span>
         <span
           aria-hidden

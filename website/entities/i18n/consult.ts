@@ -3,7 +3,6 @@ import type { Language } from './translations';
 export const consultTranslations: Record<Language, Record<string, string>> = {
   en: {
     // Section copy
-    'consult.eyebrow': 'Consultation',
     'consult.title_prefix': "Let's discuss",
     'consult.title_highlight': 'project',
     'consult.title_suffix': '?',
@@ -46,7 +45,6 @@ export const consultTranslations: Record<Language, Record<string, string>> = {
     'consult.form.agreement_terms': 'User Agreement',
   },
   ru: {
-    'consult.eyebrow': 'Консультация',
     'consult.title_prefix': 'Обсудим',
     'consult.title_highlight': 'проект',
     'consult.title_suffix': '?',

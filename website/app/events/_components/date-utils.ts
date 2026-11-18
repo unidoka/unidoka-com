@@ -29,7 +29,7 @@ export function weekGrid(anchor: Date): Date[] {
 /**
  * Multi-day events are expanded onto every date in their range. An event
  * with no `end_at` sits on its `start_at` day only. Events with no
- * `start_at` at all are dropped — they cannot be placed on a grid.
+ * `start_at` at all are dropped - they cannot be placed on a grid.
  */
 export function indexByDay(events: EventListItem[]): Map<string, EventListItem[]> {
   const map = new Map<string, EventListItem[]>();

@@ -29,7 +29,7 @@ import type {
  *   <PlacementSlot type="card"   page="events" />
  *
  * Fetch happens client-side on mount because the visibility rules
- * depend on wall-clock time — a statically-rendered slot would freeze
+ * depend on wall-clock time - a statically-rendered slot would freeze
  * the schedule window and keep showing expired campaigns.
  *
  * Multiple placements can match a single slot. Top and card stack in
@@ -38,12 +38,12 @@ import type {
  *
  * Dismissal model
  * ---------------
- * Toast and dialog close with a single click on × — their transient
+ * Toast and dialog close with a single click on × - their transient
  * nature already implies "until next visit". Top and card show a small
  * confirmation popover with a "don't show again" checkbox before
  * closing, so the user can dismiss something without permanently
  * hiding it. The checkbox is pre-checked and, for now, always applied
- * as true on confirm — the storage layer doesn't yet distinguish
+ * as true on confirm - the storage layer doesn't yet distinguish
  * permanent from session-only dismissals, so both paths persist.
  */
 
@@ -110,7 +110,7 @@ export function PlacementSlot({
   const visible = placements.filter((p) => !dismissed.has(p.id));
   if (visible.length === 0) return null;
 
-  // Floating types don't stack — the API already ordered by priority.
+  // Floating types don't stack - the API already ordered by priority.
   if (type === "toast") {
     return (
       <div className={cn("flex flex-col gap-3", className)}>
@@ -200,7 +200,7 @@ function PlacementRenderer({
             </p>
           )}
 
-          {/* Actions. Zero by default — the admin adds buttons
+          {/* Actions. Zero by default - the admin adds buttons
               explicitly. Rendered right-aligned on the strip, inline
               under the text on cards. */}
           {placement.actions.length > 0 && (
@@ -267,7 +267,7 @@ function CloseControl({
   const [open, setOpen] = useState(false);
 
   const closeImmediately = () => {
-    // Session-only storage is not implemented — this always persists
+    // Session-only storage is not implemented - this always persists
     // for now, matching the "always true" behaviour of the checkbox.
     onConfirm();
   };
@@ -355,7 +355,7 @@ function DialogOverlay({
         className,
       )}
     >
-      {/* Backdrop — click to close, same as the × button. */}
+      {/* Backdrop - click to close, same as the × button. */}
       <button
         type="button"
         aria-label="Закрыть"

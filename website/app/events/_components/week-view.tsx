@@ -39,7 +39,7 @@ export function WeekView({ anchor, byDay, onSelectEvent }: Props) {
                   </span>
                   <span
                     className={cn(
-                      "flex items-center justify-center size-8 rounded-full text-body-3 font-semibold tabular-nums",
+                      "flex items-center justify-center size-8 rounded-full text-body-3  tabular-nums",
                       today ? "bg-(--on-bg-high) text-(--bg)" : "text-(--on-bg-high)"
                     )}
                   >
@@ -56,7 +56,7 @@ export function WeekView({ anchor, byDay, onSelectEvent }: Props) {
               const key = format(d, "yyyy-MM-dd");
               const events = byDay.get(key) ?? [];
               const today = isToday(d);
-              
+
               return (
                 <div
                   key={key}

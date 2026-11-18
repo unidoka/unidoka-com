@@ -47,7 +47,7 @@ export default async function SolutionPage({
     if (CustomPage) {
       return <CustomPage solution={solution} />;
     }
-    // custom_page is set but not registered — fall through to MDX.
+    // custom_page is set but not registered - fall through to MDX.
   }
 
   // ── Default: render MDX content ─────────────────────────────────

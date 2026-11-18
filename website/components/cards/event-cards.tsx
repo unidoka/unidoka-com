@@ -29,7 +29,7 @@ export interface CardEventData {
 }
 
 /* ═════════════════════════════════════════════════════════════════
-   VARIANT A — EDITORIAL (premium)
+   VARIANT A - EDITORIAL (premium)
    ─────────────────────────────────────────────────────────────────
    Full-bleed cover with the copy sitting on a gradient scrim at the
    bottom. Magazine-cover composition: one strong image, one clear
@@ -70,7 +70,7 @@ export function EventCardEditorial({ event }: { event: CardEventData }) {
         <div className="absolute inset-0 bg-[linear-gradient(135deg,color-mix(in_srgb,var(--on-bg-high)_8%,transparent),color-mix(in_srgb,var(--on-bg-high)_2%,transparent))]" />
       )}
 
-      {/* Scrim — bottom two-thirds, gradient from black through to
+      {/* Scrim - bottom two-thirds, gradient from black through to
           fully transparent. Keeps metadata legible on any cover. */}
       <div
         aria-hidden
@@ -143,9 +143,9 @@ export function EventCardEditorial({ event }: { event: CardEventData }) {
 }
 
 /* ═════════════════════════════════════════════════════════════════
-   VARIANT B — STANDARD (functional)
+   VARIANT B - STANDARD (functional)
    ─────────────────────────────────────────────────────────────────
-   Cover on top, metadata below. Reads like a project card — badge
+   Cover on top, metadata below. Reads like a project card - badge
    row, title, description, hairline footer with date + location.
    ═════════════════════════════════════════════════════════════════ */
 export function EventCardStandard({ event }: { event: CardEventData }) {
@@ -154,7 +154,7 @@ export function EventCardStandard({ event }: { event: CardEventData }) {
 
   const dateLabel = event.startAt
     ? format(new Date(event.startAt), "d MMM yyyy", { locale })
-    : "—";
+    : "-";
   const dot = event.organizerColor ?? "var(--on-bg-low)";
 
   const inner = (
@@ -166,7 +166,7 @@ export function EventCardStandard({ event }: { event: CardEventData }) {
         "hover:-translate-y-0.5 hover:border-(--on-bg-low)",
       )}
     >
-      {/* Cover — the ONLY place an image preview is shown */}
+      {/* Cover - the ONLY place an image preview is shown */}
       <div className="relative aspect-[4/3] overflow-hidden bg-(--bg-disabled)">
         {event.coverUrl ? (
           /* eslint-disable-next-line @next/next/no-img-element */

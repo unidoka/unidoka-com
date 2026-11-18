@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    // SVG pair — the browser picks one based on the user's OS theme.
+    // SVG pair - the browser picks one based on the user's OS theme.
     // Both files live in /public so Next.js serves them verbatim.
     icon: [
       { url: "/icon-light.svg", type: "image/svg+xml", media: "(prefers-color-scheme: light)" },
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
       // (old Safari <16, old Edge). Kept as .ico so those still get a mark.
       { url: "/favicon.ico", type: "image/x-icon" },
     ],
-    // iOS home-screen icon — PNG only, iOS does not render SVG here.
+    // iOS home-screen icon - PNG only, iOS does not render SVG here.
     // Drop a 180×180 PNG at website/app/apple-icon.png and Next.js
     // auto-detects it; this line is only here so you know where to look.
     apple: [

@@ -86,7 +86,7 @@ function renderMd(md: string): ReactNode[] {
     if (h) {
       const lvl = h[1].length;
       out.push(
-        <p key={k.n++} className={cn("font-bold text-(--on-bg-high) mt-3 mb-1", hSizes[lvl - 1])}>
+        <p key={k.n++} className={cn(" text-(--on-bg-high) mt-3 mb-1", hSizes[lvl - 1])}>
           {h[2]}
         </p>
       );
@@ -286,7 +286,7 @@ export function SocialContentPreview({
               controls
             />
             <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/90 via-black/40 to-transparent pt-14 pointer-events-none">
-              <h3 className="text-lg font-bold text-white line-clamp-1">{title}</h3>
+              <h3 className="text-lg  text-white line-clamp-1">{title}</h3>
               <p className="mt-1 text-xs text-gray-200 line-clamp-2 max-w-2xl">{description}</p>
             </div>
           </article>
@@ -297,7 +297,7 @@ export function SocialContentPreview({
               <p className="text-xs font-medium text-muted-foreground">Articles</p>
             </div>
             <div className="p-5 space-y-3 overflow-y-auto min-h-0 flex-1">
-              <h3 className="text-xl font-bold tracking-tight">{title}</h3>
+              <h3 className="text-xl  tracking-tight">{title}</h3>
               {description && <p className="text-sm text-muted-foreground">{description}</p>}
               {thumbnail && (
                 <div className="rounded-xl overflow-hidden mt-2 border border-border/60">
@@ -325,7 +325,7 @@ export function SocialContentPreview({
             </div>
             <div className="p-5 space-y-3 overflow-y-auto min-h-0 flex-1">
               <TerminalStyledInline className="w-full!" />
-              <h3 className="text-display-3 font-bold font-mono">{title}</h3>
+              <h3 className="text-display-3  font-mono">{title}</h3>
               <RepoReadme />
             </div>
             <div className="px-5 pb-4 pt-0 shrink-0">
@@ -348,7 +348,7 @@ export function SocialContentPreview({
                 <div className="flex items-center gap-1.5">
                   <span className=" text-sm truncate">{authorName}</span>
                   {isVerified && (
-                    <span className="inline-flex items-center justify-center bg-[#0088cc] text-white rounded-full p-0.5 w-3.5 h-3.5 text-[8px] font-bold">✓</span>
+                    <span className="inline-flex items-center justify-center bg-[#0088cc] text-white rounded-full p-0.5 w-3.5 h-3.5 text-[8px] ">✓</span>
                   )}
                 </div>
                 <p className="text-[11px] text-muted-foreground">{date}</p>

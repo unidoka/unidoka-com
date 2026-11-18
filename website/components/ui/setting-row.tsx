@@ -11,11 +11,11 @@ import { cn } from "@/lib/utils"
  * Three visual shapes, all sharing a layout so a group of rows reads
  * as one block:
  *
- *   toggle    — icon, label, description, switch on the right
- *   locked    — same, but a lock icon replaces the switch and the
+ *   toggle    - icon, label, description, switch on the right
+ *   locked    - same, but a lock icon replaces the switch and the
  *               row is visually muted. Used for things the user
  *               cannot change (transactional/legal email).
- *   static    — no control at all. Used for informational rows.
+ *   static    - no control at all. Used for informational rows.
  *
  * The `disabled` prop on a toggle row is distinct from `locked`: a
  * disabled toggle shows the switch greyed out, meaning "this could be
@@ -26,10 +26,10 @@ interface SettingRowProps {
   icon?: React.ComponentType<{ className?: string; weight?: "regular" | "bold" | "fill" | "duotone" }>
   label: string
   description?: string
-  /** Toggle mode — pass both. */
+  /** Toggle mode - pass both. */
   checked?: boolean
   onCheckedChange?: (v: boolean) => void
-  /** Locked mode — replaces the switch with a lock indicator. */
+  /** Locked mode - replaces the switch with a lock indicator. */
   locked?: boolean
   /** Toggle is present but not interactive right now. */
   disabled?: boolean

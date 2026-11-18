@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
  * Mirrors the transliteration rules the backend applies in
  * `app/api/v1/events.py::slugify` and `admin_events.py`, so a slug
  * typed here will land unchanged when the entity is saved. If the
- * backend map changes, update the TRANSLIT object below to match —
+ * backend map changes, update the TRANSLIT object below to match -
  * the two sides have to agree or user-generated slugs get suffixed
  * with `-2` on collision.
  */
@@ -57,7 +57,7 @@ export function SlugGenerator() {
             placeholder="Название события, статьи или проекта"
           />
           <p className="text-body-5 text-(--on-bg-low) mt-1">
-            Введите название на русском или английском — слаг будет
+            Введите название на русском или английском - слаг будет
             транслитерирован по тем же правилам, что применяет бэкенд.
           </p>
         </Field>

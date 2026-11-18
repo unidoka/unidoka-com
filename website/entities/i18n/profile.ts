@@ -3,7 +3,6 @@ import type { Language } from './translations';
 export const profileTranslations: Record<Language, Record<string, string>> = {
   en: {
     // Hero
-    'profile.eyebrow': 'Public profile',
     'profile.back': 'Back',
     'profile.verified': 'Verified',
     'profile.unverified': 'Unverified',
@@ -18,7 +17,7 @@ export const profileTranslations: Record<Language, Record<string, string>> = {
     // Bio
     'profile.no_bio': 'No bio yet.',
 
-    // Stats — two cards
+    // Stats - two cards
     'profile.stats_events': 'Events',
     'profile.stats_member': 'Member since',
     'profile.stat_events_subtitle_zero': 'Nothing published yet',
@@ -30,7 +29,6 @@ export const profileTranslations: Record<Language, Record<string, string>> = {
 
     // Events section
     'profile.section_events': 'Events',
-    'profile.section_events_eyebrow': 'Public activity',
     'profile.events_count_one': 'event',
     'profile.events_count_many': 'events',
     'profile.no_events_title': 'No published events yet',
@@ -46,7 +44,6 @@ export const profileTranslations: Record<Language, Record<string, string>> = {
 
   ru: {
     // Hero
-    'profile.eyebrow': 'Публичный профиль',
     'profile.back': 'Назад',
     'profile.verified': 'Подтверждён',
     'profile.unverified': 'Не подтверждён',
@@ -61,7 +58,7 @@ export const profileTranslations: Record<Language, Record<string, string>> = {
     // Bio
     'profile.no_bio': 'Био пока нет.',
 
-    // Stats — two cards
+    // Stats - two cards
     'profile.stats_events': 'События',
     'profile.stats_member': 'С нами с',
     'profile.stat_events_subtitle_zero': 'Пока ничего не опубликовано',
@@ -73,7 +70,6 @@ export const profileTranslations: Record<Language, Record<string, string>> = {
 
     // Events section
     'profile.section_events': 'События',
-    'profile.section_events_eyebrow': 'Публичная активность',
     'profile.events_count_one': 'событие',
     'profile.events_count_many': 'событий',
     'profile.no_events_title': 'Опубликованных событий пока нет',

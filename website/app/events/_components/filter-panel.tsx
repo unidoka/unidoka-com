@@ -156,7 +156,7 @@ export function FilterPanel({ allEvents, value, onChange, compact }: Props) {
  *   1. The switch primitive's unchecked state relies on
  *      `data-unchecked:bg-input` -> --outline, and its thumb on
  *      --bg. In dark theme both resolve to near-black and the control
- *      becomes invisible — which is what the screenshot showed.
+ *      becomes invisible - which is what the screenshot showed.
  *   2. A switch reads as a preference ("email me about events").
  *      A filter row that toggles whether a subset of events is shown
  *      is an action, and should look actionable.

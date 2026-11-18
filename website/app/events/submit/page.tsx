@@ -20,7 +20,7 @@ export default function SubmitEventPage() {
                 Добавить событие
               </h1>
               <p className="text-body-2 text-(--on-bg-medium) leading-relaxed max-w-2xl">
-                Заполните форму — событие отправится на модерацию. Обычно
+                Заполните форму - событие отправится на модерацию. Обычно
                 проверка занимает до 1 рабочего дня.
               </p>
             </div>

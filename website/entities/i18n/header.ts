@@ -61,7 +61,7 @@ export const headerTranslations: Record<Language, Record<string, string>> = {
     'nav.login': 'Войти',
     'nav.logout': 'Выйти',
     'nav.menu': 'Открыть меню',
-    'nav.order': 'Оформить заказ',
+    'nav.order': 'Поделиться идеей',
     'nav.profile': 'Профиль',
     'nav.request': 'Оставить заявку',
     'nav.register': 'Регистрация',

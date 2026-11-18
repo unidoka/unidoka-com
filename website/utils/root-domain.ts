@@ -12,7 +12,7 @@
 //   2. Returning a RELATIVE path when the current host already IS the
 //      target subdomain (avoids the ugly admin.unidoka.com/admin/...).
 //   3. Flipping to the accurate form only after React has hydrated,
-//      so the server and the first client render agree — no hydration
+//      so the server and the first client render agree - no hydration
 //      mismatch on `href` attributes.
 
 function normalizeRootDomain(raw: string | undefined | null): string {
@@ -32,7 +32,7 @@ const CONFIGURED_PROTOCOL = (process.env.NEXT_PUBLIC_HTTP_PROTOCOL || "")
   .toLowerCase();
 
 // Flip to true one tick after the client module loads. `setTimeout(0)`
-// runs after the current task — i.e. after React commits hydration —
+// runs after the current task - i.e. after React commits hydration -
 // so the initial render sees `false` and matches the SSR output.
 // Any later re-render (driven by useUser, useAdminSecret, etc.) sees
 // the updated value and produces clean URLs.
@@ -54,7 +54,7 @@ function inferRootDomain(): string {
     h.endsWith(".localhost")
   )
     return "";
-  // Bare IPv4 — treat as root, no subdomain.
+  // Bare IPv4 - treat as root, no subdomain.
   if (/^\d{1,3}(\.\d{1,3}){3}$/.test(h)) return h;
   const parts = h.split(".");
   if (parts.length <= 2) return h; // already root
@@ -132,9 +132,9 @@ export function rootDomainUrl(path: string): string {
   const root = getRootDomain();
   if (!root) return p;
   const h = currentHostname();
-  // Already on the root host — stay relative, no reason to be absolute.
+  // Already on the root host - stay relative, no reason to be absolute.
   if (h === root) return p;
-  // On a subdomain — go up to the root domain.
+  // On a subdomain - go up to the root domain.
   return `${resolvedScheme()}://${root}${currentPort()}${p}`;
 }
 
@@ -153,7 +153,7 @@ export function crossSubdomainUrl(
   const root = getRootDomain();
   if (!root) return `/${subdomain}${p}`;
 
-  // Already on the target subdomain — return relative so the browser
+  // Already on the target subdomain - return relative so the browser
   // doesn't prepend `/admin` on top of `/admin.unidoka.com`.
   if (currentSubdomain() === subdomain) return p;
 

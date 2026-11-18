@@ -51,7 +51,7 @@ export function AgendaView({ days, onSelectEvent }: Props) {
               let dateLabel = "";
               if (start) {
                 if (sameDay) dateLabel = format(start, "d MMM", { locale: ru });
-                else if (end) dateLabel = `${format(start, "d MMM", { locale: ru })} — ${format(end, "d MMM", { locale: ru })}`;
+                else if (end) dateLabel = `${format(start, "d MMM", { locale: ru })} - ${format(end, "d MMM", { locale: ru })}`;
                 else dateLabel = format(start, "d MMM", { locale: ru });
               }
 

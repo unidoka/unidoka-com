@@ -1,5 +1,5 @@
 "use client";
-import { VershinyLogo } from "@/components/icons/logotypes/vershiny-logo";
+import { VershinyLogoIcon } from "@/components/icons/logotypes/vershiny-logo-icon";
 import { Sidebar, type SidebarItem } from "@/components/layout/nav/sidebar";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
 import { useLanguage } from "@/providers/language-provider";
@@ -28,12 +28,12 @@ interface AdminNavItem extends SidebarItem {
  * Every entry declares one permission. An `admin` sees only the
  * entries they hold; a `root` sees everything (hasPermission returns
  * true unconditionally for root). The filtering happens here rather
- * than inside the generic Sidebar — the Sidebar component doesn't
+ * than inside the generic Sidebar - the Sidebar component doesn't
  * know about permissions and shouldn't.
  *
  * This is UX only. Each admin page also mounts `<CheckUser
  * permission="…">` and every backend endpoint independently verifies
- * — a user who types a hidden URL gets a "no access" block, and a
+ * - a user who types a hidden URL gets a "no access" block, and a
  * direct API call gets a 403.
  */
 export function AdminSidebar() {
@@ -100,7 +100,7 @@ export function AdminSidebar() {
     {
       label: t("admin.vershiny"),
       href: "/vershiny_top",
-      icon: VershinyLogo,
+      icon: VershinyLogoIcon,
       permission: "admin.vershiny",
     },
     {
@@ -122,7 +122,7 @@ export function AdminSidebar() {
   ];
 
   // Drop what the user can't reach. Empty sidebar is the correct
-  // outcome for an admin with no grants — it's the UI honestly
+  // outcome for an admin with no grants - it's the UI honestly
   // reflecting the permission set, not a bug.
   const visible = allItems.filter((item) =>
     hasPermission(user, item.permission),

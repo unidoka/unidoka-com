@@ -33,14 +33,14 @@ function HtmlRenderer({ html, className }: { html: string; className?: string })
   if (!html) return null;
   const sanitized = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
   return (
-    <div 
+    <div
       className={cn(
         "max-w-none break-words text-body-3 leading-relaxed text-(--on-bg-medium)",
         "[&_a]:text-(--primary) [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:opacity-80",
         "[&_br]:block [&_br]:content-[''] [&_br]:mt-2",
         className
       )}
-      dangerouslySetInnerHTML={{ __html: sanitized }} 
+      dangerouslySetInnerHTML={{ __html: sanitized }}
     />
   );
 }
@@ -59,7 +59,7 @@ export function EventDetails({ event, onOpenChange }: Props) {
   const color = colorForOrganizer(event.organizer);
   const start = event.start_at ? new Date(event.start_at) : null;
   const end = event.end_at ? new Date(event.end_at) : null;
-  
+
   const author = event.submitted_by;
   const authorName = author
     ? [author.name, author.surname].filter(Boolean).join(" ").trim() || (author.username ? "@" + author.username : null)
@@ -70,14 +70,14 @@ export function EventDetails({ event, onOpenChange }: Props) {
   const sameDay = start && end ? isSameDay(start, end) : false;
   let dateLabel = "";
   let timeLabel = "";
-  
+
   if (start) {
     if (sameDay) {
       dateLabel = format(start, "d MMMM yyyy", { locale: ru });
-      timeLabel = end ? `${format(start, "HH:mm")} — ${format(end, "HH:mm")}` : format(start, "HH:mm");
+      timeLabel = end ? `${format(start, "HH:mm")} - ${format(end, "HH:mm")}` : format(start, "HH:mm");
     } else if (end) {
-      dateLabel = `${format(start, "d MMMM", { locale: ru })} — ${format(end, "d MMMM yyyy", { locale: ru })}`;
-      timeLabel = `${format(start, "HH:mm")} — ${format(end, "HH:mm")}`;
+      dateLabel = `${format(start, "d MMMM", { locale: ru })} - ${format(end, "d MMMM yyyy", { locale: ru })}`;
+      timeLabel = `${format(start, "HH:mm")} - ${format(end, "HH:mm")}`;
     } else {
       dateLabel = format(start, "d MMMM yyyy", { locale: ru });
       timeLabel = format(start, "HH:mm");
@@ -90,18 +90,18 @@ export function EventDetails({ event, onOpenChange }: Props) {
         <DialogHeader className="px-6 pt-6 pb-4">
           <div className="flex items-center gap-2 mb-2">
             {event.organizer && (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-(--on-bg-medium)">
+              <span className="inline-flex items-center gap-1.5 text-[10px]  uppercase tracking-[0.15em] text-(--on-bg-medium)">
                 <span className="size-2 rounded-full" style={{ backgroundColor: color }} />
                 {event.organizer.name}
               </span>
             )}
             {event.is_featured && (
-              <span className="text-[10px] font-bold uppercase tracking-wider text-(--primary)">
+              <span className="text-[10px]  uppercase tracking-wider text-(--primary)">
                 ★
               </span>
             )}
           </div>
-          
+
           <DialogTitle className="text-2xl font-heading font-medium tracking-tight leading-tight">
             {event.title.replace(/<[^>]*>?/gm, '')}
           </DialogTitle>
@@ -131,9 +131,9 @@ export function EventDetails({ event, onOpenChange }: Props) {
               <div className="flex items-start gap-3">
                 <MapPin className="size-5 text-(--on-bg-low) shrink-0 mt-0.5" weight="fill" />
                 <div>
-                  <HtmlRenderer 
-                    html={event.location_name} 
-                    className="text-body-4 font-medium text-(--on-bg-high) leading-snug" 
+                  <HtmlRenderer
+                    html={event.location_name}
+                    className="text-body-4 font-medium text-(--on-bg-high) leading-snug"
                   />
                   {event.city && <p className="text-body-5 text-(--on-bg-medium) mt-0.5">{event.city}</p>}
                 </div>
@@ -162,7 +162,7 @@ export function EventDetails({ event, onOpenChange }: Props) {
           {/* Tags */}
           {((event.tags ?? []).length > 0 || (event.types ?? []).length > 0) && (
             <div className="flex flex-wrap gap-1.5">
-              {(event.types ?? []).map((t) => 
+              {(event.types ?? []).map((t) =>
                 t.type ? (
                   <span key={t.id} className="text-[11px] font-medium text-(--on-bg-medium) px-2 py-1 rounded-md border border-(--outline) bg-(--bg)">
                     {t.type.name}

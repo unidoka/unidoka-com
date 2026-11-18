@@ -228,7 +228,7 @@ export default function AdminEventRequestsPage() {
                       {ev.submitted_by && (
                         <span className="inline-flex items-center gap-1.5">
                           <UserIcon className="size-3.5" />
-                          {[ev.submitted_by.name, ev.submitted_by.surname].filter(Boolean).join(" ") || ev.submitted_by.username || "—"}
+                          {[ev.submitted_by.name, ev.submitted_by.surname].filter(Boolean).join(" ") || ev.submitted_by.username || "-"}
                         </span>
                       )}
                     </div>

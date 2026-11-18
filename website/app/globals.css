@@ -1576,3 +1576,749 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
   .mesh-blob-1, .mesh-blob-2, .mesh-blob-3, .mesh-blob-4,
   .hero-grain-drift, .hero-dot-drift, .hero-light-sweep { animation: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   RADIAL LOGO ANIMATION
+   ───────────────────────────────────────────────────────────────────
+   Drives the `animated` prop on <AnimatedLogoIcon> / <AnimatedLogo>.
+   Two concentric pulse rings scale outward from the core while the
+   sunburst slowly rotates underneath — together they read as a
+   radial ripple emanating from the mark. The wordmark gets a gentle
+   glow pulse instead of rotation (a rotating wordmark looks broken).
+   All motion is disabled under prefers-reduced-motion.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.logo-radial {
+  isolation: isolate;
+}
+
+/* Slow sunburst rotation. 45s is deliberately long — the rays should
+   creep rather than spin. */
+.logo-radial-spin {
+  animation: logo-spin 45s linear infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Radial pulse ring — starts near the core and scales out to just
+   past the SVG bounds. Two copies offset by half a cycle so the
+   ripple reads as continuous, not staccato. */
+.logo-radial-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--on-bg-high) 22%, transparent);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--on-bg-high) 3%, transparent) 0%,
+    transparent 65%
+  );
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.35);
+  animation: logo-pulse 4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  will-change: transform, opacity;
+}
+
+.logo-radial-pulse--delayed {
+  animation-delay: 2s;
+}
+
+@keyframes logo-pulse {
+  0% {
+    transform: scale(0.35);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.15);
+    opacity: 0;
+  }
+}
+
+/* Wordmark glow pulse — replaces the rotation for <AnimatedLogo>. */
+.logo-radial-glow {
+  animation: logo-glow 4s ease-in-out infinite;
+}
+
+@keyframes logo-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  50% {
+    filter: drop-shadow(
+      0 0 10px color-mix(in srgb, var(--on-bg-high) 22%, transparent)
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-radial-spin,
+  .logo-radial-pulse,
+  .logo-radial-glow {
+    animation: none;
+  }
+  .logo-radial-pulse {
+    opacity: 0;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   RADIAL LOGO ANIMATION — rays growing from center
+   ───────────────────────────────────────────────────────────────────
+   Drives the `animated` prop on <AnimatedLogoIcon> / <AnimatedLogo>.
+   A radial mask is applied to the wrapper and its inner stop expands
+   from ~8% (only the core visible) to ~72% (the full sunburst
+   visible) and back. Because the mask is radial and centred, the
+   rays appear to extend out of the centre and retract — no rotation,
+   no pulse rings.
+   Disabled under prefers-reduced-motion.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.logo-radial-grow {
+  animation: logo-radial-grow 3.6s ease-in-out infinite;
+  will-change: mask-image, -webkit-mask-image;
+}
+
+@keyframes logo-radial-grow {
+  0%,
+  100% {
+    -webkit-mask-image: radial-gradient(
+      circle at center,
+      #000 8%,
+      transparent 18%
+    );
+    mask-image: radial-gradient(
+      circle at center,
+      #000 8%,
+      transparent 18%
+    );
+  }
+  50% {
+    -webkit-mask-image: radial-gradient(
+      circle at center,
+      #000 72%,
+      transparent 82%
+    );
+    mask-image: radial-gradient(
+      circle at center,
+      #000 72%,
+      transparent 82%
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-radial-grow {
+    animation: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+
+/* --- Vershiny Logo Animations --- */
+@keyframes vershiny-slide-up {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes vershiny-draw-and-fill {
+  0% { stroke-dashoffset: 300; fill-opacity: 0; }
+  70% { stroke-dashoffset: 0; fill-opacity: 0; }
+  100% { stroke-dashoffset: 0; fill-opacity: 1; }
+}
+
+.vershiny-anim-text {
+  opacity: 0;
+  transform-origin: center;
+  animation: vershiny-slide-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.vershiny-anim-icon {
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill-opacity: 0;
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+  animation: vershiny-draw-and-fill 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: stroke-dashoffset, fill-opacity;
+}
+
+/* --- Vershiny Logo Animations --- */
+@keyframes vershiny-slide-up {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes vershiny-draw-and-fill {
+  0% { stroke-dashoffset: 300; fill-opacity: 0; }
+  70% { stroke-dashoffset: 0; fill-opacity: 0; }
+  100% { stroke-dashoffset: 0; fill-opacity: 1; }
+}
+
+.vershiny-anim-text {
+  opacity: 0;
+  transform-origin: center;
+  animation: vershiny-slide-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.vershiny-anim-icon {
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill-opacity: 0;
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
+  animation: vershiny-draw-and-fill 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: stroke-dashoffset, fill-opacity;
+}
+
+/* vershiny-reduced-motion-guard */
+@media (prefers-reduced-motion: reduce) {
+  .vershiny-anim-text,
+  .vershiny-anim-icon {
+    animation: none;
+    opacity: 1;
+    fill-opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ═══ terminal-scrollbar-ondemand ═══════════════════════════════════
+   TerminalStyledInline: the scrollbar is fully transparent at rest.
+   It fades in on hover / keyboard focus, and only when the component
+   reports actual overflow (data-overflow="true"). A hairline fade on
+   the right edge hints at hidden content and retracts at scroll end.
+   ═══════════════════════════════════════════════════════════════════ */
+.terminal-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.25s ease;
+  -webkit-mask-image: linear-gradient(to right, #000 0%, #000 100%);
+  mask-image: linear-gradient(to right, #000 0%, #000 100%);
+}
+.terminal-scroll[data-overflow="true"][data-at-end="false"] {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent 100%);
+  mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent 100%);
+}
+.terminal-scroll::-webkit-scrollbar {
+  height: 5px;
+}
+.terminal-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.terminal-scroll::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: transparent;
+  transition: background-color 0.25s ease;
+}
+.terminal-scroll::-webkit-scrollbar-corner {
+  background: transparent;
+}
+.terminal-scroll[data-overflow="true"]:hover,
+.terminal-scroll[data-overflow="true"]:focus-within {
+  scrollbar-color: color-mix(in srgb, var(--on-bg-low), transparent 45%) transparent;
+}
+.terminal-scroll[data-overflow="true"]:hover::-webkit-scrollbar-thumb,
+.terminal-scroll[data-overflow="true"]:focus-within::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--on-bg-low), transparent 45%);
+}
+.terminal-scroll[data-overflow="true"]::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--on-bg-low), transparent 15%);
+}
+
+/* ═══ amorfa-logo-draw-anim ═════════════════════════════════════════
+   Same choreography as the Vershiny lockup: the stroke draws itself,
+   then the fill floods in. --amorfa-len is measured per shape at
+   runtime (getTotalLength), so the dash never repeats or leaves gaps.
+   Applied by <AnimatedAmorfaLogo>; stagger is set inline per shape.
+   ═══════════════════════════════════════════════════════════════════ */
+@keyframes amorfa-draw-and-fill {
+  0% {
+    stroke-dashoffset: var(--amorfa-len, 300);
+    fill-opacity: 0;
+  }
+  70% {
+    stroke-dashoffset: 0;
+    fill-opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    fill-opacity: 1;
+  }
+}
+.amorfa-anim-draw {
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill-opacity: 0;
+  stroke-dasharray: var(--amorfa-len, 300);
+  stroke-dashoffset: var(--amorfa-len, 300);
+  animation: amorfa-draw-and-fill 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: stroke-dashoffset, fill-opacity;
+}
+@media (prefers-reduced-motion: reduce) {
+  .amorfa-anim-draw {
+    animation: none;
+    fill-opacity: 1;
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+  }
+  .terminal-scroll {
+    transition: none;
+  }
+}
+
+/* ═══ amorfa-logo-bloom ═════════════════════════════════════════════
+   Stroke-free reveal for the layered Amorfa mark. Each filled layer
+   scales open from its own center with a soft overshoot, staggered
+   outer → inner. Fills are never modified — the white/blue layering
+   is the brand asset. The old dash-draw class is fully neutralized
+   below so no outline can ever render on this mark again.
+   ═══════════════════════════════════════════════════════════════════ */
+@keyframes amorfa-layer-bloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.52);
+  }
+  55% {
+    opacity: 1;
+  }
+  78% {
+    transform: scale(1.045);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.amorfa-anim-bloom {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: amorfa-layer-bloom 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* One quiet exhale of light as the last layer lands. Not a loop —
+   the mark settles and stays still. */
+@keyframes amorfa-settle-glow {
+  0% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  45% {
+    filter: drop-shadow(
+      0 0 22px color-mix(in srgb, currentColor 20%, transparent)
+    );
+  }
+  100% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+}
+.amorfa-bloom-stage {
+  animation: amorfa-settle-glow 1.9s cubic-bezier(0.16, 1, 0.3, 1) 0.7s 1 both;
+}
+
+/* Legacy stroke draw — retired. The mark is layered fills; any stroke
+   reads as a chunky outline around every layer. Force it inert even
+   if a stale chunk still applies the class. */
+.amorfa-anim-draw {
+  stroke: none !important;
+  stroke-width: 0 !important;
+  stroke-dasharray: none !important;
+  stroke-dashoffset: 0 !important;
+  fill-opacity: 1 !important;
+  opacity: 1 !important;
+  animation: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .amorfa-anim-bloom {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .amorfa-bloom-stage {
+    animation: none;
+  }
+}
+
+/* ═══ vershiny-icon-draw-precise ════════════════════════════════════
+   The shared 300-unit dash made short arcs surface late (the two big
+   arcs appeared first). VershinyLogoMono now measures each arc with
+   getTotalLength() and sets --vershiny-len + inline dash values; this
+   keyframe animates against the exact perimeter, so every arc draws
+   across the same timeline slice and the bottom-to-top stagger reads
+   in order. Applied via inline animation-name, which outranks the
+   .vershiny-anim-icon shorthand while keeping its stagger delay.
+   ═══════════════════════════════════════════════════════════════════ */
+@keyframes vershiny-draw-and-fill-precise {
+  0% {
+    stroke-dashoffset: var(--vershiny-len, 300);
+    fill-opacity: 0;
+  }
+  70% {
+    stroke-dashoffset: 0;
+    fill-opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    fill-opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vershiny-anim-icon {
+    animation: none !important;
+    stroke-dasharray: none !important;
+    stroke-dashoffset: 0 !important;
+    fill-opacity: 1 !important;
+  }
+}
+
+/* ═══ unidoka-logo-anim ═════════════════════════════════════════════
+   Entrance primitives for <AnimatedLogoIcon> / <AnimatedLogo>.
+   Stroke-free: layers bloom / rise with opacity + transform only, so
+   the brand fills are never touched. Ambient motion (spin / glow)
+   reuses the existing .logo-radial-* classes above, which are already
+   reduced-motion guarded.
+   ═══════════════════════════════════════════════════════════════════ */
+@keyframes logo-layer-bloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.52);
+  }
+  55% {
+    opacity: 1;
+  }
+  78% {
+    transform: scale(1.045);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.logo-anim-bloom {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: logo-layer-bloom 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes logo-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.logo-anim-rise {
+  opacity: 0;
+  animation: logo-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-anim-bloom,
+  .logo-anim-rise {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ═══ unidoka-logo-bloom-v2 ═════════════════════════════════════════
+   The Unidoka mark no longer rotates. Motion is a stroke-free layered
+   bloom (opacity + transform only, fills untouched) followed by one
+   quiet settle-glow. `.logo-radial-spin` is fully neutralized so no
+   stale chunk can reintroduce rotation.
+   ═══════════════════════════════════════════════════════════════════ */
+.logo-radial-spin {
+  animation: none !important;
+  transform: none !important;
+}
+
+@keyframes logo-layer-bloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.52);
+  }
+  55% {
+    opacity: 1;
+  }
+  78% {
+    transform: scale(1.045);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.logo-anim-bloom {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: logo-layer-bloom 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes logo-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.logo-anim-rise {
+  opacity: 0;
+  animation: logo-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* One quiet exhale of light as the last layer lands. Not a loop. */
+@keyframes logo-settle-glow {
+  0% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  45% {
+    filter: drop-shadow(
+      0 0 22px color-mix(in srgb, currentColor 20%, transparent)
+    );
+  }
+  100% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+}
+.logo-bloom-stage {
+  animation: logo-settle-glow 1.9s cubic-bezier(0.16, 1, 0.3, 1) 0.7s 1 both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-anim-bloom,
+  .logo-anim-rise,
+  .logo-bloom-stage {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* hero-reveal-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-reveal,
+  .animate-reveal-slow {
+    animation: none;
+  }
+}
+
+/* ═══ hero-mark-entrance ════════════════════════════════════════════
+   display-0 — the hero step of the type ramp, above display-1.
+   Consumed by the `.text-display-0` utility generated in
+   tailwind.config.js, so it carries family / size / weight / leading
+   together and needs no font-* classes at the call site.
+   ═══════════════════════════════════════════════════════════════════ */
+:root {
+  --display-0-size: 6rem;
+  --display-0-weight: 500;
+  --display-0-font-face: var(--font-sans);
+  --display-0-lh: 1.02;
+}
+
+/* ═══ Mark entrance ═════════════════════════════════════════════════
+   The hidden state is declared here, not applied from a React effect.
+   An effect runs after the first paint, which let the finished mark
+   flash for a frame before its animation started. Because these rules
+   ship with the stylesheet, the mark is at opacity 0 on the very first
+   painted frame (SSR included) and only ever appears by animating in.
+
+   `both` fill holds the 0% keyframe through the stagger delay, so a
+   late-starting ray is never visible early. Only direct children of the
+   <svg> are targeted: <defs> / <clipPath> geometry is never transformed.
+   ═══════════════════════════════════════════════════════════════════ */
+@keyframes logo-layer-bloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.52);
+  }
+  55% {
+    opacity: 1;
+  }
+  78% {
+    transform: scale(1.045);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g) {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: logo-layer-bloom 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(1) { animation-delay: 0ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(2) { animation-delay: 55ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(3) { animation-delay: 110ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(4) { animation-delay: 165ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(5) { animation-delay: 220ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(6) { animation-delay: 275ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(7) { animation-delay: 330ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(8) { animation-delay: 385ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(9) { animation-delay: 440ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(10) { animation-delay: 495ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(11) { animation-delay: 550ms; }
+.logo-mark-enter svg > :is(path, circle, rect, ellipse, g):nth-child(12) { animation-delay: 605ms; }
+
+/* One quiet exhale of light as the last ray lands. Not a loop. */
+@keyframes logo-settle-glow {
+  0% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+  45% {
+    filter: drop-shadow(
+      0 0 22px color-mix(in srgb, currentColor 20%, transparent)
+    );
+  }
+  100% {
+    filter: drop-shadow(0 0 0 transparent);
+  }
+}
+.logo-bloom-stage {
+  animation: logo-settle-glow 1.9s cubic-bezier(0.16, 1, 0.3, 1) 0.75s 1 both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-mark-enter svg > :is(path, circle, rect, ellipse, g) {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .logo-bloom-stage,
+  .logo-anim-rise {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ═══ amorfa-mark-entrance ══════════════════════════════════════════
+   Stroke-free reveal for the layered Amorfa trefoil, declared in the
+   stylesheet rather than applied from a React effect. An effect runs
+   after the first paint, which let the finished logo flash for a frame
+   before its animation started. Because these rules ship with the CSS,
+   every painted layer is at opacity 0 on the very first painted frame
+   (server render included) and only ever appears by blooming open.
+
+   Only painted leaves are targeted — anything inside <defs>, <clipPath>,
+   <mask>, a gradient or a <foreignObject> is excluded, so clipping and
+   paint-server geometry is never transformed. Groups are left alone so
+   nested layers never compound their parent's scale.
+
+   `both` holds the 0% keyframe through the stagger delay, so a late
+   layer is never visible early. --amorfa-delay offsets a whole copy
+   (used by the CTA's ghost), --amorfa-step is the per-layer stagger.
+   ═══════════════════════════════════════════════════════════════════ */
+@keyframes amorfa-layer-bloom {
+  0% {
+    opacity: 0;
+    transform: scale(0.52);
+  }
+  55% {
+    opacity: 1;
+  }
+  78% {
+    transform: scale(1.045);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):not(:is(defs, clipPath, mask, linearGradient, radialGradient, pattern, foreignObject) *) {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: amorfa-layer-bloom 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--amorfa-delay, 0ms) + var(--amorfa-step, 0ms));
+  will-change: transform, opacity;
+}
+
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(1) { --amorfa-step: 0ms; }
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(2) { --amorfa-step: 110ms; }
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(3) { --amorfa-step: 220ms; }
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(4) { --amorfa-step: 330ms; }
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(5) { --amorfa-step: 440ms; }
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(6) { --amorfa-step: 550ms; }
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(7) { --amorfa-step: 660ms; }
+.amorfa-mark-enter svg :is(path, circle, rect, ellipse):nth-child(8) { --amorfa-step: 770ms; }
+
+/* Ambient life for the CTA plate. The mark breathes; the hairline rings
+   breathe on a slower, offset cycle so the pair never pulses in lockstep. */
+@keyframes amorfa-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0) scale(1.025);
+  }
+}
+.amorfa-mark-float {
+  animation: amorfa-drift 11s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes amorfa-ring-breathe {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.05;
+  }
+}
+.amorfa-ring {
+  animation: amorfa-ring-breathe 9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .amorfa-mark-enter svg :is(path, circle, rect, ellipse):not(:is(defs, clipPath, mask, linearGradient, radialGradient, pattern, foreignObject) *) {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .amorfa-mark-float,
+  .amorfa-ring {
+    animation: none;
+  }
+}

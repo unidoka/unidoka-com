@@ -38,12 +38,7 @@
       "**/*.glb",
       "website/components/icons/experts-icons/**/*",
       "website/components/icons/logotypes/**/*",
-      "website/components/layout/logo/**/*",
-      "**/.agents/skills/image-to-code/**/*",
-      "**/.agents/skills/imagegen-frontend-mobile/**/*",
-      "**/.agents/skills/imagegen-frontend-web/**/*",
-      "**/.agents/skills/design-taste-frontend/**/*",
-      "website/components/made-on-amorfa.tsx"
+      "website/components/layout/logo/**/*"
     ]
   }
 }

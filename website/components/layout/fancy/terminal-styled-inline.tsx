@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CopyButton } from "@/components/ui/copy-button";
 import { cn } from "@/lib/utils";
 
@@ -9,47 +10,72 @@ interface TerminalStyledInlineProps {
 }
 
 /**
- * Inline terminal command with horizontal scroll.
+ * Inline terminal command.
  *
- * Layout: a flex row containing a scroll container + a copy button.
- * The scroll container is `flex: 1 1 0` with `minWidth: 0` set as an
- * inline style — Tailwind v4 sometimes fails to emit `min-w-0` reliably
- * on this element, and without it a flex child defaults to
- * `min-width: auto`, refuses to shrink below the command's intrinsic
- * width, and no scrollbar ever appears. Inline style is the belt.
+ * Scrollbar contract:
+ *   - content fits   → no scrollbar, no fade, nothing to interact with
+ *   - content overflows → scrollbar exists but is fully transparent;
+ *     it fades in on hover / focus-within (see globals.css,
+ *     `.terminal-scroll[data-overflow="true"]`)
  *
- * Outer wrapper has `width: 100%` + `minWidth: 0` + `maxWidth: 100%`
- * as inline styles for the same reason — it must never be wider than
- * its parent, no matter what the parent grid/flex does.
+ * Overflow is measured, not guessed: a ResizeObserver watches both the
+ * scroll container and the <code> element, so font-load and layout
+ * shifts re-evaluate the state. `atEnd` retracts the right-edge fade
+ * once the tail of the command is visible.
  */
 export function TerminalStyledInline({
   command = "git clone https://github.com/unidoka/amorfa",
   className = "",
 }: TerminalStyledInlineProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const codeRef = useRef<HTMLElement>(null);
+  const [overflowing, setOverflowing] = useState(false);
+  const [atEnd, setAtEnd] = useState(false);
+
+  const check = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const over = el.scrollWidth - el.clientWidth > 1;
+    setOverflowing(over);
+    setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 1);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    if (codeRef.current) ro.observe(codeRef.current);
+    // Re-measure once webfonts settle - mono metrics change the width.
+    document.fonts?.ready.then(check).catch(() => {});
+    return () => ro.disconnect();
+  }, [check, command]);
+
   return (
     <div
-      className={cn("relative mb-4 rounded-lg border border-(--outline) bg-(--card)", className)}
-      style={{ width: "100%", minWidth: 0, maxWidth: "100%" }}
+      className={cn(
+        "relative mb-4 w-full min-w-0 max-w-full rounded-lg border border-(--outline) bg-(--card)",
+        className,
+      )}
     >
       <div className="flex items-start gap-2 py-3 pl-4 pr-2">
         <div
-          className="scrollbar-terminal no-scrollbar!"
-          style={{
-            flex: "1 1 0%",
-            minWidth: 0,
-            overflowX: "auto",
-            overflowY: "hidden",
-          }}
+          ref={scrollRef}
+          data-overflow={overflowing ? "true" : "false"}
+          data-at-end={atEnd ? "true" : "false"}
+          onScroll={check}
+          className="terminal-scroll min-w-0 flex-1 overflow-x-auto overflow-y-hidden"
         >
           <code
-            className="block font-mono text-sm leading-relaxed whitespace-pre text-(--green-4)"
-            style={{ width: "max-content" }}
+            ref={codeRef}
+            className="block w-max whitespace-pre font-mono text-sm leading-relaxed text-(--on-bg-high)"
           >
-            <span className="text-(--on-bg-low) select-none">$ </span>
+            <span className="select-none text-(--on-bg-low)">$ </span>
             {command}
           </code>
         </div>
-        <CopyButton text={command} className="shrink-0" />
+        <CopyButton text={command} className="mt-0.5 shrink-0" />
       </div>
     </div>
   );

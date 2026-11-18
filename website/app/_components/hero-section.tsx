@@ -1,64 +1,101 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { ArrowRightIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
-import { ROUTES } from "@/utils/constants/routes";
-import { ArrowUpRightIcon, LightbulbIcon } from "@phosphor-icons/react";
+import { QuickOrderDialog } from "@/components/ui/quick-order-dialog";
+import { AnimatedLogo } from "@/components/layout/logo/animated-logo";
+import { AnimatedLogoIcon } from "@/components/layout/logo/animated-logo-icon";
 import { useLanguage } from "@/providers/language-provider";
-import { ConsultDialog } from "@/components/consult-dialog";
-import LogoIcon from "@/components/layout/logo/logo-icon";
 
-export default function HeroSection() {
+export function HeroSection() {
   const { t } = useLanguage();
-  return (
-    <section className="relative overflow-hidden bg-(--bg) text-(--on-bg-high) border-b border-(--outline)">
-      {/* Blueprint grid - very faint, masked to the top of the viewport */}
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none opacity-[0.035] dark:opacity-[0.06]"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, var(--on-bg-high) 1px, transparent 1px), linear-gradient(to bottom, var(--on-bg-high) 1px, transparent 1px)",
-          backgroundSize: "96px 96px",
-          maskImage:
-            "radial-gradient(ellipse 80% 55% at 50% 0%, black 20%, transparent 90%)",
-          WebkitMaskImage:
-            "radial-gradient(ellipse 80% 55% at 50% 0%, black 20%, transparent 90%)",
-        }}
-      />
-      {/* Single soft bloom - monochrome */}
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(ellipse 55% 40% at 50% 8%, color-mix(in srgb, var(--on-bg-high), transparent 92%), transparent 70%)",
-        }}
-      />
+  const [replay, setReplay] = useState(0);
 
-      <Container className="relative pt-40 sm:pt-56 pb-24 sm:pb-36">
-        <div className="max-w-[1100px] mx-auto text-center animate-reveal">
-          <h1 className="font-heading font-medium tracking-[-0.045em] leading-[0.88] text-[3.25rem] sm:text-[6rem] lg:text-[8.5rem] mb-10 text-balance">
-            {t("hero.title.part1")}
-            <br />
-            <span className="text-(--on-bg-low)">
-              {t("hero.title.part2")}
+  return (
+    <section className="relative flex min-h-[86vh] items-center overflow-hidden border-b border-(--outline) bg-(--bg) pt-28 pb-20 md:pt-36 md:pb-28">
+      <Container
+        variant="full-width"
+        className="flex flex-col items-center gap-14 lg:flex-row lg:gap-20"
+      >
+        <div className="flex w-full flex-1 flex-col items-start">
+          {/* Type comes entirely from the display tokens — family, weight and
+              size travel together, so no font-* classes appear here.
+              Leading is tightened for a two-line hero. */}
+          <h1 className="text-display-2 leading-[0.98]! tracking-tight text-(--on-bg-high) md:text-display-1 lg:text-display-0">
+            <span className="block">{t("hero.title.part1")}</span>
+
+            {/* The mark closes the phrase. The row's leading is 1 so its box
+                is exactly one em — centring against that puts the mark on the
+                word's optical centre instead of on a loose heading line box.
+                0.9em sizes the rendered glyph to cap height, and no manual
+                translate is needed. Full contrast while the word recedes. */}
+            <span className="flex items-center gap-[0.28em] leading-none text-(--on-bg-medium)">
+              <span>{t("hero.title.part2")}</span>
+              <AnimatedLogoIcon
+                replayKey={replay}
+                className="size-[0.9em] shrink-0 text-(--on-bg-high) lg:hidden"
+              />
             </span>
           </h1>
-          <p className="text-body-2 md:text-body-1 text-(--on-bg-medium) leading-relaxed max-w-[600px] mx-auto mb-12">
+
+          <p className="mt-8 max-w-md animate-reveal fill-mode-both text-body-2 leading-relaxed text-(--on-bg-medium) [animation-delay:160ms] md:mt-10 md:max-w-lg md:text-body-1">
             {t("hero.subtitle")}
           </p>
-          <div className="flex flex-wrap gap-3 justify-center">
-            <ConsultDialog>
-              <Button size="large">
-                <LogoIcon className="[&>*]:text-(--on-primary-card)! size-5!" />
-                {t("nav.request")}
+
+          <div className="mt-10 flex animate-reveal fill-mode-both flex-wrap items-center gap-4 [animation-delay:280ms] md:mt-12 md:gap-5">
+            <QuickOrderDialog serviceName="Консультация">
+              <Button
+                size="large"
+                shape="round"
+                className="md:h-16 md:px-10 md:text-heading-3!"
+              >
+                {t("hero.order")}
+                <ArrowRightIcon />
               </Button>
-            </ConsultDialog>
+            </QuickOrderDialog>
+            <Button
+              size="large"
+              variant="outlined"
+              shape="round"
+              asChild
+              className="md:h-16 md:px-10 md:text-heading-3!"
+            >
+              <Link href="/solutions">
+                {t("home.card_solutions_btn")}
+                <ArrowUpRightIcon />
+              </Link>
+            </Button>
+            <button
+              type="button"
+              onClick={() => setReplay((n) => n + 1)}
+              className="text-heading-6 text-(--on-bg-low) transition-colors hover:text-(--on-bg-high) md:text-heading-5"
+            >
+              {t("hero.replay")}
+            </button>
           </div>
+        </div>
+
+        {/* Desktop: the mark above the logotype, centred in the second half. */}
+        <div className="relative hidden w-full flex-1 flex-col items-center justify-center gap-10 lg:flex">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute top-1/2 left-1/2 size-[460px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-(--primary-glass) blur-3xl"
+          />
+          <AnimatedLogoIcon
+            replayKey={replay}
+            className="relative size-52 text-(--on-bg-high) xl:size-64"
+          />
+          <AnimatedLogo
+            replayKey={replay}
+            className="relative h-10 text-(--on-bg-high) md:h-12"
+          />
         </div>
       </Container>
     </section>
   );
 }
+
+export default HeroSection;
