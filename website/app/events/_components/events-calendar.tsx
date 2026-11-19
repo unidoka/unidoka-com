@@ -6,7 +6,7 @@ import { enUS, ru } from "date-fns/locale";
 import { Container } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CircleNotchIcon, WarningCircleIcon } from "@phosphor-icons/react";
+import { WarningCircleIcon } from "@phosphor-icons/react";
 import { CalendarHeader, type ViewMode } from "./calendar-header";
 import { MonthView } from "./month-view";
 import { WeekView } from "./week-view";
@@ -14,6 +14,7 @@ import { AgendaView } from "./agenda-view";
 import { MiniMonth } from "./mini-month";
 import { FilterPanel } from "./filter-panel";
 import { EventDetails } from "./event-details";
+import { EventsSkeleton } from "./events-skeleton";
 import { indexByDay } from "./date-utils";
 import { applyFilters, EMPTY_FILTER, type FilterState } from "./filters";
 import { fetchPublishedEventsClient, type EventListItem, type EventsLocale } from "@/utils/api/events";
@@ -105,14 +106,7 @@ export function EventsCalendar({ locale }: { locale: EventsLocale }) {
           locale={locale}
         />
 
-        {state.kind === "loading" && (
-          <Card className="rounded-3xl border-(--outline) p-16 text-center">
-            <CircleNotchIcon className="size-6 animate-spin mx-auto text-(--on-bg-low)" />
-            <p className="text-body-4 text-(--on-bg-medium) mt-4">
-              {t("events.calendar.loading")}
-            </p>
-          </Card>
-        )}
+        {state.kind === "loading" && <EventsSkeleton />}
 
         {state.kind === "error" && (
           <Card className="rounded-3xl border border-[color-mix(in_srgb,var(--error),transparent_70%)] bg-[color-mix(in_srgb,var(--error),transparent_96%)] p-8 text-center">

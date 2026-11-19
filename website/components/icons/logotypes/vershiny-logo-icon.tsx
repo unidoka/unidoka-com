@@ -31,7 +31,7 @@ export interface VershinyLogoIconProps
  * Fills use `currentColor`, so the mark inherits any design-token text
  * color (`text-(--on-bg-high)`, etc.) in both themes.
  */
-const ICON_DELAYS = ["400ms", "300ms", "200ms", "100ms", "0ms"];
+const ICON_DELAYS = ["220ms", "165ms", "110ms", "55ms", "0ms"];
 
 export function VershinyLogoIcon({
   replayKey = 0,
@@ -80,7 +80,7 @@ export function VershinyLogoIcon({
       xmlns="http://www.w3.org/2000/svg"
       focusable="false"
       aria-hidden="true"
-      className={cn("shrink-0", className)}
+      className={cn("vershiny-logo-settle shrink-0", className)}
       {...props}
     >
       <path

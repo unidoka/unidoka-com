@@ -9,9 +9,9 @@ export interface VershinyLogoMonoProps
   replayKey?: number | string;
 }
 
-const WORDMARK_DELAY = "120ms";
+const WORDMARK_DELAY = "60ms";
 /* Bottom (smallest) arc first, rising to the top. */
-const ICON_DELAYS = ["400ms", "300ms", "200ms", "100ms", "0ms"];
+const ICON_DELAYS = ["220ms", "165ms", "110ms", "55ms", "0ms"];
 
 export function VershinyLogoMono({
   replayKey = 0,
@@ -59,7 +59,7 @@ export function VershinyLogoMono({
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       focusable="false"
-      className={cn("shrink-0", className)}
+      className={cn("vershiny-logo-settle shrink-0", className)}
       {...props}
     >
       {/* Wordmark */}

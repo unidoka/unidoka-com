@@ -32,7 +32,7 @@ export function SubscribeCalendarDialog({ children, locale = "ru" }: Props) {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-md max-h-[85dvh] overflow-y-auto">
+      <DialogContent className="sm:max-w-md max-h-[85dvh] overflow-y-auto overflow-x-hidden">
         <DialogHeader>
           <DialogTitle>
             <SubscribeTitle />
@@ -148,8 +148,8 @@ function SubscribeContent({ locale }: { locale: EventsLocale }) {
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
+    <div className="flex w-full min-w-0 flex-col gap-3">
+      <div className="grid grid-cols-1 gap-0.5 sm:grid-cols-2">
         {links.map((item) =>
           item.href ? (
             <a
@@ -160,7 +160,7 @@ function SubscribeContent({ locale }: { locale: EventsLocale }) {
               className={rowClass}
             >
               {item.icon}
-              <span>{item.label}</span>
+              <span className="truncate">{item.label}</span>
               <ArrowUpRight className="ml-auto size-4 text-(--on-bg-low)" />
             </a>
           ) : (
@@ -171,16 +171,19 @@ function SubscribeContent({ locale }: { locale: EventsLocale }) {
               className={rowClass}
             >
               {item.icon}
-              <span>{item.label}</span>
+              <span className="truncate">{item.label}</span>
               <Copy className="ml-auto size-4 text-(--on-bg-low)" />
             </button>
           ),
         )}
       </div>
 
-      <div className="flex items-center gap-2 rounded-xl border border-(--outline) bg-(--state-hover) p-2">
+      <div className="flex w-full min-w-0 items-center gap-2 overflow-hidden rounded-xl border border-(--outline) bg-(--state-hover) p-2">
         <LinkSimple className="size-4 shrink-0 text-(--on-bg-low)" />
-        <span className="min-w-0 flex-1 truncate text-body-5 text-(--on-bg-medium)">
+        <span
+          className="block min-w-0 max-w-full flex-1 truncate text-body-5 text-(--on-bg-medium)"
+          title={url}
+        >
           {url}
         </span>
         <Button variant="text" size="icon-small" onClick={copy} aria-label={t("events.subscribe.copy_link")}>
@@ -188,7 +191,7 @@ function SubscribeContent({ locale }: { locale: EventsLocale }) {
         </Button>
       </div>
 
-      <p className="text-body-5 text-(--on-bg-low)">
+      <p className="text-body-5 leading-snug text-(--on-bg-low)">
         {t("events.subscribe.other_hint")}
       </p>
     </div>
@@ -196,6 +199,6 @@ function SubscribeContent({ locale }: { locale: EventsLocale }) {
 }
 
 const rowClass = cn(
-  "flex items-center gap-3 rounded-xl border border-(--outline) px-3 py-2.5 text-left text-body-4 text-(--on-bg-high) transition-colors",
+  "flex w-full min-w-0 items-center gap-3 rounded-xl border border-(--outline) px-3 py-2 text-left text-body-4 text-(--on-bg-high) transition-colors",
   "hover:border-(--on-bg-low) hover:bg-(--state-hover)",
 );

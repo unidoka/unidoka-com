@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { motion } from "motion/react";
 import {
   ArrowRight,
   ArrowUpRight,
   CalendarBlank,
   CalendarX,
+  MapPin,
 } from "@phosphor-icons/react";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
@@ -29,6 +31,20 @@ function eventTag(ev: EventListItem, fallback: string): string {
 const stripHtml = (value: string) =>
   value.replace(/<[^>]*>?/gm, " ").replace(/\s+/g, " ").trim();
 
+const container = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.09, delayChildren: 0.05 } },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 18 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.65, ease: [0.16, 1, 0.3, 1] as const },
+  },
+};
+
 export function EventsSection() {
   const { t, lang } = useLanguage();
   const [events, setEvents] = useState<EventListItem[] | null>(null);
@@ -39,7 +55,22 @@ export function EventsSection() {
     let cancelled = false;
     fetchPublishedEventsClient(locale)
       .then((list) => {
-        if (!cancelled) setEvents(list.slice(0, 3));
+        if (cancelled) return;
+        const now = Date.now() - 86400000;
+        const upcoming = list
+          .filter((e) => {
+            const raw = e.end_at || e.start_at;
+            if (!raw) return true;
+            const at = new Date(raw).getTime();
+            return Number.isNaN(at) || at >= now;
+          })
+          .sort((a, b) => {
+            const at = a.start_at ? new Date(a.start_at).getTime() : Infinity;
+            const bt = b.start_at ? new Date(b.start_at).getTime() : Infinity;
+            return at - bt;
+          })
+          .slice(0, 3);
+        setEvents(upcoming);
       })
       .catch(() => {
         if (!cancelled) setEvents([]);
@@ -77,7 +108,7 @@ export function EventsSection() {
 
   return (
     <section className="py-16 md:py-24">
-      <Container >
+      <Container>
         <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
           <h2 className="text-display-3 leading-[1.05]! md:text-display-2">
             {t("vershiny.events_title")}
@@ -92,13 +123,10 @@ export function EventsSection() {
 
         {events === null ? (
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.15fr_1fr]">
-            <Card className="h-[380px] animate-pulse rounded-3xl border-(--outline) bg-muted/30 ring-0" />
+            <div className="skeleton-shimmer h-[400px] rounded-[28px]" />
             <div className="flex flex-col gap-4">
               {[...Array(2)].map((_, i) => (
-                <Card
-                  key={i}
-                  className="h-28 animate-pulse rounded-3xl border-(--outline) bg-muted/30 ring-0"
-                />
+                <div key={i} className="skeleton-shimmer h-32 rounded-2xl" />
               ))}
             </div>
           </div>
@@ -115,40 +143,43 @@ export function EventsSection() {
             </p>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.15fr_1fr]">
+          <motion.div
+            variants={container}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.15 }}
+            className="grid grid-cols-1 gap-6 lg:grid-cols-[1.15fr_1fr]"
+          >
             {featured && (
-              /* The section is flush with the page now, so the featured
-                 card carries its own surface instead of borrowing one. */
-              <Card className="relative flex min-h-[380px] flex-col justify-between gap-8 overflow-hidden rounded-3xl border border-(--outline) bg-(--card) p-8 ring-0 md:p-10">
-                <svg
+              <motion.article
+                variants={item}
+                className="group relative flex min-h-[400px] flex-col justify-between gap-10 overflow-hidden rounded-[28px] border border-(--outline) bg-(--card) p-8 transition-colors duration-500 hover:border-(--on-bg-low) md:p-10"
+              >
+                <div
                   aria-hidden
-                  className="pointer-events-none absolute inset-x-0 bottom-0 h-40 w-full opacity-[0.08]"
-                  viewBox="0 0 400 160"
-                  preserveAspectRatio="none"
-                >
-                  <path
-                    d="M0 160 L80 60 L160 110 L240 30 L320 90 L400 20 L400 160 Z"
-                    fill="var(--on-bg-high)"
-                  />
-                </svg>
-
+                  className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-(--primary-glass) blur-3xl transition-opacity duration-500 group-hover:opacity-80 opacity-60"
+                />
                 <div className="relative">
-                  <Badge
-                    variant="tonal-static"
-                    size="chip-small"
-                    className="mb-5 w-fit"
-                  >
+                  <Badge variant="glass-static" size="chip-small" className="mb-5 w-fit">
                     {eventTag(featured, defaultTag)}
                   </Badge>
                   <h3 className="text-display-4 leading-tight text-(--on-bg-high)">
-                    {featured.title}
+                    {stripHtml(featured.title)}
                   </h3>
-                  <p className="mt-4 flex items-center gap-2 text-body-3 text-(--on-bg-medium)">
-                    <CalendarBlank className="size-4 shrink-0" />
-                    {formatDate(featured.start_at, featured.end_at)}
-                  </p>
+                  <div className="mt-5 flex flex-col gap-2 text-body-4 text-(--on-bg-medium)">
+                    <p className="flex items-center gap-2">
+                      <CalendarBlank className="size-4 shrink-0" />
+                      {formatDate(featured.start_at, featured.end_at)}
+                    </p>
+                    {featured.location_name && (
+                      <p className="flex items-center gap-2">
+                        <MapPin className="size-4 shrink-0" />
+                        <span className="truncate">{stripHtml(featured.location_name)}</span>
+                      </p>
+                    )}
+                  </div>
                   {featured.short_description && (
-                    <p className="mt-3 line-clamp-2 text-body-3 leading-relaxed text-(--on-bg-medium)">
+                    <p className="mt-4 line-clamp-2 text-body-3 leading-relaxed text-(--on-bg-medium)">
                       {stripHtml(featured.short_description)}
                     </p>
                   )}
@@ -171,43 +202,50 @@ export function EventsSection() {
                     </Link>
                   </Button>
                 </div>
-              </Card>
+              </motion.article>
             )}
 
-            <div className="flex flex-col justify-center divide-y divide-(--outline)">
+            <div className="flex flex-col gap-4">
               {rest.length === 0 ? (
                 <p className="py-6 text-body-3 text-(--on-bg-low)">
                   {t("vershiny.events_more_none")}
                 </p>
               ) : (
                 rest.map((e) => (
-                  <Link
-                    key={e.id}
-                    href={withLocale(eventUrl(e))}
-                    className="group flex items-start gap-5 py-6 first:pt-0 last:pb-0"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <Badge
-                        variant="tonal-static"
-                        size="chip-small"
-                        className="mb-3"
-                      >
-                        {eventTag(e, defaultTag)}
-                      </Badge>
-                      <h3 className="text-heading-2 leading-tight text-(--on-bg-high)">
-                        {e.title}
-                      </h3>
-                      <p className="mt-2 flex items-center gap-2 text-body-4 text-(--on-bg-medium)">
-                        <CalendarBlank className="size-4 shrink-0" />
-                        {formatDate(e.start_at, e.end_at)}
-                      </p>
-                    </div>
-                    <ArrowUpRight className="mt-1 size-5 shrink-0 text-(--on-bg-low) transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                  </Link>
+                  <motion.div key={e.id} variants={item}>
+                    <Link
+                      href={withLocale(eventUrl(e))}
+                      className="group flex items-start gap-5 rounded-2xl border border-(--outline) bg-(--card) p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-(--on-bg-low) hover:shadow-[0_12px_30px_-22px_rgba(0,0,0,0.45)]"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <Badge
+                          variant="glass-static"
+                          size="chip-small"
+                          className="mb-3"
+                        >
+                          {eventTag(e, defaultTag)}
+                        </Badge>
+                        <h3 className="text-heading-2 leading-tight text-(--on-bg-high)">
+                          {stripHtml(e.title)}
+                        </h3>
+                        <p className="mt-2 flex items-center gap-2 text-body-4 text-(--on-bg-medium)">
+                          <CalendarBlank className="size-4 shrink-0" />
+                          {formatDate(e.start_at, e.end_at)}
+                        </p>
+                        {e.location_name && (
+                          <p className="mt-1.5 flex items-center gap-2 text-body-4 text-(--on-bg-low)">
+                            <MapPin className="size-4 shrink-0" />
+                            <span className="truncate">{stripHtml(e.location_name)}</span>
+                          </p>
+                        )}
+                      </div>
+                      <ArrowUpRight className="mt-1 size-5 shrink-0 text-(--on-bg-low) transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                    </Link>
+                  </motion.div>
                 ))
               )}
             </div>
-          </div>
+          </motion.div>
         )}
       </Container>
     </section>

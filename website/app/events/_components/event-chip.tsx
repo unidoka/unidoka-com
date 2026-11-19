@@ -28,7 +28,7 @@ export function EventChip({ event, day, compact, onClick }: Props) {
       : "";
 
   if (compact) {
-    // Compact mode for Month View (single line, tight)
+    // Month view: soft tinted pill with a colour dot, no hard border.
     return (
       <button
         type="button"
@@ -38,16 +38,17 @@ export function EventChip({ event, day, compact, onClick }: Props) {
         }}
         title={stripHtml(event.title)}
         style={{ "--ev": color } as React.CSSProperties}
-        className="group/chip w-full text-left transition-all duration-150 flex flex-col gap-0.5 w-full overflow-hidden p-1.5 rounded-md hover:bg-(--state-hover) border-l-2 border-[var(--ev)] bg-[color-mix(in_srgb,var(--ev)_8%,transparent)]"
+        className="group/chip flex w-full min-w-0 items-center gap-1.5 overflow-hidden rounded-lg bg-[color-mix(in_srgb,var(--ev)_7%,transparent)] px-2 py-1 text-left transition-colors duration-150 hover:bg-[color-mix(in_srgb,var(--ev)_13%,transparent)]"
       >
-        <span className="truncate  text-[11px] leading-tight text-(--on-bg-high)">
+        <span className="size-1.5 shrink-0 rounded-full bg-[var(--ev)]" />
+        <span className="truncate text-[11px] leading-tight text-(--on-bg-high)">
           {stripHtml(event.title)}
         </span>
       </button>
     );
   }
 
-  // Block mode for Week View (stacked time + title, multi-line)
+  // Week view: card with a soft left accent and a lift on hover.
   return (
     <button
       type="button"
@@ -58,12 +59,14 @@ export function EventChip({ event, day, compact, onClick }: Props) {
       title={stripHtml(event.title)}
       style={{ "--ev": color } as React.CSSProperties}
       className={cn(
-        "group/chip w-full text-left transition-all duration-150 flex flex-col gap-1 p-2 rounded-md border border-(--outline) bg-(--card) hover:border-[var(--ev)] overflow-hidden",
-        startsToday && "border-l-[3px] border-l-[var(--ev)]"
+        "group/chip relative flex w-full flex-col gap-1.5 overflow-hidden rounded-xl border border-(--outline) bg-(--card) p-2.5 pl-3 text-left transition-all duration-300",
+        "hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,var(--ev)_45%,var(--outline))] hover:shadow-[0_10px_26px_-16px_color-mix(in_srgb,var(--ev)_45%,transparent)]",
+        startsToday && "border-[color-mix(in_srgb,var(--ev)_32%,var(--outline))]",
       )}
     >
+      <span className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-[var(--ev)]" />
       <div className="flex items-center gap-1.5 w-full min-w-0">
-        <span className="shrink-0 size-1.5 rounded-full bg-[var(--ev)]" />
+        <span className="shrink-0 size-1.5 rounded-full bg-[var(--ev)] opacity-70" />
         {timeString && (
           <span className="shrink-0 text-[10px] tabular-nums tracking-wider  text-(--on-bg-medium)">
             {timeString}
