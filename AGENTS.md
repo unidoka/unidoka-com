@@ -46,6 +46,7 @@ docs/                            the spec — source of truth
 - When you change a public interface, update its `spec.md` in the same change. If a table changes, update the `.dbml` too.
 - Extending is expected. Add auth, uploads, queues, whatever a feature needs — just keep each concern in its own module and update the spec.
 - Use repomapper tool before reading files please.
+- Before starting index current repo using codebase-memory mcp and show main entering points and modules if you're not done it yet.
 
 ## Changelog & Versioning
 

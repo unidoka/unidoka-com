@@ -23,12 +23,10 @@
     }
   ],
   "mcp": {
-    "repomapper": {
+    "codebase-memory": {
       "type": "local",
       "command": [
-        "npx",
-        "-y",
-        "@modelcontextprotocol/server-repomapper"
+        "/home/agent/.local/bin/codebase-memory-mcp"
       ],
       "enabled": true
     }
