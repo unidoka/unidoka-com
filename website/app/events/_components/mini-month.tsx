@@ -1,11 +1,12 @@
 "use client";
 
 import { addMonths, format, isSameDay, isSameMonth, isToday, subMonths } from "date-fns";
-import { ru } from "date-fns/locale";
+import { enUS, ru } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
 import { monthGrid } from "./date-utils";
 import { cn } from "@/lib/utils";
 import { CaretLeft, CaretRight } from "@phosphor-icons/react";
+import { useLanguage } from "@/providers/language-provider";
 
 interface Props {
   month: Date;
@@ -15,9 +16,13 @@ interface Props {
   onSelect: (d: Date) => void;
 }
 
-const WEEKDAYS = ["П", "В", "С", "Ч", "П", "С", "В"];
+const WEEKDAYS_RU = ["П", "В", "С", "Ч", "П", "С", "В"];
+const WEEKDAYS_EN = ["M", "T", "W", "T", "F", "S", "S"];
 
 export function MiniMonth({ month, selected, eventDays, onMonthChange, onSelect }: Props) {
+  const { lang } = useLanguage();
+  const dateLocale = lang === "en" ? enUS : ru;
+  const weekdays = lang === "en" ? WEEKDAYS_EN : WEEKDAYS_RU;
   const cells = monthGrid(month);
 
   return (
@@ -31,7 +36,7 @@ export function MiniMonth({ month, selected, eventDays, onMonthChange, onSelect 
           <CaretLeft className="size-3.5" />
         </button>
         <div className="text-body-4  capitalize text-(--on-bg-high)">
-          {format(month, "LLLL yyyy", { locale: ru })}
+          {format(month, "LLLL yyyy", { locale: dateLocale })}
         </div>
         <button
           type="button"
@@ -43,7 +48,7 @@ export function MiniMonth({ month, selected, eventDays, onMonthChange, onSelect 
       </div>
 
       <div className="grid grid-cols-7 gap-0.5 mb-1">
-        {WEEKDAYS.map((d, i) => (
+        {weekdays.map((d, i) => (
           <div
             key={i}
             className="h-7 flex items-center justify-center text-[10px]  text-(--on-bg-low) uppercase"

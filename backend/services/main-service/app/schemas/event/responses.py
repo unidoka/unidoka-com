@@ -98,6 +98,10 @@ class EventListItem(BaseModel):
     # DATE-valued iCal events (`DTSTART;VALUE=DATE`) have no clock time.
     is_all_day: bool = False
     registration_deadline: Optional[datetime] = None
+    # Raw, human-readable deadline parsed from the iCal description
+    # ("Дедлайн регистрации: 1 декабря"). iCal has no structured field
+    # for it, and the feed text is not guaranteed to be a parseable date.
+    registration_deadline_text: Optional[str] = None
     location_name: Optional[str] = None
     address: Optional[str] = None
     price: Optional[str] = None

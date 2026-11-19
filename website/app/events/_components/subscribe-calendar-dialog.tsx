@@ -19,45 +19,59 @@ import {
   OutlookLogotypeIcon,
   YandexLogotypeIcon,
 } from "@/components/icons";
-import { fetchIcalFeedUrl } from "@/utils/api/events";
+import { fetchIcalFeedUrl, type EventsLocale } from "@/utils/api/events";
+import { useLanguage } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
-
-const CALENDAR_NAME = "Unidoka — события";
 
 interface Props {
   children: React.ReactNode;
+  locale?: EventsLocale;
 }
 
-export function SubscribeCalendarDialog({ children }: Props) {
+export function SubscribeCalendarDialog({ children, locale = "ru" }: Props) {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[85dvh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Подключить календарь</DialogTitle>
+          <DialogTitle>
+            <SubscribeTitle />
+          </DialogTitle>
           <DialogDescription>
-            События Unidoka появятся в вашем календаре и будут обновляться
-            автоматически.
+            <SubscribeDescription />
           </DialogDescription>
         </DialogHeader>
-        <SubscribeContent />
+        <SubscribeContent locale={locale} />
       </DialogContent>
     </Dialog>
   );
 }
 
-function SubscribeContent() {
+function SubscribeTitle() {
+  const { t } = useLanguage();
+  return <>{t("events.subscribe.title")}</>;
+}
+
+function SubscribeDescription() {
+  const { t } = useLanguage();
+  return <>{t("events.subscribe.description")}</>;
+}
+
+function SubscribeContent({ locale }: { locale: EventsLocale }) {
+  const { t, lang } = useLanguage();
+  const calendarName = lang === "en" ? "Unidoka — events" : "Unidoka — события";
   const [url, setUrl] = useState<string | null | undefined>(undefined);
 
   useEffect(() => {
     let cancelled = false;
-    fetchIcalFeedUrl().then((u) => {
+    setUrl(undefined);
+    fetchIcalFeedUrl(locale).then((u) => {
       if (!cancelled) setUrl(u);
     });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [locale]);
 
   if (url === undefined) {
     return (
@@ -70,25 +84,25 @@ function SubscribeContent() {
   if (!url) {
     return (
       <p className="py-6 text-center text-body-4 text-(--on-bg-medium)">
-        Календарь пока не настроен.
+        {t("events.subscribe.not_configured")}
       </p>
     );
   }
 
   const encoded = encodeURIComponent(url);
-  const name = encodeURIComponent(CALENDAR_NAME);
+  const name = encodeURIComponent(calendarName);
   const webcal = url.replace(/^https:\/\//, "webcal://");
 
   const links = [
     {
       id: "google",
-      label: "Google Календарь",
+      label: t("events.subscribe.google"),
       icon: <GoogleCalendarLogotypeIcon className="size-5" />,
       href: `https://calendar.google.com/calendar/render?cid=${encoded}`,
     },
     {
       id: "yandex",
-      label: "Яндекс Календарь",
+      label: t("events.subscribe.yandex"),
       icon: <YandexLogotypeIcon className="size-5" />,
       href: null,
     },
@@ -100,7 +114,7 @@ function SubscribeContent() {
     },
     {
       id: "apple",
-      label: "Apple Календарь",
+      label: t("events.subscribe.apple"),
       icon: <AppleLogotypeIcon className="size-5" />,
       href: webcal,
     },
@@ -115,20 +129,21 @@ function SubscribeContent() {
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(url);
-      toast.success("Ссылка на календарь скопирована");
+      toast.success(t("events.subscribe.copied"));
     } catch {
-      toast.error("Не удалось скопировать ссылку");
+      toast.error(t("events.subscribe.copy_failed"));
     }
   };
 
   const copyFor = async (label: string) => {
     try {
       await navigator.clipboard.writeText(url);
-      toast.success(`Ссылка скопирована для ${label}`, {
-        description: "Вставьте её в настройках календаря: «Добавить по ссылке».",
-      });
+      toast.success(
+        t("events.subscribe.copied_for").replace("{name}", label),
+        { description: t("events.subscribe.paste_hint") },
+      );
     } catch {
-      toast.error("Не удалось скопировать ссылку");
+      toast.error(t("events.subscribe.copy_failed"));
     }
   };
 
@@ -168,14 +183,13 @@ function SubscribeContent() {
         <span className="min-w-0 flex-1 truncate text-body-5 text-(--on-bg-medium)">
           {url}
         </span>
-        <Button variant="text" size="icon-small" onClick={copy} aria-label="Скопировать ссылку">
+        <Button variant="text" size="icon-small" onClick={copy} aria-label={t("events.subscribe.copy_link")}>
           <Copy className="size-4" />
         </Button>
       </div>
 
       <p className="text-body-5 text-(--on-bg-low)">
-        Для других календарей скопируйте ссылку и добавьте её как подписку на
-        календарь (iCal / ICS).
+        {t("events.subscribe.other_hint")}
       </p>
     </div>
   );

@@ -1,6 +1,15 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  ReactNode,
+} from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { Language, translations } from "@/entities/i18n/translations";
 
 interface LanguageContextType {
@@ -11,61 +20,55 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+function localeFromPath(pathname: string | null): Language {
+  if (!pathname) return "ru";
+  return pathname === "/en" || pathname.startsWith("/en/") ? "en" : "ru";
+}
+
+function stripLocale(pathname: string): string {
+  if (pathname === "/en") return "/";
+  return pathname.startsWith("/en/") ? pathname.slice(3) : pathname;
+}
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Language>("ru");
-  const [isMounted, setIsMounted] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+  const pathLocale = useMemo(() => localeFromPath(pathname), [pathname]);
+  const [lang, setLangState] = useState<Language>(pathLocale);
+
+  // The URL is the single source of truth: /en/* is English, everything
+  // else is Russian. This stays in sync on client-side navigation.
+  useEffect(() => {
+    setLangState(pathLocale);
+  }, [pathLocale]);
 
   useEffect(() => {
-    setIsMounted(true);
-    
-    // 1. Check URL search param first (?lang=en or ?lang=ru)
-    const params = new URLSearchParams(window.location.search);
-    const urlLang = params.get("lang");
-    
-    if (urlLang === "en" || urlLang === "ru") {
-      setLangState(urlLang);
-      localStorage.setItem("lang", urlLang);
-      return;
-    }
-
-    // 2. Check localStorage
-    const stored = localStorage.getItem("lang") as Language | null;
-    if (stored === "en" || stored === "ru") {
-      setLangState(stored);
-      return;
-    }
-
-    // 3. Check OS language as final fallback
-    if (typeof navigator !== "undefined") {
-      const osLang = navigator.language.toLowerCase();
-      if (osLang.startsWith("ru")) {
-        setLangState("ru");
-      } else {
-        setLangState("en");
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    if (isMounted) {
-      document.documentElement.lang = lang;
-    }
-  }, [lang, isMounted]);
-
-  const setLang = useCallback((newLang: Language) => {
-    localStorage.setItem("lang", newLang);
-    setLangState(newLang);
-    
-    // Update search param without triggering a full page reload
-    const params = new URLSearchParams(window.location.search);
-    params.set("lang", newLang);
-    const newUrl = `${window.location.pathname}?${params.toString()}`;
-    window.history.replaceState({}, "", newUrl);
-  }, []);
-
-  const t = useCallback((key: string) => {
-    return translations[lang]?.[key] || key;
+    document.documentElement.lang = lang;
   }, [lang]);
+
+  const setLang = useCallback(
+    (newLang: Language) => {
+      setLangState(newLang);
+      document.documentElement.lang = newLang;
+
+      const current = window.location.pathname;
+      const base = stripLocale(current);
+      const target =
+        newLang === "en"
+          ? base === "/"
+            ? "/en"
+            : `/en${base}`
+          : base;
+
+      router.push(`${target}${window.location.search}${window.location.hash}`);
+    },
+    [router],
+  );
+
+  const t = useCallback(
+    (key: string) => translations[lang]?.[key] || key,
+    [lang],
+  );
 
   return (
     <LanguageContext.Provider value={{ lang, setLang, t }}>

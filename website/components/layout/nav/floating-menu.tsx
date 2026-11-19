@@ -52,7 +52,7 @@ export function FloatingMenu({
   triggerIconClassName,
 }: FloatingMenuProps) {
   const [open, setOpen] = useState(false);
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
   const pathname = usePathname();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -81,7 +81,11 @@ export function FloatingMenu({
     };
   }, [open]);
 
-  const rootLink = (path: string) => rootDomainUrl(path);
+  const rootLink = (path: string) => {
+    const localized =
+      lang === "en" ? (path === "/" ? "/en" : `/en${path}`) : path;
+    return rootDomainUrl(localized);
+  };
   const tr = (key: string, fallback: string) => {
     const v = t(key);
     return v === key ? fallback : v;

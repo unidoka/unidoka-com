@@ -32,10 +32,12 @@ const stripHtml = (value: string) =>
 export function EventsSection() {
   const { t, lang } = useLanguage();
   const [events, setEvents] = useState<EventListItem[] | null>(null);
+  const locale = lang === "en" ? "en" : "ru";
+  const withLocale = (path: string) => (lang === "en" ? `/en${path}` : path);
 
   useEffect(() => {
     let cancelled = false;
-    fetchPublishedEventsClient()
+    fetchPublishedEventsClient(locale)
       .then((list) => {
         if (!cancelled) setEvents(list.slice(0, 3));
       })
@@ -45,7 +47,7 @@ export function EventsSection() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [locale]);
 
   const featured = events?.[0];
   const rest = events?.slice(1) ?? [];
@@ -81,7 +83,7 @@ export function EventsSection() {
             {t("vershiny.events_title")}
           </h2>
           <Button variant="outlined" size="medium" asChild>
-            <Link href="/events">
+            <Link href={withLocale("/events")}>
               {t("vershiny.events_all")}
               <ArrowRight />
             </Link>
@@ -162,7 +164,7 @@ export function EventsSection() {
                   )}
                   <Button variant="glass" size="icon-large" asChild>
                     <Link
-                      href={eventUrl(featured)}
+                      href={withLocale(eventUrl(featured))}
                       aria-label={t("vershiny.events_all")}
                     >
                       <ArrowRight />
@@ -181,7 +183,7 @@ export function EventsSection() {
                 rest.map((e) => (
                   <Link
                     key={e.id}
-                    href={eventUrl(e)}
+                    href={withLocale(eventUrl(e))}
                     className="group flex items-start gap-5 py-6 first:pt-0 last:pb-0"
                   >
                     <div className="min-w-0 flex-1">

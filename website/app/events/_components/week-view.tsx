@@ -4,6 +4,7 @@ import { format, isToday } from "date-fns";
 import { weekGrid } from "./date-utils";
 import { EventChip } from "./event-chip";
 import type { EventListItem } from "@/utils/api/events";
+import { useLanguage } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -12,9 +13,12 @@ interface Props {
   onSelectEvent: (e: EventListItem) => void;
 }
 
-const WEEKDAYS = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"];
+const WEEKDAYS_RU = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"];
+const WEEKDAYS_EN = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
 export function WeekView({ anchor, byDay, onSelectEvent }: Props) {
+  const { lang } = useLanguage();
+  const weekdays = lang === "en" ? WEEKDAYS_EN : WEEKDAYS_RU;
   const days = weekGrid(anchor);
 
   return (
@@ -35,7 +39,7 @@ export function WeekView({ anchor, byDay, onSelectEvent }: Props) {
                   )}
                 >
                   <span className="text-[11px]  uppercase tracking-wider text-(--on-bg-low)">
-                    {WEEKDAYS[i]}
+                    {weekdays[i]}
                   </span>
                   <span
                     className={cn(

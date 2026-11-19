@@ -31,10 +31,16 @@ export const metadata: Metadata = {
   description: SITE_DESCRIPTION,
   alternates: {
     canonical: SITE_URL,
+    languages: {
+      ru: SITE_URL,
+      en: `${SITE_URL}/en`,
+      "x-default": SITE_URL,
+    },
   },
   openGraph: {
     type: "website",
     locale: "ru_RU",
+    alternateLocale: ["en_US"],
     url: SITE_URL,
     siteName: "Unidoka",
     title: SITE_TITLE,
@@ -82,6 +88,49 @@ export default function RootLayout({
   return (
     <html lang="ru" suppressHydrationWarning>
       <head>
+        <link
+          rel="alternate"
+          type="text/plain"
+          href="/llms.txt"
+          title="LLM-friendly site summary"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  "@id": `${SITE_URL}/#organization`,
+                  name: "Unidoka",
+                  url: SITE_URL,
+                  logo: `${SITE_URL}/icon-light.svg`,
+                  sameAs: ["https://t.me/unidoka", "https://github.com/unidoka"],
+                },
+                {
+                  "@type": "WebSite",
+                  "@id": `${SITE_URL}/#website`,
+                  url: SITE_URL,
+                  name: "Unidoka",
+                  description: SITE_DESCRIPTION,
+                  publisher: { "@id": `${SITE_URL}/#organization` },
+                  inLanguage: ["ru", "en"],
+                },
+              ],
+            }).replace(/</g, "\\u003c"),
+          }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+try {
+  var isEn = location.pathname === "/en" || location.pathname.indexOf("/en/") === 0;
+  document.documentElement.lang = isEn ? "en" : "ru";
+} catch (e) {}
+`,
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `

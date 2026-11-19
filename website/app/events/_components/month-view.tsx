@@ -7,10 +7,13 @@ import { EventChip } from "./event-chip";
 import { DayEventsDrawer } from "./day-events-drawer";
 import { colorForOrganizer } from "./organizer-meta";
 import type { EventListItem } from "@/utils/api/events";
+import { useLanguage } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
 
-const WEEKDAYS_LONG = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
-const WEEKDAYS_SHORT = ["П", "В", "С", "Ч", "П", "С", "В"];
+const WEEKDAYS_LONG_RU = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+const WEEKDAYS_SHORT_RU = ["П", "В", "С", "Ч", "П", "С", "В"];
+const WEEKDAYS_LONG_EN = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const WEEKDAYS_SHORT_EN = ["M", "T", "W", "T", "F", "S", "S"];
 const MAX_CHIPS = 3;
 
 interface Props {
@@ -30,6 +33,9 @@ export function MonthView({
   onSelectEvent,
   onShowMore,
 }: Props) {
+  const { lang, t } = useLanguage();
+  const weekdaysLong = lang === "en" ? WEEKDAYS_LONG_EN : WEEKDAYS_LONG_RU;
+  const weekdaysShort = lang === "en" ? WEEKDAYS_SHORT_EN : WEEKDAYS_SHORT_RU;
   const cells = monthGrid(month);
   const [drawerDay, setDrawerDay] = useState<Date | null>(null);
 
@@ -46,12 +52,12 @@ export function MonthView({
     <>
       <div className="-mx-4 sm:mx-0 flex flex-col rounded-none sm:rounded-2xl border-y sm:border border-(--outline) bg-(--card) overflow-hidden min-h-[520px] sm:min-h-[680px]">
         <div className="grid grid-cols-7 border-b border-(--outline)">
-          {WEEKDAYS_LONG.map((long, i) => (
+          {weekdaysLong.map((long, i) => (
             <div
               key={long + i}
               className="h-8 sm:h-10 flex items-center justify-center text-[11px] sm:text-body-5  uppercase tracking-wider text-(--on-bg-low)"
             >
-              <span className="sm:hidden">{WEEKDAYS_SHORT[i]}</span>
+              <span className="sm:hidden">{weekdaysShort[i]}</span>
               <span className="hidden sm:inline">{long}</span>
             </div>
           ))}
@@ -116,7 +122,7 @@ export function MonthView({
                       }}
                       className="text-[10px] text-left px-1.5 text-(--on-bg-medium) hover:text-(--on-bg-high) transition-colors"
                     >
-                      +{overflow} ещё
+                      +{overflow} {t("events.calendar.show_more")}
                     </button>
                   )}
                 </div>

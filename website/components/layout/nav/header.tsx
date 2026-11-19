@@ -10,7 +10,6 @@ import { useState, useEffect, useRef, useMemo, type ReactNode } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
-import { useRootHref } from "@/hooks/use-root-href";
 import { crossSubdomainUrl, rootDomainUrl } from "@/utils/root-domain";
 import { useLanguage } from "@/providers/language-provider";
 import { FloatingMenu } from "./floating-menu";
@@ -57,7 +56,8 @@ function useBackTarget() {
   const pathname = usePathname() || "";
   const { t } = useLanguage();
   return useMemo(() => {
-    const segs = pathname.split("/").filter(Boolean);
+    const stripped = pathname.replace(/^\/en(?=\/|$)/, "");
+    const segs = stripped.split("/").filter(Boolean);
     if (segs.length < 2) return null;
     const entry = BACK_MAP[segs[0]];
     if (!entry) return null;
@@ -71,8 +71,7 @@ function useBackTarget() {
 
 export default function Header() {
   const { user, isLoading, logout } = useUser();
-  const { t } = useLanguage();
-  const logoHref = useRootHref();
+  const { lang, t } = useLanguage();
   const back = useBackTarget();
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -102,7 +101,13 @@ export default function Header() {
     ? crossSubdomainUrl("admin", `/${adminSecret}`)
     : null;
   const profileHref = crossSubdomainUrl("app", "/profile");
-  const rootLink = (path: string) => rootDomainUrl(path);
+
+  const withLocale = (path: string) => {
+    if (lang !== "en") return path;
+    return path === "/" ? "/en" : `/en${path}`;
+  };
+  const rootLink = (path: string) => rootDomainUrl(withLocale(path));
+  const logoHref = rootLink("/");
 
   const shadowStyle = isScrolled
     ? { boxShadow: "0 12px 32px -8px rgba(0,0,0,0.12), 0 4px 12px -4px rgba(0,0,0,0.04)" }
@@ -147,7 +152,7 @@ export default function Header() {
                     className="h-12! gap-1.5 pl-4 pr-5 rounded-2xl border-none bg-card"
                     style={shadowStyle}
                   >
-                    <Link href={back.href}>
+                    <Link href={rootLink(back.href)}>
                       <CaretLeftIcon className="size-4" weight="bold" />
                       <span className="text-[13px]  truncate max-w-[120px]">
                         {back.label}

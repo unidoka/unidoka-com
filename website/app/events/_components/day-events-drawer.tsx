@@ -1,7 +1,7 @@
 "use client";
 
-import { format, isSameDay } from "date-fns";
-import { ru } from "date-fns/locale";
+import { format } from "date-fns";
+import { enUS, ru } from "date-fns/locale";
 import { MapPin, ArrowUpRight, CalendarX } from "@phosphor-icons/react";
 import {
   Drawer,
@@ -19,6 +19,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { parseEventDate } from "./date-utils";
 import { colorForOrganizer } from "./organizer-meta";
 import type { EventListItem } from "@/utils/api/events";
+import { useLanguage } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -28,7 +29,8 @@ interface Props {
   onSelectEvent: (e: EventListItem) => void;
 }
 
-function pluralizeEvents(n: number): string {
+function pluralizeEvents(n: number, isEn: boolean): string {
+  if (isEn) return n === 1 ? "event" : "events";
   if (n === 1) return "событие";
   if (n >= 2 && n <= 4) return "события";
   return "событий";
@@ -39,7 +41,12 @@ const stripHtml = (str: string) => str.replace(/<[^>]*>?/gm, ' ');
 
 export function DayEventsDrawer({ day, events, onClose, onSelectEvent }: Props) {
   const isMobile = useIsMobile();
-  const title = day ? format(day, "d MMMM yyyy, EEEE", { locale: ru }) : "";
+  const { lang } = useLanguage();
+  const dateLocale = lang === "en" ? enUS : ru;
+  const isEn = lang === "en";
+  const title = day
+    ? format(day, isEn ? "EEEE, MMMM d, yyyy" : "d MMMM yyyy, EEEE", { locale: dateLocale })
+    : "";
 
   const renderCards = () => {
     if (events.length === 0) return <EmptyDay />;
@@ -63,7 +70,7 @@ export function DayEventsDrawer({ day, events, onClose, onSelectEvent }: Props) 
             <DrawerTitle className="capitalize text-left text-heading-4 ">{title}</DrawerTitle>
             {events.length > 0 && (
               <p className="text-body-5 text-(--on-bg-low) text-left mt-1">
-                {events.length} {pluralizeEvents(events.length)}
+                {events.length} {pluralizeEvents(events.length, isEn)}
               </p>
             )}
           </DrawerHeader>
@@ -82,7 +89,7 @@ export function DayEventsDrawer({ day, events, onClose, onSelectEvent }: Props) 
           <SheetTitle className="capitalize text-left text-heading-3 ">{title}</SheetTitle>
           {events.length > 0 && (
             <p className="text-body-5 text-(--on-bg-low) text-left mt-1  uppercase tracking-wider">
-              {events.length} {pluralizeEvents(events.length)}
+              {events.length} {pluralizeEvents(events.length, isEn)}
             </p>
           )}
         </SheetHeader>
@@ -95,23 +102,10 @@ export function DayEventsDrawer({ day, events, onClose, onSelectEvent }: Props) 
 }
 
 function EventCard({ event, onOpen }: { event: EventListItem; onOpen: () => void }) {
+  const { lang } = useLanguage();
   const color = colorForOrganizer(event.organizer);
   const start = parseEventDate(event.start_at);
   const end = parseEventDate(event.end_at);
-
-  const sameDay = start && end ? isSameDay(start, end) : false;
-  let timeLabel = "Время не указано";
-  if (event.is_all_day) {
-    timeLabel = "Весь день";
-  } else if (start) {
-    if (sameDay && end) {
-      timeLabel = `${format(start, "HH:mm")} – ${format(end, "HH:mm")}`;
-    } else if (end) {
-      timeLabel = `${format(start, "HH:mm")} – ${format(end, "d MMM, HH:mm", { locale: ru })}`;
-    } else {
-      timeLabel = format(start, "HH:mm");
-    }
-  }
 
   const locationText = event.location_name ? stripHtml(event.location_name) : null;
 
@@ -124,7 +118,7 @@ function EventCard({ event, onOpen }: { event: EventListItem; onOpen: () => void
       {/* Time column */}
       <div className="flex flex-col items-start shrink-0 pt-0.5">
         <span className="text-body-3  tabular-nums text-(--on-bg-high)">
-          {event.is_all_day ? "весь" : start ? format(start, "HH:mm") : "--:--"}
+          {event.is_all_day ? (lang === "en" ? "all" : "весь") : start ? format(start, "HH:mm") : "--:--"}
         </span>
         {!event.is_all_day && end && (
           <span className="text-[11px] tabular-nums text-(--on-bg-low) mt-0.5">
@@ -154,13 +148,14 @@ function EventCard({ event, onOpen }: { event: EventListItem; onOpen: () => void
 }
 
 function EmptyDay() {
+  const { t } = useLanguage();
   return (
     <div className="flex flex-col items-center justify-center text-center py-16 px-6">
       <div className="flex size-12 items-center justify-center rounded-2xl bg-(--state-hover) text-(--on-bg-medium) mb-4">
         <CalendarX className="size-6" />
       </div>
-      <p className="text-body-3 text-(--on-bg-high)  mb-1">Нет событий</p>
-      <p className="text-body-4 text-(--on-bg-medium)">На этот день ничего не запланировано</p>
+      <p className="text-body-3 text-(--on-bg-high)  mb-1">{t("events.details.no_events")}</p>
+      <p className="text-body-4 text-(--on-bg-medium)">{t("events.details.nothing_planned")}</p>
     </div>
   );
 }

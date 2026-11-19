@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { addDays, addMonths, addWeeks, format, subMonths, subWeeks } from "date-fns";
+import { enUS, ru } from "date-fns/locale";
 import { Container } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,14 +16,16 @@ import { FilterPanel } from "./filter-panel";
 import { EventDetails } from "./event-details";
 import { indexByDay } from "./date-utils";
 import { applyFilters, EMPTY_FILTER, type FilterState } from "./filters";
-import { fetchPublishedEventsClient, type EventListItem } from "@/utils/api/events";
+import { fetchPublishedEventsClient, type EventListItem, type EventsLocale } from "@/utils/api/events";
+import { useLanguage } from "@/providers/language-provider";
 
 type LoadState =
   | { kind: "loading" }
   | { kind: "ready"; events: EventListItem[] }
   | { kind: "error"; message: string };
 
-export function EventsCalendar() {
+export function EventsCalendar({ locale }: { locale: EventsLocale }) {
+  const { t } = useLanguage();
   const [state, setState] = useState<LoadState>({ kind: "loading" });
   const [view, setView] = useState<ViewMode>("month");
   const [anchor, setAnchor] = useState<Date>(() => new Date());
@@ -32,20 +35,21 @@ export function EventsCalendar() {
 
   useEffect(() => {
     let cancelled = false;
+    setState({ kind: "loading" });
     (async () => {
       try {
-        const events = await fetchPublishedEventsClient();
+        const events = await fetchPublishedEventsClient(locale);
         if (!cancelled) setState({ kind: "ready", events });
       } catch (err: any) {
         if (!cancelled)
           setState({
             kind: "error",
-            message: err?.message || "Не удалось загрузить события",
+            message: err?.message || t("events.calendar.load_error"),
           });
       }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [locale, t]);
 
   const allEvents = state.kind === "ready" ? state.events : [];
   const filtered = useMemo(() => applyFilters(allEvents, filter), [allEvents, filter]);
@@ -98,12 +102,15 @@ export function EventsCalendar() {
           eventDays={eventDays}
           selected={selected}
           onSelectDate={setSelected}
+          locale={locale}
         />
 
         {state.kind === "loading" && (
           <Card className="rounded-3xl border-(--outline) p-16 text-center">
             <CircleNotchIcon className="size-6 animate-spin mx-auto text-(--on-bg-low)" />
-            <p className="text-body-4 text-(--on-bg-medium) mt-4">Загрузка событий…</p>
+            <p className="text-body-4 text-(--on-bg-medium) mt-4">
+              {t("events.calendar.loading")}
+            </p>
           </Card>
         )}
 
@@ -116,7 +123,7 @@ export function EventsCalendar() {
               size="small"
               onClick={() => window.location.reload()}
             >
-              Повторить
+              {t("events.calendar.retry")}
             </Button>
           </Card>
         )}
@@ -143,12 +150,18 @@ export function EventsCalendar() {
             <main className="min-w-0">
               {allEvents.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-(--outline) p-12 text-center">
-                  <p className="text-body-3 text-(--on-bg-medium) mb-1">Пока нет событий</p>
-                  <p className="text-body-5 text-(--on-bg-low)">События появятся здесь после одобрения модератором.</p>
+                  <p className="text-body-3 text-(--on-bg-medium) mb-1">
+                    {t("events.calendar.no_events")}
+                  </p>
+                  <p className="text-body-5 text-(--on-bg-low)">
+                    {t("events.calendar.no_events_body")}
+                  </p>
                 </div>
               ) : filtered.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-(--outline) p-12 text-center">
-                  <p className="text-body-3 text-(--on-bg-medium)">Ничего не найдено по этим фильтрам.</p>
+                  <p className="text-body-3 text-(--on-bg-medium)">
+                    {t("events.calendar.no_results")}
+                  </p>
                 </div>
               ) : (
                 <>
@@ -189,6 +202,8 @@ function UpcomingList({
   byDay: Map<string, EventListItem[]>;
   onSelectEvent: (e: EventListItem) => void;
 }) {
+  const { lang, t } = useLanguage();
+  const dateLocale = lang === "en" ? enUS : ru;
   const now = Date.now();
   const items: { date: Date; event: EventListItem }[] = [];
   const seen = new Set<string>();
@@ -211,7 +226,7 @@ function UpcomingList({
   return (
     <div className="rounded-xl border border-(--outline) bg-(--card) p-3">
       <h3 className="text-[11px]  uppercase tracking-wider text-(--on-bg-low) mb-2 px-1">
-        Скоро
+        {t("events.calendar.soon")}
       </h3>
       <ul className="flex flex-col">
         {items.map(({ date, event }) => (
@@ -222,7 +237,7 @@ function UpcomingList({
               className="w-full text-left px-2 py-2 rounded-lg hover:bg-(--state-hover) transition-colors"
             >
               <div className="text-[11px] text-(--on-bg-low) tabular-nums ">
-                {format(date, "d MMM")}
+                {format(date, lang === "en" ? "MMM d" : "d MMM", { locale: dateLocale })}
               </div>
               <div className="text-body-4  leading-snug line-clamp-2 mt-0.5">
                 {event.title.replace(/<[^>]*>?/gm, '')}

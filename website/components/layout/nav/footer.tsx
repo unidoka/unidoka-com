@@ -12,7 +12,6 @@ import { NavLink } from "./nav-link";
 import { ThemeSwitcher } from "../theme-switcher";
 import { usePathname } from "next/navigation";
 import { useLanguage } from "@/providers/language-provider";
-import { useRootHref } from "@/hooks/use-root-href";
 import { rootDomainUrl } from "@/utils/root-domain";
 import { SERVICES_META } from "@/app/_data/services/meta";
 import { MadeOnAmorfa } from "@/components/made-on-amorfa";
@@ -42,9 +41,13 @@ const LEGAL_DOCS: { key: string; href: string }[] = [
 ];
 
 export default function Footer() {
-  const { t } = useLanguage();
-  const logoHref = useRootHref();
-  const rootLink = (path: string) => rootDomainUrl(path);
+  const { lang, t } = useLanguage();
+  const withLocale = (path: string) => {
+    if (lang !== "en") return path;
+    return path === "/" ? "/en" : `/en${path}`;
+  };
+  const rootLink = (path: string) => rootDomainUrl(withLocale(path));
+  const logoHref = rootLink("/");
 
   // Agency column - depends on language, not on host. Names come from
   // i18n so RU shows "Юнидока" and EN shows "Unidoka".

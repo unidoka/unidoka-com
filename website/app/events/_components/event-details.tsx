@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { format, isSameDay } from "date-fns";
-import { ru } from "date-fns/locale";
+import { enUS, ru } from "date-fns/locale";
 import {
   Dialog,
   DialogContent,
@@ -11,6 +11,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   ArrowUpRight,
   CalendarBlank,
@@ -21,7 +22,9 @@ import {
 } from "@phosphor-icons/react";
 import { colorForOrganizer } from "./organizer-meta";
 import { parseEventDate } from "./date-utils";
+import { MapLinks } from "./map-links";
 import type { EventListItem } from "@/utils/api/events";
+import { useLanguage } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -47,6 +50,8 @@ function HtmlRenderer({ html, className }: { html: string; className?: string })
 }
 
 export function EventDetails({ event, onOpenChange }: Props) {
+  const { lang, t } = useLanguage();
+  const dateLocale = lang === "en" ? enUS : ru;
   const open = event !== null;
 
   if (!event) {
@@ -61,6 +66,12 @@ export function EventDetails({ event, onOpenChange }: Props) {
   const start = parseEventDate(event.start_at);
   const end = parseEventDate(event.end_at);
   const isAllDay = !!event.is_all_day;
+  const locationQuery = [event.location_name, event.address, event.city]
+    .filter(Boolean)
+    .join(", ")
+    .replace(/<[^>]*>?/gm, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
   const author = event.submitted_by;
   const authorName = author
@@ -75,17 +86,17 @@ export function EventDetails({ event, onOpenChange }: Props) {
 
   if (start) {
     if (sameDay || !end) {
-      dateLabel = format(start, "d MMMM yyyy", { locale: ru });
+      dateLabel = format(start, lang === "en" ? "MMMM d, yyyy" : "d MMMM yyyy", { locale: dateLocale });
     } else {
-      dateLabel = `${format(start, "d MMMM", { locale: ru })} - ${format(end, "d MMMM yyyy", { locale: ru })}`;
+      dateLabel = `${format(start, lang === "en" ? "MMM d" : "d MMM", { locale: dateLocale })} - ${format(end, lang === "en" ? "MMM d, yyyy" : "d MMMM yyyy", { locale: dateLocale })}`;
     }
 
     if (isAllDay) {
-      timeLabel = "Весь день";
+      timeLabel = t("events.details.all_day");
     } else if (end && sameDay) {
       timeLabel = `${format(start, "HH:mm")} - ${format(end, "HH:mm")}`;
     } else if (end) {
-      timeLabel = `${format(start, "HH:mm")} - ${format(end, "d MMM, HH:mm", { locale: ru })}`;
+      timeLabel = `${format(start, "HH:mm")} - ${format(end, lang === "en" ? "MMM d, HH:mm" : "d MMM, HH:mm", { locale: dateLocale })}`;
     } else {
       timeLabel = format(start, "HH:mm");
     }
@@ -93,7 +104,7 @@ export function EventDetails({ event, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden border-(--outline) bg-(--card) shadow-xl">
+      <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden border-(--outline) bg-(--card) shadow-xl max-h-[85dvh] grid-rows-[auto_minmax(0,1fr)_auto]">
         <DialogHeader className="px-6 pt-6 pb-4">
           <div className="flex items-center gap-2 mb-2">
             {event.organizer && (
@@ -114,7 +125,7 @@ export function EventDetails({ event, onOpenChange }: Props) {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="px-6 pb-6 space-y-5">
+        <div className="px-6 pb-6 space-y-5 overflow-y-auto min-h-0">
           {/* Description */}
           {event.short_description && (
             <HtmlRenderer html={event.short_description} />
@@ -134,15 +145,16 @@ export function EventDetails({ event, onOpenChange }: Props) {
               </div>
             )}
 
-            {event.location_name && (
+            {locationQuery && (
               <div className="flex items-start gap-3">
                 <MapPin className="size-5 text-(--on-bg-low) shrink-0 mt-0.5" weight="fill" />
                 <div>
                   <HtmlRenderer
-                    html={event.location_name}
+                    html={event.location_name || locationQuery}
                     className="text-body-4  text-(--on-bg-high) leading-snug"
                   />
                   {event.city && <p className="text-body-5 text-(--on-bg-medium) mt-0.5">{event.city}</p>}
+                  <MapLinks query={locationQuery} className="mt-2" />
                 </div>
               </div>
             )}
@@ -160,14 +172,16 @@ export function EventDetails({ event, onOpenChange }: Props) {
                       authorName
                     )}
                   </p>
-                  <p className="text-body-5 text-(--on-bg-medium) mt-0.5">Организатор</p>
+                  <p className="text-body-5 text-(--on-bg-medium) mt-0.5">{t("events.details.organizer")}</p>
                 </div>
               </div>
             )}
           </div>
 
           {/* Tags */}
-          {((event.tags ?? []).length > 0 || (event.types ?? []).length > 0) && (
+          {((event.tags ?? []).length > 0 ||
+            (event.types ?? []).length > 0 ||
+            event.registration_deadline_text) && (
             <div className="flex flex-wrap gap-1.5">
               {(event.types ?? []).map((t) =>
                 t.type ? (
@@ -181,23 +195,29 @@ export function EventDetails({ event, onOpenChange }: Props) {
                 ) : null
               )}
               {(event.tags ?? []).map((tag) => (
-                <span key={tag.id} className="text-[11px]  text-(--on-bg-medium) px-2 py-1 rounded-md border border-(--outline) bg-(--bg)">
+                <Badge key={tag.id} variant="glass-static" size="chip-small">
                   #{tag.name}
-                </span>
+                </Badge>
               ))}
+              {event.registration_deadline_text && (
+                <Badge variant="glass-static" size="chip-small">
+                  <Clock className="size-3" />
+                  {t("events.deadline")}: {event.registration_deadline_text}
+                </Badge>
+              )}
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <DialogFooter className="px-6 py-4 bg-(--bg) border-t border-(--outline) flex-col sm:flex-row sm:justify-between items-center gap-3">
+        <DialogFooter className="mx-0 mb-0 px-6 py-4 bg-(--bg) border-t border-(--outline) flex-col sm:flex-row sm:justify-between items-center gap-3">
           <Button variant="text" onClick={() => onOpenChange(false)} className="w-full sm:w-auto order-2 sm:order-1">
-            Закрыть
+            {t("events.details.close")}
           </Button>
           {event.registration_url && (
             <Button asChild className="w-full sm:w-auto order-1 sm:order-2">
               <a href={event.registration_url} target="_blank" rel="noopener noreferrer">
-                Регистрация
+                {t("events.details.registration")}
                 <ArrowUpRight className="size-4 ml-1.5" />
               </a>
             </Button>

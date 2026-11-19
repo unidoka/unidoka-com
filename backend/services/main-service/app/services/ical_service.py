@@ -14,6 +14,10 @@ a client, query param, or request body — an attacker could point it
 at internal endpoints (http://169.254.169.254/, http://valkey/, …)
 and turn the backend into an SSRF proxy.
 
+There are two configured feeds: `PUBLIC_ICAL_URL` (Russian, default)
+and `PUBLIC_ICAL_URL_EN` (English, falls back to the Russian feed when
+empty). The cache and all parsing are per-locale.
+
 Additional guard rails, all enforced here:
 
   • https-only — no http, file, gopher, data, …
@@ -22,7 +26,7 @@ Additional guard rails, all enforced here:
   • redirects capped at 3, still https-only on each hop
   • recurrence expansion bounded to a fixed window, so a malicious
     RRULE=FREQ=SECONDLY cannot blow up memory
-  • in-memory cache — no more than one outbound fetch per TTL
+  • in-memory cache — one outbound fetch per TTL per locale
 
 The previous DB-backed listing remains in `app/api/v1/events.py`,
 commented out, so switching back is a one-file edit.
@@ -54,6 +58,7 @@ except ImportError:  # pragma: no cover
 
 # ── Config ────────────────────────────────────────────────────────────
 _ICAL_URL = os.getenv("PUBLIC_ICAL_URL", "").strip()
+_ICAL_URL_EN = os.getenv("PUBLIC_ICAL_URL_EN", "").strip() or _ICAL_URL
 _ICAL_TIMEOUT = float(os.getenv("PUBLIC_ICAL_TIMEOUT", "15"))
 _ICAL_MAX_BYTES = int(
     os.getenv("PUBLIC_ICAL_MAX_BYTES", str(5 * 1024 * 1024))
@@ -61,6 +66,15 @@ _ICAL_MAX_BYTES = int(
 _ICAL_CACHE_TTL = int(os.getenv("PUBLIC_ICAL_CACHE_TTL", "120"))
 _ICAL_WINDOW_BACK_DAYS = int(os.getenv("PUBLIC_ICAL_WINDOW_BACK_DAYS", "365"))
 _ICAL_WINDOW_FWD_DAYS = int(os.getenv("PUBLIC_ICAL_WINDOW_FWD_DAYS", "730"))
+
+
+def normalize_locale(locale: Optional[str]) -> str:
+    """Map arbitrary client input to one of the supported feed locales."""
+    return "en" if (locale or "").lower().startswith("en") else "ru"
+
+
+def _feed_url(locale: Optional[str] = None) -> str:
+    return _ICAL_URL_EN if normalize_locale(locale) == "en" else _ICAL_URL
 
 
 # Same transliteration table events.py already uses, so slugs from the
@@ -111,13 +125,13 @@ def _validate_url(url: str) -> str:
     return url
 
 
-def public_feed_url() -> str:
+def public_feed_url(locale: Optional[str] = None) -> str:
     """The public, client-shareable ICS URL (https, normalised).
 
     Safe to expose: it is the same public feed anyone with the link can
     read. Raises RuntimeError when the feed is not configured.
     """
-    return _validate_url(_ICAL_URL)
+    return _validate_url(_feed_url(locale))
 
 
 def _as_ical_datetime(dt) -> Optional[datetime]:
@@ -173,11 +187,22 @@ _REGISTER_ANCHOR_RE = re.compile(
 _REGISTER_LINE_RE = re.compile(
     r'(?:Регистрация|Registration|Register)\s*:\s*'
     r'(?:<br\s*/?>\s*)*'
-    r'(?:(?P<url>https?://[^\s<"\']+)|\$?LINK_HERE)',
+    r'(?:(?P<url>https?://[^\s<"\']+)'
+    r'|(?P<anchor><a\b[^>]*>[^<]*</a>)'
+    r'|\$?LINK_HERE)',
     re.IGNORECASE,
 )
 _TAGS_LINE_RE = re.compile(
-    r'(?:Теги|Tags)\s*:\s*(?P<tags>.*?)(?=<br\s*/?>|</?p\b|\n|$)',
+    r'(?:Теги|Tags)\s*:\s*(?:<br\s*/?>\s*)*'
+    r'(?P<tags>.*?)(?=<br\s*/?>|</?p\b|\n|$)',
+    re.IGNORECASE,
+)
+_DEADLINE_LINE_RE = re.compile(
+    r'\(?\s*(?:Дедлайн(?:\s+регистрации)?|Регистрация\s+до'
+    r'|Registration\s+deadline|Register\s+by|Registration\s+closes)'
+    r'\s*\)?\s*[:\-—–]?\s*(?:<br\s*/?>\s*)*'
+    r'(?P<text>[^<)\n]+?)\s*\)?'
+    r'(?=<br\s*/?>|</?p\b|\n|$)',
     re.IGNORECASE,
 )
 _TRAILING_TAGS_RE = re.compile(
@@ -239,8 +264,8 @@ def _split_tag_names(block: str) -> list[str]:
 
 def _parse_description(
     description: Optional[str], fallback_url: Optional[str]
-) -> tuple[Optional[str], Optional[str], list[str]]:
-    """Return (clean description, register URL, tag names)."""
+) -> tuple[Optional[str], Optional[str], list[str], Optional[str]]:
+    """Return (clean description, register URL, tag names, deadline text)."""
     text = description or ""
     register_url = fallback_url
 
@@ -252,11 +277,23 @@ def _parse_description(
             register_url = url
     text = _REGISTER_ANCHOR_RE.sub("", text)
 
+    # "Дедлайн регистрации: 1 декабря" / "Registration deadline: Dec 1".
+    # Shown as a separate badge in the UI, never rendered in the body.
+    deadline_text: Optional[str] = None
+    for match in _DEADLINE_LINE_RE.finditer(text):
+        value = match.group("text").strip(" .;,–—-")
+        if value:
+            deadline_text = value
+    text = _DEADLINE_LINE_RE.sub("", text)
+
     # Plain-text "Регистрация: <url>" / "Register: <url>". A literal
     # LINK_HERE / $LINK_HERE placeholder is removed; the event's URL
     # field remains the fallback.
     for match in _REGISTER_LINE_RE.finditer(text):
         url = match.group("url")
+        if not url and match.group("anchor"):
+            anchor = match.group("anchor")
+            url = _anchor_href(anchor) or _anchor_text_url(anchor)
         if url:
             url = html.unescape(url).rstrip(".,;:)")
             if re.match(r"^https?://", url, re.IGNORECASE):
@@ -288,7 +325,14 @@ def _parse_description(
     text = re.sub(r"\n{3,}", "\n\n", text)
     text = text.strip()
 
-    return text or None, register_url or None, tags
+    # iCal DESCRIPTION is plain text with real newlines. The site renders
+    # it as HTML (dialog) and MDX (event page), where a bare newline is
+    # collapsed to a space. Turn line breaks into <br /> so paragraphs
+    # survive both renderers.
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
+    text = text.replace("\n\n", "<br /><br />").replace("\n", "<br />")
+
+    return text or None, register_url or None, tags, deadline_text
 
 
 def _tag_objects(names: list[str]) -> list[dict]:
@@ -326,7 +370,7 @@ def _serialize(component) -> dict:
     title = _text(component, "SUMMARY") or "Untitled event"
     location = _text(component, "LOCATION")
     url_field = _text(component, "URL")
-    description, registration_url, tag_names = _parse_description(
+    description, registration_url, tag_names, deadline_text = _parse_description(
         _text(component, "DESCRIPTION"), url_field
     )
 
@@ -373,6 +417,7 @@ def _serialize(component) -> dict:
         "end_at": end_dt,
         "is_all_day": is_all_day,
         "registration_deadline": None,
+        "registration_deadline_text": deadline_text,
         "other_dates": [],
         "location_name": location,
         "address": None,
@@ -404,14 +449,14 @@ def _serialize(component) -> dict:
     }
 
 
-async def fetch_ical_events() -> list[dict]:
+async def fetch_ical_events(locale: Optional[str] = None) -> list[dict]:
     """Fetch + parse + normalise the feed. Raises RuntimeError on any
     failure so callers can decide whether to degrade or error out."""
     if ICalCalendar is None:
         raise RuntimeError(
             "icalendar library not installed — add it to requirements.txt"
         )
-    url = _validate_url(_ICAL_URL)
+    url = _validate_url(_feed_url(locale))
 
     async with httpx.AsyncClient(
         timeout=_ICAL_TIMEOUT,
@@ -490,24 +535,28 @@ async def fetch_ical_events() -> list[dict]:
 
 
 # ── In-memory cache ───────────────────────────────────────────────────
-# One outbound fetch per TTL. The cache is process-local, which is fine
-# for a single container. If you scale to N replicas, each gets its own
-# 2-minute window — cheap enough to accept, and honest about the limits
-# of a shared Redis cache for something this small.
-_cache: dict = {"data": None, "ts": 0.0}
+# One outbound fetch per TTL **per locale**. The cache is process-local,
+# which is fine for a single container. If you scale to N replicas, each
+# gets its own window — cheap enough to accept, and honest about the
+# limits of a shared Redis cache for something this small.
+_cache: dict[str, dict] = {}
 
 
-async def get_cached_events(force: bool = False) -> list[dict]:
+async def get_cached_events(
+    locale: Optional[str] = None, force: bool = False
+) -> list[dict]:
+    key = normalize_locale(locale)
+    entry = _cache.setdefault(key, {"data": None, "ts": 0.0})
     now = time.time()
     if (
         not force
-        and _cache["data"] is not None
-        and now - _cache["ts"] < _ICAL_CACHE_TTL
+        and entry["data"] is not None
+        and now - entry["ts"] < _ICAL_CACHE_TTL
     ):
-        return _cache["data"]
-    data = await fetch_ical_events()
-    _cache["data"] = data
-    _cache["ts"] = now
+        return entry["data"]
+    data = await fetch_ical_events(key)
+    entry["data"] = data
+    entry["ts"] = now
     return data
 
 

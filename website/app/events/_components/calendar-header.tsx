@@ -1,7 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
-import { ru } from "date-fns/locale";
+import { enUS, ru } from "date-fns/locale";
 import { Plus, SlidersHorizontal, CalendarBlank, CalendarPlus } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { AddEventDialog } from "@/components/marketing/add-event-dialog";
@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/popover";
 import type { FilterState } from "./filters";
 import type { EventItem } from "../_data/events";
+import type { EventsLocale } from "@/utils/api/events";
+import { useLanguage } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
 
 export type ViewMode = "month" | "week" | "day" | "agenda";
@@ -41,13 +43,14 @@ interface Props {
   eventDays: Set<string>;
   selected: Date;
   onSelectDate: (d: Date) => void;
+  locale: EventsLocale;
 }
 
-const VIEWS: { id: ViewMode; label: string; short: string }[] = [
-  { id: "month", label: "Месяц", short: "Мес" },
-  { id: "week", label: "Неделя", short: "Нед" },
-  { id: "day", label: "День", short: "Дн" },
-  { id: "agenda", label: "Список", short: "Сп" },
+const VIEWS: { id: ViewMode; labelKey: string; shortKey: string }[] = [
+  { id: "month", labelKey: "events.calendar.month", shortKey: "events.calendar.month_short" },
+  { id: "week", labelKey: "events.calendar.week", shortKey: "events.calendar.week_short" },
+  { id: "day", labelKey: "events.calendar.day", shortKey: "events.calendar.day_short" },
+  { id: "agenda", labelKey: "events.calendar.list", shortKey: "events.calendar.list_short" },
 ];
 
 export function CalendarHeader({
@@ -64,28 +67,31 @@ export function CalendarHeader({
   eventDays,
   selected,
   onSelectDate,
+  locale,
 }: Props) {
+  const { lang, t } = useLanguage();
+  const dateLocale = lang === "en" ? enUS : ru;
   const startDay = anchor;
   const endDay = new Date(anchor.getTime() + 6 * 86400000);
   const isSameMonth = startDay.getMonth() === endDay.getMonth();
 
   const weekTitle = isSameMonth
-    ? `${format(startDay, "d", { locale: ru })} – ${format(endDay, "d MMM yyyy", { locale: ru })}`
-    : `${format(startDay, "d MMM", { locale: ru })} – ${format(endDay, "d MMM yyyy", { locale: ru })}`;
+    ? `${format(startDay, "d", { locale: dateLocale })} – ${format(endDay, lang === "en" ? "MMM d, yyyy" : "d MMM yyyy", { locale: dateLocale })}`
+    : `${format(startDay, lang === "en" ? "MMM d" : "d MMM", { locale: dateLocale })} – ${format(endDay, lang === "en" ? "MMM d, yyyy" : "d MMM yyyy", { locale: dateLocale })}`;
 
   return (
     <div className="flex flex-col gap-3">
       {/* Row 1: nav + title + add (add only visible on lg) */}
       <div className="flex items-center gap-2 min-w-0">
         <Button variant="outlined" size="small" onClick={onToday}>
-          Сегодня
+          {t("events.calendar.today")}
         </Button>
 
         <div className="flex items-center rounded-xl border border-(--outline) bg-(--card) overflow-hidden shrink-0">
           <button
             type="button"
             onClick={onPrev}
-            aria-label="Предыдущий"
+            aria-label={t("events.calendar.prev")}
             className="size-9 flex items-center justify-center text-lg leading-none text-(--on-bg-medium) hover:bg-(--state-hover) hover:text-(--on-bg-high) transition-colors"
           >
             ‹
@@ -93,7 +99,7 @@ export function CalendarHeader({
           <button
             type="button"
             onClick={onNext}
-            aria-label="Следующий"
+            aria-label={t("events.calendar.next")}
             className="size-9 flex items-center justify-center text-lg leading-none text-(--on-bg-medium) hover:bg-(--state-hover) hover:text-(--on-bg-high) transition-colors border-l border-(--outline)"
           >
             ›
@@ -132,11 +138,11 @@ export function CalendarHeader({
         </div>
 
         <div className="lg:hidden ml-auto">
-          <SubscribeCalendarDialog>
+          <SubscribeCalendarDialog locale={locale}>
             <Button
               variant="outlined"
               size="icon-small"
-              aria-label="Подключить календарь"
+              aria-label={t("events.calendar.subscribe")}
               className="size-9"
             >
               <CalendarPlus className="size-4" />
@@ -145,14 +151,14 @@ export function CalendarHeader({
         </div>
 
         <div className="hidden lg:flex items-center gap-2 ml-auto shrink-0">
-          <SubscribeCalendarDialog>
+          <SubscribeCalendarDialog locale={locale}>
             <Button variant="outlined" size="medium">
-              <CalendarPlus /> Подключить календарь
+              <CalendarPlus /> {t("events.calendar.subscribe")}
             </Button>
           </SubscribeCalendarDialog>
           <AddEventDialog>
             <Button size="medium" >
-              <Plus /> Добавить событие
+              <Plus /> {t("events.calendar.add_event")}
             </Button>
           </AddEventDialog>
         </div>
@@ -173,8 +179,8 @@ export function CalendarHeader({
                   : "text-(--on-bg-medium) hover:text-(--on-bg-high)"
               )}
             >
-              <span className="sm:hidden">{v.short}</span>
-              <span className="hidden sm:inline">{v.label}</span>
+              <span className="sm:hidden">{t(v.shortKey)}</span>
+              <span className="hidden sm:inline">{t(v.labelKey)}</span>
             </button>
           ))}
         </div>
@@ -182,19 +188,19 @@ export function CalendarHeader({
         <div className="flex items-center gap-2 ml-auto lg:hidden shrink-0">
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outlined" size="icon-small" aria-label="Фильтры" className="size-9">
+              <Button variant="outlined" size="icon-small" aria-label={t("events.calendar.filters")} className="size-9">
                 <SlidersHorizontal className="size-4" />
               </Button>
             </DialogTrigger>
             <DialogContent className="max-h-[85dvh] overflow-y-auto sm:max-w-md">
               <DialogHeader>
-                <DialogTitle>Фильтры</DialogTitle>
+                <DialogTitle>{t("events.calendar.filters")}</DialogTitle>
               </DialogHeader>
               <FilterPanel allEvents={allEvents} value={filter} onChange={onFilterChange} compact />
             </DialogContent>
           </Dialog>
           <AddEventDialog>
-            <Button size="icon-small" className="size-9" aria-label="Добавить событие">
+            <Button size="icon-small" className="size-9" aria-label={t("events.calendar.add_event")}>
               <Plus className="size-4" />
             </Button>
           </AddEventDialog>

@@ -3,6 +3,7 @@
 import { Check, Hash, X } from "@phosphor-icons/react";
 import type { EventListItem } from "@/utils/api/events";
 import { EMPTY_FILTER, isFilterEmpty, uniqueTags, type FilterState } from "./filters";
+import { useLanguage } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function FilterPanel({ allEvents, value, onChange, compact }: Props) {
+  const { t } = useLanguage();
   const tags = uniqueTags(allEvents);
   const empty = isFilterEmpty(value);
 
@@ -33,7 +35,7 @@ export function FilterPanel({ allEvents, value, onChange, compact }: Props) {
     >
       <div className="flex items-center justify-between">
         <h3 className="text-body-5  uppercase tracking-widest text-(--on-bg-low)">
-          Фильтры
+          {t("events.calendar.filters")}
         </h3>
         {!empty && (
           <button
@@ -41,13 +43,13 @@ export function FilterPanel({ allEvents, value, onChange, compact }: Props) {
             onClick={() => onChange(EMPTY_FILTER)}
             className="inline-flex items-center gap-1 text-body-5 text-(--primary) hover:underline"
           >
-            <X className="size-3" /> Сбросить
+            <X className="size-3" /> {t("events.calendar.reset")}
           </button>
         )}
       </div>
 
       {tags.length > 0 && (
-        <Section title="Теги">
+        <Section title={t("events.calendar.tags")}>
           <div className="flex flex-wrap gap-1.5">
             {tags.map((tag) => {
               const active = value.tagIds.includes(tag.id);
@@ -73,9 +75,9 @@ export function FilterPanel({ allEvents, value, onChange, compact }: Props) {
         </Section>
       )}
 
-      <Section title="Показывать">
+      <Section title={t("events.calendar.show")}>
         <ToggleRow
-          label="Только с открытой регистрацией"
+          label={t("events.calendar.registration_only")}
           checked={value.hasRegistrationOnly}
           onToggle={(v) => onChange({ ...value, hasRegistrationOnly: v })}
         />

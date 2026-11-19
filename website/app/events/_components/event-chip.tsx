@@ -4,6 +4,7 @@ import { isSameDay, format } from "date-fns";
 import { parseEventDate } from "./date-utils";
 import { colorForOrganizer } from "./organizer-meta";
 import type { EventListItem } from "@/utils/api/events";
+import { useLanguage } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -16,11 +17,12 @@ interface Props {
 const stripHtml = (str: string) => str.replace(/<[^>]*>?/gm, '');
 
 export function EventChip({ event, day, compact, onClick }: Props) {
+  const { t } = useLanguage();
   const color = colorForOrganizer(event.organizer);
   const start = parseEventDate(event.start_at);
   const startsToday = start ? isSameDay(start, day) : false;
   const timeString = event.is_all_day
-    ? "весь день"
+    ? t("events.calendar.all_day")
     : start
       ? format(start, "HH:mm")
       : "";

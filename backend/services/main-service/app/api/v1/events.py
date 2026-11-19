@@ -231,6 +231,7 @@ async def list_public_events(
     limit: Optional[int] = Query(None, ge=1, le=500),
     tag: Optional[str] = Query(None),
     submitted_by_username: Optional[str] = Query(None),
+    locale: Optional[str] = Query(None),
 ):
     # ── iCal-backed public calendar ────────────────────────────────
     # The main public calendar now sources from an external iCal feed
@@ -243,7 +244,8 @@ async def list_public_events(
     # body and uncomment the block at the end of the function.
     #
     # SECURITY: no client-controlled URL is ever fetched. The feed
-    # URL comes exclusively from PUBLIC_ICAL_URL.
+    # URL comes exclusively from PUBLIC_ICAL_URL (RU) or
+    # PUBLIC_ICAL_URL_EN (EN).
     #
     # submitted_by_username still falls back to the DB — that filter
     # powers the public user-profile page, and iCal events have no
@@ -273,7 +275,7 @@ async def list_public_events(
     from app.services.ical_service import get_cached_events
 
     try:
-        events = await get_cached_events()
+        events = await get_cached_events(locale)
     except Exception as exc:
         # An empty list looks like "no events" and hides a broken feed.
         # Surface the failure so the calendar can show an honest error.
@@ -399,18 +401,22 @@ async def list_directions_public(db: Session = Depends(get_db)):
 
 
 @router.get("/meta/ical")
-async def public_ical_feed():
+async def public_ical_feed(locale: Optional[str] = Query(None)):
     """Public ICS URL so the UI can offer "add to calendar" deep links."""
     from app.services.ical_service import public_feed_url
 
     try:
-        return {"url": public_feed_url()}
+        return {"url": public_feed_url(locale)}
     except RuntimeError:
         raise HTTPException(404, "Public iCal feed is not configured")
 
 
 @router.get("/{slug}", response_model=EventDetail)
-async def get_public_event(slug: str, db: Session = Depends(get_db)):
+async def get_public_event(
+    slug: str,
+    db: Session = Depends(get_db),
+    locale: Optional[str] = Query(None),
+):
     # Public event detail — iCal-backed.
     #
     # Lookup is by slug, with a UUID-id fallback (the frontend's
@@ -423,7 +429,7 @@ async def get_public_event(slug: str, db: Session = Depends(get_db)):
     from app.services.ical_service import get_cached_events, find_event
 
     try:
-        events = await get_cached_events()
+        events = await get_cached_events(locale)
     except Exception as exc:
         logger.error("iCal public event fetch failed: %s", exc)
         raise HTTPException(503, "Event source unavailable")

@@ -87,6 +87,7 @@ export interface EventListItem {
   end_at?: string | null;
   is_all_day?: boolean;
   registration_deadline?: string | null;
+  registration_deadline_text?: string | null;
   other_dates?: Array<{ label: string; at: string }>;
   location_name?: string | null;
   address?: string | null;
@@ -179,17 +180,25 @@ const SERVER_API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   "http://localhost:8000";
 
+export type EventsLocale = "ru" | "en";
+
+function localeQuery(locale: EventsLocale | undefined): string {
+  return locale === "en" ? "locale=en" : "locale=ru";
+}
+
 /* ── Server-side fetchers (RSC) ────────────────────────────────── */
 export async function fetchPublishedEventsServer(params?: {
   upcomingOnly?: boolean;
   limit?: number;
+  locale?: EventsLocale;
 }): Promise<EventListItem[]> {
   const qs = new URLSearchParams();
   if (params?.upcomingOnly) qs.set("upcoming_only", "true");
   if (params?.limit) qs.set("limit", String(params.limit));
+  qs.set("locale", params?.locale === "en" ? "en" : "ru");
   try {
     const res = await fetch(
-      `${SERVER_API_BASE}/api/v1/events${qs.toString() ? `?${qs}` : ""}`,
+      `${SERVER_API_BASE}/api/v1/events?${qs.toString()}`,
       { next: { revalidate: 60, tags: ["events"] } } as any,
     );
     if (!res.ok) return [];
@@ -200,10 +209,13 @@ export async function fetchPublishedEventsServer(params?: {
   }
 }
 
-export async function fetchEventServer(slug: string): Promise<EventDetail | null> {
+export async function fetchEventServer(
+  slug: string,
+  locale: EventsLocale = "ru",
+): Promise<EventDetail | null> {
   try {
     const res = await fetch(
-      `${SERVER_API_BASE}/api/v1/events/${encodeURIComponent(slug)}`,
+      `${SERVER_API_BASE}/api/v1/events/${encodeURIComponent(slug)}?${localeQuery(locale)}`,
       { next: { revalidate: 60, tags: ["events"] } } as any,
     );
     if (!res.ok) return null;
@@ -213,9 +225,30 @@ export async function fetchEventServer(slug: string): Promise<EventDetail | null
   }
 }
 
+/** Server-side public ICS feed URL, used for <link rel="alternate"> SEO tags. */
+export async function fetchIcalFeedUrlServer(
+  locale: EventsLocale = "ru",
+): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `${SERVER_API_BASE}/api/v1/events/meta/ical?${localeQuery(locale)}`,
+      { next: { revalidate: 3600, tags: ["events"] } } as any,
+    );
+    if (!res.ok) return null;
+    const body = await res.json();
+    return typeof body?.url === "string" && body.url ? body.url : null;
+  } catch {
+    return null;
+  }
+}
+
 /* ── Client fetchers ───────────────────────────────────────────── */
-export async function fetchPublishedEventsClient(): Promise<EventListItem[]> {
-  const res = await $fetch("/api/v1/events", { isToast: false });
+export async function fetchPublishedEventsClient(
+  locale: EventsLocale = "ru",
+): Promise<EventListItem[]> {
+  const res = await $fetch(`/api/v1/events?${localeQuery(locale)}`, {
+    isToast: false,
+  });
   if (!res?.response?.ok) {
     const detail = typeof res?.json?.detail === "string" ? res.json.detail : null;
     throw new Error(detail || "Не удалось загрузить события");
@@ -224,8 +257,12 @@ export async function fetchPublishedEventsClient(): Promise<EventListItem[]> {
 }
 
 /** Public ICS feed URL for "add to calendar" links, or null if unset. */
-export async function fetchIcalFeedUrl(): Promise<string | null> {
-  const res = await $fetch("/api/v1/events/meta/ical", { isToast: false });
+export async function fetchIcalFeedUrl(
+  locale: EventsLocale = "ru",
+): Promise<string | null> {
+  const res = await $fetch(`/api/v1/events/meta/ical?${localeQuery(locale)}`, {
+    isToast: false,
+  });
   if (!res?.response?.ok) return null;
   const url = res?.json?.url;
   return typeof url === "string" && url ? url : null;
