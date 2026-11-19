@@ -40,7 +40,7 @@ export default function Footer() {
 
   return (
     <footer className="border-t border-(--outline) bg-(--bg) mt-auto">
-      <Container variant="full-width" className="pt-16 pb-8">
+      <Container className="pt-16 pb-8">
         <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr_1fr_1fr] gap-10 md:gap-12 mb-12">
           {/* Brand column */}
           <div className="flex flex-col gap-4 max-w-xs">

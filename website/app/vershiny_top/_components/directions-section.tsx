@@ -31,10 +31,10 @@ export function DirectionsSection() {
   const { t } = useLanguage();
 
   return (
-    <section className="border-b border-(--outline) py-20 md:py-28">
-      <Container variant="full-width">
-        <div className="mb-14 max-w-2xl">
-          <h2 className="mb-4 text-display-3 leading-[1.05] md:text-display-2">
+    <section className="py-16 md:py-24">
+      <Container >
+        <div className="mb-12 max-w-2xl">
+          <h2 className="mb-4 text-display-3 leading-[1.05]! md:text-display-2">
             {t("vershiny.directions_title")}
           </h2>
           <p className="text-body-2 leading-relaxed text-(--on-bg-medium)">
@@ -42,7 +42,7 @@ export function DirectionsSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-px overflow-hidden border border-(--outline) bg-(--outline) sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-3xl border border-(--outline) bg-(--outline) sm:grid-cols-2 lg:grid-cols-4">
           {DIRECTIONS.map((d) => {
             const Icon = d.icon;
             return (
@@ -67,3 +67,5 @@ export function DirectionsSection() {
     </section>
   );
 }
+
+export default DirectionsSection;

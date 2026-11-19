@@ -70,10 +70,10 @@ export function EventsSection() {
   };
 
   return (
-    <section className="border-b border-(--outline) bg-(--card) py-20 md:py-28">
-      <Container variant="full-width">
-        <div className="mb-12 flex flex-wrap items-end justify-between gap-6">
-          <h2 className="text-display-3 leading-[1.05] md:text-display-2">
+    <section className="py-16 md:py-24">
+      <Container >
+        <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
+          <h2 className="text-display-3 leading-[1.05]! md:text-display-2">
             {t("vershiny.events_title")}
           </h2>
           <Button variant="outlined" size="medium" asChild>
@@ -97,7 +97,7 @@ export function EventsSection() {
             </div>
           </div>
         ) : events.length === 0 ? (
-          <Card className="rounded-3xl border border-dashed border-(--outline) bg-(--bg) p-14 text-center ring-0">
+          <Card className="rounded-3xl border border-dashed border-(--outline) bg-(--card) p-14 text-center ring-0">
             <div className="mx-auto mb-5 flex size-14 items-center justify-center rounded-2xl bg-(--primary-card) text-(--primary)">
               <CalendarX className="size-6" />
             </div>
@@ -111,7 +111,9 @@ export function EventsSection() {
         ) : (
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.15fr_1fr]">
             {featured && (
-              <Card className="relative flex min-h-[380px] flex-col justify-between gap-8 overflow-hidden rounded-3xl border border-(--outline) bg-(--bg) p-8 ring-0 md:p-10">
+              /* The section is flush with the page now, so the featured
+                 card carries its own surface instead of borrowing one. */
+              <Card className="relative flex min-h-[380px] flex-col justify-between gap-8 overflow-hidden rounded-3xl border border-(--outline) bg-(--card) p-8 ring-0 md:p-10">
                 <svg
                   aria-hidden
                   className="pointer-events-none absolute inset-x-0 bottom-0 h-40 w-full opacity-[0.08]"
@@ -125,7 +127,11 @@ export function EventsSection() {
                 </svg>
 
                 <div className="relative">
-                  <Badge variant="tonal-static" size="chip-small" className="mb-5 w-fit">
+                  <Badge
+                    variant="tonal-static"
+                    size="chip-small"
+                    className="mb-5 w-fit"
+                  >
                     {eventTag(featured, defaultTag)}
                   </Badge>
                   <h3 className="text-display-4 leading-tight text-(--on-bg-high)">
@@ -175,7 +181,11 @@ export function EventsSection() {
                     className="group flex items-start gap-5 py-6 first:pt-0 last:pb-0"
                   >
                     <div className="min-w-0 flex-1">
-                      <Badge variant="tonal-static" size="chip-small" className="mb-3">
+                      <Badge
+                        variant="tonal-static"
+                        size="chip-small"
+                        className="mb-3"
+                      >
                         {eventTag(e, defaultTag)}
                       </Badge>
                       <h3 className="text-heading-2 leading-tight text-(--on-bg-high)">
@@ -197,3 +207,5 @@ export function EventsSection() {
     </section>
   );
 }
+
+export default EventsSection;

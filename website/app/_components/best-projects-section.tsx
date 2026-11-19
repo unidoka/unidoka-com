@@ -1,7 +1,8 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRightIcon, CaretRightIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon } from "@phosphor-icons/react";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import ProjectCard from "@/components/layout/projects/project-card";
@@ -38,41 +39,45 @@ export default function BestWorksSection() {
   const [projects, setProjects] = useState<Project[] | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     $fetch("/api/v1/projects?featured=true&limit=6", { isToast: false })
       .then((res) => {
+        if (cancelled) return;
         if (Array.isArray(res?.json)) {
           setProjects(res.json.map(mapApiProject));
         } else {
           setProjects([]);
         }
       })
-      .catch(() => setProjects([]));
+      .catch(() => {
+        if (!cancelled) setProjects([]);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
-    <section className="py-8 md:py-10">
+    <section className="py-16 md:py-24">
       <Container>
-        <div className="flex items-center justify-between gap-2 mb-8">
-          <h2 className="text-display-6 sm:text-display-4 md:text-display-3">
+        <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+          <h2 className="text-display-3 leading-[1.05]! md:text-display-2">
             {t("home.best_works_title")}
           </h2>
-          <Button
-            variant="text"
-            size="small"
-            asChild
-          >
+          <Button variant="text" size="small" asChild>
             <Link href="/projects">
               {t("home.view_all_projects")}
               <ArrowRightIcon className="size-4" />
             </Link>
           </Button>
         </div>
+
         {projects === null ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[...Array(3)].map((_, i) => (
               <div
                 key={i}
-                className="aspect-[16/9] rounded-2xl bg-muted/30 animate-pulse"
+                className="aspect-[16/9] animate-pulse rounded-2xl bg-muted/30"
               />
             ))}
           </div>
@@ -83,7 +88,7 @@ export default function BestWorksSection() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {projects.map((project, idx) => (
               <ProjectCard
                 key={project.id || project.slug || idx}

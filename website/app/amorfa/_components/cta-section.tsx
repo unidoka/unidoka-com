@@ -69,7 +69,7 @@ export function CtaSection() {
 
   return (
     <section className="py-24 md:py-32">
-      <Container variant="full-width">
+      <Container >
         <div
           ref={cardRef}
           onPointerMove={handleMove}
@@ -90,7 +90,7 @@ export function CtaSection() {
                 <div>
                   <Button
                     size="large"
-                    shape="round"
+
                     asChild
                     className="md:h-16 md:px-10 md:text-heading-3!"
                   >

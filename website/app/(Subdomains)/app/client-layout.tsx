@@ -10,7 +10,7 @@ export default function ProfileRootClientLayout({
 }) {
   return (
     <div className="min-h-screen bg-(--bg) py-16 md:py-24">
-      <Container variant="full-width">
+      <Container >
         <div className="flex flex-col md:flex-row gap-10 lg:gap-16 items-start">
           <aside className="w-full md:w-auto md:sticky md:top-28 md:self-start shrink-0">
             <ProfileSidebar />

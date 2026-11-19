@@ -2712,3 +2712,19 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     animation: none;
   }
 }
+
+/* ═══ amorfa-readme-mono ════════════════════════════════════════════
+   Monospace face for fetched README code and the panel's file label.
+   Unlayered, so it wins over the font-family carried by the .text-*
+   token utilities - the size, weight and colour still come from the
+   design tokens, only the face changes.
+   ═══════════════════════════════════════════════════════════════════ */
+.text-code {
+  font-family: var(
+    --font-mono,
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace
+  );
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0;
+}

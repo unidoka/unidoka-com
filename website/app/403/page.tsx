@@ -32,7 +32,7 @@ export default function ForbiddenPage() {
             "radial-gradient(ellipse 45% 55% at 15% 15%, var(--primary-glass), transparent 65%)",
         }}
       />
-      <Container variant="full-width" className="relative">
+      <Container className="relative">
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-10 lg:gap-20 items-start">
           <div className="relative border border-(--outline) bg-(--card) p-6 md:p-10">
             <CornerTicks />

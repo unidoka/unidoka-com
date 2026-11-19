@@ -8,17 +8,22 @@ import { useLanguage } from "@/providers/language-provider";
 
 const GITHUB = "https://github.com/unidoka/amorfa";
 
+/**
+ * No divider, no panel: the hero sits directly on the page canvas and
+ * hands over to the next block on whitespace alone. Height is a floor,
+ * not a viewport claim — the copy sets it.
+ */
 export function HeroSection() {
   const { t } = useLanguage();
 
   return (
-    <section className="relative flex min-h-[86vh] items-center overflow-hidden border-b border-(--outline) bg-(--bg) pt-28 pb-20 md:pt-36 md:pb-28">
+    <section className="relative flex min-h-[45vh] items-center overflow-hidden pt-24 pb-14 md:pt-28 md:pb-16">
       <Container
-        variant="full-width"
-        className="flex flex-col items-center gap-14 lg:flex-row lg:gap-20"
+
+        className="flex flex-col items-center gap-10 lg:flex-row lg:gap-16"
       >
-        <div className="flex w-full flex-1 flex-col items-start gap-10 md:gap-12">
-          <h1 className="animate-reveal fill-mode-both text-[2.5rem]  leading-[1.04] tracking-tight text-(--on-bg-high) [animation-delay:120ms] md:text-6xl md:leading-[1.02] lg:text-7xl">
+        <div className="flex w-full flex-1 flex-col items-start gap-8 md:gap-9">
+          <h1 className="animate-reveal fill-mode-both text-display-2 leading-[1.02]! tracking-tight text-(--on-bg-high) md:text-display-1">
             <span className="flex items-center gap-[0.35em]">
               <AnimatedAmorfaLogo className="size-[1.05em] shrink-0 lg:hidden" />
               <span>{t("amorfa.hero_title_1")}</span>
@@ -28,13 +33,8 @@ export function HeroSection() {
             </span>
           </h1>
 
-          <div className="animate-reveal fill-mode-both [animation-delay:280ms]">
-            <Button
-              size="large"
-
-              asChild
-              className="md:h-16 md:px-10 md:text-heading-3!"
-            >
+          <div className="animate-reveal fill-mode-both [animation-delay:180ms]">
+            <Button size="large" asChild>
               <a href={GITHUB} target="_blank" rel="noopener noreferrer">
                 <GitBranchIcon />
                 {t("amorfa.cta_github")}
@@ -47,9 +47,9 @@ export function HeroSection() {
         <div className="relative hidden w-full flex-1 items-center justify-center lg:flex">
           <div
             aria-hidden
-            className="pointer-events-none absolute top-1/2 left-1/2 size-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-(--primary-glass) blur-3xl"
+            className="pointer-events-none absolute top-1/2 left-1/2 size-[320px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-(--primary-glass) blur-3xl"
           />
-          <AnimatedAmorfaLogo className="relative size-48 animate-reveal-slow fill-mode-both text-(--on-bg-high) [animation-delay:200ms] xl:size-56" />
+          <AnimatedAmorfaLogo className="relative size-36 xl:size-44" />
         </div>
       </Container>
     </section>

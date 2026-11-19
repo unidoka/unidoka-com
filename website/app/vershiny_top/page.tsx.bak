@@ -168,7 +168,7 @@ export default function VershinyPage() {
         />
 
         <Container
-          variant="full-width"
+          
           className="relative py-28 md:py-32 lg:py-24"
         >
           <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-12 lg:gap-16 items-center">
@@ -246,7 +246,7 @@ export default function VershinyPage() {
           Numbers `01 / 02 / 03` are printed in mono at wide tracking,
           so the eye reads them as sequence markers, not decoration. */}
       <section className="py-20 md:py-28 border-b border-(--outline)">
-        <Container variant="full-width">
+        <Container >
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-8 lg:gap-16 items-end mb-14">
             <div>
               <p className="text-body-6 uppercase tracking-[0.32em] text-(--primary) mb-3">
@@ -288,7 +288,7 @@ export default function VershinyPage() {
           boxes, no icons. Reads like a document, which is the point:
           this section is an argument, not a feature grid. */}
       <section className="py-20 md:py-28 bg-(--card) border-b border-(--outline)">
-        <Container variant="full-width">
+        <Container >
           <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-12 lg:gap-20 items-start">
             <div>
               <p className="text-body-6 uppercase tracking-[0.32em] text-(--primary) mb-3">
@@ -328,7 +328,7 @@ export default function VershinyPage() {
           fill and --bg as glyph colour — the same monochrome inversion
           the home-page numbers section uses. */}
       <section className="py-20 md:py-28 border-b border-(--outline)">
-        <Container variant="full-width">
+        <Container >
           <div className="max-w-2xl mb-14">
             <p className="text-body-6 uppercase tracking-[0.32em] text-(--primary) mb-3">
               {t("vershiny.directions_eyebrow")}
@@ -372,7 +372,7 @@ export default function VershinyPage() {
 
       {/* ─── UPCOMING EVENTS ────────────────────────────────────────── */}
       <section className="py-20 md:py-28 bg-(--card) border-b border-(--outline)">
-        <Container variant="full-width">
+        <Container >
           <div className="flex items-end justify-between mb-10 gap-6 flex-wrap">
             <div className="max-w-2xl">
               <p className="text-body-6 uppercase tracking-[0.32em] text-(--primary) mb-3">
@@ -522,7 +522,7 @@ export default function VershinyPage() {
           arrow — icons here would compete with the logo glyph in the
           background and clutter the block. */}
       <section className="py-24 md:py-32">
-        <Container variant="full-width">
+        <Container >
           <div className="relative overflow-hidden rounded-3xl border border-(--outline) bg-(--card) p-8 md:p-14">
             <VershinyLogo
               className="pointer-events-none absolute -right-8 -bottom-8 h-56 w-auto opacity-[0.06]"

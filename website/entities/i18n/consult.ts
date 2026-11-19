@@ -45,11 +45,11 @@ export const consultTranslations: Record<Language, Record<string, string>> = {
     'consult.form.agreement_terms': 'User Agreement',
   },
   ru: {
-    'consult.title_prefix': 'Обсудим',
-    'consult.title_highlight': 'проект',
-    'consult.title_suffix': '?',
+    'consult.title_prefix': 'Поделитесь',
+    'consult.title_highlight': 'идеей',
+    'consult.title_suffix': ' ',
     'consult.body':
-      'Расскажите о задаче - предложим решение, оценим сроки и стоимость. Без воды, в течение рабочего дня.',
+      'Поделитесь идеей - вероятно это ключ к будущему',
     'consult.bullet_1': 'Ответ в течение рабочего дня',
     'consult.bullet_2': 'Бесплатно и без обязательств',
     'consult.bullet_3': 'Гибкие условия сотрудничества и поддержка инноваций',
@@ -61,9 +61,9 @@ export const consultTranslations: Record<Language, Record<string, string>> = {
     'consult.form.phone_label': 'Телефон *',
     'consult.form.telegram_label': 'Telegram (опционально)',
     'consult.form.telegram_placeholder': '@username',
-    'consult.form.description_label': 'Описание задачи (опционально)',
-    'consult.form.description_placeholder': 'Коротко о том, что нужно сделать',
-    'consult.form.submit': 'Отправить заявку',
+    'consult.form.description_label': 'Описание идеи (опционально)',
+    'consult.form.description_placeholder': 'Кратко о идее',
+    'consult.form.submit': 'Поделиться идеей',
     'consult.form.submitting': 'Отправка…',
 
     'consult.form.success': 'Заявка отправлена! Свяжемся с вами в течение рабочего дня.',

@@ -20,6 +20,7 @@ import { TelemostStackIcon } from "@/components/icons/telemost-stack-icon";
 import { Container } from "@/components/ui/container";
 import { AmorfaLogo } from "@/components/icons/logotypes/amorfa-logo";
 import { VershinyLogoIcon } from "@/components/icons/logotypes/vershiny-logo-icon";
+import AnimatedAmorfaLogo from "@/components/icons/logotypes/animated-amorfa-logo";
 
 interface NavItem {
   href: string;
@@ -35,7 +36,7 @@ const NAV_LINKS: NavItem[] = [
     href: "/amorfa",
     labelKey: "nav.amorfa",
     fallback: "Amorfa",
-    icon: <AmorfaLogo className="size-6" />
+    icon: <AnimatedAmorfaLogo className="size-6" />
   },
   {
     href: "/vershiny_top",

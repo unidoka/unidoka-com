@@ -82,7 +82,7 @@ export function EventsCalendar() {
   };
 
   return (
-    <Container variant="full-width" className="py-6 md:py-8">
+    <Container className="py-6 md:py-8">
       <div className="flex flex-col gap-4">
         <CalendarHeader
           anchor={anchor}
@@ -99,14 +99,14 @@ export function EventsCalendar() {
           selected={selected}
           onSelectDate={setSelected}
         />
-        
+
         {state.kind === "loading" && (
           <Card className="rounded-3xl border-(--outline) p-16 text-center">
             <CircleNotchIcon className="size-6 animate-spin mx-auto text-(--on-bg-low)" />
             <p className="text-body-4 text-(--on-bg-medium) mt-4">Загрузка событий…</p>
           </Card>
         )}
-        
+
         {state.kind === "error" && (
           <Card className="rounded-3xl border border-[color-mix(in_srgb,var(--error),transparent_70%)] bg-[color-mix(in_srgb,var(--error),transparent_96%)] p-8 text-center">
             <WarningCircleIcon className="size-6 mx-auto text-(--error) mb-3" />
@@ -120,12 +120,12 @@ export function EventsCalendar() {
             </Button>
           </Card>
         )}
-        
+
         {state.kind === "ready" && (
           <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-5">
             <aside className="hidden lg:flex flex-col gap-4">
               <FilterPanel allEvents={allEvents} value={filter} onChange={setFilter} />
-              
+
               <MiniMonth
                 month={anchor}
                 selected={selected}
@@ -136,10 +136,10 @@ export function EventsCalendar() {
                   setAnchor(d);
                 }}
               />
-              
+
               <UpcomingList byDay={byDay} onSelectEvent={setActive} />
             </aside>
-            
+
             <main className="min-w-0">
               {allEvents.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-(--outline) p-12 text-center">
@@ -192,7 +192,7 @@ function UpcomingList({
   const now = Date.now();
   const items: { date: Date; event: EventListItem }[] = [];
   const seen = new Set<string>();
-  
+
   for (let i = 0; i < 60 && items.length < 5; i++) {
     const d = new Date(now + i * 86400000);
     const key = format(d, "yyyy-MM-dd");
@@ -205,9 +205,9 @@ function UpcomingList({
       if (items.length >= 5) break;
     }
   }
-  
+
   if (items.length === 0) return null;
-  
+
   return (
     <div className="rounded-xl border border-(--outline) bg-(--card) p-3">
       <h3 className="text-[11px]  uppercase tracking-wider text-(--on-bg-low) mb-2 px-1">

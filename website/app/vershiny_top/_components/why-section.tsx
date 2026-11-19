@@ -14,10 +14,10 @@ export function WhySection() {
   const { t } = useLanguage();
 
   return (
-    <section className="border-b border-(--outline) py-20 md:py-28">
-      <Container variant="full-width">
-        <div className="mb-14 grid grid-cols-1 items-end gap-8 lg:grid-cols-2 lg:gap-16">
-          <h2 className="text-display-3 leading-[1.05] md:text-display-2">
+    <section className="py-16 md:py-24">
+      <Container >
+        <div className="mb-12 grid grid-cols-1 items-end gap-8 lg:grid-cols-2 lg:gap-16">
+          <h2 className="text-display-3 leading-[1.05]! md:text-display-2">
             {t("vershiny.why_title")}
           </h2>
           <p className="max-w-[520px] text-body-2 leading-relaxed text-(--on-bg-medium) lg:pb-2">
@@ -25,11 +25,11 @@ export function WhySection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-px overflow-hidden sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-3xl border border-(--outline) bg-(--outline) sm:grid-cols-2 lg:grid-cols-4">
           {CARDS.map((c) => (
             <article
               key={c.titleKey}
-              className="group flex flex-col gap-4 bg-(--bg) p-4 transition-colors duration-300 hover:bg-(--card) md:p-6"
+              className="flex flex-col gap-4 bg-(--bg) p-8 transition-colors duration-300 hover:bg-(--card) md:p-9"
             >
               <h3 className="text-heading-2 leading-tight text-(--on-bg-high)">
                 {t(c.titleKey)}
@@ -44,3 +44,5 @@ export function WhySection() {
     </section>
   );
 }
+
+export default WhySection;

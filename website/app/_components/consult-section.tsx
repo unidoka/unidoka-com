@@ -1,4 +1,5 @@
 "use client";
+
 import { Container } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
 import { ConsultForm } from "@/components/consult-form";
@@ -6,6 +7,7 @@ import { useLanguage } from "@/providers/language-provider";
 
 export default function ConsultSection() {
   const { t } = useLanguage();
+
   const bullets = [
     t("consult.bullet_1"),
     t("consult.bullet_2"),
@@ -13,30 +15,31 @@ export default function ConsultSection() {
   ];
 
   return (
-    <section className="py-20 md:py-28 bg-(--bg) border-t border-(--outline)">
+    <section className="py-16 md:py-24">
       <Container>
-        <div className="max-w-[960px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14 items-start">
-          <div className="animate-reveal">
-            <h2 className="font-heading  tracking-[-0.03em] text-[2.5rem] md:text-[3.25rem] leading-[1.02] mb-6 text-(--on-bg-high)">
+        <div className="mx-auto grid max-w-[960px] grid-cols-1 items-start gap-10 md:grid-cols-2 md:gap-14">
+          <div className="animate-reveal fill-mode-both">
+            <h2 className="mb-6 text-display-3 leading-[1.05]! tracking-tight text-(--on-bg-high) md:text-display-2">
               {t("consult.title_prefix")}{" "}
-              <span className="text-(--primary)">
+              <span className="text-(--on-bg-medium)">
                 {t("consult.title_highlight")}
               </span>
               {t("consult.title_suffix")}
             </h2>
-            <p className="text-body-2 text-(--on-bg-medium) leading-relaxed mb-8 max-w-[420px]">
+            <p className="mb-8 max-w-[420px] text-body-2 leading-relaxed text-(--on-bg-medium)">
               {t("consult.body")}
             </p>
-            <ul className="space-y-3 text-body-4 text-(--on-bg-medium)">
+            <ul className="space-y-3 text-body-3 text-(--on-bg-medium)">
               {bullets.map((line) => (
                 <li key={line} className="flex items-center gap-3">
-                  <span className="size-1.5 rounded-full bg-(--primary) shrink-0" />
+                  <span className="size-1.5 shrink-0 rounded-full bg-(--on-bg-high)" />
                   {line}
                 </li>
               ))}
             </ul>
           </div>
-          <Card className="rounded-3xl border-(--outline) bg-(--card) ring-0 p-6 md:p-8 animate-reveal [animation-delay:200ms] fill-mode-both">
+
+          <Card className="animate-reveal rounded-3xl border border-(--outline) bg-(--card) p-6 ring-0 fill-mode-both [animation-delay:180ms] md:p-8">
             <ConsultForm />
           </Card>
         </div>

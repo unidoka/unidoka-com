@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { GitBranchIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
@@ -29,12 +28,9 @@ export function QuickstartSection() {
   const { t } = useLanguage();
 
   return (
-    <section
-      id="quickstart"
-      className="scroll-mt-28 border-b border-(--outline) bg-(--card) py-20 md:py-28"
-    >
-      <Container variant="full-width">
-        <h2 className="mb-12 max-w-2xl text-display-3 leading-[1.05] md:text-display-2">
+    <section id="quickstart" className="scroll-mt-28 py-16 md:py-24">
+      <Container >
+        <h2 className="mb-10 max-w-2xl text-display-3 leading-[1.05]! md:text-display-2">
           {t("amorfa.quickstart_title")}
         </h2>
 
@@ -54,7 +50,7 @@ export function QuickstartSection() {
           ))}
         </div>
 
-        <div className="mt-10">
+        <div className="mt-9">
           <Button size="large" asChild>
             <a href={GITHUB} target="_blank" rel="noopener noreferrer">
               <GitBranchIcon />
@@ -67,3 +63,5 @@ export function QuickstartSection() {
     </section>
   );
 }
+
+export default QuickstartSection;

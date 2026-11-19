@@ -10,6 +10,7 @@ import { rootDomainUrl } from "@/utils/root-domain";
 import { cn } from "@/lib/utils";
 import { AmorfaLogo } from "@/components/icons/logotypes/amorfa-logo";
 import { VershinyLogoIcon } from "@/components/icons/logotypes/vershiny-logo-icon";
+import AnimatedAmorfaLogo from "@/components/icons/logotypes/animated-amorfa-logo";
 
 interface MenuLink {
   href: string;
@@ -25,7 +26,7 @@ const MENU_LINKS: MenuLink[] = [
     href: "/amorfa",
     labelKey: "nav.amorfa",
     fallback: "Amorfa",
-    icon: <AmorfaLogo className="size-6" />
+    icon: <AnimatedAmorfaLogo className="size-6" />
   },
   {
     href: "/vershiny_top",

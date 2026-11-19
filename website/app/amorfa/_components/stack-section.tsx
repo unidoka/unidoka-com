@@ -18,27 +18,39 @@ const STACK = [
   "Traefik",
 ] as const;
 
+/**
+ * The stack reads as one sentence, not a grid. Names wrap on the natural
+ * line, separated by a hairline middot; the only motion is each name
+ * lifting to full contrast under the pointer. No cells, no borders, no
+ * columns - nothing that turns a list of twelve words into a table.
+ */
 export function StackSection() {
   const { t } = useLanguage();
 
   return (
-    <section className="border-b border-(--outline) py-20 md:py-28">
+    <section className="py-16 md:py-24">
       <Container variant="full-width">
-        <h2 className="mb-14 text-display-3 leading-[1.05] md:text-display-2">
+        <h2 className="mb-10 text-display-3 leading-[1.05]! md:text-display-2">
           {t("amorfa.stack_title")}
         </h2>
 
-        <div className="grid grid-cols-1 gap-px overflow-hidden border border-(--outline) bg-(--outline) sm:grid-cols-2 lg:grid-cols-4">
-          {STACK.map((s) => (
-            <div
-              key={s}
-              className="bg-(--bg) px-6 py-5 font-mono text-body-3 text-(--on-bg-medium) transition-colors duration-300 hover:bg-(--card) hover:text-(--on-bg-high)"
-            >
-              {s}
-            </div>
+        <ul className="flex max-w-4xl flex-wrap items-baseline gap-x-3 gap-y-1 text-heading-2 leading-[1.6] text-(--on-bg-medium) md:text-heading-1">
+          {STACK.map((name, i) => (
+            <li key={name} className="inline-flex items-baseline gap-3">
+              <span className="transition-colors duration-300 hover:text-(--on-bg-high)">
+                {name}
+              </span>
+              {i < STACK.length - 1 && (
+                <span aria-hidden className="text-(--on-bg-low) opacity-50">
+                  ·
+                </span>
+              )}
+            </li>
           ))}
-        </div>
+        </ul>
       </Container>
     </section>
   );
 }
+
+export default StackSection;
