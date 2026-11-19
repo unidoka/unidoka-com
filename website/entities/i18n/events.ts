@@ -23,6 +23,11 @@ export const eventsTranslations: Record<Language, Record<string, string>> = {
 
     'events.calendar.filters': 'Filters',
     'events.calendar.reset': 'Reset',
+    'events.calendar.categories': 'Event type',
+    'events.calendar.activities': 'Activities',
+    'events.calendar.competitions': 'Competitions',
+    'events.calendar.cities': 'Cities',
+    'events.calendar.all': 'All',
     'events.calendar.tags': 'Tags',
     'events.calendar.show': 'Show',
     'events.calendar.registration_only': 'Only with open registration',
@@ -100,6 +105,11 @@ export const eventsTranslations: Record<Language, Record<string, string>> = {
 
     'events.calendar.filters': 'Фильтры',
     'events.calendar.reset': 'Сбросить',
+    'events.calendar.categories': 'Тип события',
+    'events.calendar.activities': 'Мероприятия',
+    'events.calendar.competitions': 'Соревнования',
+    'events.calendar.cities': 'Города',
+    'events.calendar.all': 'Все',
     'events.calendar.tags': 'Теги',
     'events.calendar.show': 'Показывать',
     'events.calendar.registration_only': 'Только с открытой регистрацией',

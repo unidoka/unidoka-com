@@ -232,6 +232,7 @@ async def list_public_events(
     tag: Optional[str] = Query(None),
     submitted_by_username: Optional[str] = Query(None),
     locale: Optional[str] = Query(None),
+    category: Optional[str] = Query(None),
 ):
     # ── iCal-backed public calendar ────────────────────────────────
     # The main public calendar now sources from an external iCal feed
@@ -243,9 +244,9 @@ async def list_public_events(
     # commented, for easy rollback. To revert: delete this function's
     # body and uncomment the block at the end of the function.
     #
-    # SECURITY: no client-controlled URL is ever fetched. The feed
-    # URL comes exclusively from PUBLIC_ICAL_URL (RU) or
-    # PUBLIC_ICAL_URL_EN (EN).
+    # SECURITY: no client-controlled URL is ever fetched. Feed URLs
+    # come exclusively from the per-category env vars
+    # (PUBLIC_ICAL_URL_ACTIVITIES[_EN] / PUBLIC_ICAL_URL_COMPETITIONS[_EN]).
     #
     # submitted_by_username still falls back to the DB — that filter
     # powers the public user-profile page, and iCal events have no
@@ -301,6 +302,13 @@ async def list_public_events(
             return end >= now
 
         events = [e for e in events if still_running(e)]
+
+    if category:
+        normalized = category.strip().lower()
+        events = [
+            e for e in events
+            if normalized in (e.get("categories") or [])
+        ]
 
     # `tag` is a no-op for iCal (no taxonomy in the feed).
     if limit:
@@ -401,14 +409,30 @@ async def list_directions_public(db: Session = Depends(get_db)):
 
 
 @router.get("/meta/ical")
-async def public_ical_feed(locale: Optional[str] = Query(None)):
-    """Public ICS URL so the UI can offer "add to calendar" deep links."""
-    from app.services.ical_service import public_feed_url
+async def public_ical_feed(
+    locale: Optional[str] = Query(None),
+    category: Optional[str] = Query(None),
+):
+    """Public ICS URLs so the UI can offer "add to calendar" deep links."""
+    from app.services.ical_service import CATEGORIES, public_feed_url
 
-    try:
-        return {"url": public_feed_url(locale)}
-    except RuntimeError:
+    if category:
+        try:
+            return {"url": public_feed_url(locale, category)}
+        except RuntimeError:
+            raise HTTPException(404, "Public iCal feed is not configured")
+
+    feeds: dict[str, str] = {}
+    for cat in CATEGORIES:
+        try:
+            feeds[cat] = public_feed_url(locale, cat)
+        except RuntimeError:
+            continue
+
+    if not feeds:
         raise HTTPException(404, "Public iCal feed is not configured")
+
+    return {"url": feeds.get("activities") or next(iter(feeds.values())), "feeds": feeds}
 
 
 @router.get("/{slug}", response_model=EventDetail)

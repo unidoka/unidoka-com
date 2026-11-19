@@ -19,7 +19,11 @@ import {
   OutlookLogotypeIcon,
   YandexLogotypeIcon,
 } from "@/components/icons";
-import { fetchIcalFeedUrl, type EventsLocale } from "@/utils/api/events";
+import {
+  fetchIcalFeeds,
+  type EventsCategory,
+  type EventsLocale,
+} from "@/utils/api/events";
 import { useLanguage } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
 
@@ -57,23 +61,31 @@ function SubscribeDescription() {
   return <>{t("events.subscribe.description")}</>;
 }
 
+const CATEGORY_TABS: { id: EventsCategory; key: string }[] = [
+  { id: "activities", key: "events.calendar.activities" },
+  { id: "competitions", key: "events.calendar.competitions" },
+];
+
 function SubscribeContent({ locale }: { locale: EventsLocale }) {
   const { t, lang } = useLanguage();
   const calendarName = lang === "en" ? "Unidoka — events" : "Unidoka — события";
-  const [url, setUrl] = useState<string | null | undefined>(undefined);
+  const [feeds, setFeeds] = useState<Partial<Record<EventsCategory, string>> | null>(
+    null,
+  );
+  const [category, setCategory] = useState<EventsCategory>("activities");
 
   useEffect(() => {
     let cancelled = false;
-    setUrl(undefined);
-    fetchIcalFeedUrl(locale).then((u) => {
-      if (!cancelled) setUrl(u);
+    setFeeds(null);
+    fetchIcalFeeds(locale).then((result) => {
+      if (!cancelled) setFeeds(result);
     });
     return () => {
       cancelled = true;
     };
   }, [locale]);
 
-  if (url === undefined) {
+  if (feeds === null) {
     return (
       <div className="flex items-center justify-center py-10 text-(--on-bg-low)">
         <CircleNotch className="size-5 animate-spin" />
@@ -81,7 +93,14 @@ function SubscribeContent({ locale }: { locale: EventsLocale }) {
     );
   }
 
-  if (!url) {
+  const url = feeds[category] ?? null;
+  const hasAnyFeed = Object.values(feeds).some(Boolean);
+  const categoryLabel = t(
+    CATEGORY_TABS.find((tab) => tab.id === category)?.key ??
+      "events.calendar.activities",
+  );
+
+  if (!hasAnyFeed) {
     return (
       <p className="py-6 text-center text-body-4 text-(--on-bg-medium)">
         {t("events.subscribe.not_configured")}
@@ -89,44 +108,47 @@ function SubscribeContent({ locale }: { locale: EventsLocale }) {
     );
   }
 
-  const encoded = encodeURIComponent(url);
-  const name = encodeURIComponent(calendarName);
-  const webcal = url.replace(/^https:\/\//, "webcal://");
+  const encoded = url ? encodeURIComponent(url) : "";
+  const name = encodeURIComponent(`${calendarName} — ${categoryLabel}`);
+  const webcal = url ? url.replace(/^https:\/\//, "webcal://") : "";
 
-  const links = [
-    {
-      id: "google",
-      label: t("events.subscribe.google"),
-      icon: <GoogleCalendarLogotypeIcon className="size-5" />,
-      href: `https://calendar.google.com/calendar/render?cid=${encoded}`,
-    },
-    {
-      id: "yandex",
-      label: t("events.subscribe.yandex"),
-      icon: <YandexLogotypeIcon className="size-5" />,
-      href: null,
-    },
-    {
-      id: "outlook",
-      label: "Outlook",
-      icon: <OutlookLogotypeIcon className="size-5" />,
-      href: `https://outlook.live.com/calendar/0/addfromweb?url=${encoded}&name=${name}`,
-    },
-    {
-      id: "apple",
-      label: t("events.subscribe.apple"),
-      icon: <AppleLogotypeIcon className="size-5" />,
-      href: webcal,
-    },
-    {
-      id: "notion",
-      label: "Notion Calendar",
-      icon: <NotionLogotypeIcon className="size-5" />,
-      href: null,
-    },
-  ];
+  const links = url
+    ? [
+        {
+          id: "google",
+          label: t("events.subscribe.google"),
+          icon: <GoogleCalendarLogotypeIcon className="size-5" />,
+          href: `https://calendar.google.com/calendar/render?cid=${encoded}`,
+        },
+        {
+          id: "yandex",
+          label: t("events.subscribe.yandex"),
+          icon: <YandexLogotypeIcon className="size-5" />,
+          href: null,
+        },
+        {
+          id: "outlook",
+          label: "Outlook",
+          icon: <OutlookLogotypeIcon className="size-5" />,
+          href: `https://outlook.live.com/calendar/0/addfromweb?url=${encoded}&name=${name}`,
+        },
+        {
+          id: "apple",
+          label: t("events.subscribe.apple"),
+          icon: <AppleLogotypeIcon className="size-5" />,
+          href: webcal,
+        },
+        {
+          id: "notion",
+          label: "Notion Calendar",
+          icon: <NotionLogotypeIcon className="size-5" />,
+          href: null,
+        },
+      ]
+    : [];
 
   const copy = async () => {
+    if (!url) return;
     try {
       await navigator.clipboard.writeText(url);
       toast.success(t("events.subscribe.copied"));
@@ -136,6 +158,7 @@ function SubscribeContent({ locale }: { locale: EventsLocale }) {
   };
 
   const copyFor = async (label: string) => {
+    if (!url) return;
     try {
       await navigator.clipboard.writeText(url);
       toast.success(
@@ -149,51 +172,77 @@ function SubscribeContent({ locale }: { locale: EventsLocale }) {
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-3">
-      <div className="grid grid-cols-1 gap-0.5 sm:grid-cols-2">
-        {links.map((item) =>
-          item.href ? (
-            <a
-              key={item.id}
-              href={item.href}
-              target={item.href.startsWith("http") ? "_blank" : undefined}
-              rel="noopener noreferrer"
-              className={rowClass}
-            >
-              {item.icon}
-              <span className="truncate">{item.label}</span>
-              <ArrowUpRight className="ml-auto size-4 text-(--on-bg-low)" />
-            </a>
-          ) : (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => copyFor(item.label)}
-              className={rowClass}
-            >
-              {item.icon}
-              <span className="truncate">{item.label}</span>
-              <Copy className="ml-auto size-4 text-(--on-bg-low)" />
-            </button>
-          ),
-        )}
+      <div className="grid grid-cols-2 gap-1 rounded-xl bg-(--state-hover) p-1">
+        {CATEGORY_TABS.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setCategory(tab.id)}
+            className={cn(
+              "rounded-lg px-3 py-2 text-body-5 transition-colors",
+              category === tab.id
+                ? "bg-(--card) text-(--on-bg-high) shadow-sm"
+                : "text-(--on-bg-medium) hover:text-(--on-bg-high)",
+            )}
+          >
+            {t(tab.key)}
+          </button>
+        ))}
       </div>
 
-      <div className="flex w-full min-w-0 items-center gap-2 overflow-hidden rounded-xl border border-(--outline) bg-(--state-hover) p-2">
-        <LinkSimple className="size-4 shrink-0 text-(--on-bg-low)" />
-        <span
-          className="block min-w-0 max-w-full flex-1 truncate text-body-5 text-(--on-bg-medium)"
-          title={url}
-        >
-          {url}
-        </span>
-        <Button variant="text" size="icon-small" onClick={copy} aria-label={t("events.subscribe.copy_link")}>
-          <Copy className="size-4" />
-        </Button>
-      </div>
+      {url ? (
+        <>
+          <div className="grid grid-cols-1 gap-0.5 sm:grid-cols-2">
+            {links.map((item) =>
+              item.href ? (
+                <a
+                  key={item.id}
+                  href={item.href}
+                  target={item.href.startsWith("http") ? "_blank" : undefined}
+                  rel="noopener noreferrer"
+                  className={rowClass}
+                >
+                  {item.icon}
+                  <span className="truncate">{item.label}</span>
+                  <ArrowUpRight className="ml-auto size-4 text-(--on-bg-low)" />
+                </a>
+              ) : (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => copyFor(item.label)}
+                  className={rowClass}
+                >
+                  {item.icon}
+                  <span className="truncate">{item.label}</span>
+                  <Copy className="ml-auto size-4 text-(--on-bg-low)" />
+                </button>
+              ),
+            )}
+          </div>
 
-      <p className="text-body-5 leading-snug text-(--on-bg-low)">
-        {t("events.subscribe.other_hint")}
-      </p>
+          <div className="flex w-full min-w-0 items-center gap-2 overflow-hidden rounded-xl border border-(--outline) bg-(--state-hover) p-2">
+            <LinkSimple className="size-4 shrink-0 text-(--on-bg-low)" />
+            <span
+              className="block min-w-0 max-w-full flex-1 truncate text-body-5 text-(--on-bg-medium)"
+              title={url}
+            >
+              {url}
+            </span>
+            <Button variant="text" size="icon-small" onClick={copy} aria-label={t("events.subscribe.copy_link")}>
+              <Copy className="size-4" />
+            </Button>
+          </div>
+
+          <p className="text-body-5 leading-snug text-(--on-bg-low)">
+            {t("events.subscribe.other_hint")}
+          </p>
+        </>
+      ) : (
+        <p className="py-4 text-center text-body-4 text-(--on-bg-medium)">
+          {t("events.subscribe.not_configured")}
+        </p>
+      )}
     </div>
   );
 }

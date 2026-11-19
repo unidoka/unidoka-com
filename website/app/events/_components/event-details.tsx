@@ -181,8 +181,18 @@ export function EventDetails({ event, onOpenChange }: Props) {
           {/* Tags */}
           {((event.tags ?? []).length > 0 ||
             (event.types ?? []).length > 0 ||
+            (event.categories ?? []).length > 0 ||
             event.registration_deadline_text) && (
             <div className="flex flex-wrap gap-1.5">
+              {(event.categories ?? []).map((category) => (
+                <Badge key={category} variant="glass-static" size="chip-small">
+                  {t(
+                    category === "competitions"
+                      ? "events.calendar.competitions"
+                      : "events.calendar.activities",
+                  )}
+                </Badge>
+              ))}
               {(event.types ?? []).map((t) =>
                 t.type ? (
                   <span key={t.id} className="text-[11px]  text-(--on-bg-medium) px-2 py-1 rounded-md border border-(--outline) bg-(--bg)">

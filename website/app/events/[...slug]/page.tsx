@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   fetchEventServer,
-  fetchIcalFeedUrlServer,
+  fetchIcalFeedsServer,
   type EventDetail,
   type EventsLocale,
 } from "@/utils/api/events";
@@ -75,6 +75,11 @@ function eventKeywords(event: EventDetail, locale: EventsLocale): string[] {
     ...eventTypeNames(event),
     event.organizer?.name,
     event.city,
+    ...(event.categories ?? []).map((category) =>
+      category === "competitions"
+        ? (locale === "en" ? "competition" : "соревнование")
+        : (locale === "en" ? "activity" : "мероприятие"),
+    ),
     ...(locale === "en"
       ? ["event", "meetup", "conference", "Unidoka"]
       : ["событие", "мероприятие", "конференция", "Unidoka"]),
@@ -170,6 +175,11 @@ function buildEventJsonLd(
           keywords: [
             ...(event.tags ?? []).map((tag) => tag.name),
             ...eventTypeNames(event),
+            ...(event.categories ?? []).map((category) =>
+              category === "competitions"
+                ? (isEn ? "competition" : "соревнование")
+                : (isEn ? "activity" : "мероприятие"),
+            ),
           ].join(", "),
         }
       : {}),
@@ -221,14 +231,18 @@ export async function generateMetadata({
   const eventSlug = slug[1];
   const otherLocale: EventsLocale = isEn ? "ru" : "en";
 
-  const [event, icalUrl, otherEvent] = await Promise.all([
+  const [event, icalFeeds, otherEvent] = await Promise.all([
     fetchEventServer(eventSlug, locale),
-    fetchIcalFeedUrlServer(locale),
+    fetchIcalFeedsServer(locale),
     fetchEventServer(eventSlug, otherLocale),
   ]);
   if (!event) {
     return { title: isEn ? "Event not found" : "Событие не найдено" };
   }
+
+  const primaryCategory = event.categories?.[0] ?? "activities";
+  const icalUrl =
+    icalFeeds[primaryCategory] ?? icalFeeds.activities ?? icalFeeds.competitions;
 
   const siteUrl = siteOrigin();
   const title = event.seo_title || event.title;
@@ -463,6 +477,23 @@ export default async function EventPage({
               </p>
             )}
             <div className="flex flex-wrap gap-2 mt-6">
+              {(event.categories ?? []).map((category) => (
+                <Badge key={category} variant="glass-static" size="chip-small">
+                  {serverT(
+                    locale,
+                    category === "competitions"
+                      ? "events.calendar.competitions"
+                      : "events.calendar.activities",
+                    isEn
+                      ? category === "competitions"
+                        ? "Competitions"
+                        : "Activities"
+                      : category === "competitions"
+                        ? "Соревнования"
+                        : "Мероприятия",
+                  )}
+                </Badge>
+              ))}
               {(event.types ?? []).map((t) =>
                 t.type ? (
                   <Badge key={t.id} variant="tonal-card-static">

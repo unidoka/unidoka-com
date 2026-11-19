@@ -1,8 +1,14 @@
 "use client";
 
 import { Check, Hash, X } from "@phosphor-icons/react";
-import type { EventListItem } from "@/utils/api/events";
-import { EMPTY_FILTER, isFilterEmpty, uniqueTags, type FilterState } from "./filters";
+import type { EventListItem, EventsCategory } from "@/utils/api/events";
+import {
+  EMPTY_FILTER,
+  isFilterEmpty,
+  uniqueCities,
+  uniqueTags,
+  type FilterState,
+} from "./filters";
 import { useLanguage } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
 
@@ -13,10 +19,36 @@ interface Props {
   compact?: boolean;
 }
 
+const CATEGORIES: { id: EventsCategory; key: string }[] = [
+  { id: "activities", key: "events.calendar.activities" },
+  { id: "competitions", key: "events.calendar.competitions" },
+];
+
 export function FilterPanel({ allEvents, value, onChange, compact }: Props) {
   const { t } = useLanguage();
   const tags = uniqueTags(allEvents);
+  const cities = uniqueCities(allEvents);
   const empty = isFilterEmpty(value);
+
+  const toggleCategory = (category: EventsCategory) => {
+    const has = value.categories.includes(category);
+    onChange({
+      ...value,
+      categories: has
+        ? value.categories.filter((x) => x !== category)
+        : [...value.categories, category],
+    });
+  };
+
+  const toggleCity = (city: string) => {
+    const has = value.cities.includes(city);
+    onChange({
+      ...value,
+      cities: has
+        ? value.cities.filter((x) => x !== city)
+        : [...value.cities, city],
+    });
+  };
 
   const toggleTag = (id: string) => {
     const has = value.tagIds.includes(id);
@@ -47,6 +79,51 @@ export function FilterPanel({ allEvents, value, onChange, compact }: Props) {
           </button>
         )}
       </div>
+
+      <Section title={t("events.calendar.categories")}>
+        <div className="flex flex-wrap gap-1.5">
+          <FilterChip
+            active={value.categories.length === 0}
+            onClick={() => onChange({ ...value, categories: [] })}
+          >
+            {t("events.calendar.all")}
+          </FilterChip>
+          {CATEGORIES.map((category) => (
+            <FilterChip
+              key={category.id}
+              active={value.categories.includes(category.id)}
+              onClick={() => toggleCategory(category.id)}
+            >
+              {t(category.key)}
+            </FilterChip>
+          ))}
+        </div>
+      </Section>
+
+      {cities.length > 0 && (
+        <Section title={t("events.calendar.cities")}>
+          <div className="flex max-h-44 flex-wrap gap-1.5 overflow-y-auto pr-1">
+            <FilterChip
+              active={value.cities.length === 0}
+              onClick={() => onChange({ ...value, cities: [] })}
+            >
+              {t("events.calendar.all")}
+            </FilterChip>
+            {cities.map((city) => (
+              <FilterChip
+                key={city.name}
+                active={value.cities.includes(city.name)}
+                onClick={() => toggleCity(city.name)}
+              >
+                {city.name}
+                <span className="text-[10px] tabular-nums opacity-60">
+                  {city.count}
+                </span>
+              </FilterChip>
+            ))}
+          </div>
+        </Section>
+      )}
 
       {tags.length > 0 && (
         <Section title={t("events.calendar.tags")}>
@@ -83,6 +160,31 @@ export function FilterPanel({ allEvents, value, onChange, compact }: Props) {
         />
       </Section>
     </div>
+  );
+}
+
+function FilterChip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-body-5  transition-colors",
+        active
+          ? "bg-(--primary) text-(--on-primary)"
+          : "bg-(--state-hover) text-(--on-bg-medium) hover:text-(--on-bg-high)",
+      )}
+    >
+      {children}
+    </button>
   );
 }
 

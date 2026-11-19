@@ -14,9 +14,11 @@ a client, query param, or request body — an attacker could point it
 at internal endpoints (http://169.254.169.254/, http://valkey/, …)
 and turn the backend into an SSRF proxy.
 
-There are two configured feeds: `PUBLIC_ICAL_URL` (Russian, default)
-and `PUBLIC_ICAL_URL_EN` (English, falls back to the Russian feed when
-empty). The cache and all parsing are per-locale.
+There are four configured feeds: activities and competitions, each in
+Russian and English (`PUBLIC_ICAL_URL_ACTIVITIES`,
+`PUBLIC_ICAL_URL_ACTIVITIES_EN`, `PUBLIC_ICAL_URL_COMPETITIONS`,
+`PUBLIC_ICAL_URL_COMPETITIONS_EN`). A missing locale-specific var falls
+back to its English variant. The cache and all parsing are per feed.
 
 Additional guard rails, all enforced here:
 
@@ -35,6 +37,7 @@ commented out, so switching back is a one-file edit.
 from __future__ import annotations
 
 import html
+import logging
 import os
 import re
 import time
@@ -57,8 +60,35 @@ except ImportError:  # pragma: no cover
 
 
 # ── Config ────────────────────────────────────────────────────────────
-_ICAL_URL = os.getenv("PUBLIC_ICAL_URL", "").strip()
-_ICAL_URL_EN = os.getenv("PUBLIC_ICAL_URL_EN", "").strip() or _ICAL_URL
+# Every category has its own feed per language. Missing locale vars fall
+# back to the English variant.
+_CATEGORY_ENV: dict[str, tuple[str, str]] = {
+    "activities": (
+        "PUBLIC_ICAL_URL_ACTIVITIES",
+        "PUBLIC_ICAL_URL_ACTIVITIES_EN",
+    ),
+    "competitions": (
+        "PUBLIC_ICAL_URL_COMPETITIONS",
+        "PUBLIC_ICAL_URL_COMPETITIONS_EN",
+    ),
+}
+_CATEGORY_URLS: dict[str, tuple[str, str]] = {
+    category: (os.getenv(ru_var, "").strip(), os.getenv(en_var, "").strip())
+    for category, (ru_var, en_var) in _CATEGORY_ENV.items()
+}
+
+logger = logging.getLogger(__name__)
+
+for _category, (_ru_var, _en_var) in _CATEGORY_ENV.items():
+    _ru_url, _en_url = _CATEGORY_URLS[_category]
+    if not _ru_url and not _en_url:
+        logger.warning(
+            "iCal feed is not configured for %s (set %s and/or %s)",
+            _category,
+            _ru_var,
+            _en_var,
+        )
+
 _ICAL_TIMEOUT = float(os.getenv("PUBLIC_ICAL_TIMEOUT", "15"))
 _ICAL_MAX_BYTES = int(
     os.getenv("PUBLIC_ICAL_MAX_BYTES", str(5 * 1024 * 1024))
@@ -67,14 +97,40 @@ _ICAL_CACHE_TTL = int(os.getenv("PUBLIC_ICAL_CACHE_TTL", "120"))
 _ICAL_WINDOW_BACK_DAYS = int(os.getenv("PUBLIC_ICAL_WINDOW_BACK_DAYS", "365"))
 _ICAL_WINDOW_FWD_DAYS = int(os.getenv("PUBLIC_ICAL_WINDOW_FWD_DAYS", "730"))
 
+CATEGORIES = ("activities", "competitions")
+
 
 def normalize_locale(locale: Optional[str]) -> str:
     """Map arbitrary client input to one of the supported feed locales."""
     return "en" if (locale or "").lower().startswith("en") else "ru"
 
 
-def _feed_url(locale: Optional[str] = None) -> str:
-    return _ICAL_URL_EN if normalize_locale(locale) == "en" else _ICAL_URL
+def normalize_category(category: Optional[str]) -> str:
+    value = (category or "").strip().lower()
+    return value if value in CATEGORIES else "activities"
+
+
+def _feed_url(
+    locale: Optional[str] = None, category: Optional[str] = None
+) -> str:
+    """Resolve the configured feed for locale + category.
+
+    Fallback: the locale's own category var, then the English variant.
+    """
+    cat = normalize_category(category)
+    ru_url, en_url = _CATEGORY_URLS.get(cat, ("", ""))
+
+    if normalize_locale(locale) == "en":
+        url = en_url or ru_url
+    else:
+        url = ru_url or en_url
+
+    if not url:
+        raise RuntimeError(
+            f"iCal feed is not configured for category {cat!r}"
+        )
+    return url
+
 
 
 # Same transliteration table events.py already uses, so slugs from the
@@ -99,14 +155,14 @@ def _slugify(text: str) -> str:
 def _validate_url(url: str) -> str:
     """SECURITY: https-only. Blocks file://, http://, gopher://, …"""
     if not url:
-        raise RuntimeError("PUBLIC_ICAL_URL is not configured")
+        raise RuntimeError("iCal feed is not configured")
     parsed = urlparse(url)
     if parsed.scheme != "https":
         raise RuntimeError(
-            f"PUBLIC_ICAL_URL must use https, got {parsed.scheme!r}"
+            f"iCal feed must use https, got {parsed.scheme!r}"
         )
     if not parsed.hostname:
-        raise RuntimeError("PUBLIC_ICAL_URL has no hostname")
+        raise RuntimeError("iCal feed has no hostname")
 
     # Accept the HTML embed URL as a convenience: /calendar/embed?src=<id>
     # is what Google shows in "Integrate calendar", but it is a web page,
@@ -125,13 +181,15 @@ def _validate_url(url: str) -> str:
     return url
 
 
-def public_feed_url(locale: Optional[str] = None) -> str:
+def public_feed_url(
+    locale: Optional[str] = None, category: Optional[str] = None
+) -> str:
     """The public, client-shareable ICS URL (https, normalised).
 
     Safe to expose: it is the same public feed anyone with the link can
     read. Raises RuntimeError when the feed is not configured.
     """
-    return _validate_url(_feed_url(locale))
+    return _validate_url(_feed_url(locale, category))
 
 
 def _as_ical_datetime(dt) -> Optional[datetime]:
@@ -361,7 +419,61 @@ def _text(component, key: str) -> Optional[str]:
     return s or None
 
 
-def _serialize(component) -> dict:
+_CITY_NAMES = {
+    "казань", "москва", "санкт-петербург", "спб", "петербург",
+    "екатеринбург", "новосибирск", "нижний новгород", "самара", "уфа",
+    "иннополис", "сочи", "краснодар", "ростов-на-дону", "томск", "пермь",
+    "воронеж", "красноярск", "омск", "челябинск", "волгоград", "саратов",
+    "тюмень", "ижевск", "владивосток", "калининград", "архангельск",
+    "ярославль", "тула", "калуга", "обнинск", "долгопрудный", "химки",
+    "зеленоград", "moscow", "kazan", "saint petersburg", "st petersburg",
+    "innopolis", "yekaterinburg", "novosibirsk", "nizhny novgorod", "samara",
+    "ufa", "krasnodar", "rostov-on-don", "tomsk", "perm", "voronezh",
+    "krasnoyarsk", "omsk", "chelyabinsk", "volgograd", "saratov", "tyumen",
+    "izhevsk", "vladivostok", "kaliningrad", "arkhangelsk", "yaroslavl",
+    "tula", "kaluga", "obninsk", "dolgoprudny", "khimki", "zelenograd",
+}
+
+
+_VENUE_WORDS_RE = re.compile(
+    r"парк|центр|университет|школ|офис|клуб|библиотек|музей|театр|арен|"
+    r"стадион|кампус|it-|ит-|институт|академи|корпус",
+    re.IGNORECASE,
+)
+
+
+def _parse_city(location: Optional[str]) -> Optional[str]:
+    """Best-effort city extraction from a Google Calendar LOCATION.
+
+    Most feeds use "Казань, ул. …", so the first comma segment is a
+    useful fallback. Known city names win even when the venue comes
+    first; obvious venue names are rejected rather than polluting the
+    city filter.
+    """
+    if not location:
+        return None
+    clean = html.unescape(re.sub(r"<[^>]+>", " ", location)).strip()
+    parts = [part.strip() for part in re.split(r"[,،]", clean) if part.strip()]
+    for part in parts:
+        if part.lower() in _CITY_NAMES:
+            return part
+    first = parts[0] if parts else clean
+    if first.lower() in {"онлайн", "online", "webinar", "вебинар"}:
+        return None
+    if (
+        len(first) <= 28
+        and not _VENUE_WORDS_RE.search(first)
+        and not re.search(
+            r"\d|ул\.|улица|проспект|пр-т|д\.|дом|корпус",
+            first,
+            re.IGNORECASE,
+        )
+    ):
+        return first
+    return None
+
+
+def _serialize(component, category: str = "activities") -> dict:
     uid = _text(component, "UID") or str(uuid.uuid4())
     # Deterministic UUID so /events/{id}/{slug} URLs stay stable across
     # refetches, and the frontend's id-vs-slug redirect check holds.
@@ -421,7 +533,8 @@ def _serialize(component) -> dict:
         "other_dates": [],
         "location_name": location,
         "address": None,
-        "city": None,
+        "city": _parse_city(location),
+        "categories": [category],
         "price": None,
         "capacity": None,
         "registration_url": registration_url,
@@ -449,14 +562,17 @@ def _serialize(component) -> dict:
     }
 
 
-async def fetch_ical_events(locale: Optional[str] = None) -> list[dict]:
-    """Fetch + parse + normalise the feed. Raises RuntimeError on any
-    failure so callers can decide whether to degrade or error out."""
+async def fetch_ical_events(
+    locale: Optional[str] = None, category: Optional[str] = None
+) -> list[dict]:
+    """Fetch + parse + normalise one category feed. Raises RuntimeError
+    on any failure so callers can decide whether to degrade or error out."""
     if ICalCalendar is None:
         raise RuntimeError(
             "icalendar library not installed — add it to requirements.txt"
         )
-    url = _validate_url(_feed_url(locale))
+    cat = normalize_category(category)
+    url = _validate_url(_feed_url(locale, cat))
 
     async with httpx.AsyncClient(
         timeout=_ICAL_TIMEOUT,
@@ -508,7 +624,7 @@ async def fetch_ical_events(locale: Optional[str] = None) -> list[dict]:
         if status == "CANCELLED":
             continue
         try:
-            item = _serialize(comp)
+            item = _serialize(comp, cat)
         except Exception:
             # One malformed event must not take down the whole feed.
             continue
@@ -535,17 +651,16 @@ async def fetch_ical_events(locale: Optional[str] = None) -> list[dict]:
 
 
 # ── In-memory cache ───────────────────────────────────────────────────
-# One outbound fetch per TTL **per locale**. The cache is process-local,
-# which is fine for a single container. If you scale to N replicas, each
-# gets its own window — cheap enough to accept, and honest about the
-# limits of a shared Redis cache for something this small.
-_cache: dict[str, dict] = {}
+# One outbound fetch per TTL **per locale + category**. The cache is
+# process-local, which is fine for a single container. If you scale to N
+# replicas, each gets its own window — cheap enough to accept.
+_cache: dict[tuple[str, str], dict] = {}
 
 
-async def get_cached_events(
-    locale: Optional[str] = None, force: bool = False
+async def _get_category_events(
+    locale: Optional[str], category: str, force: bool = False
 ) -> list[dict]:
-    key = normalize_locale(locale)
+    key = (normalize_locale(locale), normalize_category(category))
     entry = _cache.setdefault(key, {"data": None, "ts": 0.0})
     now = time.time()
     if (
@@ -554,10 +669,71 @@ async def get_cached_events(
         and now - entry["ts"] < _ICAL_CACHE_TTL
     ):
         return entry["data"]
-    data = await fetch_ical_events(key)
+    try:
+        data = await fetch_ical_events(*key)
+    except Exception:
+        # Transient feed failure: keep serving the last good snapshot
+        # instead of replacing the whole calendar with an error page.
+        if entry["data"] is not None:
+            return entry["data"]
+        raise
     entry["data"] = data
     entry["ts"] = now
     return data
+
+
+def _sort_instant(value: Optional[datetime]) -> datetime:
+    if value is None:
+        return datetime.max.replace(tzinfo=timezone.utc)
+    if value.tzinfo is None:
+        return value.replace(tzinfo=timezone.utc)
+    return value.astimezone(timezone.utc)
+
+
+async def get_cached_events(
+    locale: Optional[str] = None, force: bool = False
+) -> list[dict]:
+    merged: dict[str, dict] = {}
+    errors: list[Exception] = []
+    configured = 0
+
+    for category in CATEGORIES:
+        try:
+            _feed_url(locale, category)
+        except RuntimeError:
+            # This category simply has no feed in this environment.
+            continue
+
+        configured += 1
+        try:
+            items = await _get_category_events(locale, category, force)
+        except Exception as exc:
+            errors.append(exc)
+            continue
+        for item in items:
+            existing = merged.get(item["id"])
+            if existing:
+                existing["categories"] = sorted(
+                    set(existing.get("categories", []))
+                    | set(item.get("categories", []))
+                )
+            else:
+                merged[item["id"]] = {
+                    **item,
+                    "categories": list(item.get("categories", [])),
+                }
+
+    # No feed configured at all: an empty calendar is more honest than a
+    # scary 502 while the deployment is being configured.
+    if configured == 0:
+        return []
+
+    if errors and not merged:
+        raise errors[0]
+
+    out = list(merged.values())
+    out.sort(key=lambda e: (e["start_at"] is None, _sort_instant(e["start_at"])))
+    return out
 
 
 def find_event(events: list[dict], slug_or_id: str) -> Optional[dict]:

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import {
-  fetchIcalFeedUrlServer,
+  fetchIcalFeedsServer,
   fetchPublishedEventsServer,
   type EventListItem,
 } from "@/utils/api/events";
@@ -142,15 +142,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   try {
-    const [eventsRu, solutions, icalRu, icalEn] = await Promise.all([
+    const [eventsRu, solutions, feedsRu, feedsEn] = await Promise.all([
       fetchPublishedEventsServer({ locale: "ru", limit: 500 }),
       fetchPublicSolutionsServer({}),
-      fetchIcalFeedUrlServer("ru"),
-      fetchIcalFeedUrlServer("en"),
+      fetchIcalFeedsServer("ru"),
+      fetchIcalFeedsServer("en"),
     ]);
 
-    // Only publish English event URLs when the feeds actually differ.
-    const hasSeparateEnFeed = Boolean(icalEn && icalRu && icalEn !== icalRu);
+    // Only publish English event URLs when at least one category feed
+    // actually differs between languages.
+    const hasSeparateEnFeed = (["activities", "competitions"] as const).some(
+      (category) =>
+        Boolean(feedsEn[category]) && feedsEn[category] !== feedsRu[category],
+    );
     const eventsEn = hasSeparateEnFeed
       ? await fetchPublishedEventsServer({ locale: "en", limit: 500 })
       : [];

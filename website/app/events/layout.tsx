@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import EventsClientLayout from "./client-layout";
 import { getLocale } from "@/i18n/server";
-import { fetchIcalFeedUrlServer } from "@/utils/api/events";
+import { fetchIcalFeedsServer } from "@/utils/api/events";
 
 function siteOrigin(): string {
   const proto = process.env.NEXT_PUBLIC_HTTP_PROTOCOL || "https";
@@ -16,7 +16,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const isEn = locale === "en";
   const siteUrl = siteOrigin();
   const canonical = `${siteUrl}${isEn ? "/en/events" : "/events"}`;
-  const icalUrl = await fetchIcalFeedUrlServer(locale);
+  const icalUrl = await fetchIcalFeedsServer(locale).then(
+    (feeds) => feeds.activities ?? feeds.competitions,
+  );
 
   const title = isEn ? "Events" : "События";
   const description = isEn
@@ -27,8 +29,8 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     keywords: isEn
-      ? ["events", "conference", "forum", "hackathon", "meetup", "internship", "Unidoka"]
-      : ["события", "конференции", "форумы", "хакатоны", "митапы", "стажировки", "Unidoka"],
+      ? ["events", "activities", "competitions", "conference", "forum", "hackathon", "meetup", "internship", "Unidoka"]
+      : ["события", "мероприятия", "соревнования", "конференции", "форумы", "хакатоны", "митапы", "стажировки", "Unidoka"],
     alternates: {
       canonical,
       languages: {

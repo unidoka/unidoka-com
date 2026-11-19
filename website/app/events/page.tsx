@@ -44,8 +44,19 @@ export default async function EventsPage() {
               location: {
                 "@type": "Place",
                 name: plainText(event.location_name),
+                ...(event.city
+                  ? {
+                      address: {
+                        "@type": "PostalAddress",
+                        addressLocality: event.city,
+                      },
+                    }
+                  : {}),
               },
             }
+          : {}),
+        ...(event.categories?.length
+          ? { keywords: event.categories.join(", ") }
           : {}),
       },
     })),

@@ -1,5 +1,5 @@
 import {
-  fetchIcalFeedUrlServer,
+  fetchIcalFeedsServer,
   fetchPublishedEventsServer,
   type EventListItem,
 } from "@/utils/api/events";
@@ -25,19 +25,33 @@ function eventLine(event: EventListItem, siteUrl: string, locale: "ru" | "en") {
   const prefix = locale === "en" ? "/en" : "";
   const date = event.start_at ? event.start_at.slice(0, 10) : "date TBD";
   const tags = (event.tags ?? []).map((tag) => `#${tag.name}`).join(" ");
+  const category = (event.categories ?? []).join(", ");
   const location = plainText(event.location_name);
-  const meta = [date, location, tags].filter(Boolean).join(" · ");
+  const meta = [date, category, location, tags].filter(Boolean).join(" · ");
   return `- [${plainText(event.title)}](${siteUrl}${prefix}/events/${event.id}/${event.slug}) — ${meta}`;
 }
 
 export async function GET() {
   const siteUrl = siteOrigin();
-  const [ruEvents, enEvents, ruIcal, enIcal] = await Promise.all([
+  const [ruEvents, enEvents, ruFeeds, enFeeds] = await Promise.all([
     fetchPublishedEventsServer({ locale: "ru", limit: 200 }),
     fetchPublishedEventsServer({ locale: "en", limit: 200 }),
-    fetchIcalFeedUrlServer("ru"),
-    fetchIcalFeedUrlServer("en"),
+    fetchIcalFeedsServer("ru"),
+    fetchIcalFeedsServer("en"),
   ]);
+
+  const feedLinks = [
+    ...Object.entries(ruFeeds)
+      .filter(([, url]) => Boolean(url))
+      .map(
+        ([category, url]) => `- [Calendar feed ${category} (RU)](${url})`,
+      ),
+    ...Object.entries(enFeeds)
+      .filter(([category, url]) => url && url !== ruFeeds[category as keyof typeof ruFeeds])
+      .map(
+        ([category, url]) => `- [Calendar feed ${category} (EN)](${url})`,
+      ),
+  ];
 
   const lines = [
     "# Unidoka",
@@ -60,8 +74,7 @@ export async function GET() {
     "",
     "## Machine-readable",
     `- [Sitemap](${siteUrl}/sitemap.xml)`,
-    ...(ruIcal ? [`- [Calendar feed (RU)](${ruIcal})`] : []),
-    ...(enIcal && enIcal !== ruIcal ? [`- [Calendar feed (EN)](${enIcal})`] : []),
+    ...feedLinks,
     "",
   ];
 

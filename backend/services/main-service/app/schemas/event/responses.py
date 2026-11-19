@@ -116,6 +116,7 @@ class EventListItem(BaseModel):
     custom_organizer_name: Optional[str] = None
     types: List[EventTypeAssignmentOut] = []
     tags: List[SubdirectionOut] = []
+    categories: List[str] = []
     other_dates: List[Dict[str, Any]] = []
     submitted_by: Optional[EventAuthorOut] = None
     submitted_by_id: Optional[str] = None

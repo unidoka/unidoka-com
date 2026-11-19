@@ -35,6 +35,8 @@ function extractErrorMessage(payload: any, fallback: string): string {
   return fallback;
 }
 
+export type EventsCategory = "activities" | "competitions";
+
 export interface OrganizerRef {
   id: string;
   name: string;
@@ -104,6 +106,7 @@ export interface EventListItem {
   custom_organizer_name?: string | null;
   types?: TypeAssignment[];
   tags?: SubdirectionRef[];
+  categories?: EventsCategory[];
   submitted_by?: EventAuthor | null;
   submitted_by_id?: string | null;
 }
@@ -228,10 +231,11 @@ export async function fetchEventServer(
 /** Server-side public ICS feed URL, used for <link rel="alternate"> SEO tags. */
 export async function fetchIcalFeedUrlServer(
   locale: EventsLocale = "ru",
+  category: EventsCategory = "activities",
 ): Promise<string | null> {
   try {
     const res = await fetch(
-      `${SERVER_API_BASE}/api/v1/events/meta/ical?${localeQuery(locale)}`,
+      `${SERVER_API_BASE}/api/v1/events/meta/ical?${localeQuery(locale)}&category=${category}`,
       { next: { revalidate: 3600, tags: ["events"] } } as any,
     );
     if (!res.ok) return null;
@@ -239,6 +243,23 @@ export async function fetchIcalFeedUrlServer(
     return typeof body?.url === "string" && body.url ? body.url : null;
   } catch {
     return null;
+  }
+}
+
+/** Server-side map of category → public ICS URL. */
+export async function fetchIcalFeedsServer(
+  locale: EventsLocale = "ru",
+): Promise<Partial<Record<EventsCategory, string>>> {
+  try {
+    const res = await fetch(
+      `${SERVER_API_BASE}/api/v1/events/meta/ical?${localeQuery(locale)}`,
+      { next: { revalidate: 3600, tags: ["events"] } } as any,
+    );
+    if (!res.ok) return {};
+    const body = await res.json();
+    return body?.feeds && typeof body.feeds === "object" ? body.feeds : {};
+  } catch {
+    return {};
   }
 }
 
@@ -259,13 +280,28 @@ export async function fetchPublishedEventsClient(
 /** Public ICS feed URL for "add to calendar" links, or null if unset. */
 export async function fetchIcalFeedUrl(
   locale: EventsLocale = "ru",
+  category: EventsCategory = "activities",
 ): Promise<string | null> {
-  const res = await $fetch(`/api/v1/events/meta/ical?${localeQuery(locale)}`, {
-    isToast: false,
-  });
+  const res = await $fetch(
+    `/api/v1/events/meta/ical?${localeQuery(locale)}&category=${category}`,
+    { isToast: false },
+  );
   if (!res?.response?.ok) return null;
   const url = res?.json?.url;
   return typeof url === "string" && url ? url : null;
+}
+
+/** Client-side map of category → public ICS URL. */
+export async function fetchIcalFeeds(
+  locale: EventsLocale = "ru",
+): Promise<Partial<Record<EventsCategory, string>>> {
+  const res = await $fetch(
+    `/api/v1/events/meta/ical?${localeQuery(locale)}`,
+    { isToast: false },
+  );
+  if (!res?.response?.ok) return {};
+  const feeds = res?.json?.feeds;
+  return feeds && typeof feeds === "object" ? feeds : {};
 }
 
 export async function fetchMyEventSubmissions(): Promise<EventListItem[]> {
