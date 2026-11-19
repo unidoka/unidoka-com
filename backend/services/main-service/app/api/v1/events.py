@@ -1,6 +1,6 @@
 import re
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session, selectinload
@@ -275,15 +275,30 @@ async def list_public_events(
     try:
         events = await get_cached_events()
     except Exception as exc:
+        # An empty list looks like "no events" and hides a broken feed.
+        # Surface the failure so the calendar can show an honest error.
         logger.error("iCal public event fetch failed: %s", exc)
-        return []
+        raise HTTPException(
+            status_code=502,
+            detail="Не удалось загрузить календарь событий",
+        ) from exc
 
     if upcoming_only:
-        now = datetime.utcnow()
-        events = [
-            e for e in events
-            if e.get("end_at") is None or e["end_at"] >= now
-        ]
+        now = datetime.now(timezone.utc)
+
+        def still_running(e: dict) -> bool:
+            end = e.get("end_at")
+            if end is None:
+                return True
+            # iCal timed events are aware UTC; all-day ends are naive
+            # midnight and cover the whole last day.
+            if end.tzinfo is None:
+                end = end.replace(tzinfo=timezone.utc)
+            if e.get("is_all_day"):
+                end += timedelta(days=1)
+            return end >= now
+
+        events = [e for e in events if still_running(e)]
 
     # `tag` is a no-op for iCal (no taxonomy in the feed).
     if limit:

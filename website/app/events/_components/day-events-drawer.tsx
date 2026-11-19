@@ -16,6 +16,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { parseEventDate } from "./date-utils";
 import { colorForOrganizer } from "./organizer-meta";
 import type { EventListItem } from "@/utils/api/events";
 import { cn } from "@/lib/utils";
@@ -95,12 +96,14 @@ export function DayEventsDrawer({ day, events, onClose, onSelectEvent }: Props) 
 
 function EventCard({ event, onOpen }: { event: EventListItem; onOpen: () => void }) {
   const color = colorForOrganizer(event.organizer);
-  const start = event.start_at ? new Date(event.start_at) : null;
-  const end = event.end_at ? new Date(event.end_at) : null;
+  const start = parseEventDate(event.start_at);
+  const end = parseEventDate(event.end_at);
 
   const sameDay = start && end ? isSameDay(start, end) : false;
   let timeLabel = "Время не указано";
-  if (start) {
+  if (event.is_all_day) {
+    timeLabel = "Весь день";
+  } else if (start) {
     if (sameDay && end) {
       timeLabel = `${format(start, "HH:mm")} – ${format(end, "HH:mm")}`;
     } else if (end) {
@@ -121,9 +124,9 @@ function EventCard({ event, onOpen }: { event: EventListItem; onOpen: () => void
       {/* Time column */}
       <div className="flex flex-col items-start shrink-0 pt-0.5">
         <span className="text-body-3  tabular-nums text-(--on-bg-high)">
-          {start ? format(start, "HH:mm") : "--:--"}
+          {event.is_all_day ? "весь" : start ? format(start, "HH:mm") : "--:--"}
         </span>
-        {end && (
+        {!event.is_all_day && end && (
           <span className="text-[11px] tabular-nums text-(--on-bg-low) mt-0.5">
             {format(end, "HH:mm")}
           </span>

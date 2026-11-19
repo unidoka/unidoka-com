@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { fetchEventServer } from "@/utils/api/events";
 import { colorForOrganizer } from "@/app/events/_components/organizer-meta";
+import { parseEventDate } from "@/app/events/_components/date-utils";
 
 export const revalidate = 60;
 
@@ -132,18 +133,27 @@ export default async function EventPage({
 
   // ── Render ───────────────────────────────────────────────────────
   const color = colorForOrganizer(event.organizer);
-  const start = event.start_at ? new Date(event.start_at) : null;
-  const end = event.end_at ? new Date(event.end_at) : null;
+  const start = parseEventDate(event.start_at);
+  const end = parseEventDate(event.end_at);
   const sameDay =
     start && end ? start.toDateString() === end.toDateString() : false;
 
   const dateLabel = start
-    ? sameDay && end
-      ? `${format(start, "d MMMM yyyy, HH:mm", { locale: ru })} - ${format(end, "HH:mm")}`
-      : end
-        ? `${format(start, "d MMMM yyyy", { locale: ru })} - ${format(end, "d MMMM yyyy", { locale: ru })}`
-        : format(start, "d MMMM yyyy, HH:mm", { locale: ru })
+    ? event.is_all_day
+      ? sameDay || !end
+        ? `${format(start, "d MMMM yyyy", { locale: ru })} · весь день`
+        : `${format(start, "d MMMM yyyy", { locale: ru })} - ${format(end, "d MMMM yyyy", { locale: ru })} · весь день`
+      : sameDay && end
+        ? `${format(start, "d MMMM yyyy, HH:mm", { locale: ru })} - ${format(end, "HH:mm")}`
+        : end
+          ? `${format(start, "d MMMM yyyy", { locale: ru })} - ${format(end, "d MMMM yyyy", { locale: ru })}`
+          : format(start, "d MMMM yyyy, HH:mm", { locale: ru })
     : "Дата уточняется";
+
+  const teaser = (event.short_description || "")
+    .replace(/<[^>]*>?/gm, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
   const source = event.mdx_content || event.description || "";
   const { content } = await compileMDX({
@@ -174,9 +184,9 @@ export default async function EventPage({
             <h1 className="text-display-2 md:text-display-1 text-(--on-bg-high) leading-[1.05] mb-4">
               {event.title}
             </h1>
-            {event.short_description && (
+            {teaser && (
               <p className="text-body-1 text-(--on-bg-medium) leading-relaxed">
-                {event.short_description}
+                {teaser}
               </p>
             )}
             <div className="flex flex-wrap gap-2 mt-6">
@@ -193,7 +203,7 @@ export default async function EventPage({
               )}
               {(event.tags ?? []).map((tag) => (
                 <Badge key={tag.id} variant="tonal-card-static">
-                  {tag.name}
+                  #{tag.name}
                 </Badge>
               ))}
             </div>

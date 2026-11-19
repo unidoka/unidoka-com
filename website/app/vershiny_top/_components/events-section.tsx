@@ -26,6 +26,9 @@ function eventTag(ev: EventListItem, fallback: string): string {
   return ev.organizer?.name ?? fallback;
 }
 
+const stripHtml = (value: string) =>
+  value.replace(/<[^>]*>?/gm, " ").replace(/\s+/g, " ").trim();
+
 export function EventsSection() {
   const { t, lang } = useLanguage();
   const [events, setEvents] = useState<EventListItem[] | null>(null);
@@ -66,6 +69,7 @@ export function EventsSection() {
     if (!end) return fmt(s);
     const e = new Date(end);
     if (isNaN(e.getTime())) return fmt(s);
+    if (s.toDateString() === e.toDateString()) return fmt(s);
     return `${fmt(s)} — ${fmt(e)}`;
   };
 
@@ -143,7 +147,7 @@ export function EventsSection() {
                   </p>
                   {featured.short_description && (
                     <p className="mt-3 line-clamp-2 text-body-3 leading-relaxed text-(--on-bg-medium)">
-                      {featured.short_description}
+                      {stripHtml(featured.short_description)}
                     </p>
                   )}
                 </div>

@@ -85,6 +85,7 @@ export interface EventListItem {
   cover_video_src?: string | null;
   start_at?: string | null;
   end_at?: string | null;
+  is_all_day?: boolean;
   registration_deadline?: string | null;
   other_dates?: Array<{ label: string; at: string }>;
   location_name?: string | null;
@@ -215,6 +216,10 @@ export async function fetchEventServer(slug: string): Promise<EventDetail | null
 /* ── Client fetchers ───────────────────────────────────────────── */
 export async function fetchPublishedEventsClient(): Promise<EventListItem[]> {
   const res = await $fetch("/api/v1/events", { isToast: false });
+  if (!res?.response?.ok) {
+    const detail = typeof res?.json?.detail === "string" ? res.json.detail : null;
+    throw new Error(detail || "Не удалось загрузить события");
+  }
   return Array.isArray(res?.json) ? res.json : [];
 }
 

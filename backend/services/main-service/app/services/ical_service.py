@@ -30,13 +30,14 @@ commented out, so switching back is a one-file edit.
 
 from __future__ import annotations
 
+import html
 import os
 import re
 import time
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from typing import Optional
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, quote, urlparse
 
 import httpx
 
@@ -92,32 +93,186 @@ def _validate_url(url: str) -> str:
         )
     if not parsed.hostname:
         raise RuntimeError("PUBLIC_ICAL_URL has no hostname")
+
+    # Accept the HTML embed URL as a convenience: /calendar/embed?src=<id>
+    # is what Google shows in "Integrate calendar", but it is a web page,
+    # not an iCal feed. Rewrite it to the matching public ICS export.
+    if (
+        parsed.hostname in {"calendar.google.com", "www.google.com"}
+        and parsed.path.rstrip("/") == "/calendar/embed"
+    ):
+        calendar_id = (parse_qs(parsed.query).get("src") or [""])[0].strip()
+        if calendar_id:
+            return (
+                "https://calendar.google.com/calendar/ical/"
+                f"{quote(calendar_id, safe='')}/public/basic.ics"
+            )
+
     return url
 
 
-def _naive_utc(dt) -> Optional[datetime]:
-    """Normalise iCal datetime values to naive UTC (matches the rest of
-    the codebase, which stores naive datetimes).
+def _as_ical_datetime(dt) -> Optional[datetime]:
+    """Normalise iCal values for the API.
 
-    Defensive about missing tzinfo data: `python:3.12-slim` ships no
-    IANA zone database unless tzdata is installed. `icalendar` returns
-    DTSTART as a raw string when it can't resolve `TZID`, and calling
-    `.astimezone()` on it blows up. If that happens, fall back to
-    treating the value as UTC rather than dropping the whole event.
+    Timed events with a timezone become **aware UTC**, so the browser
+    converts them to the viewer's local clock (Moscow 11:00, not the raw
+    08:00Z). Date-only values stay naive midnight - all-day events are
+    calendar dates, not instants. Floating datetimes also stay naive,
+    matching the naive datetimes the rest of the codebase emits.
+
+    Defensive about missing tzinfo data: if `astimezone()` fails, keep
+    the value as UTC rather than dropping the whole event.
     """
     if dt is None:
         return None
     if isinstance(dt, datetime):
         if dt.tzinfo is not None:
             try:
-                return dt.astimezone(timezone.utc).replace(tzinfo=None)
+                return dt.astimezone(timezone.utc)
             except Exception:
-                # Unresolvable tzid (missing tzdata) — keep the value,
-                # treat as UTC. Wrong-by-hours beats missing.
-                return dt.replace(tzinfo=None)
+                return dt.replace(tzinfo=timezone.utc)
         return dt
     # date-only value
     return datetime(dt.year, dt.month, dt.day)
+
+
+def _is_date_only(prop) -> bool:
+    """True for `DTSTART;VALUE=DATE` / `DTEND;VALUE=DATE` (all-day) values.
+
+    `datetime` subclasses `date`, so the order of the checks matters.
+    """
+    if prop is None:
+        return False
+    value = prop.dt
+    return isinstance(value, date) and not isinstance(value, datetime)
+
+
+# The public Google Calendar description is also a small markup format:
+#   <a data-type="register" href="https://…">…</a>
+#   Регистрация: https://…        (also "Registration:" / "Register:")
+#   Теги: #tag_1, #tag_2          (also "Tags:")
+#   …<br><br>#tag_1 #tag_2
+# These are presentation, not description text. Pull them out once, here,
+# so every consumer (card, dialog, full page) gets the same result and the
+# link is never rendered twice.
+_REGISTER_ANCHOR_RE = re.compile(
+    r'<a\b[^>]*\bdata-type\s*=\s*["\']register["\'][^>]*>.*?</a>',
+    re.IGNORECASE | re.DOTALL,
+)
+_REGISTER_BLOCK_RE = re.compile(
+    r'(?:Регистрация|Registration|Register)\s*:?\s*'
+    r'(?:<br\s*/?>\s*)*'
+    r'(?:<a\b[^>]*>.*?</a>|https?://[^\s<]+)',
+    re.IGNORECASE | re.DOTALL,
+)
+_HREF_RE = re.compile(
+    r'\bhref\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s>]+))',
+    re.IGNORECASE,
+)
+_TAGS_RE = re.compile(
+    r'(?:Теги|Tags)\s*:\s*#[\w-]+(?:[ \t,]+#[\w-]+)*',
+    re.IGNORECASE,
+)
+_TRAILING_TAGS_RE = re.compile(
+    r'(?:<br\s*/?>\s*|\n\s*)+(#[\w-]+(?:[ \t,]+#[\w-]+)*)\s*$',
+    re.IGNORECASE,
+)
+_TAG_RE = re.compile(r"#([\w-]+)", re.UNICODE)
+_FIRST_URL_RE = re.compile(r"https?://[^\s<\"']+", re.IGNORECASE)
+
+
+def _first_url(text: str) -> Optional[str]:
+    match = _FIRST_URL_RE.search(text)
+    if not match:
+        return None
+    return html.unescape(match.group(0).rstrip(".,;:)"))
+
+
+def _anchor_href(anchor: str) -> Optional[str]:
+    match = _HREF_RE.search(anchor)
+    if not match:
+        return None
+    href = next((g for g in match.groups() if g), "").strip()
+    href = html.unescape(href)
+    # A literal "$LINK_HERE" is a template placeholder, not a URL.
+    if not href or href.startswith("$"):
+        return None
+    # Never let a feed inject javascript:/data: into a rendered href.
+    if not re.match(r"^https?://", href, re.IGNORECASE):
+        return None
+    return href
+
+
+def _anchor_text_url(anchor: str) -> Optional[str]:
+    text = html.unescape(re.sub(r"<[^>]+>", "", anchor)).strip()
+    return text if re.match(r"^https?://", text, re.IGNORECASE) else None
+
+
+def _parse_description(
+    description: Optional[str], fallback_url: Optional[str]
+) -> tuple[Optional[str], Optional[str], list[str]]:
+    """Return (clean description, register URL, tag names)."""
+    text = description or ""
+    register_url = fallback_url
+
+    for match in _REGISTER_ANCHOR_RE.finditer(text):
+        anchor = match.group(0)
+        url = _anchor_href(anchor) or _anchor_text_url(anchor)
+        if url:
+            register_url = url
+    text = _REGISTER_ANCHOR_RE.sub("", text)
+
+    # "Регистрация: <url>" / "Регистрация:<br><a href=…>…</a>"
+    for match in _REGISTER_BLOCK_RE.finditer(text):
+        block = match.group(0)
+        url = _anchor_href(block) or _anchor_text_url(block) or _first_url(block)
+        if url:
+            register_url = url
+    text = _REGISTER_BLOCK_RE.sub("", text)
+    text = text.replace("$LINK_HERE", "")
+
+    tags: list[str] = []
+
+    def collect(tag_block: str) -> None:
+        for name in _TAG_RE.findall(tag_block):
+            if name.lower() not in {t.lower() for t in tags}:
+                tags.append(name)
+
+    # "Теги: #a, #b" / "Tags: #a #b"
+    for match in _TAGS_RE.finditer(text):
+        collect(match.group(0))
+    text = _TAGS_RE.sub("", text)
+
+    # A bare hashtag block at the end, e.g. "…<br><br>#a #b".
+    for match in _TRAILING_TAGS_RE.finditer(text):
+        collect(match.group(0))
+    text = _TRAILING_TAGS_RE.sub("", text)
+
+    # Removing the two inline blocks can leave an empty paragraph behind.
+    text = re.sub(r"<p>\s*</p>", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"(?:\s*<br\s*/?>\s*){3,}", "<br><br>", text, flags=re.IGNORECASE)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    text = text.strip()
+
+    return text or None, register_url or None, tags
+
+
+def _tag_objects(names: list[str]) -> list[dict]:
+    """iCal has no taxonomy tables, so give parsed tags the shape the
+    shared SubdirectionOut schema expects. Deterministic ids keep URLs
+    and React keys stable across refetches."""
+    direction_id = str(uuid.uuid5(uuid.NAMESPACE_URL, "ical:tags"))
+    return [
+        {
+            "id": str(uuid.uuid5(uuid.NAMESPACE_URL, f"ical:tag:{n.lower()}")),
+            "direction_id": direction_id,
+            "name": n,
+            "slug": _slugify(n),
+            "sort_order": i,
+            "is_active": True,
+        }
+        for i, n in enumerate(names)
+    ]
 
 
 def _text(component, key: str) -> Optional[str]:
@@ -135,14 +290,40 @@ def _serialize(component) -> dict:
     event_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"ical:{uid}"))
 
     title = _text(component, "SUMMARY") or "Untitled event"
-    description = _text(component, "DESCRIPTION")
     location = _text(component, "LOCATION")
     url_field = _text(component, "URL")
+    description, registration_url, tag_names = _parse_description(
+        _text(component, "DESCRIPTION"), url_field
+    )
 
     start_raw = component.get("DTSTART")
     end_raw = component.get("DTEND")
-    start_dt = _naive_utc(start_raw.dt if start_raw else None)
-    end_dt = _naive_utc(end_raw.dt if end_raw else None)
+    is_all_day = _is_date_only(start_raw)
+    start_dt = _as_ical_datetime(start_raw.dt if start_raw else None)
+    end_dt = _as_ical_datetime(end_raw.dt if end_raw else None)
+
+    # RFC 5545: a DATE-valued DTEND is exclusive. The UI treats end_at as
+    # the last visible day, so subtract one day (Nov 20 -> Nov 23 becomes
+    # Nov 20 -> Nov 22). Without this, every all-day event is painted one
+    # day too long.
+    if is_all_day and _is_date_only(end_raw) and start_dt and end_dt:
+        if end_dt > start_dt:
+            end_dt -= timedelta(days=1)
+
+    # Some feeds encode the length as DURATION instead of DTEND.
+    if end_dt is None and start_dt is not None:
+        duration = component.get("DURATION")
+        if duration is not None:
+            try:
+                end_dt = start_dt + duration.dt
+                if is_all_day and end_dt > start_dt:
+                    end_dt -= timedelta(days=1)
+            except Exception:
+                pass
+
+    # A one-day all-day event has no meaningful end; keep it on one day.
+    if is_all_day and end_dt is None:
+        end_dt = start_dt
 
     now = datetime.utcnow()
     short = (description or "")[:200] or None
@@ -156,6 +337,7 @@ def _serialize(component) -> dict:
         "cover_video_src": None,
         "start_at": start_dt,
         "end_at": end_dt,
+        "is_all_day": is_all_day,
         "registration_deadline": None,
         "other_dates": [],
         "location_name": location,
@@ -163,7 +345,7 @@ def _serialize(component) -> dict:
         "city": None,
         "price": None,
         "capacity": None,
-        "registration_url": url_field,
+        "registration_url": registration_url,
         "is_featured": False,
         "status": "approved",
         "custom_page": None,
@@ -172,7 +354,7 @@ def _serialize(component) -> dict:
         "organizer": None,
         "custom_organizer_name": None,
         "types": [],
-        "tags": [],
+        "tags": _tag_objects(tag_names),
         "submitted_by": None,
         "submitted_by_id": None,
         # EventDetail-only fields
@@ -205,7 +387,10 @@ async def fetch_ical_events() -> list[dict]:
         try:
             resp = await client.get(
                 url,
-                headers={"Accept": "text/calendar, */*;q=0.8"},
+                headers={
+                    "Accept": "text/calendar, */*;q=0.8",
+                    "User-Agent": "Mozilla/5.0 (compatible; UnidokaCalendar/1.0)",
+                },
             )
         except httpx.HTTPError as exc:
             raise RuntimeError(f"iCal fetch failed: {exc}") from exc
@@ -257,10 +442,16 @@ async def fetch_ical_events() -> list[dict]:
         seen_slugs[base] = n + 1
         out.append(item)
 
-    # Chronological, with undated events last.
-    out.sort(
-        key=lambda e: (e["start_at"] is None, e["start_at"] or datetime.max)
-    )
+    # Chronological, with undated events last. Aware (timed) and naive
+    # (all-day) values share one comparable axis.
+    def sort_instant(value: Optional[datetime]) -> datetime:
+        if value is None:
+            return datetime.max.replace(tzinfo=timezone.utc)
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value.astimezone(timezone.utc)
+
+    out.sort(key=lambda e: (e["start_at"] is None, sort_instant(e["start_at"])))
     return out
 
 

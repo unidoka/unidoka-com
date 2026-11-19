@@ -4,6 +4,7 @@ import { format, isSameDay } from "date-fns";
 import { ru } from "date-fns/locale";
 import { CalendarBlank, MapPin } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
+import { parseEventDate } from "./date-utils";
 import { colorForOrganizer } from "./organizer-meta";
 import type { EventListItem } from "@/utils/api/events";
 
@@ -43,8 +44,8 @@ export function AgendaView({ days, onSelectEvent }: Props) {
           <div className="flex flex-col gap-2">
             {events.map((ev) => {
               const color = colorForOrganizer(ev.organizer);
-              const start = ev.start_at ? new Date(ev.start_at) : null;
-              const end = ev.end_at ? new Date(ev.end_at) : null;
+              const start = parseEventDate(ev.start_at);
+              const end = parseEventDate(ev.end_at);
 
               // Fix redundant date logic
               const sameDay = start && end ? isSameDay(start, end) : false;
@@ -53,6 +54,7 @@ export function AgendaView({ days, onSelectEvent }: Props) {
                 if (sameDay) dateLabel = format(start, "d MMM", { locale: ru });
                 else if (end) dateLabel = `${format(start, "d MMM", { locale: ru })} - ${format(end, "d MMM", { locale: ru })}`;
                 else dateLabel = format(start, "d MMM", { locale: ru });
+                if (ev.is_all_day) dateLabel += " · весь день";
               }
 
               const cleanLocation = stripHtml(ev.location_name || "");

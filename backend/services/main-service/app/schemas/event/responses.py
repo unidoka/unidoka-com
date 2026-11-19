@@ -95,6 +95,8 @@ class EventListItem(BaseModel):
     cover_video_src: Optional[str] = None
     start_at: Optional[datetime] = None
     end_at: Optional[datetime] = None
+    # DATE-valued iCal events (`DTSTART;VALUE=DATE`) have no clock time.
+    is_all_day: bool = False
     registration_deadline: Optional[datetime] = None
     location_name: Optional[str] = None
     address: Optional[str] = None

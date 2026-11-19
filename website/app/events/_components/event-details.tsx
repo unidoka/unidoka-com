@@ -20,6 +20,7 @@ import {
   Tag,
 } from "@phosphor-icons/react";
 import { colorForOrganizer } from "./organizer-meta";
+import { parseEventDate } from "./date-utils";
 import type { EventListItem } from "@/utils/api/events";
 import { cn } from "@/lib/utils";
 
@@ -57,8 +58,9 @@ export function EventDetails({ event, onOpenChange }: Props) {
   }
 
   const color = colorForOrganizer(event.organizer);
-  const start = event.start_at ? new Date(event.start_at) : null;
-  const end = event.end_at ? new Date(event.end_at) : null;
+  const start = parseEventDate(event.start_at);
+  const end = parseEventDate(event.end_at);
+  const isAllDay = !!event.is_all_day;
 
   const author = event.submitted_by;
   const authorName = author
@@ -72,14 +74,19 @@ export function EventDetails({ event, onOpenChange }: Props) {
   let timeLabel = "";
 
   if (start) {
-    if (sameDay) {
+    if (sameDay || !end) {
       dateLabel = format(start, "d MMMM yyyy", { locale: ru });
-      timeLabel = end ? `${format(start, "HH:mm")} - ${format(end, "HH:mm")}` : format(start, "HH:mm");
-    } else if (end) {
-      dateLabel = `${format(start, "d MMMM", { locale: ru })} - ${format(end, "d MMMM yyyy", { locale: ru })}`;
-      timeLabel = `${format(start, "HH:mm")} - ${format(end, "HH:mm")}`;
     } else {
-      dateLabel = format(start, "d MMMM yyyy", { locale: ru });
+      dateLabel = `${format(start, "d MMMM", { locale: ru })} - ${format(end, "d MMMM yyyy", { locale: ru })}`;
+    }
+
+    if (isAllDay) {
+      timeLabel = "Весь день";
+    } else if (end && sameDay) {
+      timeLabel = `${format(start, "HH:mm")} - ${format(end, "HH:mm")}`;
+    } else if (end) {
+      timeLabel = `${format(start, "HH:mm")} - ${format(end, "d MMM, HH:mm", { locale: ru })}`;
+    } else {
       timeLabel = format(start, "HH:mm");
     }
   }

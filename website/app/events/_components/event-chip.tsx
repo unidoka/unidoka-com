@@ -1,6 +1,7 @@
 "use client";
 
 import { isSameDay, format } from "date-fns";
+import { parseEventDate } from "./date-utils";
 import { colorForOrganizer } from "./organizer-meta";
 import type { EventListItem } from "@/utils/api/events";
 import { cn } from "@/lib/utils";
@@ -16,9 +17,13 @@ const stripHtml = (str: string) => str.replace(/<[^>]*>?/gm, '');
 
 export function EventChip({ event, day, compact, onClick }: Props) {
   const color = colorForOrganizer(event.organizer);
-  const start = event.start_at ? new Date(event.start_at) : null;
+  const start = parseEventDate(event.start_at);
   const startsToday = start ? isSameDay(start, day) : false;
-  const timeString = start ? format(start, "HH:mm") : "";
+  const timeString = event.is_all_day
+    ? "весь день"
+    : start
+      ? format(start, "HH:mm")
+      : "";
 
   if (compact) {
     // Compact mode for Month View (single line, tight)
