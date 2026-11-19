@@ -9,7 +9,7 @@ import {
   StackIcon,
 } from "@phosphor-icons/react";
 import { Container } from "@/components/ui/container";
-import { MarkerUnderline, DoodleBolt } from "@/components/icons";
+import { DoodleBolt } from "@/components/icons";
 import { useLanguage } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
 
@@ -53,10 +53,6 @@ export function NumbersSection() {
         <h2 className="relative mb-10 max-w-2xl text-display-3 leading-[1.05]! md:mb-14 md:text-display-2">
           <span className="relative inline-block">
             {t("home.numbers_title")}
-            <MarkerUnderline
-              bold
-              className="absolute -bottom-3 left-0 h-4 w-[72%]"
-            />
           </span>
           <DoodleBolt
             className="absolute -right-12 -top-7 hidden size-9 -rotate-6 md:block"

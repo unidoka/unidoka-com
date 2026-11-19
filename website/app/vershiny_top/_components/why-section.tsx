@@ -35,7 +35,6 @@ export function WhySection() {
                 aria-hidden
                 className="pointer-events-none absolute -top-20 -right-20 size-52 rounded-full bg-(--primary-glass) opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
               />
-              <span className="relative mb-8 h-px w-10 bg-(--on-bg-high) opacity-20 transition-all duration-500 group-hover:w-16 group-hover:opacity-60" />
               <h3 className="relative text-heading-2 leading-tight text-(--on-bg-high)">
                 {t(c.titleKey)}
               </h3>

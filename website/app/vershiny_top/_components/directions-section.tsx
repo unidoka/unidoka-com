@@ -2,7 +2,7 @@
 
 import { ArrowUpRight, Briefcase, Code, Cpu, Palette } from "@phosphor-icons/react";
 import { Container } from "@/components/ui/container";
-import { MarkerUnderline, DoodleArrow, DoodleStar } from "@/components/icons";
+import { DoodleArrow, DoodleStar } from "@/components/icons";
 import { useLanguage } from "@/providers/language-provider";
 
 const DIRECTIONS = [
@@ -38,10 +38,6 @@ export function DirectionsSection() {
           <h2 className="mb-4 text-display-3 leading-[1.05]! md:text-display-2">
             <span className="relative inline-block">
               {t("vershiny.directions_title")}
-              <MarkerUnderline
-                bold
-                className="absolute -bottom-3 left-0 h-3 w-[64%]"
-              />
             </span>
           </h2>
           <p className="text-body-2 leading-relaxed text-(--on-bg-medium)">
