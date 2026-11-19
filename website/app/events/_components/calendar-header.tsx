@@ -2,12 +2,13 @@
 
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { Plus, SlidersHorizontal, CalendarBlank } from "@phosphor-icons/react";
+import { Plus, SlidersHorizontal, CalendarBlank, CalendarPlus } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { AddEventDialog } from "@/components/marketing/add-event-dialog";
 import { MonthYearPicker } from "./month-year-picker";
 import { FilterPanel } from "./filter-panel";
 import { MiniMonth } from "./mini-month";
+import { SubscribeCalendarDialog } from "./subscribe-calendar-dialog";
 import {
   Dialog,
   DialogContent,
@@ -130,7 +131,25 @@ export function CalendarHeader({
           </Popover>
         </div>
 
+        <div className="lg:hidden ml-auto">
+          <SubscribeCalendarDialog>
+            <Button
+              variant="outlined"
+              size="icon-small"
+              aria-label="Подключить календарь"
+              className="size-9"
+            >
+              <CalendarPlus className="size-4" />
+            </Button>
+          </SubscribeCalendarDialog>
+        </div>
+
         <div className="hidden lg:flex items-center gap-2 ml-auto shrink-0">
+          <SubscribeCalendarDialog>
+            <Button variant="outlined" size="medium">
+              <CalendarPlus /> Подключить календарь
+            </Button>
+          </SubscribeCalendarDialog>
           <AddEventDialog>
             <Button size="medium" >
               <Plus /> Добавить событие

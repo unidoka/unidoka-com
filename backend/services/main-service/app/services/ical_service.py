@@ -111,6 +111,15 @@ def _validate_url(url: str) -> str:
     return url
 
 
+def public_feed_url() -> str:
+    """The public, client-shareable ICS URL (https, normalised).
+
+    Safe to expose: it is the same public feed anyone with the link can
+    read. Raises RuntimeError when the feed is not configured.
+    """
+    return _validate_url(_ICAL_URL)
+
+
 def _as_ical_datetime(dt) -> Optional[datetime]:
     """Normalise iCal values for the API.
 
@@ -147,45 +156,38 @@ def _is_date_only(prop) -> bool:
     return isinstance(value, date) and not isinstance(value, datetime)
 
 
-# The public Google Calendar description is also a small markup format:
-#   <a data-type="register" href="https://…">…</a>
-#   Регистрация: https://…        (also "Registration:" / "Register:")
-#   Теги: #tag_1, #tag_2          (also "Tags:")
-#   …<br><br>#tag_1 #tag_2
-# These are presentation, not description text. Pull them out once, here,
-# so every consumer (card, dialog, full page) gets the same result and the
-# link is never rendered twice.
+# The public Google Calendar description is also a small markup format.
+# Registration and tags are author-defined plain-text lines; HTML anchors
+# from older events are still accepted for backwards compatibility:
+#   Регистрация: https://…          (also "Registration:" / "Register:")
+#   Теги: конференция, форум        (also "Tags:")
+#   <a data-type="register" href="https://…">…</a>   (legacy)
+#   …<br><br>#tag_1 #tag_2                           (legacy)
+# Registration and tags are presentation, not description text. Pull them
+# out once, here, so every consumer (card, dialog, full page) gets the same
+# result and the link is never rendered twice.
 _REGISTER_ANCHOR_RE = re.compile(
     r'<a\b[^>]*\bdata-type\s*=\s*["\']register["\'][^>]*>.*?</a>',
     re.IGNORECASE | re.DOTALL,
 )
-_REGISTER_BLOCK_RE = re.compile(
-    r'(?:Регистрация|Registration|Register)\s*:?\s*'
+_REGISTER_LINE_RE = re.compile(
+    r'(?:Регистрация|Registration|Register)\s*:\s*'
     r'(?:<br\s*/?>\s*)*'
-    r'(?:<a\b[^>]*>.*?</a>|https?://[^\s<]+)',
-    re.IGNORECASE | re.DOTALL,
-)
-_HREF_RE = re.compile(
-    r'\bhref\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s>]+))',
+    r'(?:(?P<url>https?://[^\s<"\']+)|\$?LINK_HERE)',
     re.IGNORECASE,
 )
-_TAGS_RE = re.compile(
-    r'(?:Теги|Tags)\s*:\s*#[\w-]+(?:[ \t,]+#[\w-]+)*',
+_TAGS_LINE_RE = re.compile(
+    r'(?:Теги|Tags)\s*:\s*(?P<tags>.*?)(?=<br\s*/?>|</?p\b|\n|$)',
     re.IGNORECASE,
 )
 _TRAILING_TAGS_RE = re.compile(
     r'(?:<br\s*/?>\s*|\n\s*)+(#[\w-]+(?:[ \t,]+#[\w-]+)*)\s*$',
     re.IGNORECASE,
 )
-_TAG_RE = re.compile(r"#([\w-]+)", re.UNICODE)
-_FIRST_URL_RE = re.compile(r"https?://[^\s<\"']+", re.IGNORECASE)
-
-
-def _first_url(text: str) -> Optional[str]:
-    match = _FIRST_URL_RE.search(text)
-    if not match:
-        return None
-    return html.unescape(match.group(0).rstrip(".,;:)"))
+_HREF_RE = re.compile(
+    r'\bhref\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s>]+))',
+    re.IGNORECASE,
+)
 
 
 def _anchor_href(anchor: str) -> Optional[str]:
@@ -208,6 +210,33 @@ def _anchor_text_url(anchor: str) -> Optional[str]:
     return text if re.match(r"^https?://", text, re.IGNORECASE) else None
 
 
+def _split_tag_names(block: str) -> list[str]:
+    """Split a tags line into names.
+
+    Comma is the primary separator ("как в env-файлах"); a legacy
+    whitespace-separated hashtag block is also accepted.
+    """
+    block = re.sub(r'<br\s*/?>', ',', block, flags=re.IGNORECASE)
+    block = re.sub(r'<[^>]+>', '', block)
+    block = html.unescape(block).strip()
+    if not block:
+        return []
+
+    if "," in block:
+        raw_names = block.split(",")
+    elif "#" in block:
+        raw_names = block.split()
+    else:
+        raw_names = [block]
+
+    names: list[str] = []
+    for raw in raw_names:
+        name = raw.strip().lstrip("#").strip()
+        if name and name.lower() not in {n.lower() for n in names}:
+            names.append(name)
+    return names
+
+
 def _parse_description(
     description: Optional[str], fallback_url: Optional[str]
 ) -> tuple[Optional[str], Optional[str], list[str]]:
@@ -215,6 +244,7 @@ def _parse_description(
     text = description or ""
     register_url = fallback_url
 
+    # Legacy HTML anchors.
     for match in _REGISTER_ANCHOR_RE.finditer(text):
         anchor = match.group(0)
         url = _anchor_href(anchor) or _anchor_text_url(anchor)
@@ -222,35 +252,39 @@ def _parse_description(
             register_url = url
     text = _REGISTER_ANCHOR_RE.sub("", text)
 
-    # "Регистрация: <url>" / "Регистрация:<br><a href=…>…</a>"
-    for match in _REGISTER_BLOCK_RE.finditer(text):
-        block = match.group(0)
-        url = _anchor_href(block) or _anchor_text_url(block) or _first_url(block)
+    # Plain-text "Регистрация: <url>" / "Register: <url>". A literal
+    # LINK_HERE / $LINK_HERE placeholder is removed; the event's URL
+    # field remains the fallback.
+    for match in _REGISTER_LINE_RE.finditer(text):
+        url = match.group("url")
         if url:
-            register_url = url
-    text = _REGISTER_BLOCK_RE.sub("", text)
+            url = html.unescape(url).rstrip(".,;:)")
+            if re.match(r"^https?://", url, re.IGNORECASE):
+                register_url = url
+    text = _REGISTER_LINE_RE.sub("", text)
     text = text.replace("$LINK_HERE", "")
 
     tags: list[str] = []
 
-    def collect(tag_block: str) -> None:
-        for name in _TAG_RE.findall(tag_block):
+    # "Теги: a, b" / "Tags: a, b"
+    for match in _TAGS_LINE_RE.finditer(text):
+        for name in _split_tag_names(match.group("tags")):
             if name.lower() not in {t.lower() for t in tags}:
                 tags.append(name)
-
-    # "Теги: #a, #b" / "Tags: #a #b"
-    for match in _TAGS_RE.finditer(text):
-        collect(match.group(0))
-    text = _TAGS_RE.sub("", text)
+    text = _TAGS_LINE_RE.sub("", text)
 
     # A bare hashtag block at the end, e.g. "…<br><br>#a #b".
     for match in _TRAILING_TAGS_RE.finditer(text):
-        collect(match.group(0))
+        for name in _split_tag_names(match.group(1)):
+            if name.lower() not in {t.lower() for t in tags}:
+                tags.append(name)
     text = _TRAILING_TAGS_RE.sub("", text)
 
-    # Removing the two inline blocks can leave an empty paragraph behind.
+    # Removing the inline blocks can leave an empty paragraph behind.
     text = re.sub(r"<p>\s*</p>", "", text, flags=re.IGNORECASE)
     text = re.sub(r"(?:\s*<br\s*/?>\s*){3,}", "<br><br>", text, flags=re.IGNORECASE)
+    text = re.sub(r"^(?:\s*<br\s*/?>\s*)+", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"(?:\s*<br\s*/?>\s*)+$", "", text, flags=re.IGNORECASE)
     text = re.sub(r"\n{3,}", "\n\n", text)
     text = text.strip()
 

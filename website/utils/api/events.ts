@@ -223,6 +223,14 @@ export async function fetchPublishedEventsClient(): Promise<EventListItem[]> {
   return Array.isArray(res?.json) ? res.json : [];
 }
 
+/** Public ICS feed URL for "add to calendar" links, or null if unset. */
+export async function fetchIcalFeedUrl(): Promise<string | null> {
+  const res = await $fetch("/api/v1/events/meta/ical", { isToast: false });
+  if (!res?.response?.ok) return null;
+  const url = res?.json?.url;
+  return typeof url === "string" && url ? url : null;
+}
+
 export async function fetchMyEventSubmissions(): Promise<EventListItem[]> {
   const res = await $fetch("/api/v1/events/me", { isToast: false });
   return Array.isArray(res?.json) ? res.json : [];

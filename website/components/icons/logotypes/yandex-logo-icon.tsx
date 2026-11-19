@@ -1,0 +1,12 @@
+import { Icon, IconProps } from "../icon"
+
+export function YandexLogotypeIcon(props: IconProps) {
+  return (
+    <Icon viewBox="0 0 1309 1581" {...props}>
+      <path
+        d="M792.7 1312.1v268.3H518.1V1128L0 .7h286.5l403.7 881.9c77.8 168.5 102.5 227.1 102.5 429.5M1308.9.7 972.1 764.5H693L1029.8.7z"
+        fill="#fc3f1d"
+      />
+    </Icon>
+  )
+}

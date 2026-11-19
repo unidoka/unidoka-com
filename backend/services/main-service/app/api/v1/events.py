@@ -398,6 +398,17 @@ async def list_directions_public(db: Session = Depends(get_db)):
     return out
 
 
+@router.get("/meta/ical")
+async def public_ical_feed():
+    """Public ICS URL so the UI can offer "add to calendar" deep links."""
+    from app.services.ical_service import public_feed_url
+
+    try:
+        return {"url": public_feed_url()}
+    except RuntimeError:
+        raise HTTPException(404, "Public iCal feed is not configured")
+
+
 @router.get("/{slug}", response_model=EventDetail)
 async def get_public_event(slug: str, db: Session = Depends(get_db)):
     # Public event detail — iCal-backed.
