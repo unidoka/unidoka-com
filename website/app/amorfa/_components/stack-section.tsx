@@ -29,7 +29,7 @@ export function StackSection() {
 
   return (
     <section className="py-16 md:py-24">
-      <Container variant="full-width">
+      <Container>
         <h2 className="mb-10 text-display-3 leading-[1.05]! md:text-display-2">
           {t("amorfa.stack_title")}
         </h2>

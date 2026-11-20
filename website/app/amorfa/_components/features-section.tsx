@@ -31,16 +31,9 @@ export function FeaturesSection() {
   return (
     <section className="py-16 md:py-24">
       <Container >
-        <div className="relative mb-12 max-w-2xl">
-          <h2 className="text-display-3 leading-[1.05]! md:text-display-2">
-            <span className="relative inline-block">
-              {t("amorfa.features_title")}
-            </span>
-          </h2>
-          <DoodleSpark
-            className="absolute -top-6 right-0 size-6 rotate-12 md:-right-9 md:size-8"
-          />
-        </div>
+        <h2 className="mb-10 text-display-3 leading-[1.05]! md:text-display-2">
+          {t("amorfa.features_title")}
+        </h2>
 
         <div className="grid grid-cols-1 gap-px overflow-hidden rounded-none border border-(--outline) bg-(--outline) sm:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map((f) => {

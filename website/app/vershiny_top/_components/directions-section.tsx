@@ -43,8 +43,6 @@ export function DirectionsSection() {
           <p className="text-body-2 leading-relaxed text-(--on-bg-medium)">
             {t("vershiny.directions_subtitle")}
           </p>
-          <DoodleArrow className="absolute -right-16 top-0 hidden h-9 w-14 rotate-12 lg:block" />
-          <DoodleStar className="absolute -top-7 right-2 size-6 -rotate-6 md:-right-8 md:size-7" />
         </div>
 
         <div className="grid grid-cols-1 gap-px border border-(--outline) bg-(--outline) sm:grid-cols-2 lg:grid-cols-4">
@@ -53,7 +51,7 @@ export function DirectionsSection() {
             return (
               <article
                 key={d.titleKey}
-                className="group relative flex min-h-[320px] flex-col bg-(--bg) p-7 transition-colors duration-300 hover:bg-(--card)"
+                className="group relative flex min-h-[220px] flex-col bg-(--bg) p-7 transition-colors duration-300 hover:bg-(--card)"
               >
                 <span
                   aria-hidden
@@ -61,9 +59,7 @@ export function DirectionsSection() {
                 />
 
                 <div className="flex items-start justify-between gap-4">
-                  <span className="flex size-12 items-center justify-center border border-(--outline) bg-(--card) text-(--on-bg-high) transition-colors duration-300 group-hover:border-(--on-bg-high) group-hover:bg-(--on-bg-high) group-hover:text-(--bg)">
-                    <Icon className="size-5" weight="bold" />
-                  </span>
+                  <Icon className="size-5" weight="bold" />
                   <ArrowUpRight className="size-4 text-(--on-bg-low) transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </div>
 

@@ -350,9 +350,9 @@ function renderMarkdown(md: string): ReactNode[] {
               hasTask
                 ? "list-none space-y-2 pl-0"
                 : cn(
-                    "space-y-1.5 pl-5 marker:text-(--on-bg-low)",
-                    ul ? "list-disc" : "list-decimal",
-                  ),
+                  "space-y-1.5 pl-5 marker:text-(--on-bg-low)",
+                  ul ? "list-disc" : "list-decimal",
+                ),
             ),
           },
           items.map((p, idx) => (
@@ -474,7 +474,7 @@ export function StructureSection() {
 
   return (
     <section className="py-16 md:py-24">
-      <Container variant="full-width">
+      <Container >
         <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[1fr_1.25fr] lg:gap-20">
           {/* Statement stays put while the document scrolls beside it. */}
           <div className="lg:sticky lg:top-28">

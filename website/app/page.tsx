@@ -72,9 +72,9 @@ export default function Home() {
       <ScrollReveal threshold={0.05}>
         <NumbersSection />
       </ScrollReveal>
-      <ScrollReveal delay={100} threshold={0.05}>
+      {/* <ScrollReveal delay={100} threshold={0.05}>
         <BestWorksSection />
-      </ScrollReveal>
+      </ScrollReveal> */}
       <ConsultSection />
     </>
   );

@@ -23,11 +23,6 @@ export function HeroSection() {
         <div className="flex w-full flex-1 flex-col items-start">
           <h1 className="animate-reveal fill-mode-both text-display-2 leading-[1.02]! tracking-tight text-(--on-bg-high) md:text-display-1">
             <span className="block">{t("hero.title.part1")}</span>
-
-            {/* The mark closes the phrase. The row's leading is 1 so its
-                box is exactly one em — centring against that puts the mark
-                on the word's optical centre. 0.9em sizes the rendered
-                glyph to cap height. Full contrast while the word recedes. */}
             <span className="flex items-center gap-[0.28em] leading-none text-(--on-bg-medium)">
               <span>{t("hero.title.part2")}</span>
               <AnimatedLogoIcon
@@ -45,7 +40,6 @@ export function HeroSection() {
             <QuickOrderDialog serviceName="Консультация">
               <Button size="large" >
                 {t("hero.order")}
-                <LightbulbIcon />
               </Button>
             </QuickOrderDialog>
             {/* <Button size="large" variant="outlined" asChild>

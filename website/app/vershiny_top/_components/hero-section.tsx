@@ -32,7 +32,7 @@ export function HeroSection() {
           <div className="mt-8 animate-reveal fill-mode-both [animation-delay:280ms] md:mt-9">
             <Button size="xlarge" asChild>
               <Link href={JOIN_URL} target="_blank" rel="noopener noreferrer">
-                <VershinyLogoIcon />
+                <VershinyLogoIcon className="block lg:hidden" />
                 {t("vershiny.hero_cta")}
               </Link>
             </Button>

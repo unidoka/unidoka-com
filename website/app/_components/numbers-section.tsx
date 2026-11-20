@@ -50,16 +50,11 @@ export function NumbersSection() {
   return (
     <section className="py-16 md:py-24">
       <Container>
-        <h2 className="relative mb-10 max-w-2xl text-display-3 leading-[1.05]! md:mb-14 md:text-display-2">
-          <span className="relative inline-block">
-            {t("home.numbers_title")}
-          </span>
-          <DoodleBolt
-            className="absolute -right-12 -top-7 hidden size-9 -rotate-6 md:block"
-          />
+        <h2 className="relative mb-10 text-display-3 leading-[1.05]! md:text-display-2">
+          {t("home.numbers_title")}
         </h2>
 
-        <div className="border-t border-(--outline)">
+        <div className="">
           {CARDS.map((c) => {
             const Icon = c.icon;
             const external = c.href.startsWith("http");
@@ -85,7 +80,7 @@ export function NumbersSection() {
               </>
             );
             const cls =
-              "group relative grid grid-cols-[48px_1fr] items-start gap-x-5 gap-y-4 border-b border-(--outline) py-7 transition-colors duration-300 hover:bg-[color-mix(in_srgb,var(--card)_60%,transparent)] md:grid-cols-[48px_1fr_auto] md:items-center md:gap-8 md:py-9";
+              "group relative grid grid-cols-[48px_1fr] items-start gap-x-4 gap-y-3 transition-colors duration-300 hover:bg-[color-mix(in_srgb,var(--card)_60%,transparent)] md:grid-cols-[48px_1fr_auto] md:items-center md:gap-8 py-8";
 
             return external ? (
               <a
