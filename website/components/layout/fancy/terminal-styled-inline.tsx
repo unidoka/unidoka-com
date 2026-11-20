@@ -55,7 +55,7 @@ export function TerminalStyledInline({
   return (
     <div
       className={cn(
-        "relative mb-4 w-full min-w-0 max-w-full rounded-lg border border-(--outline) bg-(--card)",
+        "relative mb-4 w-full min-w-0 max-w-full rounded-none border border-(--outline) bg-(--card)",
         className,
       )}
     >

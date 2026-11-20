@@ -493,7 +493,7 @@ export function StructureSection() {
           </div>
 
           <div className="min-w-0">
-            <div className="overflow-hidden rounded-3xl border border-(--outline) bg-(--card)">
+            <div className="overflow-hidden rounded-none border border-(--outline) bg-(--card)">
               <div className="flex items-center justify-between gap-4 border-b border-(--outline) px-5 py-3.5">
                 <span className="text-code text-body-5 text-(--on-bg-low)">
                   README.md

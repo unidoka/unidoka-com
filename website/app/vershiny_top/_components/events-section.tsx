@@ -123,16 +123,16 @@ export function EventsSection() {
 
         {events === null ? (
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.15fr_1fr]">
-            <div className="skeleton-shimmer h-[400px] rounded-[28px]" />
+            <div className="skeleton-shimmer h-[400px] rounded-none" />
             <div className="flex flex-col gap-4">
               {[...Array(2)].map((_, i) => (
-                <div key={i} className="skeleton-shimmer h-32 rounded-2xl" />
+                <div key={i} className="skeleton-shimmer h-32 rounded-none" />
               ))}
             </div>
           </div>
         ) : events.length === 0 ? (
-          <Card className="rounded-3xl border border-dashed border-(--outline) bg-(--card) p-14 text-center ring-0">
-            <div className="mx-auto mb-5 flex size-14 items-center justify-center rounded-2xl bg-(--primary-card) text-(--primary)">
+          <Card className="rounded-none border border-dashed border-(--outline) bg-(--card) p-14 text-center ring-0">
+            <div className="mx-auto mb-5 flex size-14 items-center justify-center rounded-none bg-(--primary-card) text-(--primary)">
               <CalendarX className="size-6" />
             </div>
             <h3 className="mb-2 text-heading-2">
@@ -153,7 +153,7 @@ export function EventsSection() {
             {featured && (
               <motion.article
                 variants={item}
-                className="group relative flex min-h-[400px] flex-col justify-between gap-10 overflow-hidden rounded-[28px] border border-(--outline) bg-(--card) p-8 transition-colors duration-500 hover:border-(--on-bg-low) md:p-10"
+                className="group relative flex min-h-[400px] flex-col justify-between gap-10 overflow-hidden rounded-none border border-(--outline) bg-(--card) p-8 transition-colors duration-500 hover:border-(--on-bg-low) md:p-10"
               >
                 <div
                   aria-hidden
@@ -215,7 +215,7 @@ export function EventsSection() {
                   <motion.div key={e.id} variants={item}>
                     <Link
                       href={withLocale(eventUrl(e))}
-                      className="group flex items-start gap-5 rounded-2xl border border-(--outline) bg-(--card) p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-(--on-bg-low) hover:shadow-[0_12px_30px_-22px_rgba(0,0,0,0.45)]"
+                      className="group flex items-start gap-5 rounded-none border border-(--outline) bg-(--card) p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-(--on-bg-low) hover:shadow-[0_12px_30px_-22px_rgba(0,0,0,0.45)]"
                     >
                       <div className="min-w-0 flex-1">
                         <Badge

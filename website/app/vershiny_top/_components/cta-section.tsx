@@ -21,7 +21,7 @@ export function CtaSection() {
   return (
     <section className="py-24 md:py-32">
       <Container >
-        <div className="relative overflow-hidden rounded-3xl border border-(--outline) bg-(--card) p-8 md:p-14">
+        <div className="relative overflow-hidden rounded-none border border-(--outline) bg-(--card) p-8 md:p-14">
           <VershinyLogoMono
             className="pointer-events-none absolute -right-8 -bottom-8 h-56 w-auto opacity-[0.1]!"
             aria-hidden

@@ -3,6 +3,7 @@
 import { Check, Hash, X } from "@phosphor-icons/react";
 import type { EventListItem, EventsCategory } from "@/utils/api/events";
 import {
+  applyFilters,
   EMPTY_FILTER,
   isFilterEmpty,
   uniqueCities,
@@ -26,8 +27,11 @@ const CATEGORIES: { id: EventsCategory; key: string }[] = [
 
 export function FilterPanel({ allEvents, value, onChange, compact }: Props) {
   const { t } = useLanguage();
-  const tags = uniqueTags(allEvents);
-  const cities = uniqueCities(allEvents);
+  // Faceted counts: each facet is counted against every other active
+  // filter except itself. This makes the numbers match what clicking a
+  // chip will actually show.
+  const tags = uniqueTags(applyFilters(allEvents, { ...value, tagIds: [] }));
+  const cities = uniqueCities(applyFilters(allEvents, { ...value, cities: [] }));
   const empty = isFilterEmpty(value);
 
   const toggleCategory = (category: EventsCategory) => {

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { addDays, addMonths, addWeeks, format, subMonths, subWeeks } from "date-fns";
 import { enUS, ru } from "date-fns/locale";
 import { Container } from "@/components/ui/container";
@@ -16,7 +17,7 @@ import { FilterPanel } from "./filter-panel";
 import { EventDetails } from "./event-details";
 import { EventsSkeleton } from "./events-skeleton";
 import { indexByDay } from "./date-utils";
-import { applyFilters, EMPTY_FILTER, type FilterState } from "./filters";
+import { applyFilters, filterFromSearchParams, filtersEqual, writeFilterToSearchParams, type FilterState } from "./filters";
 import { fetchPublishedEventsClient, type EventListItem, type EventsLocale } from "@/utils/api/events";
 import { useLanguage } from "@/providers/language-provider";
 
@@ -27,12 +28,47 @@ type LoadState =
 
 export function EventsCalendar({ locale }: { locale: EventsLocale }) {
   const { t } = useLanguage();
+  const searchParams = useSearchParams();
   const [state, setState] = useState<LoadState>({ kind: "loading" });
   const [view, setView] = useState<ViewMode>("month");
   const [anchor, setAnchor] = useState<Date>(() => new Date());
   const [selected, setSelected] = useState<Date>(() => new Date());
-  const [filter, setFilter] = useState<FilterState>(EMPTY_FILTER);
+  const [filter, setFilter] = useState<FilterState>(() =>
+    filterFromSearchParams(searchParams),
+  );
   const [active, setActive] = useState<EventListItem | null>(null);
+
+  const updateFilter = useCallback((next: FilterState) => {
+    setFilter(next);
+    const params = new URLSearchParams(window.location.search);
+    writeFilterToSearchParams(params, next);
+    const query = params.toString();
+    const url = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
+    // history.replaceState updates the address bar without an RSC
+    // navigation. router.replace() here re-rendered the page on every
+    // chip click, which re-fetched the calendar and contributed to
+    // external iCal rate limits.
+    window.history.replaceState(window.history.state, "", url);
+  }, []);
+
+  useEffect(() => {
+    const onPopState = () => {
+      setFilter(
+        filterFromSearchParams(new URLSearchParams(window.location.search)),
+      );
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  // Pick up filters from a shared/deep-linked URL even if the server
+  // render did not have access to the query string.
+  useEffect(() => {
+    const fromUrl = filterFromSearchParams(
+      new URLSearchParams(window.location.search),
+    );
+    setFilter((current) => (filtersEqual(current, fromUrl) ? current : fromUrl));
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -99,7 +135,7 @@ export function EventsCalendar({ locale }: { locale: EventsLocale }) {
           onToday={onToday}
           allEvents={allEvents}
           filter={filter}
-          onFilterChange={setFilter}
+          onFilterChange={updateFilter}
           eventDays={eventDays}
           selected={selected}
           onSelectDate={setSelected}

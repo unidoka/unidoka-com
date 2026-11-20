@@ -26,7 +26,7 @@ function CoverFallback({ label, hint }: { label: string; hint: string }) {
         }}
       />
       <div className="relative flex flex-col items-center gap-3 px-6 text-center">
-        <div className="flex size-14 items-center justify-center rounded-2xl border border-(--outline) bg-(--card) shadow-sm">
+        <div className="flex size-14 items-center justify-center rounded-none border border-(--outline) bg-(--card) shadow-sm">
           <ImageBrokenIcon className="size-7 text-(--on-bg-low)" weight="duotone" />
         </div>
         <div>
@@ -237,7 +237,7 @@ export default function ProjectCard({
     <Link
       href={href}
       className={cn(
-        "group block animate-reveal fill-mode-both relative w-full overflow-hidden rounded-3xl border border-(--outline) bg-(--card) transition-all duration-500 hover:border-(--primary)/40 hover:shadow-2xl hover:shadow-(--primary)/5",
+        "group block animate-reveal fill-mode-both relative w-full overflow-hidden rounded-none border border-(--outline) bg-(--card) transition-all duration-500 hover:border-(--primary)/40 hover:shadow-2xl hover:shadow-(--primary)/5",
         variant === "featured" ? "aspect-[4/3]" : "aspect-[4/3] md:aspect-[3/4]"
       )}
       style={{ animationDelay: `${index ? index * 100 : 100}ms` }}

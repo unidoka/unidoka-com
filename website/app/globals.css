@@ -947,6 +947,9 @@ html::-webkit-scrollbar-corner {
   }
 }
 
+.pt-header {
+  @apply pt-[70px]
+}
 
 
 
@@ -2147,12 +2150,10 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .skeleton-shimmer {
-  background-image: linear-gradient(
-    90deg,
-    var(--state-hover) 0%,
-    color-mix(in srgb, var(--on-bg-low) 16%, transparent) 50%,
-    var(--state-hover) 100%
-  );
+  background-image: linear-gradient(90deg,
+      var(--state-hover) 0%,
+      color-mix(in srgb, var(--on-bg-low) 16%, transparent) 50%,
+      var(--state-hover) 100%);
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.6s ease-in-out infinite;
 }
@@ -2651,6 +2652,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     animation: none;
   }
 }
+
 /* ═══ amorfa-cta-leaves ═════════════════════════════════════════════
    The CTA no longer crops the mark, draws concentric rings, or emits
    any glow. Its ornament is the mark's own lobes, detached.
@@ -2662,9 +2664,15 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
    the SVG, so the three transforms never fight over one property.
    ═══════════════════════════════════════════════════════════════════ */
 @keyframes amorfa-leaf-in {
-  from { opacity: 0; }
-  to   { opacity: var(--leaf-o, 0.08); }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: var(--leaf-o, 0.08);
+  }
 }
+
 .amorfa-leaf {
   opacity: 0;
   animation: amorfa-leaf-in 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -2672,9 +2680,17 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 }
 
 @keyframes amorfa-leaf-drift {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
-  50%      { transform: translate3d(0, -9px, 0) rotate(5deg); }
+
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+
+  50% {
+    transform: translate3d(0, -9px, 0) rotate(5deg);
+  }
 }
+
 .amorfa-leaf-drift {
   animation: amorfa-leaf-drift 20s ease-in-out infinite;
   will-change: transform;
@@ -2691,6 +2707,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     animation: none;
     opacity: var(--leaf-o, 0.08);
   }
+
   .amorfa-leaf-drift {
     animation: none;
   }
@@ -2714,17 +2731,21 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     opacity: 0;
     transform: scale(0.52);
   }
+
   55% {
     opacity: 1;
   }
+
   78% {
     transform: scale(1.045);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
   }
 }
+
 .amorfa-nest-layer {
   opacity: 0;
   transform-box: fill-box;
@@ -2738,11 +2759,13 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     opacity: 0;
     transform: scale(0.9);
   }
+
   100% {
     opacity: var(--ring-o, 0.12);
     transform: scale(1);
   }
 }
+
 .amorfa-nest-ring {
   opacity: 0;
   transform-box: fill-box;
@@ -2752,14 +2775,17 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 }
 
 @keyframes amorfa-nest-breathe {
+
   0%,
   100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.02);
   }
 }
+
 .amorfa-nest-breathe {
   animation: amorfa-nest-breathe 16s ease-in-out infinite;
   will-change: transform;
@@ -2776,11 +2802,13 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     opacity: 1;
     transform: none;
   }
+
   .amorfa-nest-ring {
     animation: none;
     opacity: var(--ring-o, 0.12);
     transform: none;
   }
+
   .amorfa-nest-breathe {
     animation: none;
   }
@@ -2793,11 +2821,9 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
    design tokens, only the face changes.
    ═══════════════════════════════════════════════════════════════════ */
 .text-code {
-  font-family: var(
-    --font-mono,
-    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
-    "Liberation Mono", monospace
-  );
+  font-family: var(--font-mono,
+      ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+      "Liberation Mono", monospace);
   font-variant-ligatures: none;
   font-feature-settings: "liga" 0;
 }

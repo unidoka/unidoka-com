@@ -74,7 +74,7 @@ export function CtaSection() {
           ref={cardRef}
           onPointerMove={handleMove}
           onPointerLeave={handleLeave}
-          className="relative overflow-hidden rounded-3xl border border-(--outline) bg-(--card)"
+          className="relative overflow-hidden rounded-none border border-(--outline) bg-(--card)"
         >
           <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr]">
             {/* ── Copy ─────────────────────────────────────────────── */}

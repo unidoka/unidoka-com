@@ -77,12 +77,12 @@ export default function BestWorksSection() {
             {[...Array(3)].map((_, i) => (
               <div
                 key={i}
-                className="aspect-[16/9] animate-pulse rounded-2xl bg-muted/30"
+                className="aspect-[16/9] animate-pulse rounded-none bg-muted/30"
               />
             ))}
           </div>
         ) : projects.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-(--outline) p-12 text-center">
+          <div className="rounded-none border border-dashed border-(--outline) p-12 text-center">
             <p className="text-body-3 text-(--on-bg-medium)">
               {t("home.no_projects")}
             </p>

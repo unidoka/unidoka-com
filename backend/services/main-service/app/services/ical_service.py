@@ -39,6 +39,7 @@ from __future__ import annotations
 import html
 import logging
 import os
+import asyncio
 import re
 import time
 import uuid
@@ -93,7 +94,7 @@ _ICAL_TIMEOUT = float(os.getenv("PUBLIC_ICAL_TIMEOUT", "15"))
 _ICAL_MAX_BYTES = int(
     os.getenv("PUBLIC_ICAL_MAX_BYTES", str(5 * 1024 * 1024))
 )
-_ICAL_CACHE_TTL = int(os.getenv("PUBLIC_ICAL_CACHE_TTL", "120"))
+_ICAL_CACHE_TTL = int(os.getenv("PUBLIC_ICAL_CACHE_TTL", "900"))
 _ICAL_WINDOW_BACK_DAYS = int(os.getenv("PUBLIC_ICAL_WINDOW_BACK_DAYS", "365"))
 _ICAL_WINDOW_FWD_DAYS = int(os.getenv("PUBLIC_ICAL_WINDOW_FWD_DAYS", "730"))
 
@@ -651,35 +652,55 @@ async def fetch_ical_events(
 
 
 # ── In-memory cache ───────────────────────────────────────────────────
-# One outbound fetch per TTL **per locale + category**. The cache is
-# process-local, which is fine for a single container. If you scale to N
-# replicas, each gets its own window — cheap enough to accept.
-_cache: dict[tuple[str, str], dict] = {}
+# One outbound fetch per TTL **per feed URL**. Activities and
+# competitions often point at the same Google Calendar while the site is
+# being configured; keying by URL means that feed is only fetched once
+# even when both languages use it. An asyncio lock prevents a thundering
+# herd after the TTL expires.
+_cache: dict[str, dict] = {}
+_locks: dict[str, asyncio.Lock] = {}
 
 
-async def _get_category_events(
+def _cache_entry(key: str) -> dict:
+    entry = _cache.get(key)
+    if entry is None:
+        entry = {"data": None, "ts": 0.0}
+        _cache[key] = entry
+    return entry
+
+
+async def _get_feed_events(
     locale: Optional[str], category: str, force: bool = False
 ) -> list[dict]:
-    key = (normalize_locale(locale), normalize_category(category))
-    entry = _cache.setdefault(key, {"data": None, "ts": 0.0})
-    now = time.time()
-    if (
-        not force
-        and entry["data"] is not None
-        and now - entry["ts"] < _ICAL_CACHE_TTL
-    ):
+    url = _feed_url(locale, category)
+    entry = _cache_entry(url)
+    lock = _locks.setdefault(url, asyncio.Lock())
+
+    def fresh() -> bool:
+        return (
+            not force
+            and entry["data"] is not None
+            and time.time() - entry["ts"] < _ICAL_CACHE_TTL
+        )
+
+    if fresh():
         return entry["data"]
-    try:
-        data = await fetch_ical_events(*key)
-    except Exception:
-        # Transient feed failure: keep serving the last good snapshot
-        # instead of replacing the whole calendar with an error page.
-        if entry["data"] is not None:
+
+    async with lock:
+        # Another request may have refreshed the feed while we waited.
+        if fresh():
             return entry["data"]
-        raise
-    entry["data"] = data
-    entry["ts"] = now
-    return data
+        try:
+            data = await fetch_ical_events(locale, category)
+        except Exception:
+            # Transient feed failure: keep serving the last good snapshot
+            # instead of replacing the whole calendar with an error page.
+            if entry["data"] is not None:
+                return entry["data"]
+            raise
+        entry["data"] = data
+        entry["ts"] = time.time()
+        return data
 
 
 def _sort_instant(value: Optional[datetime]) -> datetime:
@@ -695,38 +716,43 @@ async def get_cached_events(
 ) -> list[dict]:
     merged: dict[str, dict] = {}
     errors: list[Exception] = []
-    configured = 0
 
+    # Group categories by feed URL so a shared calendar is fetched once.
+    url_groups: dict[str, list[str]] = {}
     for category in CATEGORIES:
         try:
-            _feed_url(locale, category)
+            url = _feed_url(locale, category)
         except RuntimeError:
             # This category simply has no feed in this environment.
             continue
+        url_groups.setdefault(url, []).append(category)
 
-        configured += 1
+    # No feed configured at all: an empty calendar is more honest than a
+    # scary 502 while the deployment is being configured.
+    if not url_groups:
+        return []
+
+    for url, categories in url_groups.items():
         try:
-            items = await _get_category_events(locale, category, force)
+            items = await _get_feed_events(locale, categories[0], force)
         except Exception as exc:
             errors.append(exc)
             continue
         for item in items:
-            existing = merged.get(item["id"])
+            copy = {
+                **item,
+                "categories": sorted(
+                    set(item.get("categories", [])) | set(categories)
+                ),
+            }
+            existing = merged.get(copy["id"])
             if existing:
                 existing["categories"] = sorted(
                     set(existing.get("categories", []))
-                    | set(item.get("categories", []))
+                    | set(copy["categories"])
                 )
             else:
-                merged[item["id"]] = {
-                    **item,
-                    "categories": list(item.get("categories", [])),
-                }
-
-    # No feed configured at all: an empty calendar is more honest than a
-    # scary 502 while the deployment is being configured.
-    if configured == 0:
-        return []
+                merged[copy["id"]] = copy
 
     if errors and not merged:
         raise errors[0]

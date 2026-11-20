@@ -39,7 +39,7 @@ export default function ConsultSection() {
             </ul>
           </div>
 
-          <Card className="animate-reveal rounded-3xl border border-(--outline) bg-(--card) p-6 ring-0 fill-mode-both [animation-delay:180ms] md:p-8">
+          <Card className="animate-reveal rounded-none border border-(--outline) bg-(--card) p-6 ring-0 fill-mode-both [animation-delay:180ms] md:p-8">
             <ConsultForm />
           </Card>
         </div>

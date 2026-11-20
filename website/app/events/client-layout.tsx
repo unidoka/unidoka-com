@@ -28,7 +28,7 @@ export default function EventsClientLayout({
 
   return (
     <>
-      <div className="border-b border-(--outline) bg-(--bg) mt-[72px] sm:mt-[100px]">
+      <div className="pt-header">
         {/* <Container>
           <nav className="flex items-center gap-1 py-3 overflow-x-auto">
             {TABS.map((t) => {

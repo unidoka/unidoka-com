@@ -65,7 +65,7 @@ export function NumbersSection() {
             const external = c.href.startsWith("http");
             const body = (
               <>
-                <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-(--on-bg-high) text-(--bg) transition-transform duration-500 group-hover:-translate-y-1 group-hover:rotate-[-3deg]">
+                <span className="flex size-12 shrink-0 items-center justify-center rounded-none bg-(--on-bg-high) text-(--bg) transition-transform duration-500 group-hover:-translate-y-1 group-hover:rotate-[-3deg]">
                   <Icon className="size-5" weight="bold" />
                 </span>
 
