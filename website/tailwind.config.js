@@ -9,17 +9,25 @@ const DISPLAY_STEPS = [0, 1, 2, 3, 4, 5, 6];
 const STEPS = [1, 2, 3, 4, 5, 6];
 
 function level(kind, n) {
-  return {
+  const utility = {
     fontFamily: `var(--${kind}-${n}-font-face)`,
     fontSize: `var(--${kind}-${n}-size)`,
     fontWeight: `var(--${kind}-${n}-weight)`,
     lineHeight: `var(--${kind}-${n}-lh)`,
-    // Tracking and vertical scale follow the same cascade:
+    // Tracking follows the same cascade everywhere:
     // per-level override → per-kind value → global default.
     letterSpacing: `var(--${kind}-${n}-tracking, var(--${kind}-tracking, var(--text-tracking, 0)))`,
-    transform: `scaleY(var(--${kind}-${n}-scale-y, var(--${kind}-scale-y, var(--text-scale-y, 100%))))`,
-    transformOrigin: 'left center',
   };
+
+  // Vertical scale is display-only. Applying even a 100% transform to
+  // body/heading utilities creates stacking contexts and breaks margin
+  // collapsing, which shows up as phantom space around paragraphs.
+  if (kind === 'display') {
+    utility.scale = `1 var(--${kind}-${n}-scale-y, var(--display-scale-y, var(--text-scale-y, 100%)))`;
+    utility.transformOrigin = 'left center';
+  }
+
+  return utility;
 }
 
 export default plugin(function ({ addUtilities }) {
