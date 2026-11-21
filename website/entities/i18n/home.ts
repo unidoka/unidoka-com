@@ -49,22 +49,22 @@ export const homeTranslations: Record<Language, Record<string, string>> = {
     'home.socials.preview.dev.description': 'Explore our full-stack framework on GitHub.',
   },
   ru: {
-    'home.numbers_title': 'Что мы делаем',
+    'home.numbers_title': 'Как мы это делаем',
     'home.card_solutions_title': 'Поддержка',
     'home.card_solutions_desc':
       'Поддержка инноваций компетенциями и опытом. Помогаем получать инвестиции и продвигать свой продукт и сами включаемся в работу проекта.',
     'home.card_solutions_btn': 'Смотреть решения',
-    'home.card_opensource_title': 'Open source',
+    'home.card_opensource_title': 'Создание талантов',
     'home.card_opensource_desc':
-      'Решения, которые уже сейчас решают важные задачи прямо сейчас.',
-    'home.card_opensource_btn': 'Наш github',
-    'home.card_community_title': 'Создаём базу',
+      'Проект Вершины регулярно выпускает специалистов, но и эрудированных и открытых к новому людей',
+    'home.card_opensource_btn': 'О проекте',
+    'home.card_community_title': 'Исследование и инновации',
     'home.card_community_desc':
-      'Фреймворк Amorfa - это открытый код, новый подход к веб-разработке с ИИ без техдолга.',
-    'home.card_community_btn': 'Документация Аморфы',
-    'home.card_events_title': 'События и мероприятия',
+      'Новые подходы к разработке, технологии децентрацилизации ИИ и технологии рендера графики',
+    'home.card_community_btn': 'Наш GitHub',
+    'home.card_events_title': 'Расширение кругозора',
     'home.card_events_desc':
-      'Открытый календарь событий с фильтрацией - конференции, хакатоны, форумы, кейс-чемпионаты.',
+      'Как сами проводим мероприятия, так и собираем их в одном месте - всё для удобства',
     'home.card_events_btn': 'События для созидателей',
     'home.best_works_title': 'Избранные проекты',
     'home.view_all_projects': 'Все проекты',

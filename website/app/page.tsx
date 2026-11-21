@@ -3,7 +3,7 @@ import { ScrollReveal } from "@/components/layout/animation/scroll-reveal";
 import { getLocale } from "@/i18n/server";
 import { getLogoAscii } from "@/lib/logo-ascii";
 import HeroSection from "./_components/hero-section";
-import NumbersSection from "./_components/numbers-section";
+import HowWeDoItSection from "./_components/how-we-do-it-section";
 import BestWorksSection from "./_components/best-projects-section";
 import ConsultSection from "./_components/consult-section";
 
@@ -71,7 +71,7 @@ export default function Home() {
     <>
       <HeroSection ascii={getLogoAscii()} />
       <ScrollReveal threshold={0.05}>
-        <NumbersSection />
+        <HowWeDoItSection />
       </ScrollReveal>
       {/* <ScrollReveal delay={100} threshold={0.05}>
         <BestWorksSection />

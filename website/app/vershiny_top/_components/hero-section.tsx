@@ -20,7 +20,7 @@ export function HeroSection() {
         className="flex flex-col items-start gap-10 lg:flex-row lg:items-center lg:gap-16"
       >
         <div className="flex w-full flex-1 flex-col items-start">
-          <h1 className="animate-reveal fill-mode-both text-display-2 leading-[1.02]! tracking-tight text-(--on-bg-high) md:text-display-1">
+          <h1 className="animate-reveal fill-mode-both text-display-2 md:text-display-1">
             <span className="block">{t("vershiny.hero_title_1")}</span>
             <span className="block">{t("vershiny.hero_title_2")}</span>
           </h1>

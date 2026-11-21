@@ -49,10 +49,10 @@ export const consultTranslations: Record<Language, Record<string, string>> = {
     'consult.title_highlight': 'идеей',
     'consult.title_suffix': ' ',
     'consult.body':
-      'Поделитесь идеей - вероятно это ключ к будущему',
-    'consult.bullet_1': 'Ответ в течение рабочего дня',
+      'Вероятно это ключ к будущему',
+    'consult.bullet_1': 'Ответ в течение рабочего дня от основателя',
     'consult.bullet_2': 'Бесплатно и без обязательств',
-    'consult.bullet_3': 'Гибкие условия сотрудничества и поддержка инноваций',
+    'consult.bullet_3': 'Поддержка инноваций',
 
     'consult.form.name_label': 'Ваше имя *',
     'consult.form.name_placeholder': 'Иван',

@@ -33,7 +33,7 @@ export function AnimatedLogoIcon({
       key={replayKey}
       className={cn("logo-mark-enter logo-bloom-stage inline-flex", className)}
     >
-      <LogoIcon className="size-full [&_path]:fill-current [&_circle]:fill-current [&_rect]:fill-current" />
+      <LogoIcon className="size-full! [&_path]:fill-current [&_circle]:fill-current [&_rect]:fill-current" />
     </div>
   );
 }

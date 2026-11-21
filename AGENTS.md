@@ -47,6 +47,7 @@ docs/                            the spec — source of truth
 - Extending is expected. Add auth, uploads, queues, whatever a feature needs — just keep each concern in its own module and update the spec.
 - Use repomapper tool before reading files please.
 - Before starting index current repo using codebase-memory mcp and show main entering points and modules if you're not done it yet.
+- Don't use eyebrows and status bars if I not say it strictly please.
 
 ## Changelog & Versioning
 

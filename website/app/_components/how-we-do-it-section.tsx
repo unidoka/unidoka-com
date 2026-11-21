@@ -6,23 +6,26 @@ import {
   CalendarBlankIcon,
   CubeIcon,
   GitBranchIcon,
+  HandshakeIcon,
+  HeartIcon,
   StackIcon,
 } from "@phosphor-icons/react";
 import { Container } from "@/components/ui/container";
 import { DoodleBolt } from "@/components/icons";
 import { useLanguage } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
+import VershinyLogoIcon from "@/components/icons/logotypes/vershiny-logo-icon";
 
 const CARDS = [
   {
-    icon: StackIcon,
+    icon: HeartIcon,
     titleKey: "home.card_solutions_title",
     descKey: "home.card_solutions_desc",
     btnKey: "home.card_solutions_btn",
     href: "/solutions",
   },
   {
-    icon: GitBranchIcon,
+    icon: VershinyLogoIcon,
     titleKey: "home.card_opensource_title",
     descKey: "home.card_opensource_desc",
     btnKey: "home.card_opensource_btn",
@@ -44,7 +47,7 @@ const CARDS = [
   },
 ] as const;
 
-export function NumbersSection() {
+export function HowWeDoItSection() {
   const { t } = useLanguage();
 
   return (
@@ -104,4 +107,4 @@ export function NumbersSection() {
   );
 }
 
-export default NumbersSection;
+export default HowWeDoItSection;
