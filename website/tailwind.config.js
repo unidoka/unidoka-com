@@ -25,6 +25,9 @@ function level(kind, n) {
   if (kind === 'display') {
     utility.scale = `1 var(--${kind}-${n}-scale-y, var(--display-scale-y, var(--text-scale-y, 100%)))`;
     utility.transformOrigin = 'left center';
+    // Display numerals stay on Georgia's old-style figures.
+    utility.fontVariantNumeric = 'oldstyle-nums';
+    utility.fontFeatureSettings = '"onum" 1';
   }
 
   return utility;

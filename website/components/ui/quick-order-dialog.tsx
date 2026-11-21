@@ -8,18 +8,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { PhoneInputField } from "@/components/ui/phone-input";
 import { toast } from "sonner";
 import { CircleNotchIcon } from "@phosphor-icons/react";
+import { useLanguage } from "@/providers/language-provider";
 
 export function QuickOrderDialog({
-  serviceName: _serviceName,
   children,
   open: controlledOpen,
   onOpenChange: controlledOnOpenChange,
 }: {
-  serviceName?: string;
   children?: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
+  const { t } = useLanguage();
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : uncontrolledOpen;
@@ -37,7 +37,7 @@ export function QuickOrderDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !phone) {
-      toast.error("Пожалуйста, заполните имя, email и телефон");
+      toast.error(t("order.quick_validation"));
       return;
     }
     setLoading(true);
@@ -56,7 +56,7 @@ export function QuickOrderDialog({
         },
       );
       if (res.ok) {
-        toast.success("Заявка принята! Мы свяжемся с вами в ближайшее время.");
+        toast.success(t("order.quick_success"));
         setOpen(false);
         setName("");
         setEmail("");
@@ -67,10 +67,10 @@ export function QuickOrderDialog({
         const detail = Array.isArray(data.detail)
           ? data.detail[0]?.msg
           : data.detail;
-        toast.error(detail || "Ошибка при отправке");
+        toast.error(detail || t("order.quick_error"));
       }
     } catch {
-      toast.error("Сетевая ошибка. Проверьте подключение.");
+      toast.error(t("order.quick_network_error"));
     } finally {
       setLoading(false);
     }
@@ -91,33 +91,33 @@ export function QuickOrderDialog({
         <div className="p-6 md:p-8 space-y-6 max-h-[85vh] overflow-y-auto scrollbar-admin">
           <div>
             <h2 className="text-2xl font-heading tracking-tight text-(--on-bg-high)">
-              Обсудить проект
+              {t("order.quick_title")}
             </h2>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-(--on-bg-high)">Ваше имя *</Label>
+              <Label className="text-(--on-bg-high)">{t("order.quick_name")}</Label>
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Иван"
+                placeholder={t("order.quick_name_placeholder")}
                 className="bg-(--card) border-(--outline) h-11"
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-(--on-bg-high)">Email *</Label>
+              <Label className="text-(--on-bg-high)">{t("order.quick_email")}</Label>
               <Input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="email@example.com"
+                placeholder={t("order.quick_email_placeholder")}
                 className="bg-(--card) border-(--outline) h-11"
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-(--on-bg-high)">Телефон *</Label>
+              <Label className="text-(--on-bg-high)">{t("order.quick_phone")}</Label>
               <PhoneInputField
                 value={phone ?? ""}
                 onChange={setPhone}
@@ -125,11 +125,11 @@ export function QuickOrderDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-(--on-bg-high)">Комментарий</Label>
+              <Label className="text-(--on-bg-high)">{t("order.quick_comment")}</Label>
               <Textarea
                 value={desc}
                 onChange={(e) => setDesc(e.target.value)}
-                placeholder="Кратко о задаче..."
+                placeholder={t("order.quick_comment_placeholder")}
                 className="min-h-[80px] bg-(--card) border-(--outline)"
               />
             </div>
@@ -141,7 +141,7 @@ export function QuickOrderDialog({
               {loading ? (
                 <CircleNotchIcon className="size-5 animate-spin mr-2" />
               ) : null}
-              {loading ? "Отправка..." : "Отправить заявку"}
+              {loading ? t("order.quick_submitting") : t("order.quick_submit")}
             </Button>
           </form>
         </div>

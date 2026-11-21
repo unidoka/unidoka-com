@@ -1,5 +1,12 @@
 import type { Language } from './translations';
 
+/** Single source for the rotating CTA labels used by the header and app bar. */
+export const ORDER_CYCLE_KEYS = [
+  'nav.order_cycle_1',
+  'nav.order_cycle_2',
+  'nav.order_cycle_3',
+] as const;
+
 export const headerTranslations: Record<Language, Record<string, string>> = {
   en: {
     // ── New nav vocabulary ─────────────────────────────────────────
@@ -9,6 +16,9 @@ export const headerTranslations: Record<Language, Record<string, string>> = {
     'nav.amorfa': 'Amorfa',
     'nav.events': 'Events',
     'nav.vershiny': 'Vershiny',
+    'nav.order_cycle_1': 'Leave a request',
+    'nav.order_cycle_2': 'Discuss a project',
+    'nav.order_cycle_3': 'CTO audit',
     // ── Legacy keys - kept for footer + backward compat ────────────
     'nav.about': 'About',
     'nav.companies': 'Companies',
@@ -53,6 +63,9 @@ export const headerTranslations: Record<Language, Record<string, string>> = {
     'nav.amorfa': 'Amorfa',
     'nav.events': 'События',
     'nav.vershiny': 'Вершины',
+    'nav.order_cycle_1': 'Оставить заявку',
+    'nav.order_cycle_2': 'Обсудить проект',
+    'nav.order_cycle_3': 'Аудит от CTO',
     'nav.about': 'О нас',
     'nav.companies': 'Компании',
     'nav.admin': 'Админ-панель',

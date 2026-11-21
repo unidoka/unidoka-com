@@ -5,6 +5,7 @@ import { AnimatedAmorfaLogo } from "@/components/icons/logotypes/animated-amorfa
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
+import { Container } from "@/components/ui/container";
 const GITHUB = "https://github.com/unidoka/amorfa";
 /**
 * Anthropic-style hero: dotted grid, title top-left, mark center-bottom.
@@ -14,7 +15,7 @@ export function HeroSection() {
   const { t } = useLanguage();
   const [replay, setReplay] = useState(0);
   return (
-    <section className="relative w-full overflow-hidden pt-20 pb-10 md:pt-24 md:pb-14">
+    <section className="relative overflow-hidden pt-20 pb-10 md:pt-24 md:pb-14">
       {/* Dotted grid background — covers the whole hero. */}
       <div
         aria-hidden
@@ -35,17 +36,18 @@ export function HeroSection() {
         }}
       />
       {/* Title block — top-left, generous whitespace. */}
-      <div className="relative z-10 px-6 md:px-12 lg:px-16 pt-12 md:pt-20 lg:pt-24">
-        <h1 className="animate-reveal fill-mode-both text-display-2 md:text-display-1 lg:text-display-0 text-(--on-bg-high)">
+      <Container className="relative z-10 pt-12 md:pt-20 lg:pt-24">
+        <h1 className="animate-reveal fill-mode-both text-(--on-bg-high)">
           <span className="flex items-center gap-[0.15em]">
-            <AnimatedAmorfaLogo className="size-[0.85em] shrink-0" />
-            <span>{t("amorfa.hero_title_1")}</span>
+            <AnimatedAmorfaLogo className="hidden sm:block size-[4rem] md:size-[6rem]" />
+            <span className="text-[2.49rem] text-display-4 sm:text-display-2 md:text-display-1 lg:text-display-0 ">{t("amorfa.hero_title_1")}</span>
           </span>
-          <span className="block text-(--on-bg-medium) mt-1 md:mt-2">
-            {t("amorfa.hero_title_2")}
+          <span className="flex items-center gap-[0.25em] mt-2 sm:mt-4">
+            <span className="text-[2.49rem] text-display-4 sm:text-display-2 md:text-display-1 lg:text-display-0 text-(--on-bg-medium)">{t("amorfa.hero_title_2")}</span>
+            <AnimatedAmorfaLogo className="sm:hidden size-[3rem]" />
           </span>
         </h1>
-        <p className="mt-6 max-w-lg animate-reveal fill-mode-both text-body-2 leading-relaxed text-(--on-bg-medium) [animation-delay:150ms] md:text-body-1">
+        <p className="mt-3 animate-reveal fill-mode-both text-body-2 leading-relaxed text-(--on-bg-medium) [animation-delay:150ms] md:text-body-1 lg:text-[2rem]">
           {t("amorfa.description")}
         </p>
         <div className="mt-8 animate-reveal fill-mode-both [animation-delay:280ms] md:mt-10">
@@ -57,7 +59,7 @@ export function HeroSection() {
             </a>
           </Button>
         </div>
-      </div>
+      </Container>
       {/* Mark — center-bottom, large. Replays on click.
       <div className="relative z-10 flex items-center justify-center mt-16 md:mt-24 lg:mt-32">
         <button

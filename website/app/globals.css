@@ -3,6 +3,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Numbers in display type stay in Georgia's old-style figures. */
+
 @plugin "../tailwind.config.js";
 
 @custom-variant dark (&:is(.dark *));
@@ -63,8 +65,10 @@
   --g-dark: linear-gradient(to top, var(--dark-4) 0%, color-mix(in srgb, var(--dark-4), transparent 100%) 100%);
   --on-g-dark: var(--white);
 
-  --font-heading: "Georgia";
+  /* Display numbers are Georgia's old-style figures (3/4/7/9 descend). */
+  --font-heading: Georgia;
   --font-sans: "Geist", sans-serif;
+  --font-display-digits: var(--font-heading);
 
   --lh-heading: 1.2;
   --lh-body: 1.5;
@@ -74,41 +78,41 @@
   --text-tracking: 0;
   --text-scale-y: 100%;
   --display-tracking: -0.001em;
-  --display-scale-y: 135%;
+  --display-scale-y: 125%;
 
   --display-0-size: 6rem;
   --display-0-weight: 400;
-  --display-0-font-face: var(--font-heading);
+  --display-0-font-face: var(--font-display-digits);
   --display-0-lh: 1.02;
 
   --display-1-size: 4.5rem;
   --display-1-weight: 400;
-  --display-1-font-face: var(--font-heading);
+  --display-1-font-face: var(--font-display-digits);
   --display-1-lh: var(--lh-heading);
 
   --display-2-size: 3.5rem;
   --display-2-weight: 400;
-  --display-2-font-face: var(--font-heading);
+  --display-2-font-face: var(--font-display-digits);
   --display-2-lh: var(--lh-heading);
 
   --display-3-size: 3rem;
   --display-3-weight: 400;
-  --display-3-font-face: var(--font-heading);
+  --display-3-font-face: var(--font-display-digits);
   --display-3-lh: var(--lh-heading);
 
   --display-4-size: 2.5rem;
   --display-4-weight: 400;
-  --display-4-font-face: var(--font-heading);
+  --display-4-font-face: var(--font-display-digits);
   --display-4-lh: var(--lh-heading);
 
   --display-5-size: 2rem;
   --display-5-weight: 400;
-  --display-5-font-face: var(--font-heading);
+  --display-5-font-face: var(--font-display-digits);
   --display-5-lh: var(--lh-heading);
 
   --display-6-size: 1.5rem;
   --display-6-weight: 400;
-  --display-6-font-face: var(--font-heading);
+  --display-6-font-face: var(--font-display-digits);
   --display-6-lh: var(--lh-heading);
 
   --heading-1-size: 1.875rem;
@@ -2829,4 +2833,24 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
       "Liberation Mono", monospace);
   font-variant-ligatures: none;
   font-feature-settings: "liga" 0;
+}
+/* ── FAQ progress bar animation ─────────────────────────────────────
+   Thin line that fills from left to right over the auto-rotate interval.
+   Uses transform:scaleX for GPU-accelerated performance.
+   Respects prefers-reduced-motion. */
+@keyframes faq-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.faq-progress-bar {
+  animation: faq-progress linear forwards;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq-progress-bar {
+    animation: none;
+    transform: scaleX(1);
+  }
 }

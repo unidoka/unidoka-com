@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
 import { crossSubdomainUrl, rootDomainUrl } from "@/utils/root-domain";
 import { useLanguage } from "@/providers/language-provider";
+import { ORDER_CYCLE_KEYS } from "@/entities/i18n/header";
 import { FloatingMenu } from "./floating-menu";
 import { CycleText } from "./cycle-text";
 import { QuickOrderDialog } from "@/components/ui/quick-order-dialog";
@@ -283,7 +284,7 @@ export default function Header() {
 
           {/* Right: CTA */}
           <div className="hidden sm:flex min-w-0 justify-end">
-            <QuickOrderDialog serviceName="Консультация">
+            <QuickOrderDialog>
               <Button
                 size="small"
                 shape="square"
@@ -293,11 +294,7 @@ export default function Header() {
               >
                 <TelemostStackIcon className="-ml-1" />
                 <CycleText
-                  labels={[
-                    tr("nav.order_cycle_1", "Оставить заявку"),
-                    tr("nav.order_cycle_2", "Обсудить проект"),
-                    tr("nav.order_cycle_3", "Аудит от CTO"),
-                  ]}
+                  labels={ORDER_CYCLE_KEYS.map((key) => t(key))}
                 />
               </Button>
             </QuickOrderDialog>

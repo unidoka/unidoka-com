@@ -5,14 +5,10 @@ import { CycleText } from "./cycle-text";
 import { TelemostStackIcon } from "@/components/icons/telemost-stack-icon";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/providers/language-provider";
+import { ORDER_CYCLE_KEYS } from "@/entities/i18n/header";
 
 export default function BottomAppBar() {
   const { t } = useLanguage();
-
-  const tr = (key: string, fallback: string) => {
-    const v = t(key);
-    return v === key ? fallback : v;
-  };
 
   return (
     <nav
@@ -21,7 +17,7 @@ export default function BottomAppBar() {
     >
       {/* CTA / Ordering Button */}
       <div className="flex-1 pointer-events-auto">
-        <QuickOrderDialog serviceName="Консультация">
+        <QuickOrderDialog>
           <Button
             size="small"
             shape="square"
@@ -29,13 +25,7 @@ export default function BottomAppBar() {
             className="w-full h-14! justify-center gap-2 rounded-2xl border-none bg-card shadow-[0_8px_24px_-6px_rgba(0,0,0,0.12),0_2px_8px_-2px_rgba(0,0,0,0.04)]"
           >
             <TelemostStackIcon className="-ml-1" />
-            <CycleText
-              labels={[
-                tr("nav.order_cycle_1", "Оставить заявку"),
-                tr("nav.order_cycle_2", "Обсудить проект"),
-                tr("nav.order_cycle_3", "Аудит от CTO"),
-              ]}
-            />
+            <CycleText labels={ORDER_CYCLE_KEYS.map((key) => t(key))} />
           </Button>
         </QuickOrderDialog>
       </div>
