@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ScrollReveal } from "@/components/layout/animation/scroll-reveal";
 import { getLocale } from "@/i18n/server";
+import { getLogoAscii } from "@/lib/logo-ascii";
 import HeroSection from "./_components/hero-section";
 import NumbersSection from "./_components/numbers-section";
 import BestWorksSection from "./_components/best-projects-section";
@@ -68,7 +69,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function Home() {
   return (
     <>
-      <HeroSection />
+      <HeroSection ascii={getLogoAscii()} />
       <ScrollReveal threshold={0.05}>
         <NumbersSection />
       </ScrollReveal>

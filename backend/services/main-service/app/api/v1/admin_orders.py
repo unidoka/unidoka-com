@@ -11,8 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import func
 from sqlalchemy.orm import Session
-from app.models.user import User, UserRole
-from app.shared.auth import get_current_user
+from app.models.user import User
 from app.shared.permissions import require_permission
 from database.database import get_db
 
@@ -22,15 +21,6 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/admin/order-requests", tags=["admin-orders"])
 
 ALLOWED_STATUSES = {"new", "negotiating", "work", "done", "canceled"}
-
-
-# ── Guards ───────────────────────────────────────────────────────────
-
-def _require_admin(current_user: User = Depends(get_current_user)) -> User:
-    role = current_user.user_role
-    if role not in (UserRole.admin, UserRole.root):
-        raise HTTPException(403, "Admin role required")
-    return current_user
 
 
 # ── Schemas ──────────────────────────────────────────────────────────

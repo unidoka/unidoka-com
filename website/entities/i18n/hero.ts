@@ -3,20 +3,14 @@ import type { Language } from './translations';
 export const heroTranslations: Record<Language, Record<string, string>> = {
   en: {
     'hero.order': 'Share an idea',
-    'hero.title.part1': 'Better',
-    'hero.title.part2': 'together',
+    'hero.title.part1': 'Better together',
     'hero.subtitle':
-      'Solutions that unifies creators of future today. Open way to find hidden answers',
-    'hero.bottom_statement':
-      'Searching the hidden paths to innovate. Giving open source projects to speed it up, and making professionals to make future creators.',
+      'Helping devs, researchers and innovators to find hidden',
   },
   ru: {
     'hero.order': 'Поделиться идеей',
-    'hero.title.part1': 'Вместе -',
-    'hero.title.part2': 'лучше',
+    'hero.title.part1': 'Вместе - лучше',
     'hero.subtitle':
-      'Решения, объединяющие создателей будущего уже сегодня. Открытый подход к скрытым ответам',
-    'hero.bottom_statement':
-      'Ищем скрытые пути к инновациям. Открываем open source проекты, чтобы ускорить прогресс, и растим профессионалов, создающих будущее.',
+      'Помогаем разработчикам, исследователям и инноваторам находить скрытое',
   },
 };

@@ -28,7 +28,11 @@ export async function GET(
 ) {
   const { path: segments } = await params;
 
-  for (const dir of CANDIDATE_DIRS) {
+  for (const candidate of CANDIDATE_DIRS) {
+    // Resolve the root too: a relative ORDER_FILES_DIR would otherwise
+    // never match the absolute `resolved` path, and a `..` sneaking past
+    // the prefix check is the classic path traversal.
+    const dir = path.resolve(candidate);
     const resolved = path.resolve(dir, ...segments);
     if (resolved !== dir && !resolved.startsWith(dir + path.sep)) continue;
     try {
@@ -40,6 +44,9 @@ export async function GET(
           "content-type": MIME[ext] || "application/octet-stream",
           "content-length": String(buf.byteLength),
           "cache-control": "public, max-age=31536000, immutable",
+          // User-uploaded bytes: never let the browser re-interpret them
+          // as HTML/JS if the extension lies about the content type.
+          "x-content-type-options": "nosniff",
         },
       });
     } catch {

@@ -44,6 +44,7 @@ import re
 import time
 import uuid
 from datetime import date, datetime, timedelta, timezone
+from html.parser import HTMLParser
 from typing import Optional
 from urllib.parse import parse_qs, quote, urlparse
 
@@ -294,6 +295,89 @@ def _anchor_text_url(anchor: str) -> Optional[str]:
     return text if re.match(r"^https?://", text, re.IGNORECASE) else None
 
 
+# iCal descriptions are HTML written by whoever owns the calendar. The
+# site injects them with dangerouslySetInnerHTML, so anything the feed
+# author puts there runs in every visitor's browser — including the
+# admin's, whose JWT sits in a JS-readable cookie. Keep only formatting
+# tags and http(s) links; drop scripts, event handlers, styles, images.
+_DESCRIPTION_ALLOWED_TAGS = frozenset({
+    "a", "br", "p", "b", "strong", "i", "em", "ul", "ol", "li",
+})
+_DESCRIPTION_VOID_TAGS = frozenset({"br"})
+
+
+class _DescriptionSanitizer(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.parts: list[str] = []
+        self.open_tags: list[str] = []
+        self._skip_depth = 0
+
+    def handle_starttag(self, tag, attrs):
+        tag = tag.lower()
+        if tag in ("script", "style"):
+            self._skip_depth += 1
+            return
+        if self._skip_depth or tag not in _DESCRIPTION_ALLOWED_TAGS:
+            return
+        if tag == "a":
+            href = next(
+                (v for k, v in attrs if k.lower() == "href"), None
+            )
+            if not href or not re.match(r"^https?://", href.strip(), re.I):
+                return
+            self.parts.append(
+                '<a href="'
+                + html.escape(href.strip(), quote=True)
+                + '" rel="noopener noreferrer" target="_blank">'
+            )
+        elif tag in _DESCRIPTION_VOID_TAGS:
+            self.parts.append(f"<{tag} />")
+            return
+        else:
+            self.parts.append(f"<{tag}>")
+        self.open_tags.append(tag)
+
+    def handle_startendtag(self, tag, attrs):
+        self.handle_starttag(tag, attrs)
+        self.handle_endtag(tag)
+
+    def handle_endtag(self, tag):
+        tag = tag.lower()
+        if tag in ("script", "style"):
+            self._skip_depth = max(0, self._skip_depth - 1)
+            return
+        if self._skip_depth or tag not in _DESCRIPTION_ALLOWED_TAGS:
+            return
+        if tag in _DESCRIPTION_VOID_TAGS or tag not in self.open_tags:
+            return
+        while self.open_tags:
+            open_tag = self.open_tags.pop()
+            self.parts.append(f"</{open_tag}>")
+            if open_tag == tag:
+                break
+
+    def handle_data(self, data):
+        if self._skip_depth:
+            return
+        self.parts.append(html.escape(data).replace("{", "&#123;").replace("}", "&#125;"))
+
+    def result(self) -> str:
+        return "".join(self.parts)
+
+
+def _sanitize_description(text: str) -> str:
+    parser = _DescriptionSanitizer()
+    try:
+        parser.feed(text)
+        parser.close()
+    except Exception:
+        # A malformed feed should degrade to escaped text, not 500 the
+        # whole calendar.
+        return html.escape(re.sub(r"<[^>]+>", " ", text))
+    return parser.result()
+
+
 def _split_tag_names(block: str) -> list[str]:
     """Split a tags line into names.
 
@@ -327,6 +411,8 @@ def _parse_description(
     """Return (clean description, register URL, tag names, deadline text)."""
     text = description or ""
     register_url = fallback_url
+    if register_url and not re.match(r"^https?://", register_url, re.IGNORECASE):
+        register_url = None
 
     # Legacy HTML anchors.
     for match in _REGISTER_ANCHOR_RE.finditer(text):
@@ -390,6 +476,8 @@ def _parse_description(
     # survive both renderers.
     text = text.replace("\r\n", "\n").replace("\r", "\n")
     text = text.replace("\n\n", "<br /><br />").replace("\n", "<br />")
+
+    text = _sanitize_description(text)
 
     return text or None, register_url or None, tags, deadline_text
 
@@ -483,6 +571,8 @@ def _serialize(component, category: str = "activities") -> dict:
     title = _text(component, "SUMMARY") or "Untitled event"
     location = _text(component, "LOCATION")
     url_field = _text(component, "URL")
+    if url_field and not re.match(r"^https?://", url_field.strip(), re.IGNORECASE):
+        url_field = None
     description, registration_url, tag_names, deadline_text = _parse_description(
         _text(component, "DESCRIPTION"), url_field
     )
@@ -517,7 +607,7 @@ def _serialize(component, category: str = "activities") -> dict:
         end_dt = start_dt
 
     now = datetime.utcnow()
-    short = (description or "")[:200] or None
+    short = re.sub(r"<[^>]+>", " ", description or "").strip()[:200] or None
 
     return {
         "id": event_id,

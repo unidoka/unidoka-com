@@ -7,6 +7,11 @@ const hasAbsoluteApi = !!process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // The ASCII hero mark is read from disk at request time, so keep the
+  // plain .txt file in the standalone bundle.
+  outputFileTracingIncludes: {
+    "/**": ["./components/layout/logo/logo-ascii.txt"],
+  },
   // Type-check runs in CI (`tsc --noEmit`), not in `next build`.
   // Type-checking inside the Docker build turns one missing
   // optional field into a hard deploy failure and doubles build

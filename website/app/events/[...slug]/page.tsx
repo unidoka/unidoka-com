@@ -430,11 +430,16 @@ export default async function EventPage({
     .replace(/\s+/g, " ")
     .trim();
 
-  const source = event.mdx_content || event.description || "";
-  const { content } = await compileMDX({
-    source,
-    options: { parseFrontmatter: false },
-  });
+  // MDX is only for admin-authored `mdx_content`. iCal `description` is
+  // third-party HTML — compiling it as MDX would evaluate feed text as
+  // JS/JSX. The backend sanitizes that HTML; render it as-is.
+  const source = event.mdx_content;
+  const { content } = source
+    ? await compileMDX({
+        source,
+        options: { parseFrontmatter: false },
+      })
+    : { content: null };
 
   return (
     <main className="min-h-screen bg-(--bg) pt-24 sm:pt-32 pb-24">
@@ -573,6 +578,11 @@ export default async function EventPage({
             <article className="prose prose-neutral dark:prose-invert max-w-none">
               {content}
             </article>
+          ) : event.description ? (
+            <article
+              className="prose prose-neutral dark:prose-invert max-w-none"
+              dangerouslySetInnerHTML={{ __html: event.description }}
+            />
           ) : (
             <p className="text-body-3 text-(--on-bg-medium)">
               {serverT(locale, "events.no_description", isEn ? "No description yet." : "Описание пока не добавлено.")}

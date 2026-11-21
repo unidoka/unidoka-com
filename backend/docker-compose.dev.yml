@@ -20,6 +20,9 @@ services:
     volumes:
       - ./services/main-service:/app
       - ./services/main-service/storage:/app/storage
+    ports:
+      # Dev only. Prod reaches main-service through Traefik only.
+      - "8000:8000"
     environment:
       - MAIN_DB_HOST=main-db
       - PYTHONUNBUFFERED=1

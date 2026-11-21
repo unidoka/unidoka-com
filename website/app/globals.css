@@ -63,7 +63,7 @@
   --g-dark: linear-gradient(to top, var(--dark-4) 0%, color-mix(in srgb, var(--dark-4), transparent 100%) 100%);
   --on-g-dark: var(--white);
 
-  /* --font-heading: "OtherLocalFont", sans-serif; */
+  --font-heading: "Georgia";
   --font-sans: "Geist", sans-serif;
 
   --lh-heading: 1.2;
@@ -71,32 +71,32 @@
 
   --display-1-size: 4.5rem;
   --display-1-weight: 400;
-  --display-1-font-face: var(--font-sans);
+  --display-1-font-face: var(--font-heading);
   --display-1-lh: var(--lh-heading);
 
   --display-2-size: 3.5rem;
   --display-2-weight: 400;
-  --display-2-font-face: var(--font-sans);
+  --display-2-font-face: var(--font-heading);
   --display-2-lh: var(--lh-heading);
 
   --display-3-size: 3rem;
   --display-3-weight: 400;
-  --display-3-font-face: var(--font-sans);
+  --display-3-font-face: var(--font-heading);
   --display-3-lh: var(--lh-heading);
 
   --display-4-size: 2.5rem;
   --display-4-weight: 400;
-  --display-4-font-face: var(--font-sans);
+  --display-4-font-face: var(--font-heading);
   --display-4-lh: var(--lh-heading);
 
   --display-5-size: 2rem;
   --display-5-weight: 400;
-  --display-5-font-face: var(--font-sans);
+  --display-5-font-face: var(--font-heading);
   --display-5-lh: var(--lh-heading);
 
   --display-6-size: 1.5rem;
   --display-6-weight: 400;
-  --display-6-font-face: var(--font-sans);
+  --display-6-font-face: var(--font-heading);
   --display-6-lh: var(--lh-heading);
 
   --heading-1-size: 1.875rem;
@@ -2826,4 +2826,97 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
       "Liberation Mono", monospace);
   font-variant-ligatures: none;
   font-feature-settings: "liga" 0;
+}
+
+/* ═══ ascii-hero-mark ═══════════════════════════════════════════════
+   The home hero mark, rendered from components/layout/logo/logo-ascii.txt.
+   The size is driven by the container width (1cqw = 1% of the panel), so
+   the 192-column art always fits its column without breakpoint guesses.
+   Entrance + scan beam are one-shot; remounting the <pre> replays them.
+   ═══════════════════════════════════════════════════════════════════ */
+.ascii-logo {
+  position: relative;
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: pre;
+  font-family: var(--font-mono,
+      ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+      "Liberation Mono", monospace);
+  font-size: 0.84cqw;
+  line-height: 0.92;
+  letter-spacing: 0;
+  color: currentColor;
+  user-select: none;
+  opacity: 0;
+  animation: ascii-mark-in 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
+
+@supports not (font-size: 1cqw) {
+  .ascii-logo {
+    font-size: 4px;
+  }
+}
+
+.ascii-logo::after {
+  content: "";
+  position: absolute;
+  inset-inline: -12%;
+  top: 0;
+  height: 24%;
+  pointer-events: none;
+  background: linear-gradient(180deg,
+      transparent,
+      color-mix(in srgb, var(--on-bg-medium), transparent 82%),
+      transparent);
+  animation: ascii-scan 2.4s cubic-bezier(0.4, 0, 0.2, 1) 0.25s 1 both;
+}
+
+@keyframes ascii-mark-in {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  55% {
+    opacity: 0.96;
+  }
+
+  100% {
+    opacity: 0.92;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ascii-scan {
+  0% {
+    transform: translateY(-130%);
+    opacity: 0;
+  }
+
+  18% {
+    opacity: 0.9;
+  }
+
+  82% {
+    opacity: 0.9;
+  }
+
+  100% {
+    transform: translateY(520%);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ascii-logo {
+    animation: none;
+    opacity: 0.92;
+  }
+
+  .ascii-logo::after {
+    animation: none;
+    display: none;
+  }
 }

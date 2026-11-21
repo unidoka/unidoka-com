@@ -1,59 +1,79 @@
 "use client";
-
+import { useState } from "react";
 import { GitBranchIcon, ArrowUpRightIcon } from "@phosphor-icons/react";
 import { AnimatedAmorfaLogo } from "@/components/icons/logotypes/animated-amorfa-logo";
 import { Button } from "@/components/ui/button";
-import { Container } from "@/components/ui/container";
 import { useLanguage } from "@/providers/language-provider";
-
+import { cn } from "@/lib/utils";
 const GITHUB = "https://github.com/unidoka/amorfa";
-
 /**
- * No divider, no panel: the hero sits directly on the page canvas and
- * hands over to the next block on whitespace alone. Height is a floor,
- * not a viewport claim — the copy sets it.
- */
+* Anthropic-style hero: dotted grid, title top-left, mark center-bottom.
+* Colors and fonts unchanged — only positioning and the grid background.
+*/
 export function HeroSection() {
   const { t } = useLanguage();
-
+  const [replay, setReplay] = useState(0);
   return (
-    <section className="relative flex min-h-[45vh] items-center overflow-hidden pt-24 pb-14 md:pt-28 md:pb-16">
-      <Container
-
-        className="flex flex-col items-center gap-10 lg:flex-row lg:gap-16"
-      >
-        <div className="flex w-full flex-1 flex-col items-start gap-8 md:gap-9">
-          <h1 className="animate-reveal fill-mode-both text-display-2 leading-[1.02]! tracking-tight text-(--on-bg-high) md:text-display-1">
-            <span className="flex items-center gap-[0.35em]">
-              <AnimatedAmorfaLogo className="size-[1.05em] shrink-0 lg:hidden" />
-              <span>{t("amorfa.hero_title_1")}</span>
-            </span>
-            <span className="block text-(--on-bg-medium)">
-              {t("amorfa.hero_title_2")}
-            </span>
-          </h1>
-
-          <div className="animate-reveal fill-mode-both [animation-delay:180ms]">
-            <Button size="large" asChild>
-              <a href={GITHUB} target="_blank" rel="noopener noreferrer">
-                <GitBranchIcon />
-                {t("amorfa.cta_github")}
-                <ArrowUpRightIcon />
-              </a>
-            </Button>
-          </div>
+    <section className="relative w-full overflow-hidden pt-20 pb-10 md:pt-24 md:pb-14">
+      {/* Dotted grid background — covers the whole hero. */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle, color-mix(in srgb, var(--on-bg-low), transparent 70%) 1px, transparent 1px)",
+          backgroundSize: "22px 22px",
+        }}
+      />
+      {/* Soft radial light spot behind the mark — keeps depth without color. */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse 50% 45% at 50% 72%, color-mix(in srgb, var(--on-bg-high), transparent 94%), transparent 70%)",
+        }}
+      />
+      {/* Title block — top-left, generous whitespace. */}
+      <div className="relative z-10 px-6 md:px-12 lg:px-16 pt-12 md:pt-20 lg:pt-24 max-w-3xl">
+        <h1 className="animate-reveal fill-mode-both text-display-2 md:text-display-1 lg:text-display-0 leading-[1.02]! tracking-tight text-(--on-bg-high)">
+          <span className="flex items-center gap-[0.3em]">
+            <AnimatedAmorfaLogo className="size-[0.85em] shrink-0 hidden" />
+            <span>{t("amorfa.hero_title_1")}</span>
+          </span>
+          <span className="block text-(--on-bg-medium) mt-1 md:mt-2">
+            {t("amorfa.hero_title_2")}
+          </span>
+        </h1>
+        <p className="mt-6 max-w-lg animate-reveal fill-mode-both text-body-2 leading-relaxed text-(--on-bg-medium) [animation-delay:150ms] md:text-body-1">
+          {t("amorfa.description")}
+        </p>
+        <div className="mt-8 animate-reveal fill-mode-both [animation-delay:280ms] md:mt-10">
+          <Button size="large" asChild>
+            <a href={GITHUB} target="_blank" rel="noopener noreferrer">
+              <GitBranchIcon />
+              {t("amorfa.cta_github")}
+              <ArrowUpRightIcon />
+            </a>
+          </Button>
         </div>
-
-        <div className="relative hidden w-full flex-1 items-center justify-center lg:flex">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute top-1/2 left-1/2 size-[320px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-(--primary-glass) blur-3xl"
+      </div>
+      {/* Mark — center-bottom, large. Replays on click.
+      <div className="relative z-10 flex items-center justify-center mt-16 md:mt-24 lg:mt-32">
+        <button
+          type="button"
+          onClick={() => setReplay((n) => n + 1)}
+          aria-label={t("amorfa.hero_replay")}
+          title={t("amorfa.hero_replay")}
+          className="relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--primary)/40 rounded-full"
+        >
+          <AnimatedAmorfaLogo
+            replayKey={replay}
+            className="size-48 md:size-72 lg:size-96 text-(--on-bg-high)"
           />
-          <AnimatedAmorfaLogo className="relative size-36 xl:size-44" />
-        </div>
-      </Container>
+        </button>
+      </div> */}
     </section>
   );
 }
-
 export default HeroSection;

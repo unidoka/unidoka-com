@@ -8,7 +8,7 @@ export const amorfaTranslations: Record<Language, Record<string, string>> = {
     'amorfa.title_1': 'Amorfa.',
     'amorfa.title_2': 'Fullstack in hours, not weeks.',
     'amorfa.description':
-      'AI-optimized fullstack framework: FastAPI, Next.js, PostgreSQL, and Valkey - pre-wired, documented, and self-hostable.',
+      "Yep, it's Amorfa",
     'amorfa.cta_github': 'GitHub',
     'amorfa.cta_quickstart': 'Quick start',
     'amorfa.hero_replay': 'Replay animation',
@@ -62,7 +62,7 @@ export const amorfaTranslations: Record<Language, Record<string, string>> = {
     'amorfa.title_1': 'Amorfa.',
     'amorfa.title_2': 'Fullstack за часы, а не недели.',
     'amorfa.description':
-      'AI-оптимизированный fullstack-фреймворк: FastAPI, Next.js, PostgreSQL и Valkey - всё подключено, задокументировано и самохостится.',
+      'Да, это всё Amorfa',
     'amorfa.cta_github': 'GitHub',
     'amorfa.cta_quickstart': 'Быстрый старт',
     'amorfa.hero_replay': 'Смотреть анимацию',

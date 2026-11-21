@@ -95,10 +95,12 @@ export default function LoginPage() {
         setToken(access_token)
         toast.success("Welcome back!")
         const nextParam = new URLSearchParams(window.location.search).get("next")
-        if (nextParam && /^https?:\/\//i.test(nextParam)) {
-          window.location.replace(nextParam)
+        // Only same-origin paths. Absolute URLs here would turn the login
+        // page into an open redirect that phishers can point at a clone.
+        if (nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")) {
+          router.push(nextParam)
         } else {
-          router.push(nextParam || "/")
+          router.push("/")
         }
       } else {
         toast.error("Не удалось получить токены")

@@ -1,5 +1,6 @@
 import os
 import json
+from datetime import datetime
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
@@ -34,7 +35,7 @@ from app.shared.auth import (
     verify_password,
     get_current_user,
 )
-from config.rate_limiter import limit_otp_send
+from config.rate_limiter import get_client_ip, limit_otp_send
 from database.database import get_db
 from database.cache import cache_client
 from uuid import UUID
@@ -54,6 +55,42 @@ class EmailLoginRequest(BaseModel):
 
 def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
+
+
+LOGIN_MAX_FAILURES = 10
+LOGIN_FAILURE_WINDOW_SECONDS = 15 * 60
+CHALLENGE_MAX_ATTEMPTS = 5
+
+
+def _login_throttle_key(email: str, ip: str) -> str:
+    return f"login_fail:{email.lower().strip()}:{ip}"
+
+
+def _reject_if_throttled(key: str) -> None:
+    try:
+        failures = int(cache_client.get(key) or 0)
+    except Exception:
+        return
+    if failures >= LOGIN_MAX_FAILURES:
+        raise HTTPException(
+            status_code=429,
+            detail="Too many login attempts. Try again in a few minutes.",
+        )
+
+
+def _record_login_failure(key: str) -> None:
+    try:
+        if cache_client.incr(key) == 1:
+            cache_client.expire(key, LOGIN_FAILURE_WINDOW_SECONDS)
+    except Exception:
+        pass
+
+
+def _clear_login_failures(key: str) -> None:
+    try:
+        cache_client.delete(key)
+    except Exception:
+        pass
 
 def issue_tokens(db: Session, user: User, device_id: str, user_agent: str, ip: str):
     access_token = create_access_token({"sub": str(user.id)})
@@ -109,9 +146,10 @@ async def verify_email(
     if not verify_otp(payload.email, payload.code):
         raise HTTPException(status_code=401, detail="Invalid or expired code")
     user = set_user_verified(db, user)
-    access_token = create_access_token({"sub": str(user.id)})
-    refresh_token = create_refresh_token({"sub": str(user.id)})
-    return TokenResponse(access_token=access_token, refresh_token=refresh_token)
+    # Create a tracked session so the refresh token can be revoked later.
+    # Without the row, /refresh would have no way to tell a logged-out
+    # token from a live one.
+    return issue_tokens(db, user, "email-verification", "", "")
 
 @router.post("/login/email")
 async def login_email_password(
@@ -119,13 +157,20 @@ async def login_email_password(
     payload: EmailLoginRequest,
     db: Session = Depends(get_db),
 ):
+    ip = get_client_ip(request)
+    throttle_key = _login_throttle_key(payload.email, ip)
+    _reject_if_throttled(throttle_key)
+
     user = get_user_by_email(db, payload.email)
     if not user or not verify_password(payload.password, user.password):
+        _record_login_failure(throttle_key)
         return JSONResponse(status_code=401, content={"message": "Invalid email or password"})
     if user.blocked:
         return JSONResponse(status_code=403, content={"message": "User is blocked"})
     if not user.verified:
         return JSONResponse(status_code=403, content={"message": "User not verified"})
+
+    _clear_login_failures(throttle_key)
 
     # Check if device is known
     known_session = db.query(UserSession).filter(
@@ -164,7 +209,6 @@ async def login_email_password(
         })
 
     # Known device, no 2FA -> direct login
-    ip = request.client.host if request.client else "unknown"
     return issue_tokens(db, user, payload.device_id, payload.user_agent or "", ip)
 
 @router.post("/login/verify-challenge")
@@ -176,7 +220,21 @@ async def verify_login_challenge(
     raw_challenge = cache_client.get(f"challenge:{payload.challenge_token}")
     if not raw_challenge:
         raise HTTPException(400, "Challenge expired or invalid")
-    
+
+    attempts_key = f"challenge_attempts:{payload.challenge_token}"
+    try:
+        attempts = cache_client.incr(attempts_key)
+        if attempts == 1:
+            cache_client.expire(attempts_key, 300)
+        if attempts > CHALLENGE_MAX_ATTEMPTS:
+            cache_client.delete(f"challenge:{payload.challenge_token}")
+            cache_client.delete(attempts_key)
+            raise HTTPException(429, "Too many attempts")
+    except HTTPException:
+        raise
+    except Exception:
+        pass
+
     data = json.loads(raw_challenge)
     user = db.get(User, uuid.UUID(data["user_id"]))
     if not user:
@@ -193,9 +251,9 @@ async def verify_login_challenge(
 
     # Consume challenge
     cache_client.delete(f"challenge:{payload.challenge_token}")
+    cache_client.delete(f"challenge_attempts:{payload.challenge_token}")
     
-    ip = request.client.host if request.client else "unknown"
-    return issue_tokens(db, user, data["device_id"], request.headers.get("user-agent", ""), ip)
+    return issue_tokens(db, user, data["device_id"], request.headers.get("user-agent", ""), get_client_ip(request))
 
 
 @router.post("/refresh", response_model=AccessTokenResponse)
@@ -213,6 +271,18 @@ async def refresh_access_token(
     user = db.get(User, user_id)
     if user is None or user.blocked:
         return JSONResponse(status_code=401, content={"message": "User not found or blocked"})
+    # A refresh token is only valid while its session row is alive. This is
+    # what makes logout and "revoke device" actually revoke access instead
+    # of leaving a 7-day token usable.
+    session = db.query(UserSession).filter(
+        UserSession.user_id == user.id,
+        UserSession.refresh_token_hash == hash_token(payload.refresh_token),
+        UserSession.is_revoked.is_(False),
+    ).first()
+    if session is None:
+        return JSONResponse(status_code=401, content={"message": "Session revoked or unknown"})
+    session.last_used_at = datetime.utcnow()
+    db.commit()
     new_access = create_access_token({"sub": str(user.id)})
     return AccessTokenResponse(access_token=new_access)
 
@@ -303,10 +373,18 @@ async def get_me(current_user: User = Depends(get_current_user)):
 async def logout(
     payload: RefreshTokenRequest,
     current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     token_data = decode_token(payload.refresh_token)
     if not token_data or token_data.get("type") != "refresh" or token_data.get("sub") != str(current_user.id):
         return JSONResponse(status_code=400, content={"message": "Invalid refresh token"})
+    session = db.query(UserSession).filter(
+        UserSession.user_id == current_user.id,
+        UserSession.refresh_token_hash == hash_token(payload.refresh_token),
+    ).first()
+    if session:
+        session.is_revoked = True
+        db.commit()
     return JSONResponse(status_code=200, content={"message": "Logged out"})
 
 @router.post("/resend-verification")
@@ -397,6 +475,11 @@ async def reset_password(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     user.password = hash_password(payload.new_password)
+    # A reset usually means the account was compromised. Kill every
+    # existing refresh token so the attacker's session dies with it.
+    db.query(UserSession).filter(UserSession.user_id == user.id).update(
+        {"is_revoked": True}, synchronize_session=False
+    )
     db.commit()
     logger.info(f"Password reset successful for user {user.id}")
     return MessageResponse(message="Password updated successfully")

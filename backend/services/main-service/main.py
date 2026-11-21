@@ -69,14 +69,6 @@ app.middleware("http")(global_rate_limit)
 app.include_router(router)
 
 
-# Serve uploaded images (avatars, attachments). Mirrors the
-# bind mount the frontend uses in prod, and gives the Next.js
-# dev proxy a real origin to rewrite /order_files/* to.
-_storage_root = Path("/app/storage/order_files")
-if _storage_root.exists():
-    app.mount("/order_files", StaticFiles(directory=str(_storage_root)), name="order_files")
-
-
 # Serve uploaded images (avatars, attachments). The directory must exist
 # at boot or StaticFiles throws and silently skips the mount — create it
 # first so /order_files/* is always available.

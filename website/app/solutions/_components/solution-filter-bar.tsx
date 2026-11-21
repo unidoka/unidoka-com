@@ -186,8 +186,8 @@ export function SolutionFilterBar({
     <>
       <div className="pb-10">
         <Container>
-          <h1 className="mt-6 font-heading  tracking-[-0.04em] leading-[0.95] text-[2.75rem] md:text-[4.5rem] mb-6 text-(--on-bg-high)">
-            Решения от навыков до сложных систем
+          <h1 className="mb-10 text-display-2">
+            Наши решения
           </h1>
           <div className="flex flex-col gap-4">
             <div className="flex items-stretch gap-2">
