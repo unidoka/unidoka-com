@@ -14,6 +14,11 @@ function level(kind, n) {
     fontSize: `var(--${kind}-${n}-size)`,
     fontWeight: `var(--${kind}-${n}-weight)`,
     lineHeight: `var(--${kind}-${n}-lh)`,
+    // Tracking and vertical scale follow the same cascade:
+    // per-level override → per-kind value → global default.
+    letterSpacing: `var(--${kind}-${n}-tracking, var(--${kind}-tracking, var(--text-tracking, 0)))`,
+    transform: `scaleY(var(--${kind}-${n}-scale-y, var(--${kind}-scale-y, var(--text-scale-y, 100%))))`,
+    transformOrigin: 'left center',
   };
 }
 

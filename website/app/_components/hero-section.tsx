@@ -48,10 +48,10 @@ export function HeroSection({ ascii }: { ascii: string }) {
         }}
       />
 
-      <Container className="relative z-10 px-6 pt-24 pb-10 sm:px-8 md:px-10 md:pt-28 md:pb-14 lg:px-14">
+      <Container className="relative z-10 pt-24 pb-10 md:pt-28 md:pb-14">
         <div className="grid items-center gap-12 md:gap-14 lg:grid-cols-[1.04fr_0.96fr] lg:gap-10">
           <div className="">
-            <h1 className="animate-reveal fill-mode-both text-display-2 md:text-display-1 lg:text-display-0">
+            <h1 className="tracking-[-0.001em] scale-y-135 animate-reveal fill-mode-both text-display-2 md:text-display-1 lg:text-display-0">
               {leadingWords ? `${leadingWords} ` : null}
               <span className="inline-flex items-center gap-[0.16em] whitespace-nowrap">
                 {lastWord}

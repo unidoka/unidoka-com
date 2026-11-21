@@ -69,6 +69,18 @@
   --lh-heading: 1.2;
   --lh-body: 1.5;
 
+  /* Type-level motion/spacing tokens. Every .text-* utility reads its
+     own override first, then the kind-level value, then these defaults. */
+  --text-tracking: 0;
+  --text-scale-y: 100%;
+  --display-tracking: -0.001em;
+  --display-scale-y: 135%;
+
+  --display-0-size: 6rem;
+  --display-0-weight: 400;
+  --display-0-font-face: var(--font-heading);
+  --display-0-lh: 1.02;
+
   --display-1-size: 4.5rem;
   --display-1-weight: 400;
   --display-1-font-face: var(--font-heading);
@@ -2394,17 +2406,8 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 }
 
 /* ═══ hero-mark-entrance ════════════════════════════════════════════
-   display-0 — the hero step of the type ramp, above display-1.
-   Consumed by the `.text-display-0` utility generated in
-   tailwind.config.js, so it carries family / size / weight / leading
-   together and needs no font-* classes at the call site.
+   The display scale tokens live with the rest of the type ramp above.
    ═══════════════════════════════════════════════════════════════════ */
-:root {
-  --display-0-size: 6rem;
-  --display-0-weight: 500;
-  --display-0-font-face: var(--font-heading);
-  --display-0-lh: 1.02;
-}
 
 /* ═══ Mark entrance ═════════════════════════════════════════════════
    The hidden state is declared here, not applied from a React effect.

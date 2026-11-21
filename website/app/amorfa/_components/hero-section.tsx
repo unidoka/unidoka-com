@@ -36,7 +36,7 @@ export function HeroSection() {
       />
       {/* Title block — top-left, generous whitespace. */}
       <div className="relative z-10 px-6 md:px-12 lg:px-16 pt-12 md:pt-20 lg:pt-24">
-        <h1 className="animate-reveal fill-mode-both text-display-2 md:text-display-1 lg:text-display-0 leading-[1.02]! tracking-tight text-(--on-bg-high)">
+        <h1 className="animate-reveal fill-mode-both text-display-2 md:text-display-1 lg:text-display-0 text-(--on-bg-high)">
           <span className="flex items-center gap-[0.15em]">
             <AnimatedAmorfaLogo className="size-[0.85em] shrink-0" />
             <span>{t("amorfa.hero_title_1")}</span>
