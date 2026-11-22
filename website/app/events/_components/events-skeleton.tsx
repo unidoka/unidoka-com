@@ -56,8 +56,8 @@ export function EventsSkeleton() {
             <div
               key={i}
               className={`min-h-[88px] border-(--outline) p-2 sm:min-h-[104px] ${
-                i % 7 !== 6 ? "border-r" : ""
-              } ${i < 35 ? "border-b" : ""}`}
+                i < 35 ? "border-b" : ""
+              }`}
             >
               <Shimmer className="size-5 rounded-full" />
               {i % 3 !== 1 && (

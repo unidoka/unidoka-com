@@ -21,6 +21,7 @@ import { Container } from "@/components/ui/container";
 import { AmorfaLogo } from "@/components/icons/logotypes/amorfa-logo";
 import { VershinyLogoIcon } from "@/components/icons/logotypes/vershiny-logo-icon";
 import AnimatedAmorfaLogo from "@/components/icons/logotypes/animated-amorfa-logo";
+import { GrowSpecialIcon } from "@/components/icons/special/grow-special-icon";
 
 interface NavItem {
   href: string;
@@ -36,13 +37,11 @@ const NAV_LINKS: NavItem[] = [
     href: "/amorfa",
     labelKey: "nav.amorfa",
     fallback: "Amorfa",
-    icon: <AnimatedAmorfaLogo className="size-6" />
   },
   {
     href: "/vershiny_top",
     labelKey: "nav.vershiny",
     fallback: "Вершины",
-    icon: <VershinyLogoIcon className="size-6" />
   },
 ];
 
@@ -289,10 +288,10 @@ export default function Header() {
                 size="small"
                 shape="square"
                 variant="tonal-card"
-                className="h-12! w-fit justify-center gap-2 pl-3 pr-5 rounded-2xl border-none bg-card"
+                className="h-12! w-fit justify-center gap-2 pl-2 pr-4 rounded-2xl border-none bg-card"
                 style={shadowStyle}
               >
-                <TelemostStackIcon className="-ml-1" />
+                <GrowSpecialIcon className="size-7!" />
                 <CycleText
                   labels={ORDER_CYCLE_KEYS.map((key) => t(key))}
                 />

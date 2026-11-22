@@ -26,13 +26,11 @@ const MENU_LINKS: MenuLink[] = [
     href: "/amorfa",
     labelKey: "nav.amorfa",
     fallback: "Amorfa",
-    icon: <AnimatedAmorfaLogo className="size-6" />
   },
   {
     href: "/vershiny_top",
     labelKey: "nav.vershiny",
     fallback: "Вершины",
-    icon: <VershinyLogoIcon className="size-6" />
   },
 ];
 

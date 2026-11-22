@@ -5,7 +5,7 @@ import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "@radix-ui/react-slot"
 import { cn } from "@/lib/utils"
-export const buttonUnidekaVariants = {
+export const buttonUnidokaUIVariants = {
   filled: "bg-[image:var(--primary-gradient)] text-[var(--on-primary)] cursor-pointer [&_svg]:text-current",
   outlined: "border border-border bg-transparent text-foreground [&_svg]:text-current",
   tonal: "bg-[var(--primary-card)] text-[var(--on-primary-card)] [&_svg]:text-current",
@@ -23,11 +23,11 @@ export const chipSizes = {
   "chip-xlarge": "h-[58px] px-8 [&_svg]:size-6 text-body-2!",
 }
 export const iconButtonSizes = {
-  "icon-xsmall": "h-[24px] aspect-square [&_svg]:size-[24px]",
-  "icon-small": "h-[36px] aspect-square [&_svg]:size-[24px]",
-  "icon-medium": "h-[42px] aspect-square [&_svg]:size-[30px]",
-  "icon-large": "h-[54px] aspect-square [&_svg]:size-[36px]",
-  "icon-xlarge": "h-[64px] aspect-square [&_svg]:size-[36px]",
+  "icon-xsmall": "h-[24px] aspect-square [&_svg]:size-[14px]",
+  "icon-small": "h-[36px] aspect-square [&_svg]:size-[18px]",
+  "icon-medium": "h-[42px] aspect-square [&_svg]:size-[20px]",
+  "icon-large": "h-[54px] aspect-square [&_svg]:size-[24px]",
+  "icon-xlarge": "h-[64px] aspect-square [&_svg]:size-[32px]",
 }
 export const buttonSizes = {
   xsmall: "h-[24px] px-4 text-xs gap-1 [&_svg]:size-3 text-heading-6!",
@@ -40,7 +40,7 @@ const buttonVariants = cva(
   "group/button inline-flex shrink-0 items-center justify-center border border-transparent bg-clip-padding text-sm  whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-[var(--state-focus)]/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
-      variant: buttonUnidekaVariants,
+      variant: buttonUnidokaUIVariants,
       size: {
         ...buttonSizes,
         ...iconButtonSizes,

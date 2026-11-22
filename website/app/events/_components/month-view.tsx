@@ -76,9 +76,7 @@ export function MonthView({
                 onClick={() => handleDayClick(day)}
                 className={cn(
                   "relative flex flex-col gap-0.5 p-1 sm:p-1.5 cursor-pointer transition-colors",
-                  "border-(--outline)",
-                  i % 7 !== 6 && "border-r",
-                  i < 35 && "border-b",
+                  i < 35 && "border-b border-(--outline)",
                   !inMonth && "bg-[color-mix(in_srgb,var(--bg)_60%,transparent)]",
                   inMonth && !isSelected && "hover:bg-(--state-hover)",
                   isSelected && "bg-(--primary-glass)",

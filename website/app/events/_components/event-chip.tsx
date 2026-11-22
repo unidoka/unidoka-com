@@ -64,7 +64,6 @@ export function EventChip({ event, day, compact, onClick }: Props) {
         startsToday && "border-[color-mix(in_srgb,var(--ev)_32%,var(--outline))]",
       )}
     >
-      <span className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-[var(--ev)]" />
       <div className="flex items-center gap-1.5 w-full min-w-0">
         <span className="shrink-0 size-1.5 rounded-full bg-[var(--ev)] opacity-70" />
         {timeString && (

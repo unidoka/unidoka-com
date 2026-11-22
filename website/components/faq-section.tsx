@@ -121,7 +121,7 @@ export function FaqSection({
           {/* Image panel */}
           <div
             className={cn(
-              "relative aspect-video w-full overflow-hidden rounded-3xl bg-(--card) border border-(--outline) lg:sticky lg:top-32",
+              "relative aspect-video w-full overflow-hidden bg-(--card) border border-(--outline) lg:sticky lg:top-32",
               reversed && "lg:order-1"
             )}
           >

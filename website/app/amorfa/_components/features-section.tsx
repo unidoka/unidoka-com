@@ -11,7 +11,6 @@ import {
   CloudArrowUp,
 } from "@phosphor-icons/react";
 import { Container } from "@/components/ui/container";
-import { DoodleSpark, DoodleLoop } from "@/components/icons";
 import { useLanguage } from "@/providers/language-provider";
 
 const FEATURES = [

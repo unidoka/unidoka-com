@@ -39,7 +39,7 @@ export function EventsTextList({
     <section aria-labelledby="events-text-list-title">
       <Container className="pb-16 pt-4 md:pb-24">
         <div className="mb-6">
-          <h2 id="events-text-list-title" className="text-heading-1 md:text-display-5">
+          <h2 id="events-text-list-title" className="text-display-4 md:text-display-3">
             {title}
           </h2>
         </div>
@@ -93,7 +93,7 @@ export function EventsTextList({
                     </div>
 
                     <div>
-                      <h3 className="text-heading-2">
+                      <h3 className="text-display-5">
                         <Link
                           href={`${prefix}/events/${shortId(event.id)}/${event.slug}`}
                           className="transition-opacity hover:opacity-70"

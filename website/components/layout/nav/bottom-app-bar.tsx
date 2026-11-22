@@ -6,6 +6,7 @@ import { TelemostStackIcon } from "@/components/icons/telemost-stack-icon";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/providers/language-provider";
 import { ORDER_CYCLE_KEYS } from "@/entities/i18n/header";
+import { GrowSpecialIcon } from "@/components/icons/special/grow-special-icon";
 
 export default function BottomAppBar() {
   const { t } = useLanguage();
@@ -24,7 +25,7 @@ export default function BottomAppBar() {
             variant="tonal-card"
             className="w-full h-14! justify-center gap-2 rounded-2xl border-none bg-card shadow-[0_8px_24px_-6px_rgba(0,0,0,0.12),0_2px_8px_-2px_rgba(0,0,0,0.04)]"
           >
-            <TelemostStackIcon className="-ml-1" />
+            <GrowSpecialIcon className="size-5!" />
             <CycleText labels={ORDER_CYCLE_KEYS.map((key) => t(key))} />
           </Button>
         </QuickOrderDialog>
