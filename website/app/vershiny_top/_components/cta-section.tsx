@@ -27,12 +27,12 @@ export function CtaSection() {
             aria-hidden
           />
 
-          <div className="relative grid grid-cols-1 gap-10 lg:grid-cols-[1.4fr_1fr] lg:gap-16">
-            <div>
-              <h2 className="mb-5 text-display-3 leading-[1.05] md:text-display-2">
+          <div className="relative grid min-w-0 grid-cols-1 gap-10 lg:grid-cols-[1.4fr_1fr] lg:gap-16">
+            <div className="min-w-0">
+              <h2 className="mb-5 break-words text-display-5 leading-[1.05] [overflow-wrap:anywhere] sm:text-display-3 md:text-display-2">
                 {t("vershiny.cta_title")}
               </h2>
-              <p className="mb-8 max-w-[520px] text-body-2 leading-relaxed text-(--on-bg-medium)">
+              <p className="mb-8 max-w-[520px] break-words text-body-2 leading-relaxed text-(--on-bg-medium)">
                 {t("vershiny.cta_subtitle")}
               </p>
               <div className="flex flex-wrap gap-3">

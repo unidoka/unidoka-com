@@ -25,7 +25,7 @@ export default function BottomAppBar() {
             variant="tonal-card"
             className="w-full h-14! justify-center gap-2 rounded-2xl border-none bg-card shadow-[0_8px_24px_-6px_rgba(0,0,0,0.12),0_2px_8px_-2px_rgba(0,0,0,0.04)]"
           >
-            <GrowSpecialIcon className="size-5!" />
+            <GrowSpecialIcon animated className="size-5!" />
             <CycleText labels={ORDER_CYCLE_KEYS.map((key) => t(key))} />
           </Button>
         </QuickOrderDialog>

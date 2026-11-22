@@ -50,7 +50,7 @@ export function HeroSection({ ascii }: { ascii: string }) {
 
       <Container className="relative z-10 pt-24 pb-10 md:pt-28 md:pb-14">
         <div className="grid items-center gap-12 md:gap-14 lg:grid-cols-[1.04fr_0.96fr] lg:gap-10">
-          <div className="">
+          <div className="relative z-10">
             <h1 className="animate-reveal fill-mode-both text-display-2 md:text-display-1 lg:text-display-0">
               {leadingWords ? `${leadingWords} ` : null}
               <span className="inline-flex items-center gap-[0.16em] whitespace-nowrap">
@@ -72,18 +72,18 @@ export function HeroSection({ ascii }: { ascii: string }) {
             </p>
           </div>
 
-          <div className="relative flex animate-reveal items-center justify-center fill-mode-both [animation-delay:220ms] lg:justify-end">
-            <div className="relative w-full max-w-[460px] px-2 py-4 sm:px-4">
+          <div className="relative flex animate-reveal items-center justify-center fill-mode-both [animation-delay:220ms] lg:justify-end xl:pointer-events-none xl:absolute xl:inset-0 xl:-z-10 xl:items-center xl:justify-center">
+            <div className="relative w-full max-w-[460px] px-2 py-4 sm:px-4 xl:h-full xl:max-w-none xl:px-0 xl:py-0 xl:[mask-image:radial-gradient(ellipse_at_center,black_10%,transparent_78%)]">
               <button
                 type="button"
                 onClick={replayMark}
                 aria-label={t("amorfa.hero_replay")}
                 title={t("amorfa.hero_replay")}
-                className="group relative block w-full cursor-pointer rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)/40 focus-visible:ring-offset-8 focus-visible:ring-offset-(--bg)"
+                className="group relative block w-full cursor-pointer rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)/40 focus-visible:ring-offset-8 focus-visible:ring-offset-(--bg) xl:h-full xl:pointer-events-none"
               >
                 <span
                   aria-hidden
-                  className="pointer-events-none absolute inset-0 -z-10 scale-[0.9] rounded-full opacity-60 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
+                  className="pointer-events-none absolute inset-0 -z-10 scale-[0.9] rounded-full opacity-60 blur-2xl transition-opacity duration-500 group-hover:opacity-100 xl:hidden"
                   style={{
                     background:
                       "radial-gradient(circle, color-mix(in srgb, var(--on-bg-high), transparent 90%), transparent 70%)",
@@ -92,7 +92,7 @@ export function HeroSection({ ascii }: { ascii: string }) {
                 <AsciiLifeLogo
                   ascii={ascii}
                   replayKey={replay}
-                  className="text-(--on-bg-high)"
+                  className="text-(--on-bg-high) xl:h-full xl:w-full xl:object-cover xl:opacity-[0.09]"
                 />
               </button>
             </div>

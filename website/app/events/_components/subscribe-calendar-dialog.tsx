@@ -28,14 +28,21 @@ import { useLanguage } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
 
 interface Props {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   locale?: EventsLocale;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function SubscribeCalendarDialog({ children, locale = "ru" }: Props) {
+export function SubscribeCalendarDialog({
+  children,
+  locale = "ru",
+  open,
+  onOpenChange,
+}: Props) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {children ? <DialogTrigger asChild>{children}</DialogTrigger> : null}
       <DialogContent className="sm:max-w-md max-h-[85dvh] overflow-y-auto overflow-x-hidden">
         <DialogHeader>
           <DialogTitle>

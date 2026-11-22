@@ -2892,3 +2892,22 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     animation: none;
   }
 }
+
+/* The order CTA mark takes one slow breath every few seconds, then rests.
+   The beat is short enough to notice and long enough not to nag. */
+@keyframes grow-icon-breathe {
+  0%, 64%, 100% { transform: scale(1) rotate(0deg); }
+  74% { transform: scale(1.14) rotate(-7deg); }
+  86% { transform: scale(1.06) rotate(3deg); }
+}
+
+.grow-icon-animated {
+  transform-origin: 50% 85%;
+  animation: grow-icon-breathe 4.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grow-icon-animated {
+    animation: none;
+  }
+}

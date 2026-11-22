@@ -291,7 +291,7 @@ export default function Header() {
                 className="h-12! w-fit justify-center gap-2 pl-2 pr-4 rounded-2xl border-none bg-card"
                 style={shadowStyle}
               >
-                <GrowSpecialIcon className="size-7!" />
+                <GrowSpecialIcon animated className="size-7!" />
                 <CycleText
                   labels={ORDER_CYCLE_KEYS.map((key) => t(key))}
                 />
