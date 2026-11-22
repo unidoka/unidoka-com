@@ -12,7 +12,7 @@ interface AnimatedLogoProps {
  * Both states are declared in CSS, so the wordmark is hidden on the first
  * painted frame rather than flashing complete before an effect runs.
  * Two nested wrappers because each class owns the `animation` shorthand.
- * No rotation — a rotating wordmark reads as broken.
+ * No rotation - a rotating wordmark reads as broken.
  */
 export function AnimatedLogo({ className, replayKey = 0 }: AnimatedLogoProps) {
   return (

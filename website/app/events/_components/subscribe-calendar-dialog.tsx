@@ -68,7 +68,7 @@ const CATEGORY_TABS: { id: EventsCategory; key: string }[] = [
 
 function SubscribeContent({ locale }: { locale: EventsLocale }) {
   const { t, lang } = useLanguage();
-  const calendarName = lang === "en" ? "Unidoka — events" : "Unidoka — события";
+  const calendarName = lang === "en" ? "Unidoka - events" : "Unidoka - события";
   const [feeds, setFeeds] = useState<Partial<Record<EventsCategory, string>> | null>(
     null,
   );
@@ -97,7 +97,7 @@ function SubscribeContent({ locale }: { locale: EventsLocale }) {
   const hasAnyFeed = Object.values(feeds).some(Boolean);
   const categoryLabel = t(
     CATEGORY_TABS.find((tab) => tab.id === category)?.key ??
-      "events.calendar.activities",
+    "events.calendar.activities",
   );
 
   if (!hasAnyFeed) {
@@ -109,42 +109,42 @@ function SubscribeContent({ locale }: { locale: EventsLocale }) {
   }
 
   const encoded = url ? encodeURIComponent(url) : "";
-  const name = encodeURIComponent(`${calendarName} — ${categoryLabel}`);
+  const name = encodeURIComponent(`${calendarName} - ${categoryLabel}`);
   const webcal = url ? url.replace(/^https:\/\//, "webcal://") : "";
 
   const links = url
     ? [
-        {
-          id: "google",
-          label: t("events.subscribe.google"),
-          icon: <GoogleCalendarLogotypeIcon className="size-5" />,
-          href: `https://calendar.google.com/calendar/render?cid=${encoded}`,
-        },
-        {
-          id: "yandex",
-          label: t("events.subscribe.yandex"),
-          icon: <YandexLogotypeIcon className="size-5" />,
-          href: null,
-        },
-        {
-          id: "outlook",
-          label: "Outlook",
-          icon: <OutlookLogotypeIcon className="size-5" />,
-          href: `https://outlook.live.com/calendar/0/addfromweb?url=${encoded}&name=${name}`,
-        },
-        {
-          id: "apple",
-          label: t("events.subscribe.apple"),
-          icon: <AppleLogotypeIcon className="size-5" />,
-          href: webcal,
-        },
-        {
-          id: "notion",
-          label: "Notion Calendar",
-          icon: <NotionLogotypeIcon className="size-5" />,
-          href: null,
-        },
-      ]
+      {
+        id: "google",
+        label: t("events.subscribe.google"),
+        icon: <GoogleCalendarLogotypeIcon className="size-5" />,
+        href: `https://calendar.google.com/calendar/render?cid=${encoded}`,
+      },
+      {
+        id: "yandex",
+        label: t("events.subscribe.yandex"),
+        icon: <YandexLogotypeIcon className="size-5" />,
+        href: webcal,
+      },
+      {
+        id: "outlook",
+        label: "Outlook",
+        icon: <OutlookLogotypeIcon className="size-5" />,
+        href: `https://outlook.live.com/calendar/0/addfromweb?url=${encoded}&name=${name}`,
+      },
+      {
+        id: "apple",
+        label: t("events.subscribe.apple"),
+        icon: <AppleLogotypeIcon className="size-5" />,
+        href: webcal,
+      },
+      {
+        id: "notion",
+        label: "Notion Calendar",
+        icon: <NotionLogotypeIcon className="size-5" />,
+        href: null,
+      },
+    ]
     : [];
 
   const copy = async () => {

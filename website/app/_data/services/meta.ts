@@ -25,7 +25,7 @@ export const SERVICES_META: ServiceMeta[] = [
       "Собираем визуальную систему бренда - от логотипа до гайдлайнов, по которым команда сможет работать годами.",
     iconKey: "palette",
     accent: "#A855F7",
-    leadTime: "3–6 недель",
+    leadTime: "3-6 недель",
     startingAt: "от 75 000 ₽",
   },
   {
@@ -37,7 +37,7 @@ export const SERVICES_META: ServiceMeta[] = [
       "Проектируем и разрабатываем цифровые продукты на Next.js, FastAPI и PostgreSQL - от лендинга до продукта с биллингом.",
     iconKey: "code",
     accent: "#336DFF",
-    leadTime: "4–12 недель",
+    leadTime: "4-12 недель",
     startingAt: "от 150 000 ₽",
   },
   {
@@ -49,7 +49,7 @@ export const SERVICES_META: ServiceMeta[] = [
       "Создаём 3D-модели, анимации и CGI-графику для промо, продуктов и корпоративных презентаций.",
     iconKey: "cube",
     accent: "#F2B441",
-    leadTime: "2–8 недель",
+    leadTime: "2-8 недель",
     startingAt: "от 90 000 ₽",
   },
   {
@@ -61,7 +61,7 @@ export const SERVICES_META: ServiceMeta[] = [
       "Полный цикл видеопродакшна: сценарий, съёмка, монтаж, цветокоррекция и звук. Один мастер-ролик - три версии под площадки.",
     iconKey: "film",
     accent: "#EF4444",
-    leadTime: "2–6 недель",
+    leadTime: "2-6 недель",
     startingAt: "от 120 000 ₽",
   },
   {
@@ -85,7 +85,7 @@ export const SERVICES_META: ServiceMeta[] = [
       "Проектируем интерфейсы на основе исследований. Собираем дизайн-системы, по которым команда сможет расти без нас.",
     iconKey: "sparkle",
     accent: "#EC4899",
-    leadTime: "3–10 недель",
+    leadTime: "3-10 недель",
     startingAt: "от 120 000 ₽",
   },
 ];

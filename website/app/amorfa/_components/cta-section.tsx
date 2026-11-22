@@ -23,7 +23,7 @@ export function CtaSection() {
     ).matches;
   }, []);
 
-  /* Below the fold on load — replay the assembly once it is actually seen. */
+  /* Below the fold on load - replay the assembly once it is actually seen. */
   useEffect(() => {
     const el = cardRef.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
@@ -111,7 +111,7 @@ export function CtaSection() {
             <div className="relative order-first h-80 overflow-hidden sm:h-96 lg:order-last lg:h-auto lg:min-h-[480px]">
               <div className="absolute inset-0 flex items-center justify-center">
                 {/* Previous mark scale restored. The plate is sized so this
-                    box always clears every edge — the mark is never cut. */}
+                    box always clears every edge - the mark is never cut. */}
                 <div className="aspect-square w-[70%] max-w-[400px]">
                   <AmorfaNest key={replay} />
                 </div>

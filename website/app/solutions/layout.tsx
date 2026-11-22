@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = isEn ? "Solutions" : "Решения";
   const description = isEn
     ? "Projects, open-source solutions, new ways of organizing and business communities created by Unidoka."
-    : "То, что создаёт будущее — open source решения, новые способы организации, бизнес-сообщества и многое другое.";
+    : "То, что создаёт будущее - open source решения, новые способы организации, бизнес-сообщества и многое другое.";
 
   return {
     title,

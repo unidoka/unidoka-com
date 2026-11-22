@@ -103,7 +103,7 @@ export function EventsSection() {
     const e = new Date(end);
     if (isNaN(e.getTime())) return fmt(s);
     if (s.toDateString() === e.toDateString()) return fmt(s);
-    return `${fmt(s)} — ${fmt(e)}`;
+    return `${fmt(s)} - ${fmt(e)}`;
   };
 
   return (

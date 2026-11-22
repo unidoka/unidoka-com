@@ -21,8 +21,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteUrl = siteOrigin();
   const canonical = `${siteUrl}${isEn ? "/en/vershiny_top" : "/vershiny_top"}`;
   const title = isEn
-    ? "Vershiny — a community of future creators"
-    : "Вершины — сообщество создателей будущего";
+    ? "Vershiny - a community of future creators"
+    : "Вершины - сообщество создателей будущего";
   const description = isEn
     ? "Mentorship, internships and real projects for people who want to build the future."
     : "Менторство, стажировки и реальные проекты для тех, кто хочет создавать будущее.";

@@ -2854,3 +2854,41 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     transform: scaleX(1);
   }
 }
+
+/* Dialog motion: opacity only. The shared dialog content already uses
+   translate(-50%, -50%) for centering; tw-animate's transform-based
+   keyframes were overriding it, which made the dialog jump on open. */
+@keyframes dialog-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes dialog-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.dialog-overlay-motion[data-state="open"] {
+  animation: dialog-fade-in 220ms ease-out both;
+}
+
+.dialog-overlay-motion[data-state="closed"] {
+  animation: dialog-fade-out 160ms ease-in both;
+}
+
+.dialog-content-motion[data-state="open"] {
+  animation: dialog-fade-in 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.dialog-content-motion[data-state="closed"] {
+  animation: dialog-fade-out 160ms ease-in both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog-overlay-motion[data-state="open"],
+  .dialog-overlay-motion[data-state="closed"],
+  .dialog-content-motion[data-state="open"],
+  .dialog-content-motion[data-state="closed"] {
+    animation: none;
+  }
+}

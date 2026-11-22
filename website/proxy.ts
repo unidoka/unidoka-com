@@ -21,7 +21,10 @@ export function proxy(request: NextRequest) {
   if (pathname.startsWith('/_next')) return NextResponse.next()
   if (pathname.startsWith('/api')) return NextResponse.next()
   if (pathname.startsWith('/dev-storage')) return NextResponse.next()
-  if (pathname.includes('.')) return NextResponse.next()
+  // Text/XML/JSON alternates under /en/* still need the locale rewrite.
+  if (pathname.includes('.') && !/\.(?:txt|xml|json)$/i.test(pathname)) {
+    return NextResponse.next()
+  }
 
   const subdomain =
     hostname && hostname !== baseDomain ? hostname.split('.')[0] : ''

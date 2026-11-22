@@ -15,11 +15,11 @@ export async function generateMetadata(): Promise<Metadata> {
   const canonical = `${siteUrl}${isEn ? "/en/amorfa" : "/amorfa"}`;
 
   const title = isEn
-    ? "Amorfa — AI-optimized fullstack framework"
-    : "Amorfa — AI-optimized fullstack framework";
+    ? "Amorfa - AI-optimized fullstack framework"
+    : "Amorfa - AI-optimized fullstack framework";
   const description = isEn
     ? "Amorfa is an open-source fullstack framework for building apps in hours. FastAPI + Next.js + PostgreSQL, ready to ship, AI-friendly."
-    : "Amorfa — open-source fullstack framework для создания приложений за часы. FastAPI + Next.js + PostgreSQL, готов к продакшену, AI-friendly.";
+    : "Amorfa - open-source fullstack framework для создания приложений за часы. FastAPI + Next.js + PostgreSQL, готов к продакшену, AI-friendly.";
 
   return {
     title,

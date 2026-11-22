@@ -13,9 +13,9 @@ export interface VershinyLogoIconProps
  * The Vershiny staircase mark on its own.
  *
  * This is the exact icon that sits inside <VershinyLogoMono>, in the same
- * coordinate space (the lockup draws it at x16–70 / y14–68), so the two
+ * coordinate space (the lockup draws it at x16-70 / y14-68), so the two
  * components are visually interchangeable. The viewBox is that box plus
- * two units of padding on every side — enough room for the 1.5-unit
+ * two units of padding on every side - enough room for the 1.5-unit
  * draw stroke so it never clips at the edges.
  *
  * Motion is shared with the lockup, not duplicated:
@@ -24,7 +24,7 @@ export interface VershinyLogoIconProps
  *
  * The stagger runs smallest (bottom) arc first and rises to the largest
  * (top) arc, so the mark grows upward. Each arc's perimeter is measured
- * with getTotalLength() before the animation is named — a shared 300-unit
+ * with getTotalLength() before the animation is named - a shared 300-unit
  * dash would keep short arcs hidden until late in the timeline and make
  * the two big arcs surface first, which is the bug this avoids.
  *

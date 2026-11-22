@@ -5,24 +5,24 @@ import { format } from "date-fns";
 import { enUS, ru } from "date-fns/locale";
 import {
   ArrowUpRightIcon,
-  CalendarBlankIcon,
   ClockIcon,
-  MapPinIcon,
-  TagIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { compileMDX } from "next-mdx-remote/rsc";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   fetchEventServer,
   fetchIcalFeedsServer,
+  fetchPublishedEventsServer,
   type EventDetail,
+  type EventListItem,
   type EventsLocale,
 } from "@/utils/api/events";
-import { colorForOrganizer } from "@/app/events/_components/organizer-meta";
+import { shortId } from "@/utils/short-id";
 import { parseEventDate } from "@/app/events/_components/date-utils";
+import { eventOgImageUrl } from "@/utils/events-seo";
 import { MapLinks } from "@/app/events/_components/map-links";
+import { ShareEventDialog } from "@/app/events/_components/share-event-dialog";
 import { getLocale, localePath } from "@/i18n/server";
 import { translations } from "@/entities/i18n/translations";
 
@@ -106,19 +106,19 @@ function buildEventJsonLd(
 
   const location = hasPhysicalLocation
     ? {
-        "@type": "Place",
-        name: locationName || (isEn ? "Venue" : "Место проведения"),
-        address: {
-          "@type": "PostalAddress",
-          ...(event.address ? { streetAddress: plainText(event.address) } : {}),
-          ...(event.city ? { addressLocality: plainText(event.city) } : {}),
-          addressCountry: "RU",
-        },
-      }
+      "@type": "Place",
+      name: locationName || (isEn ? "Venue" : "Место проведения"),
+      address: {
+        "@type": "PostalAddress",
+        ...(event.address ? { streetAddress: plainText(event.address) } : {}),
+        ...(event.city ? { addressLocality: plainText(event.city) } : {}),
+        addressCountry: "RU",
+      },
+    }
     : {
-        "@type": "VirtualLocation",
-        url: event.registration_url || event.href || canonicalUrl,
-      };
+      "@type": "VirtualLocation",
+      url: event.registration_url || event.href || canonicalUrl,
+    };
 
   const priceMatch = plainText(event.price).match(/\d+(?:[.,]\d+)?/);
   const isFree =
@@ -134,9 +134,9 @@ function buildEventJsonLd(
     description:
       plainText(
         event.meta_description ||
-          event.short_description ||
-          event.description ||
-          "",
+        event.short_description ||
+        event.description ||
+        "",
       ).slice(0, 5000) || undefined,
     startDate: event.start_at || undefined,
     endDate: event.end_at || event.start_at || undefined,
@@ -157,31 +157,31 @@ function buildEventJsonLd(
     },
     ...(event.registration_url
       ? {
-          offers: {
-            "@type": "Offer",
-            url: event.registration_url,
-            availability: "https://schema.org/InStock",
-            ...(priceMatch
-              ? {
-                  price: priceMatch[0].replace(",", "."),
-                  priceCurrency: "RUB",
-                }
-              : {}),
-          },
-        }
+        offers: {
+          "@type": "Offer",
+          url: event.registration_url,
+          availability: "https://schema.org/InStock",
+          ...(priceMatch
+            ? {
+              price: priceMatch[0].replace(",", "."),
+              priceCurrency: "RUB",
+            }
+            : {}),
+        },
+      }
       : {}),
     ...(eventTypeNames(event).length || (event.tags ?? []).length
       ? {
-          keywords: [
-            ...(event.tags ?? []).map((tag) => tag.name),
-            ...eventTypeNames(event),
-            ...(event.categories ?? []).map((category) =>
-              category === "competitions"
-                ? (isEn ? "competition" : "соревнование")
-                : (isEn ? "activity" : "мероприятие"),
-            ),
-          ].join(", "),
-        }
+        keywords: [
+          ...(event.tags ?? []).map((tag) => tag.name),
+          ...eventTypeNames(event),
+          ...(event.categories ?? []).map((category) =>
+            category === "competitions"
+              ? (isEn ? "competition" : "соревнование")
+              : (isEn ? "activity" : "мероприятие"),
+          ),
+        ].join(", "),
+      }
       : {}),
   };
 }
@@ -210,7 +210,7 @@ function eventUrlFor(
   siteUrl: string,
   locale: EventsLocale,
 ): string {
-  return `${siteUrl}${localePath(`/events/${event.id}/${event.slug}`, locale)}`;
+  return `${siteUrl}${localePath(`/events/${shortId(event.id)}/${event.slug}`, locale)}`;
 }
 
 export async function generateMetadata({
@@ -255,7 +255,7 @@ export async function generateMetadata({
   const canonicalUrl = eventUrlFor(event, siteUrl, locale);
 
   const cover = absoluteUrl(event.cover_image_src, siteUrl);
-  const imageUrl = cover ?? `${siteUrl}/og-default.png`;
+  const imageUrl = cover ?? eventOgImageUrl(event, siteUrl);
   const category = eventCategory(event);
   const organizerName = event.organizer?.name || event.custom_organizer_name;
 
@@ -284,7 +284,11 @@ export async function generateMetadata({
     alternates: {
       canonical: canonicalUrl,
       languages,
-      ...(icalUrl ? { types: { "text/calendar": icalUrl } } : {}),
+      types: {
+        ...(icalUrl ? { "text/calendar": icalUrl } : {}),
+        "text/plain": `${siteUrl}${isEn ? "/en" : ""}/events/llms.txt`,
+        "application/json": `${siteUrl}/api/v1/events/${encodeURIComponent(event.slug)}?locale=${locale}`,
+      },
     },
     robots: {
       index: true,
@@ -341,7 +345,7 @@ export default async function EventPage({
     if (!event) notFound();
 
     // 307 redirect to the new canonical URL
-    redirect(localePath(`/events/${event.id}/${event.slug}`, locale));
+    redirect(localePath(`/events/${shortId(event.id)}/${event.slug}`, locale));
   }
 
   // ── Case 2: New /events/[id]/[slug] ──────────────────────────────
@@ -349,24 +353,33 @@ export default async function EventPage({
   const event = await fetchEventServer(eventSlug, locale);
 
   if (!event) {
-    // Slug may have been edited. Retry by ID.
+    // Slug may have been edited. Resolve the public short id against the
+    // current calendar, then redirect to the canonical slug.
     const byId = await fetchEventServer(id, locale);
     if (byId) {
-      redirect(localePath(`/events/${byId.id}/${byId.slug}`, locale));
+      redirect(localePath(`/events/${shortId(byId.id)}/${byId.slug}`, locale));
+    }
+    const all = await fetchPublishedEventsServer({ locale, limit: 1000 });
+    const matched = all.find((candidate) => shortId(candidate.id) === id);
+    if (matched) {
+      redirect(
+        localePath(`/events/${shortId(matched.id)}/${matched.slug}`, locale),
+      );
     }
     notFound();
   }
 
-  // Slug matched but ID doesn't - user edited the UUID in the URL bar.
-  if (event.id !== id) {
-    redirect(localePath(`/events/${event.id}/${event.slug}`, locale));
+  // Slug matched but the public id doesn't - user edited the id in the URL bar.
+  if (shortId(event.id) !== id) {
+    redirect(localePath(`/events/${shortId(event.id)}/${event.slug}`, locale));
   }
 
   // ── Render ───────────────────────────────────────────────────────
   const siteUrl = siteOrigin();
   const canonicalUrl = eventUrlFor(event, siteUrl, locale);
   const imageUrl =
-    absoluteUrl(event.cover_image_src, siteUrl) ?? `${siteUrl}/og-default.png`;
+    absoluteUrl(event.cover_image_src, siteUrl) ??
+    eventOgImageUrl(event, siteUrl);
   const jsonLd = buildEventJsonLd(
     event,
     locale,
@@ -399,7 +412,6 @@ export default async function EventPage({
     ],
   };
 
-  const color = colorForOrganizer(event.organizer);
   const start = parseEventDate(event.start_at);
   const end = parseEventDate(event.end_at);
   const locationQuery = [event.location_name, event.address, event.city]
@@ -425,24 +437,50 @@ export default async function EventPage({
           : format(start, `${dayFormat}, HH:mm`, { locale: dateLocale })
     : dateTbaLabel;
 
-  const teaser = (event.short_description || "")
-    .replace(/<[^>]*>?/gm, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+
 
   // MDX is only for admin-authored `mdx_content`. iCal `description` is
-  // third-party HTML — compiling it as MDX would evaluate feed text as
+  // third-party HTML - compiling it as MDX would evaluate feed text as
   // JS/JSX. The backend sanitizes that HTML; render it as-is.
   const source = event.mdx_content;
   const { content } = source
     ? await compileMDX({
-        source,
-        options: { parseFrontmatter: false },
-      })
+      source,
+      options: { parseFrontmatter: false },
+    })
     : { content: null };
 
+  const catalog = await fetchPublishedEventsServer({ locale, limit: 200 });
+  const currentCategories = new Set(event.categories ?? []);
+  const recommendations: EventListItem[] = catalog
+    .filter((candidate) => candidate.id !== event.id)
+    .map((candidate) => {
+      let score = 0;
+      if (
+        event.organizer?.id &&
+        candidate.organizer?.id === event.organizer.id
+      ) {
+        score += 3;
+      }
+      if ((candidate.categories ?? []).some((c) => currentCategories.has(c))) {
+        score += 2;
+      }
+      if (candidate.start_at && new Date(candidate.start_at) >= new Date()) {
+        score += 1;
+      }
+      return { candidate, score };
+    })
+    .sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return (a.candidate.start_at || "").localeCompare(
+        b.candidate.start_at || "",
+      );
+    })
+    .slice(0, 6)
+    .map(({ candidate }) => candidate);
+
   return (
-    <main className="min-h-screen bg-(--bg) pt-24 sm:pt-32 pb-24">
+    <div className="pt-12 pb-24">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -458,33 +496,16 @@ export default async function EventPage({
       <Container>
         <div className="max-w-4xl mx-auto">
           <div className="mb-8">
-            {event.organizer && (
-              <div
-                className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px]  uppercase tracking-wider mb-4"
-                style={{
-                  color,
-                  backgroundColor: `color-mix(in srgb, ${color} 14%, transparent)`,
-                }}
-              >
-                <span
-                  className="size-1.5 rounded-full"
-                  style={{ backgroundColor: color }}
-                />
-                {event.organizer.name}
-              </div>
-            )}
-            <h1 className="text-display-2 md:text-display-1 text-(--on-bg-high) leading-[1.05] mb-4">
-              {event.title}
-            </h1>
-            {teaser && (
-              <p className="text-body-1 text-(--on-bg-medium) leading-relaxed">
-                {teaser}
-              </p>
-            )}
-            <div className="flex flex-wrap gap-2 mt-6">
-              {(event.categories ?? []).map((category) => (
-                <Badge key={category} variant="glass-static" size="chip-small">
-                  {serverT(
+            <div className="mb-4">
+              <h1 className="text-display-2 md:text-display-1 text-(--on-bg-high) leading-[1.05]">
+                {event.title}
+              </h1>
+            </div>
+            {(() => {
+              const meta = [
+                event.organizer?.name || event.custom_organizer_name || null,
+                ...(event.categories ?? []).map((category) =>
+                  serverT(
                     locale,
                     category === "competitions"
                       ? "events.calendar.competitions"
@@ -496,36 +517,51 @@ export default async function EventPage({
                       : category === "competitions"
                         ? "Соревнования"
                         : "Мероприятия",
-                  )}
-                </Badge>
-              ))}
-              {(event.types ?? []).map((t) =>
-                t.type ? (
-                  <Badge key={t.id} variant="tonal-card-static">
-                    {t.type.name}
-                  </Badge>
-                ) : t.custom_name ? (
-                  <Badge key={t.id} variant="tonal-card-static">
-                    {t.custom_name}
-                  </Badge>
-                ) : null,
-              )}
-              {(event.tags ?? []).map((tag) => (
-                <Badge key={tag.id} variant="glass-static" size="chip-small">
-                  #{tag.name}
-                </Badge>
-              ))}
-              {event.registration_deadline_text && (
-                <Badge variant="glass-static" size="chip-small">
-                  <ClockIcon className="size-3" />
-                  {`${serverT(locale, "events.deadline", isEn ? "Registration deadline" : "Дедлайн регистрации")}: ${event.registration_deadline_text}`}
-                </Badge>
-              )}
-            </div>
+                  ),
+                ),
+                ...(event.types ?? []).map((assignment) =>
+                  assignment.type?.name || assignment.custom_name || null,
+                ),
+                ...(event.tags ?? []).map((tag) => `#${tag.name}`),
+                event.registration_deadline_text
+                  ? `${serverT(locale, "events.deadline", isEn ? "Registration deadline" : "Дедлайн регистрации")}: ${event.registration_deadline_text}`
+                  : null,
+              ].filter(Boolean);
+              return meta.length > 0 ? (
+                <p className="mt-4 text-body-4 text-(--on-bg-low)">
+                  {meta.join(" · ")}
+                </p>
+              ) : null;
+            })()}
           </div>
 
+          <div>
+            <div className="sticky top-20 z-20 mb-8 flex items-center gap-2 rounded-2xl border border-(--outline) bg-(--bg) p-2">
+              <ShareEventDialog
+                title={plainText(event.title)}
+                url={canonicalUrl}
+                locale={locale}
+                dateLabel={dateLabel}
+                location={locationQuery}
+                organizer={event.organizer?.name || event.custom_organizer_name || undefined}
+                price={event.price || undefined}
+              />
+              {event.registration_url && (
+                <Button asChild size="small" className="ml-auto">
+                  <Link
+                    href={event.registration_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {serverT(locale, "events.register", isEn ? "Register" : "Зарегистрироваться")}
+                    <ArrowUpRightIcon className="size-4" />
+                  </Link>
+                </Button>
+              )}
+            </div>
+
           {event.cover_image_src && (
-            <div className="relative aspect-[16/9] rounded-3xl overflow-hidden border border-(--outline) mb-8">
+            <div className="relative aspect-[16/9] overflow-hidden rounded-2xl mb-10">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={event.cover_image_src}
@@ -535,59 +571,70 @@ export default async function EventPage({
             </div>
           )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
-            <MetaCard
-              icon={<CalendarBlankIcon className="size-4" />}
-              label={serverT(locale, "events.when", isEn ? "When" : "Когда")}
-              value={dateLabel}
-            />
-            {locationQuery && (
-              <MetaCard
-                icon={<MapPinIcon className="size-4" />}
-                label={serverT(locale, "events.where", isEn ? "Where" : "Место")}
-                value={event.location_name || locationQuery}
-              >
-                <MapLinks query={locationQuery} className="mt-3" />
-              </MetaCard>
-            )}
-            {event.price && (
-              <MetaCard
-                icon={<TagIcon className="size-4" />}
-                label={serverT(locale, "events.price", isEn ? "Price" : "Цена")}
-                value={event.price}
+          <dl className="grid grid-cols-1 gap-6 border-y border-(--outline) py-6 sm:grid-cols-3">
+            <div className="min-w-0">
+              <dt className="text-body-5 text-(--on-bg-low)">
+                {serverT(locale, "events.when", isEn ? "When" : "Когда")}
+              </dt>
+              <dd className="mt-1 text-body-3 text-(--on-bg-high)">
+                {dateLabel}
+              </dd>
+            </div>
+            <div className="min-w-0">
+              <dt className="text-body-5 text-(--on-bg-low)">
+                {serverT(locale, "events.where", isEn ? "Where" : "Место")}
+              </dt>
+              <dd className="mt-1 text-body-3 text-(--on-bg-high)">
+                {locationQuery
+                  ? event.location_name || locationQuery
+                  : isEn
+                    ? "Online"
+                    : "Онлайн"}
+              </dd>
+              {locationQuery && (
+                <MapLinks query={locationQuery} className="mt-2" />
+              )}
+            </div>
+            <div className="min-w-0">
+              <dt className="text-body-5 text-(--on-bg-low)">
+                {event.price
+                  ? serverT(locale, "events.price", isEn ? "Price" : "Цена")
+                  : serverT(
+                    locale,
+                    "events.details.organizer",
+                    isEn ? "Organizer" : "Организатор",
+                  )}
+              </dt>
+              <dd className="mt-1 text-body-3 text-(--on-bg-high)">
+                {event.price ||
+                  event.organizer?.name ||
+                  event.custom_organizer_name ||
+                  "—"}
+              </dd>
+            </div>
+          </dl>
+
+          <div className="mt-10">
+            {source ? (
+              <article className="prose prose-neutral dark:prose-invert max-w-none break-words [overflow-wrap:anywhere]">
+                {content}
+              </article>
+            ) : event.description ? (
+              <article
+                className="prose prose-neutral dark:prose-invert max-w-none break-words [overflow-wrap:anywhere]"
+                dangerouslySetInnerHTML={{ __html: event.description }}
               />
+            ) : event.short_description ? (
+              <article
+                className="prose prose-neutral dark:prose-invert max-w-none break-words [overflow-wrap:anywhere]"
+                dangerouslySetInnerHTML={{ __html: event.short_description }}
+              />
+            ) : (
+              <p className="text-body-3 text-(--on-bg-medium)">
+                {serverT(locale, "events.no_description", isEn ? "No description yet." : "Описание пока не добавлено.")}
+              </p>
             )}
           </div>
-
-          {event.registration_url && (
-            <div className="mb-8">
-              <Button size="large" asChild>
-                <Link
-                  href={event.registration_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {serverT(locale, "events.register", isEn ? "Register" : "Зарегистрироваться")}
-                  <ArrowUpRightIcon className="size-4" />
-                </Link>
-              </Button>
-            </div>
-          )}
-
-          {source ? (
-            <article className="prose prose-neutral dark:prose-invert max-w-none">
-              {content}
-            </article>
-          ) : event.description ? (
-            <article
-              className="prose prose-neutral dark:prose-invert max-w-none"
-              dangerouslySetInnerHTML={{ __html: event.description }}
-            />
-          ) : (
-            <p className="text-body-3 text-(--on-bg-medium)">
-              {serverT(locale, "events.no_description", isEn ? "No description yet." : "Описание пока не добавлено.")}
-            </p>
-          )}
 
           {(event.other_dates ?? []).length > 0 && (
             <section className="mt-12 pt-8 border-t border-(--outline)">
@@ -609,33 +656,63 @@ export default async function EventPage({
               </ul>
             </section>
           )}
+
+          </div>
+
+          {recommendations.length > 0 && (
+            <section className="mt-12 border-t border-(--outline) pt-8">
+              <h2 className="mb-4 text-heading-2">
+                {serverT(locale, "events.recommended", isEn ? "More events" : "Ещё события")}
+              </h2>
+              <ul className="divide-y divide-(--outline)">
+                {recommendations.map((item) => {
+                  const itemStart = parseEventDate(item.start_at);
+                  return (
+                    <li key={item.id} className="py-4">
+                      <Link
+                        href={localePath(
+                          `/events/${shortId(item.id)}/${item.slug}`,
+                          locale,
+                        )}
+                        className="group flex flex-col gap-1 transition-opacity hover:opacity-70"
+                      >
+                        <span className="text-body-2 text-(--on-bg-high)">
+                          {plainText(item.title)}
+                        </span>
+                        <span className="text-body-4 text-(--on-bg-medium)">
+                          {[
+                            itemStart
+                              ? format(
+                                itemStart,
+                                isEn ? "MMM d, yyyy" : "d MMM yyyy",
+                                { locale: dateLocale },
+                              )
+                              : null,
+                            plainText(item.location_name || item.city),
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+              <div className="mt-5">
+                <Button variant="outlined" size="small" asChild>
+                  <Link href={localePath("/events", locale)}>
+                    {serverT(
+                      locale,
+                      "events.see_in_calendar",
+                      isEn ? "See all in calendar" : "Смотреть все в календаре",
+                    )}
+                  </Link>
+                </Button>
+              </div>
+            </section>
+          )}
         </div>
       </Container>
-    </main>
-  );
-}
-
-function MetaCard({
-  icon,
-  label,
-  value,
-  children,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-2xl border border-(--outline) bg-(--card) p-4">
-      <div className="flex items-center gap-2 mb-1.5 text-(--on-bg-low)">
-        {icon}
-        <span className="text-[10px] uppercase tracking-wider ">
-          {label}
-        </span>
-      </div>
-      <p className="text-body-3  text-(--on-bg-high)">{value}</p>
-      {children}
     </div>
   );
 }

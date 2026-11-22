@@ -369,7 +369,7 @@ export default function AdminPlacementsPage() {
   );
 }
 
-/** "01 окт – 15 окт" or "с 01 окт" or "до 15 окт" or "без ограничений" */
+/** "01 окт - 15 окт" or "с 01 окт" or "до 15 окт" or "без ограничений" */
 function ScheduleSummary({ p }: { p: MarketingPlacement }) {
   const fmt = (iso: string) =>
     new Date(iso).toLocaleDateString("ru-RU", {
@@ -377,7 +377,7 @@ function ScheduleSummary({ p }: { p: MarketingPlacement }) {
       month: "short",
     });
   if (!p.start_at && !p.end_at) return <>без ограничений</>;
-  if (p.start_at && p.end_at) return <>{fmt(p.start_at)} – {fmt(p.end_at)}</>;
+  if (p.start_at && p.end_at) return <>{fmt(p.start_at)} - {fmt(p.end_at)}</>;
   if (p.start_at) return <>с {fmt(p.start_at)}</>;
   return <>до {fmt(p.end_at!)}</>;
 }

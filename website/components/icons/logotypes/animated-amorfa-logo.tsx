@@ -15,7 +15,7 @@ interface AnimatedAmorfaLogoProps {
  *
  * Each concentric layer scales open from its own centre with a soft overshoot,
  * staggered outer → inner. The choreography lives in `.amorfa-mark-enter`
- * (globals.css) so it is present on the first painted frame — no flash of the
+ * (globals.css) so it is present on the first painted frame - no flash of the
  * finished mark, no dependency on hydration, and it degrades to a plain visible
  * logo if the selector is unsupported.
  *

@@ -1,0 +1,39 @@
+import type { CSSProperties } from "react";
+import { cn } from "@/lib/utils";
+
+interface MaxLogoIconProps {
+  className?: string;
+  style?: CSSProperties;
+  size?: number | string;
+}
+
+/**
+ * MAX (ex-TamTam) messenger logotype, extracted from the official app
+ * icon and rendered as a currentColor mask so it stays monochrome.
+ */
+const MAX_MASK = "data:image/png;base64,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";
+
+export function MaxLogoIcon({ className, style, size = 24 }: MaxLogoIconProps) {
+  return (
+    <span
+      role="img"
+      aria-hidden
+      className={cn("inline-block shrink-0 bg-current", className)}
+      style={{
+        width: size,
+        height: size,
+        maskImage: `url(${MAX_MASK})`,
+        maskSize: "contain",
+        maskRepeat: "no-repeat",
+        maskPosition: "center",
+        WebkitMaskImage: `url(${MAX_MASK})`,
+        WebkitMaskSize: "contain",
+        WebkitMaskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        ...style,
+      }}
+    />
+  );
+}
+
+export default MaxLogoIcon;

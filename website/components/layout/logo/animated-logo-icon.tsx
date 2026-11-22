@@ -14,8 +14,8 @@ interface AnimatedLogoIconProps {
  * applied from an effect. That is the whole point: an effect runs *after*
  * the first paint, so the complete mark used to flash on screen for a frame
  * before the animation began. With the hidden state living in the stylesheet
- * the mark is already at opacity 0 on the very first painted frame — server
- * render included — and each ray blooms open from its own centre on a
+ * the mark is already at opacity 0 on the very first painted frame - server
+ * render included - and each ray blooms open from its own centre on a
  * stagger, followed by one quiet settle-glow.
  *
  * No strokes, no rotation. Fills are forced to `currentColor` so the mark

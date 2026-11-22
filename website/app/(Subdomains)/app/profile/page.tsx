@@ -104,7 +104,7 @@ export default function ProfilePage() {
     if (form.telegram_username) {
       const h = form.telegram_username.replace(/^@/, "");
       if (!/^[a-zA-Z0-9_]{5,32}$/.test(h))
-        next.telegram_username = "5–32 символа: латиница, цифры, _";
+        next.telegram_username = "5-32 символа: латиница, цифры, _";
     }
     if (form.github_url && !form.github_url.startsWith(GITHUB_PREFIX))
       next.github_url = `Ссылка должна начинаться с ${GITHUB_PREFIX}`;

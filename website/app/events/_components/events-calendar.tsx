@@ -15,6 +15,7 @@ import { AgendaView } from "./agenda-view";
 import { MiniMonth } from "./mini-month";
 import { FilterPanel } from "./filter-panel";
 import { EventDetails } from "./event-details";
+import { EventsSearchDialog } from "./events-search-dialog";
 import { EventsSkeleton } from "./events-skeleton";
 import { indexByDay } from "./date-utils";
 import { applyFilters, filterFromSearchParams, filtersEqual, writeFilterToSearchParams, type FilterState } from "./filters";
@@ -37,6 +38,7 @@ export function EventsCalendar({ locale }: { locale: EventsLocale }) {
     filterFromSearchParams(searchParams),
   );
   const [active, setActive] = useState<EventListItem | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const updateFilter = useCallback((next: FilterState) => {
     setFilter(next);
@@ -139,6 +141,7 @@ export function EventsCalendar({ locale }: { locale: EventsLocale }) {
           eventDays={eventDays}
           selected={selected}
           onSelectDate={setSelected}
+          onSearch={() => setSearchOpen(true)}
           locale={locale}
         />
 
@@ -221,6 +224,12 @@ export function EventsCalendar({ locale }: { locale: EventsLocale }) {
         )}
       </div>
       <EventDetails event={active} onOpenChange={(o) => !o && setActive(null)} />
+      <EventsSearchDialog
+        open={searchOpen}
+        onOpenChange={setSearchOpen}
+        events={allEvents}
+        locale={locale}
+      />
     </Container>
   );
 }

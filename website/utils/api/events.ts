@@ -1,4 +1,5 @@
 import { $fetch } from "@/utils/fetch";
+import { shortId } from "@/utils/short-id";
 
 /**
  * Разбирает ответ FastAPI (особенно 422 Validation Error) в читаемую строку.
@@ -133,7 +134,7 @@ export interface EventDetail extends EventListItem {
  * 307 redirect to the canonical form on the page component.
  */
 export function eventUrl(event: Pick<EventListItem, "id" | "slug">): string {
-  return `/events/${event.id}/${event.slug}`;
+  return `/events/${shortId(event.id)}/${event.slug}`;
 }
 
 export interface EventTypeInput {

@@ -24,6 +24,11 @@ export async function generateMetadata(): Promise<Metadata> {
   const description = isEn
     ? "Unidoka events calendar: conferences, forums, hackathons, meetups and internships. Subscribe to the calendar so you never miss a date."
     : "Календарь событий Unidoka: конференции, форумы, хакатоны, митапы и стажировки. Подпишитесь на календарь, чтобы не пропустить.";
+  const ogImage = `${siteUrl}/api/og?${new URLSearchParams({
+    title: isEn ? "Unidoka events" : "События Unidoka",
+    subtitle: description,
+    label: "Events",
+  }).toString()}`;
 
   return {
     title,
@@ -38,22 +43,26 @@ export async function generateMetadata(): Promise<Metadata> {
         en: `${siteUrl}/en/events`,
         "x-default": `${siteUrl}/events`,
       },
-      ...(icalUrl ? { types: { "text/calendar": icalUrl } } : {}),
+      types: {
+        ...(icalUrl ? { "text/calendar": icalUrl } : {}),
+        "text/plain": `${siteUrl}${isEn ? "/en" : ""}/events/llms.txt`,
+        "application/json": `${siteUrl}/api/v1/events?locale=${locale}`,
+      },
     },
     openGraph: {
       type: "website",
       url: canonical,
-      title: isEn ? "Events — Unidoka" : "События — Unidoka",
+      title: isEn ? "Events - Unidoka" : "События - Unidoka",
       description,
       locale: isEn ? "en_US" : "ru_RU",
       alternateLocale: isEn ? ["ru_RU"] : ["en_US"],
-      images: [{ url: `${siteUrl}/og.jpg`, alt: isEn ? "Unidoka events" : "События Unidoka" }],
+      images: [{ url: ogImage, alt: isEn ? "Unidoka events" : "События Unidoka" }],
     },
     twitter: {
       card: "summary_large_image",
-      title: isEn ? "Events — Unidoka" : "События — Unidoka",
+      title: isEn ? "Events - Unidoka" : "События - Unidoka",
       description,
-      images: [`${siteUrl}/og.jpg`],
+      images: [ogImage],
     },
     robots: {
       index: true,

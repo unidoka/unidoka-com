@@ -8,7 +8,7 @@ import { useLanguage } from "@/providers/language-provider";
 /**
  * Editorial hero: oversized type on the left, a living ASCII mark on the
  * right. The mark is a Game-of-Life colony inside the wordmark; clicking
- * it — or the glyph in the headline — seeds a fresh one.
+ * it - or the glyph in the headline - seeds a fresh one.
  */
 export function HeroSection({ ascii }: { ascii: string }) {
   const { t } = useLanguage();

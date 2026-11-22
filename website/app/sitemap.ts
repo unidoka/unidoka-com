@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
 import {
-  fetchIcalFeedsServer,
   fetchPublishedEventsServer,
   type EventListItem,
 } from "@/utils/api/events";
+import { shortId } from "@/utils/short-id";
 import { fetchPublicSolutionsServer } from "@/utils/api/solutions";
 
 export const revalidate = 3600;
@@ -133,80 +133,118 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         },
       },
     },
-    { url: `${SITE_URL}/docs`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${SITE_URL}/docs/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${SITE_URL}/docs/consent`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${SITE_URL}/docs/cookies`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${SITE_URL}/docs/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${SITE_URL}/docs/reviews-consent`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    ...["", "/privacy", "/consent", "/cookies", "/terms", "/reviews-consent"].flatMap(
+      (path) => {
+        const ru = `${SITE_URL}/docs${path}`;
+        const en = `${SITE_URL}/en/docs${path}`;
+        const alternates = {
+          languages: { ru, en, "x-default": ru },
+        };
+        return [
+          {
+            url: ru,
+            lastModified: now,
+            changeFrequency: "yearly" as const,
+            priority: path ? 0.3 : 0.5,
+            alternates,
+          },
+          {
+            url: en,
+            lastModified: now,
+            changeFrequency: "yearly" as const,
+            priority: path ? 0.3 : 0.5,
+            alternates,
+          },
+        ];
+      },
+    ),
   ];
 
   try {
-    const [eventsRu, solutions, feedsRu, feedsEn] = await Promise.all([
-      fetchPublishedEventsServer({ locale: "ru", limit: 500 }),
+    const [eventsRu, eventsEn, solutions] = await Promise.all([
+      fetchPublishedEventsServer({ locale: "ru", limit: 1000 }),
+      fetchPublishedEventsServer({ locale: "en", limit: 1000 }),
       fetchPublicSolutionsServer({}),
-      fetchIcalFeedsServer("ru"),
-      fetchIcalFeedsServer("en"),
     ]);
 
-    // Only publish English event URLs when at least one category feed
-    // actually differs between languages.
-    const hasSeparateEnFeed = (["activities", "competitions"] as const).some(
-      (category) =>
-        Boolean(feedsEn[category]) && feedsEn[category] !== feedsRu[category],
+    const ruById = new Map<string, EventListItem>(
+      eventsRu.map((event) => [event.id, event]),
     );
-    const eventsEn = hasSeparateEnFeed
-      ? await fetchPublishedEventsServer({ locale: "en", limit: 500 })
-      : [];
-
-    const enBySlug = new Map<string, EventListItem>(
-      eventsEn.map((event) => [event.slug, event]),
+    const enById = new Map<string, EventListItem>(
+      eventsEn.map((event) => [event.id, event]),
     );
     const ruBySlug = new Map<string, EventListItem>(
       eventsRu.map((event) => [event.slug, event]),
     );
+    const enBySlug = new Map<string, EventListItem>(
+      eventsEn.map((event) => [event.slug, event]),
+    );
 
-    const eventRoutes = (events: EventListItem[], locale: "ru" | "en") =>
-      events.map((event) => {
-        const prefix = locale === "en" ? "/en" : "";
-        const url = `${SITE_URL}${prefix}/events/${event.id}/${event.slug}`;
-        const other = locale === "en" ? ruBySlug.get(event.slug) : enBySlug.get(event.slug);
-        const otherUrl = other
-          ? `${SITE_URL}${locale === "en" ? "" : "/en"}/events/${other.id}/${other.slug}`
-          : undefined;
-        const ruUrl = locale === "ru" ? url : otherUrl;
-        const enUrl = locale === "en" ? url : otherUrl;
+    const pick = (
+      event: EventListItem,
+      locale: "ru" | "en",
+    ): EventListItem | undefined => {
+      if (locale === "ru") {
+        return ruById.get(event.id) ?? ruBySlug.get(event.slug);
+      }
+      return enById.get(event.id) ?? enBySlug.get(event.slug);
+    };
 
-        return {
-          url,
-          lastModified: event.updated_at ? new Date(event.updated_at) : now,
-          changeFrequency: "weekly" as const,
-          priority: 0.7,
-          ...(enUrl
-            ? {
-                alternates: {
-                  languages: {
-                    ...(ruUrl ? { ru: ruUrl } : {}),
-                    en: enUrl,
-                    "x-default": ruUrl ?? enUrl,
-                  },
-                },
-              }
-            : {}),
-        };
-      });
+    const eventRoute = (event: EventListItem, locale: "ru" | "en") => {
+      const url = `${SITE_URL}${locale === "en" ? "/en" : ""}/events/${shortId(event.id)}/${event.slug}`;
+      const ruEvent = pick(event, "ru");
+      const enEvent = pick(event, "en");
+      const ruUrl = ruEvent
+        ? `${SITE_URL}/events/${shortId(ruEvent.id)}/${ruEvent.slug}`
+        : undefined;
+      const enUrl = enEvent
+        ? `${SITE_URL}/en/events/${shortId(enEvent.id)}/${enEvent.slug}`
+        : undefined;
 
-    const eventUrls = [
-      ...eventRoutes(eventsRu, "ru"),
-      ...eventRoutes(eventsEn, "en"),
+      return {
+        url,
+        lastModified: event.updated_at ? new Date(event.updated_at) : now,
+        changeFrequency: "weekly" as const,
+        priority: 0.7,
+        alternates: {
+          languages: {
+            ...(ruUrl ? { ru: ruUrl } : {}),
+            ...(enUrl ? { en: enUrl } : {}),
+            "x-default": ruUrl ?? enUrl ?? url,
+          },
+        },
+      };
+    };
+
+    const eventUrls: MetadataRoute.Sitemap = [
+      ...eventsRu.map((event) => eventRoute(event, "ru")),
+      ...eventsEn.map((event) => eventRoute(event, "en")),
     ];
 
-    const solutionUrls: MetadataRoute.Sitemap = solutions.map((s) => ({
-      url: `${SITE_URL}/solutions/${s.slug}`,
-      lastModified: s.updated_at ? new Date(s.updated_at) : now,
-      changeFrequency: "monthly" as const,
-      priority: 0.6,
-    }));
+    const solutionUrls: MetadataRoute.Sitemap = solutions.flatMap((s) => {
+      const ru = `${SITE_URL}/solutions/${s.slug}`;
+      const en = `${SITE_URL}/en/solutions/${s.slug}`;
+      const alternates = {
+        languages: { ru, en, "x-default": ru },
+      };
+      const lastModified = s.updated_at ? new Date(s.updated_at) : now;
+      return [
+        {
+          url: ru,
+          lastModified,
+          changeFrequency: "monthly" as const,
+          priority: 0.6,
+          alternates,
+        },
+        {
+          url: en,
+          lastModified,
+          changeFrequency: "monthly" as const,
+          priority: 0.6,
+          alternates,
+        },
+      ];
+    });
 
     return [...staticRoutes, ...eventUrls, ...solutionUrls];
   } catch {

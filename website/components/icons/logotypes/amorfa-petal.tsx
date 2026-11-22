@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
  *
  * The trefoil is four lobes joined at notches. This is the upper-right
  * lobe, cut at those notches and closed through the mark's centre, then
- * translated so the lobe's own centre sits at the viewBox centre — so a
+ * translated so the lobe's own centre sits at the viewBox centre - so a
  * CSS rotation spins the leaf in place instead of swinging it around
  * the parent mark.
  *

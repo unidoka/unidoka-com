@@ -19,9 +19,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const isEn = locale === "en";
   const siteUrl = siteOrigin();
   const canonical = `${siteUrl}${isEn ? "/en" : ""}`;
-  const title = isEn ? "Unidoka — better together" : "Unidoka: вместе — лучше";
+  const title = isEn ? "Unidoka - better together" : "Unidoka: вместе - лучше";
   const description = isEn
-    ? "Unidoka builds future solutions and develops specialists and creators — conferences, events, open-source projects and the Amorfa framework."
+    ? "Unidoka builds future solutions and develops specialists and creators - conferences, events, open-source projects and the Amorfa framework."
     : "Создание решений будущего и развитие специалистов и созидателей уже сегодня.";
 
   return {

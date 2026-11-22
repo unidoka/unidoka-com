@@ -9,14 +9,14 @@ import { Container } from "@/components/ui/container";
 const GITHUB = "https://github.com/unidoka/amorfa";
 /**
 * Anthropic-style hero: dotted grid, title top-left, mark center-bottom.
-* Colors and fonts unchanged — only positioning and the grid background.
+* Colors and fonts unchanged - only positioning and the grid background.
 */
 export function HeroSection() {
   const { t } = useLanguage();
   const [replay, setReplay] = useState(0);
   return (
     <section className="relative overflow-hidden pt-20 pb-10 md:pt-24 md:pb-14">
-      {/* Dotted grid background — covers the whole hero. */}
+      {/* Dotted grid background - covers the whole hero. */}
       <div
         aria-hidden
         className="absolute inset-0 pointer-events-none"
@@ -26,7 +26,7 @@ export function HeroSection() {
           backgroundSize: "22px 22px",
         }}
       />
-      {/* Soft radial light spot behind the mark — keeps depth without color. */}
+      {/* Soft radial light spot behind the mark - keeps depth without color. */}
       <div
         aria-hidden
         className="absolute inset-0 pointer-events-none"
@@ -35,7 +35,7 @@ export function HeroSection() {
             "radial-gradient(ellipse 50% 45% at 50% 72%, color-mix(in srgb, var(--on-bg-high), transparent 94%), transparent 70%)",
         }}
       />
-      {/* Title block — top-left, generous whitespace. */}
+      {/* Title block - top-left, generous whitespace. */}
       <Container className="relative z-10 pt-12 md:pt-20 lg:pt-24">
         <h1 className="animate-reveal fill-mode-both text-(--on-bg-high)">
           <span className="flex items-center gap-[0.15em]">
@@ -60,7 +60,7 @@ export function HeroSection() {
           </Button>
         </div>
       </Container>
-      {/* Mark — center-bottom, large. Replays on click.
+      {/* Mark - center-bottom, large. Replays on click.
       <div className="relative z-10 flex items-center justify-center mt-16 md:mt-24 lg:mt-32">
         <button
           type="button"

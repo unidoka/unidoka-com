@@ -226,7 +226,7 @@ function renderMarkdown(md: string): ReactNode[] {
       continue;
     }
 
-    /* Heading — shifted two levels down so the section keeps the outline */
+    /* Heading - shifted two levels down so the section keeps the outline */
     const h = /^(#{1,6})\s+(.*)$/.exec(line);
     if (h) {
       const level = h[1].length;
@@ -265,7 +265,7 @@ function renderMarkdown(md: string): ReactNode[] {
       continue;
     }
 
-    /* Table — hairline under the head only, never a boxed grid */
+    /* Table - hairline under the head only, never a boxed grid */
     if (
       line.trim().startsWith("|") &&
       i + 1 < lines.length &&

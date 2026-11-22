@@ -2,7 +2,7 @@
 
 import { format } from "date-fns";
 import { enUS, ru } from "date-fns/locale";
-import { Plus, SlidersHorizontal, CalendarBlank, CalendarPlus } from "@phosphor-icons/react";
+import { Plus, SlidersHorizontal, CalendarBlank, CalendarPlus, MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { AddEventDialog } from "@/components/marketing/add-event-dialog";
 import { MonthYearPicker } from "./month-year-picker";
@@ -43,6 +43,7 @@ interface Props {
   eventDays: Set<string>;
   selected: Date;
   onSelectDate: (d: Date) => void;
+  onSearch: () => void;
   locale: EventsLocale;
 }
 
@@ -67,6 +68,7 @@ export function CalendarHeader({
   eventDays,
   selected,
   onSelectDate,
+  onSearch,
   locale,
 }: Props) {
   const { lang, t } = useLanguage();
@@ -76,8 +78,8 @@ export function CalendarHeader({
   const isSameMonth = startDay.getMonth() === endDay.getMonth();
 
   const weekTitle = isSameMonth
-    ? `${format(startDay, "d", { locale: dateLocale })} – ${format(endDay, lang === "en" ? "MMM d, yyyy" : "d MMM yyyy", { locale: dateLocale })}`
-    : `${format(startDay, lang === "en" ? "MMM d" : "d MMM", { locale: dateLocale })} – ${format(endDay, lang === "en" ? "MMM d, yyyy" : "d MMM yyyy", { locale: dateLocale })}`;
+    ? `${format(startDay, "d", { locale: dateLocale })} - ${format(endDay, lang === "en" ? "MMM d, yyyy" : "d MMM yyyy", { locale: dateLocale })}`
+    : `${format(startDay, lang === "en" ? "MMM d" : "d MMM", { locale: dateLocale })} - ${format(endDay, lang === "en" ? "MMM d, yyyy" : "d MMM yyyy", { locale: dateLocale })}`;
 
   return (
     <div className="flex flex-col gap-3">
@@ -137,7 +139,16 @@ export function CalendarHeader({
           </Popover>
         </div>
 
-        <div className="lg:hidden ml-auto">
+        <div className="lg:hidden ml-auto flex items-center gap-2">
+          <Button
+            variant="outlined"
+            size="icon-small"
+            onClick={onSearch}
+            aria-label={t("events.search.trigger")}
+            className="size-9"
+          >
+            <MagnifyingGlassIcon className="size-4" />
+          </Button>
           <SubscribeCalendarDialog locale={locale}>
             <Button
               variant="outlined"
@@ -151,6 +162,15 @@ export function CalendarHeader({
         </div>
 
         <div className="hidden lg:flex items-center gap-2 ml-auto shrink-0">
+          <Button
+            variant="outlined"
+            size="icon-medium"
+            onClick={onSearch}
+            aria-label={t("events.search.trigger")}
+            title={t("events.search.trigger")}
+          >
+            <MagnifyingGlassIcon className="size-4" />
+          </Button>
           <SubscribeCalendarDialog locale={locale}>
             <Button variant="outlined" size="medium">
               <CalendarPlus /> {t("events.calendar.subscribe")}

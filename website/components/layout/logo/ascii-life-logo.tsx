@@ -20,7 +20,7 @@ type Grid = {
 /** Growth colour: young cells and the advancing edge. */
 const GROW_COLOR = "#F17735";
 
-// No dots in the live layer — the mark has to read as symbols, not dust.
+// No dots in the live layer - the mark has to read as symbols, not dust.
 const GLYPHS = ["#", "=", "*", "x", "+", "%", "&", "@"];
 const YOUNG_GLYPHS = ["+", "*", "#", "%", "&", "@", "@"];
 
@@ -347,7 +347,7 @@ export function AsciiLifeLogo({
         }
       }
 
-      // Young cells: orange, slightly smaller — the visible growth front.
+      // Young cells: orange, slightly smaller - the visible growth front.
       ctx.font = `800 ${Math.round(CELL_H * 0.88)}px ui-monospace, "SF Mono", Menlo, Consolas, monospace`;
       ctx.fillStyle = GROW_COLOR;
       ctx.globalAlpha = 1;

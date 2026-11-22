@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
  *
  * All three mark paths and every contour live in the same coordinate space
  * (the mark's bounding box), so the rings are the mark's silhouette scaled
- * about its true centre — concentric by construction, never by eye.
+ * about its true centre - concentric by construction, never by eye.
  *
  * The mark fills the box exactly and stays whole. Contours are drawn with
  * `overflow: visible` and a non-scaling stroke, so they ripple outward past
@@ -27,7 +27,7 @@ const MIDDLE =
 const CORE =
   "M137.751 18.3716C138.55 19.3292 138.983 20.5294 138.973 21.7652V22.0997C138.973 22.4797 138.896 22.8561 138.747 23.2069C138.598 23.5578 138.379 23.8765 138.104 24.1445C137.828 24.4125 137.501 24.6245 137.141 24.7685C136.782 24.9125 136.397 24.9855 136.008 24.9834C135.466 24.9925 134.928 24.8909 134.429 24.6853C133.93 24.4795 133.48 24.1741 133.108 23.7885C132.74 24.1876 132.29 24.5062 131.788 24.7231C131.285 24.9399 130.741 25.0504 130.192 25.0472C129.799 25.0473 129.41 24.9706 129.048 24.8217C128.686 24.6728 128.358 24.4547 128.083 24.1802C127.809 23.9056 127.593 23.5801 127.448 23.2228C127.304 22.8656 127.234 22.4837 127.243 22.0997V21.7014C127.236 20.4686 127.661 19.2708 128.449 18.3079C127.693 17.5335 127.263 16.51 127.243 15.4402C127.243 15.1062 127.31 14.7754 127.442 14.4671C127.573 14.1586 127.765 13.8787 128.007 13.6433C128.25 13.4078 128.537 13.2216 128.853 13.0952C129.17 12.9688 129.508 12.9048 129.85 12.9069H130.208C130.752 12.9019 131.292 13.0085 131.791 13.2197C132.29 13.431 132.739 13.7424 133.108 14.1337C133.474 13.7366 133.921 13.4193 134.421 13.2025C134.921 12.9856 135.461 12.874 136.008 12.875H136.366C136.711 12.8729 137.052 12.9379 137.37 13.0663C137.689 13.1946 137.978 13.3837 138.22 13.6226C138.463 13.8614 138.655 14.1452 138.784 14.4573C138.913 14.7693 138.978 15.1035 138.973 15.4402C138.972 16.5356 138.533 17.5874 137.751 18.3716Z";
 
-/* True centre of the mark's bounding box — the pivot for every contour. */
+/* True centre of the mark's bounding box - the pivot for every contour. */
 const CX = 133.141;
 const CY = 19;
 const VIEWBOX = "118.141 4 30 30";
@@ -55,7 +55,7 @@ function scaleAboutCentre(s: number) {
 export function AmorfaNest({ className }: { className?: string }) {
   return (
     <div className={cn("relative size-full", className)}>
-      {/* Nested contours — the mark's own outline, scaled about its centre.
+      {/* Nested contours - the mark's own outline, scaled about its centre.
           Each sits on its own layer so parallax, ambient breathe and the
           entrance never compete for the same transform. */}
       {CONTOURS.map((c) => (
@@ -101,7 +101,7 @@ export function AmorfaNest({ className }: { className?: string }) {
         </div>
       ))}
 
-      {/* The mark itself — whole, at full size, never clipped. */}
+      {/* The mark itself - whole, at full size, never clipped. */}
       <div
         className="absolute inset-0"
         style={{

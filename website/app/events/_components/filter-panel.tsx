@@ -77,7 +77,7 @@ export function FilterPanel({ allEvents, value, onChange, compact }: Props) {
           <button
             type="button"
             onClick={() => onChange(EMPTY_FILTER)}
-            className="inline-flex items-center gap-1 text-body-5 text-(--primary) hover:underline"
+            className="inline-flex items-center gap-1 text-body-5 text-(--on-bg-medium) hover:text-(--on-bg-high) hover:underline"
           >
             <X className="size-3" /> {t("events.calendar.reset")}
           </button>
@@ -142,7 +142,7 @@ export function FilterPanel({ allEvents, value, onChange, compact }: Props) {
                   className={cn(
                     "inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-body-5  transition-colors",
                     active
-                      ? "bg-(--primary) text-(--on-primary)"
+                      ? "bg-(--state-hover) text-(--on-bg-high) ring-1 ring-(--on-bg-low)"
                       : "bg-(--state-hover) text-(--on-bg-medium) hover:text-(--on-bg-high)",
                   )}
                 >
@@ -183,7 +183,7 @@ function FilterChip({
       className={cn(
         "inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-body-5  transition-colors",
         active
-          ? "bg-(--primary) text-(--on-primary)"
+          ? "bg-(--state-hover) text-(--on-bg-high) ring-1 ring-(--on-bg-low)"
           : "bg-(--state-hover) text-(--on-bg-medium) hover:text-(--on-bg-high)",
       )}
     >
@@ -227,20 +227,13 @@ function ToggleRow({
       onClick={() => onToggle(!checked)}
       className={cn(
         "group/toggle flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left transition-all",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--primary)/40",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--on-bg-low)",
         checked
-          ? "border-(--primary) bg-(--primary-glass)"
+          ? "border-(--on-bg-low) bg-(--state-hover)"
           : "border-(--outline) bg-transparent hover:border-(--on-bg-low) hover:bg-(--state-hover)",
       )}
     >
-      <span
-        className={cn(
-          "text-body-4 leading-tight transition-colors",
-          checked
-            ? "text-(--primary) "
-            : "text-(--on-bg-high)",
-        )}
-      >
+      <span className="text-body-4 leading-tight text-(--on-bg-high) transition-colors">
         {label}
       </span>
       {/* Indicator: hollow circle when off, filled circle with a
@@ -251,7 +244,7 @@ function ToggleRow({
         className={cn(
           "flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-all",
           checked
-            ? "border-(--primary) bg-(--primary) text-(--on-primary)"
+            ? "border-(--on-bg-high) bg-(--on-bg-high) text-(--bg)"
             : "border-(--on-bg-low) bg-transparent group-hover/toggle:border-(--on-bg-high)",
         )}
       >

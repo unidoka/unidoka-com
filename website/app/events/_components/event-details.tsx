@@ -12,18 +12,20 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ShareEventDialog } from "./share-event-dialog";
 import {
   ArrowUpRight,
   CalendarBlank,
   MapPin,
   User as UserIcon,
   Clock,
-  Tag,
 } from "@phosphor-icons/react";
+import { siteOrigin } from "@/utils/events-seo";
+import { shortId } from "@/utils/short-id";
 import { colorForOrganizer } from "./organizer-meta";
 import { parseEventDate } from "./date-utils";
 import { MapLinks } from "./map-links";
-import type { EventListItem } from "@/utils/api/events";
+import type { EventDetail, EventListItem } from "@/utils/api/events";
 import { useLanguage } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
 
@@ -39,8 +41,8 @@ function HtmlRenderer({ html, className }: { html: string; className?: string })
   return (
     <div
       className={cn(
-        "max-w-none break-words text-body-3 leading-relaxed text-(--on-bg-medium)",
-        "[&_a]:text-(--primary) [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:opacity-80",
+        "max-w-none min-w-0 break-words [overflow-wrap:anywhere] text-body-3 leading-relaxed text-(--on-bg-medium)",
+        "[&_a]:text-(--on-bg-high) [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:opacity-70",
         "[&_br]:block [&_br]:content-[''] [&_br]:mt-2",
         className
       )}
@@ -73,6 +75,10 @@ export function EventDetails({ event, onOpenChange }: Props) {
     .replace(/\s+/g, " ")
     .trim();
 
+  const fullDescription = (event as EventDetail).description;
+  const shareUrl = `${siteOrigin()}${lang === "en" ? "/en" : ""}/events/${shortId(event.id)}/${event.slug}`;
+  const eventHref = `${lang === "en" ? "/en" : ""}/events/${shortId(event.id)}/${event.slug}`;
+
   const author = event.submitted_by;
   const authorName = author
     ? [author.name, author.surname].filter(Boolean).join(" ").trim() || (author.username ? "@" + author.username : null)
@@ -104,8 +110,8 @@ export function EventDetails({ event, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden border-(--outline) bg-(--card) shadow-xl max-h-[85dvh] grid-rows-[auto_minmax(0,1fr)_auto]">
-        <DialogHeader className="px-6 pt-6 pb-4">
+      <DialogContent className="sm:max-w-lg md:max-w-2xl lg:max-w-3xl p-0 gap-0 overflow-hidden border-(--outline) bg-(--card) shadow-xl max-h-[85dvh] grid-rows-[auto_minmax(0,1fr)_auto]">
+        <DialogHeader className="px-6 pt-6 pb-4 min-w-0">
           <div className="flex items-center gap-2 mb-2">
             {event.organizer && (
               <span className="inline-flex items-center gap-1.5 text-[10px]  uppercase tracking-[0.15em] text-(--on-bg-medium)">
@@ -114,21 +120,31 @@ export function EventDetails({ event, onOpenChange }: Props) {
               </span>
             )}
             {event.is_featured && (
-              <span className="text-[10px]  uppercase tracking-wider text-(--primary)">
+              <span className="text-[10px]  uppercase tracking-wider text-(--on-bg-medium)">
                 ★
               </span>
             )}
           </div>
 
-          <DialogTitle className="text-2xl font-heading  tracking-tight leading-tight">
-            {event.title.replace(/<[^>]*>?/gm, '')}
+          <DialogTitle className="text-display-4 leading-[1.05] break-words [overflow-wrap:anywhere]">
+            <Link
+              href={eventHref}
+              onClick={() => onOpenChange(false)}
+              className="transition-opacity hover:opacity-70"
+            >
+              {event.title.replace(/<[^>]*>?/gm, '')}
+            </Link>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="px-6 pb-6 space-y-5 overflow-y-auto min-h-0">
+        <div className="px-6 pb-6 space-y-5 overflow-y-auto overflow-x-hidden min-h-0 min-w-0">
           {/* Description */}
-          {event.short_description && (
-            <HtmlRenderer html={event.short_description} />
+          {fullDescription ? (
+            <HtmlRenderer html={fullDescription} />
+          ) : (
+            event.short_description && (
+              <HtmlRenderer html={event.short_description} />
+            )
           )}
 
           {/* Metadata List */}
@@ -165,7 +181,7 @@ export function EventDetails({ event, onOpenChange }: Props) {
                 <div>
                   <p className="text-body-4  text-(--on-bg-high)">
                     {authorHref ? (
-                      <Link href={authorHref} className="hover:text-(--primary) transition-colors">
+                      <Link href={authorHref} className="hover:opacity-70 transition-opacity">
                         {authorName}
                       </Link>
                     ) : (
@@ -224,14 +240,29 @@ export function EventDetails({ event, onOpenChange }: Props) {
           <Button variant="text" onClick={() => onOpenChange(false)} className="w-full sm:w-auto order-2 sm:order-1">
             {t("events.details.close")}
           </Button>
-          {event.registration_url && (
-            <Button asChild className="w-full sm:w-auto order-1 sm:order-2">
-              <a href={event.registration_url} target="_blank" rel="noopener noreferrer">
-                {t("events.details.registration")}
-                <ArrowUpRight className="size-4 ml-1.5" />
-              </a>
-            </Button>
-          )}
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center order-1 sm:order-2">
+            <ShareEventDialog
+              title={event.title.replace(/<[^>]*>?/gm, "")}
+              url={shareUrl}
+              locale={lang}
+              dateLabel={[dateLabel, timeLabel].filter(Boolean).join(", ")}
+              location={locationQuery}
+              organizer={
+                event.organizer?.name ||
+                event.custom_organizer_name ||
+                undefined
+              }
+              price={event.price || undefined}
+            />
+            {event.registration_url && (
+              <Button asChild className="w-full sm:w-auto">
+                <a href={event.registration_url} target="_blank" rel="noopener noreferrer">
+                  {t("events.details.registration")}
+                  <ArrowUpRight className="size-4 ml-1.5" />
+                </a>
+              </Button>
+            )}
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

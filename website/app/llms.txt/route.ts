@@ -3,6 +3,7 @@ import {
   fetchPublishedEventsServer,
   type EventListItem,
 } from "@/utils/api/events";
+import { shortId } from "@/utils/short-id";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,8 @@ function eventLine(event: EventListItem, siteUrl: string, locale: "ru" | "en") {
   const category = (event.categories ?? []).join(", ");
   const location = plainText(event.location_name);
   const meta = [date, category, location, tags].filter(Boolean).join(" · ");
-  return `- [${plainText(event.title)}](${siteUrl}${prefix}/events/${event.id}/${event.slug}) — ${meta}`;
+  const description = plainText(event.short_description).slice(0, 300);
+  return `- [${plainText(event.title)}](${siteUrl}${prefix}/events/${shortId(event.id)}/${event.slug}) - ${meta}${description ? ` — ${description}` : ""}`;
 }
 
 export async function GET() {
@@ -74,6 +76,10 @@ export async function GET() {
     "",
     "## Machine-readable",
     `- [Sitemap](${siteUrl}/sitemap.xml)`,
+    `- [Events full text (RU)](${siteUrl}/events/llms.txt)`,
+    `- [Events full text (EN)](${siteUrl}/en/events/llms.txt)`,
+    `- [Events API JSON (RU)](${siteUrl}/api/v1/events?locale=ru)`,
+    `- [Events API JSON (EN)](${siteUrl}/api/v1/events?locale=en)`,
     ...feedLinks,
     "",
   ];

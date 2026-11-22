@@ -377,7 +377,7 @@ export function PlacementEditorDialog({
                 value={form.body ?? ""}
                 onChange={(e) => set("body", e.target.value)}
                 className="min-h-[80px]"
-                placeholder="Короткое описание, 1–2 предложения"
+                placeholder="Короткое описание, 1-2 предложения"
               />
             </Field>
 
