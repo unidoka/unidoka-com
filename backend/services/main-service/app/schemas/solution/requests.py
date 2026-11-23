@@ -8,6 +8,7 @@ class SolutionPayload(BaseModel):
     short_description: Optional[str] = Field(None, max_length=500)
     description: Optional[str] = None
     mdx_content: Optional[str] = None
+    content_json: Optional[Dict[str, Any]] = None
     cover_image_src: Optional[str] = None
     cover_video_src: Optional[str] = None
     href: Optional[str] = None

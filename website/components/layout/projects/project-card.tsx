@@ -1,9 +1,9 @@
 "use client";
+
 import { useState, useEffect, useRef, useMemo, type CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ImageBrokenIcon, ArrowUpRight } from "@phosphor-icons/react";
-import { useLanguage } from "@/providers/language-provider";
+import { ArrowUpRight } from "@phosphor-icons/react";
 import { Project } from "@/app/_data/projects";
 import { cn } from "@/lib/utils";
 
@@ -14,26 +14,20 @@ export interface ProjectTagRef {
   slug?: string;
 }
 
-function CoverFallback({ label, hint }: { label: string; hint: string }) {
+/**
+ * Minimal placeholder for content without a cover image: a flat card
+ * with the title's initial. No icon, no grid, no copy.
+ */
+function CoverFallback({ title }: { title: string }) {
+  const initial = title.trim().charAt(0).toUpperCase() || "—";
   return (
-    <div className="absolute inset-0 flex items-center justify-center overflow-hidden bg-(--bg)">
-      <div
+    <div className="absolute inset-0 flex items-center justify-center overflow-hidden bg-(--card)">
+      <span
         aria-hidden
-        className="absolute inset-0 opacity-[0.06]"
-        style={{
-          backgroundImage: `linear-gradient(to right, var(--on-bg-high) 1px, transparent 1px), linear-gradient(to bottom, var(--on-bg-high) 1px, transparent 1px)`,
-          backgroundSize: "32px 32px",
-        }}
-      />
-      <div className="relative flex flex-col items-center gap-3 px-6 text-center">
-        <div className="flex size-14 items-center justify-center rounded-none border border-(--outline) bg-(--card) shadow-sm">
-          <ImageBrokenIcon className="size-7 text-(--on-bg-low)" weight="duotone" />
-        </div>
-        <div>
-          <p className="text-body-3  leading-tight text-(--on-bg-high)">{label}</p>
-          <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-(--on-bg-low)">{hint}</p>
-        </div>
-      </div>
+        className="select-none font-heading text-display-2 leading-none text-(--on-bg-low)/25"
+      >
+        {initial}
+      </span>
     </div>
   );
 }
@@ -157,25 +151,27 @@ export default function ProjectCard({
   index,
   tags = [],
   variant = "classic",
+  href: hrefProp,
 }: {
   project: Project;
   index?: number;
   categoryMap?: Record<string, string>;
   tags?: ProjectTagRef[];
-  variant?: "classic" | "featured";
+  variant?: "classic" | "featured" | "clean";
+  href?: string;
 }) {
-  const { t } = useLanguage();
-  const [failed, setFailed] = useState(false);
-  const hasCover = Boolean(project.cover?.imageSrc?.trim());
-  const showFallback = !hasCover || failed;
+  const [failed, setFailed] = useState(false);  const hasImage = Boolean(project.cover?.imageSrc?.trim());
+  const hasVideo = Boolean(project.cover?.videoSrc?.trim());
+  const showFallback = (!hasImage && !hasVideo) || failed;
+  const canRenderImage = hasImage && !failed;
 
   const normalizedTags = (tags || [])
-    .map((t) => (typeof t === "string" ? t : t.name || t.label || ""))
+    .map((tag) => (typeof tag === "string" ? tag : tag.name || tag.label || ""))
     .filter(Boolean)
     .slice(0, 3);
 
   const [bgColor, setBgColor] = useState<{ r: number; g: number; b: number } | null>(null);
-  
+
   useEffect(() => {
     if (!project.cover?.imageSrc || showFallback) return;
     let isCancelled = false;
@@ -190,12 +186,13 @@ export default function ProjectCard({
         canvas.height = 10;
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
-        
         const sampleHeight = img.naturalHeight * 0.3;
         ctx.drawImage(img, 0, 0, img.naturalWidth, sampleHeight, 0, 0, 10, 10);
         const data = ctx.getImageData(0, 0, 10, 10).data;
-        let r = 0, g = 0, b = 0, count = 0;
-        
+        let r = 0,
+          g = 0,
+          b = 0,
+          count = 0;
         for (let i = 0; i < data.length; i += 4) {
           if (data[i + 3] < 128) continue;
           r += data[i];
@@ -203,7 +200,6 @@ export default function ProjectCard({
           b += data[i + 2];
           count++;
         }
-        
         if (count > 0) {
           setBgColor({
             r: Math.round(r / count),
@@ -211,7 +207,9 @@ export default function ProjectCard({
             b: Math.round(b / count),
           });
         }
-      } catch (err) { }
+      } catch {
+        // Canvas sampling is decorative; ignore tainted/unsupported images.
+      }
     };
     return () => {
       isCancelled = true;
@@ -220,72 +218,156 @@ export default function ProjectCard({
 
   const isLight = useMemo(() => {
     if (!bgColor) return false;
-    const luminance = (0.299 * bgColor.r + 0.587 * bgColor.g + 0.114 * bgColor.b) / 255;
+    const luminance =
+      (0.299 * bgColor.r + 0.587 * bgColor.g + 0.114 * bgColor.b) / 255;
     return luminance > 0.55;
   }, [bgColor]);
 
   const gradientStyle = bgColor
-    ? { background: `linear-gradient(to bottom, rgba(${bgColor.r},${bgColor.g},${bgColor.b}, 0.95) 0%, rgba(${bgColor.r},${bgColor.g},${bgColor.b}, 0.4) 50%, transparent 100%)` }
-    : { background: "linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)" };
-    
+    ? {
+        background: `linear-gradient(to bottom, rgba(${bgColor.r},${bgColor.g},${bgColor.b}, 0.95) 0%, rgba(${bgColor.r},${bgColor.g},${bgColor.b}, 0.4) 50%, transparent 100%)`,
+      }
+    : {
+        background:
+          "linear-gradient(to bottom, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)",
+      };
   const textColorClass = isLight ? "text-[var(--dark-8)]" : "text-[var(--gray-0)]";
-  const shadowClass = isLight ? "drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]" : "drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]";
+  const shadowClass = isLight
+    ? "drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)]"
+    : "drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]";
 
-  const href = `/projects/${project.id}/${project.slug}`;
+  const href = hrefProp ?? `/projects/${project.slug}`;
+
+  if (variant === "clean") {
+    return (
+      <Link
+        href={href}
+        className="group block animate-reveal fill-mode-both relative w-full"
+        style={{ animationDelay: `${index ? index * 100 : 100}ms` }}
+      >
+        {/* Image: 4:3, no rounding, no border. Text lives below it. */}
+        <div className="relative w-full aspect-[4/3] overflow-hidden bg-(--card)">
+          {project.cover.videoSrc ? (
+            <video
+              src={project.cover.videoSrc}
+              poster={project.cover.imageSrc || undefined}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+            />
+          ) : showFallback ? (
+            <CoverFallback title={project.title} />
+          ) : (
+            <Image
+              src={project.cover.imageSrc}
+              alt={project.title}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+              className="object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] image-auto-contrast"
+              onError={() => setFailed(true)}
+            />
+          )}
+          <div className="absolute top-4 right-4 z-10 flex items-center justify-center size-10 bg-black/40 backdrop-blur-md text-white opacity-0 -translate-y-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
+            <ArrowUpRight className="size-5" weight="bold" />
+          </div>
+        </div>
+        {/* Text block under the image */}
+        <div className="pt-4 md:pt-5">
+          {normalizedTags.length > 0 && (
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-2">
+              {normalizedTags.map((tag, i) => (
+                <span
+                  key={`${tag}-${i}`}
+                  className="inline-flex items-center text-[10px] uppercase tracking-[0.16em] text-(--on-bg-low) transition-colors group-hover:text-(--primary)"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+          <h3 className="text-xl md:text-2xl lg:text-3xl text-(--on-bg-medium) leading-[1.15] tracking-tight font-heading">
+            {project.title}
+          </h3>
+          {project.shortDescription && (
+            <p className="mt-2 text-sm md:text-body-4 text-(--on-bg-medium) leading-relaxed line-clamp-2">
+              {project.shortDescription}
+            </p>
+          )}
+        </div>
+      </Link>
+    );
+  }
 
   return (
     <Link
       href={href}
       className={cn(
-        "group block animate-reveal fill-mode-both relative w-full overflow-hidden rounded-none border border-(--outline) bg-(--card) transition-all duration-500 hover:border-(--primary)/40 hover:shadow-2xl hover:shadow-(--primary)/5",
-        variant === "featured" ? "aspect-[4/3]" : "aspect-[4/3] md:aspect-[3/4]"
+        "group block animate-reveal fill-mode-both relative w-full overflow-hidden transition-all duration-500 rounded-3xl border border-(--outline) bg-(--card) hover:border-(--primary)/40 hover:shadow-2xl hover:shadow-(--primary)/5",
+        variant === "featured"
+          ? "aspect-[4/3]"
+          : "aspect-[4/3] md:aspect-[3/4]",
       )}
       style={{ animationDelay: `${index ? index * 100 : 100}ms` }}
     >
-      {showFallback ? (
-        <CoverFallback
-          label={t("projects.cover.fallback")}
-          hint={t("projects.cover.fallback_hint")}
-        />
-      ) : (
+      {canRenderImage ? (
         <Image
           src={project.cover.imageSrc}
           alt={project.title}
           fill
-          sizes={variant === "featured" ? "(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 50vw" : "(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"}
-          className="object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+          sizes={
+            variant === "featured"
+              ? "(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 50vw"
+              : "(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+          }
+          className="object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] image-auto-contrast"
           onError={() => setFailed(true)}
         />
+      ) : project.cover.videoSrc ? (
+        <video
+          src={project.cover.videoSrc}
+          poster={project.cover.imageSrc || undefined}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+        />
+      ) : (
+        <CoverFallback title={project.title} />
       )}
-      
+
       <div
         className="absolute inset-x-0 top-0 h-[55%] pointer-events-none z-[1] transition-colors duration-500"
         style={gradientStyle}
       />
-      
+
       <div className="absolute inset-x-0 bottom-0 h-[30%] bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none z-[1]" />
-      
+
       <div className="absolute inset-x-0 top-0 p-4 md:p-6 z-10 pointer-events-none">
         <div className="flex flex-col max-w-full min-w-0">
           <MarqueeText
             text={project.title}
-            className={`text-xl md:text-2xl font-heading  leading-tight tracking-tight ${textColorClass} ${shadowClass}`}
+            className={`text-xl md:text-2xl font-heading leading-tight tracking-tight ${textColorClass} ${shadowClass}`}
           />
           {project.shortDescription && (
-            <p className={`mt-2 text-xs md:text-sm leading-snug line-clamp-2 ${isLight ? 'text-[var(--dark-8)]/80' : 'text-[var(--gray-0)]/80'} ${shadowClass}`}>
+            <p
+              className={`mt-2 text-xs md:text-sm leading-snug line-clamp-2 ${isLight ? "text-[var(--dark-8)]/80" : "text-[var(--gray-0)]/80"} ${shadowClass}`}
+            >
               {project.shortDescription}
             </p>
           )}
         </div>
       </div>
-      
+
       <div className="absolute inset-x-0 bottom-0 p-4 md:p-6 z-10 flex items-end justify-between gap-4 pointer-events-none">
         {normalizedTags.length > 0 && (
           <div className="flex flex-wrap justify-start gap-2 pointer-events-auto min-w-0">
             {normalizedTags.map((tag, i) => (
               <span
                 key={`${tag}-${i}`}
-                className="inline-flex items-center rounded-full border border-white/20 bg-black/40 backdrop-blur-md px-3 py-1 text-[10px]  uppercase tracking-[0.12em] text-white"
+                className="inline-flex items-center rounded-full border border-white/20 bg-black/40 backdrop-blur-md px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-white"
               >
                 {tag}
               </span>
@@ -293,10 +375,11 @@ export default function ProjectCard({
           </div>
         )}
         <div
-          className={`flex items-center justify-center shrink-0 size-10 rounded-full shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:bg-(--primary) group-hover:text-(--on-primary) group-hover:border-(--primary) ml-auto pointer-events-auto ${isLight
-            ? "bg-white text-[var(--dark-8)] border-transparent"
-            : "bg-black/20 backdrop-blur-md text-white border border-white/20"
-            }`}
+          className={`flex items-center justify-center shrink-0 size-10 rounded-full shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:bg-(--primary) group-hover:text-(--on-primary) group-hover:border-(--primary) ml-auto pointer-events-auto ${
+            isLight
+              ? "bg-white text-[var(--dark-8)] border-transparent"
+              : "bg-black/20 backdrop-blur-md text-white border border-white/20"
+          }`}
         >
           <ArrowUpRight className="size-5" weight="bold" />
         </div>

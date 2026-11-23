@@ -140,23 +140,39 @@ export const suggestionItems: SuggestionItem[] = [
     description: "Две колонки текста",
     searchTerms: ["columns", "layout", "колонки"],
     icon: <Columns className="size-4" />,
-    command: ({ editor, range }) => {
+    command: ({ editor }) => {
+      const { state } = editor;
+      const { $from } = state.selection;
+      const blockFrom = $from.before($from.depth);
+      const blockTo = $from.after($from.depth);
+
       editor
         .chain()
         .focus()
-        .deleteRange(range)
-        .insertContent([
-          {
-            type: "columns",
-            attrs: { layout: "1-1" },
-            content: [
-              { type: "column", content: [{ type: "paragraph" }] },
-              { type: "column", content: [{ type: "paragraph" }] },
-            ],
-          },
-          { type: "paragraph" },
-        ])
+        .insertContentAt(
+          { from: blockFrom, to: blockTo },
+          [
+            {
+              type: "columns",
+              attrs: { layout: "1-1" },
+              content: [
+                { type: "column", content: [{ type: "paragraph" }] },
+                { type: "column", content: [{ type: "paragraph" }] },
+              ],
+            },
+            { type: "paragraph" },
+          ],
+        )
         .run();
+
+      const columns = editor.state.doc.nodeAt(blockFrom);
+      if (columns) {
+        editor
+          .chain()
+          .focus()
+          .setTextSelection(blockFrom + columns.nodeSize + 1)
+          .run();
+      }
     },
   },
 ];

@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import {
   EditorBubble,
   EditorBubbleItem,
@@ -33,6 +33,7 @@ import {
 } from "@phosphor-icons/react";
 import { ImageEditorDialog } from "../image-editor/image-editor-dialog";
 import { readFileAsDataURL } from "../image-editor/canvas-utils";
+import { ImageViewer, viewerStateFromImage, type ViewerImage } from "./image-viewer";
 import { $fetch } from "@/utils/fetch";
 import { toast } from "sonner";
 
@@ -54,6 +55,17 @@ export function NovelEditor({
   const [cropFile, setCropFile] = useState<{
     dataUrl: string;
     pos: number;
+    filename: string;
+  } | null>(null);
+  const [viewer, setViewer] = useState<{
+    images: ViewerImage[];
+    index: number;
+  } | null>(null);
+  const galleryQueueRef = useRef<File[]>([]);
+  const galleryUrlsRef = useRef<string[]>([]);
+  const galleryPosRef = useRef(0);
+  const [galleryCrop, setGalleryCrop] = useState<{
+    dataUrl: string;
     filename: string;
   } | null>(null);
 
@@ -82,7 +94,37 @@ export function NovelEditor({
   };
 
   const insertBlockWithTrailingParagraph = (pos: number, node: any) => {
-    editor.chain().focus().insertContentAt(pos, [node, { type: "paragraph" }]).run();
+    if (!editor) return;
+    const { state } = editor;
+    const $pos = state.doc.resolve(Math.min(pos, state.doc.content.size));
+    const replaceEmptyBlock =
+      $pos.parent.isTextblock && $pos.parent.content.size === 0;
+    const from = replaceEmptyBlock ? $pos.before($pos.depth) : $pos.pos;
+    const to = replaceEmptyBlock ? $pos.after($pos.depth) : $pos.pos;
+
+    editor
+      .chain()
+      .focus()
+      .insertContentAt({ from, to }, [node, { type: "paragraph" }])
+      .run();
+
+    const inserted = editor.state.doc.nodeAt(from);
+    if (inserted) {
+      editor
+        .chain()
+        .focus()
+        .setTextSelection(from + inserted.nodeSize + 1)
+        .run();
+    }
+  };
+
+  const openImageViewer = (event: MouseEvent<HTMLDivElement>) => {
+    const image = (event.target as HTMLElement).closest("img");
+    if (!image) return;
+    const root = event.currentTarget.querySelector<HTMLElement>(".novel-prosemirror");
+    if (!root || !root.contains(image)) return;
+    const next = viewerStateFromImage(root, image as HTMLImageElement);
+    if (next) setViewer(next);
   };
 
   const handleImageUpload = (pos: number) => {
@@ -110,7 +152,17 @@ export function NovelEditor({
         try {
           const data = await uploadMediaFile(file, file.name, true);
           if (data.url) {
-            insertBlockWithTrailingParagraph(pos, { type: "video", attrs: { src: data.url, poster: data.poster_url } });
+            insertBlockWithTrailingParagraph(pos, {
+              type: "video",
+              attrs: {
+                src: data.url,
+                poster: data.poster_url,
+                autoplay: true,
+                loop: true,
+                muted: true,
+                controls: false,
+              },
+            });
           }
           toast.success("Видео добавлено", { id: tId });
         } catch {
@@ -121,27 +173,40 @@ export function NovelEditor({
     input.click();
   };
 
+  const openNextGalleryCrop = async () => {
+    const next = galleryQueueRef.current.shift();
+    if (!next) {
+      const urls = galleryUrlsRef.current;
+      galleryUrlsRef.current = [];
+      setGalleryCrop(null);
+      if (urls.length > 0) {
+        insertBlockWithTrailingParagraph(galleryPosRef.current, {
+          type: "gallery",
+          attrs: { images: urls },
+        });
+        toast.success("Галерея добавлена");
+      } else {
+        toast.error("Не удалось загрузить изображения");
+      }
+      return;
+    }
+    setGalleryCrop({
+      dataUrl: await readFileAsDataURL(next),
+      filename: next.name,
+    });
+  };
+
   const handleGalleryUpload = (pos: number) => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
     input.multiple = true;
-    input.onchange = async () => {
+    input.onchange = () => {
       if (!input.files?.length) return;
-      const tId = toast.loading("Загрузка галереи...");
-      const urls: string[] = [];
-      for (const file of Array.from(input.files)) {
-        try {
-          const data = await uploadMediaFile(file, file.name, false);
-          if (data.url) urls.push(data.url);
-        } catch { /* skip */ }
-      }
-      if (urls.length > 0) {
-        insertBlockWithTrailingParagraph(pos, { type: "gallery", attrs: { images: urls } });
-        toast.success("Галерея добавлена", { id: tId });
-      } else {
-        toast.error("Не удалось загрузить изображения", { id: tId });
-      }
+      galleryPosRef.current = pos;
+      galleryQueueRef.current.push(...Array.from(input.files));
+      galleryUrlsRef.current = [];
+      void openNextGalleryCrop();
     };
     input.click();
   };
@@ -166,7 +231,10 @@ export function NovelEditor({
 
   return (
     <EditorRoot>
-      <div className={cn("novel-editor rounded-xl border border-(--outline) bg-(--card) flex flex-col relative w-full max-w-full shadow-sm", className)}>
+      <div
+        className={cn("novel-editor rounded-xl border border-(--outline) bg-(--card) flex flex-col relative w-full max-w-full shadow-sm", className)}
+        onClick={openImageViewer}
+      >
         {editor && (
           <Toolbar
             editor={editor}
@@ -223,6 +291,36 @@ export function NovelEditor({
           }
           setCropFile(null);
         }}
+      />
+      <ImageEditorDialog
+        open={!!galleryCrop}
+        onOpenChange={(open) => {
+          if (!open) {
+            setGalleryCrop(null);
+            void openNextGalleryCrop();
+          }
+        }}
+        src={galleryCrop?.dataUrl || null}
+        defaultAspect="4:3"
+        lockedAspect
+        onApply={async (blob, filename) => {
+          try {
+            const data = await uploadMediaFile(blob, filename, false);
+            if (data.url) galleryUrlsRef.current.push(data.url);
+          } catch (error: any) {
+            toast.error(error?.message || "Не удалось загрузить изображение");
+            throw error;
+          }
+        }}
+      />
+      <ImageViewer
+        open={!!viewer}
+        images={viewer?.images ?? []}
+        index={viewer?.index ?? 0}
+        onOpenChange={(open) => !open && setViewer(null)}
+        onIndexChange={(index) =>
+          setViewer((current) => (current ? { ...current, index } : current))
+        }
       />
     </EditorRoot>
   );

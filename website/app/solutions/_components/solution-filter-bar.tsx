@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,13 +7,15 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
   SheetFooter,
   SheetClose,
 } from "@/components/ui/sheet";
 import ProjectCard from "@/components/layout/projects/project-card";
-import type { Solution } from "@/utils/api/solutions";
-import type { Project } from "@/app/_data/projects";
+import {
+  fetchPublicSolutionsClient,
+  type Solution,
+} from "@/utils/api/solutions";
+import { solutionToProject } from "@/utils/solution-to-project";
 import {
   MagnifyingGlassIcon,
   XIcon,
@@ -21,72 +23,77 @@ import {
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "motion/react";
-
-// Map Solution to Project so we can reuse the identical ProjectCard
-function mapSolutionToProject(s: Solution): Project {
-  return {
-    id: s.id,
-    slug: s.slug,
-    title: s.title,
-    shortDescription: s.short_description || undefined,
-    cover: {
-      imageSrc: s.cover_image_src || "",
-      videoSrc: s.cover_video_src || undefined,
-    },
-    category: s.category || "",
-    clientId: s.client_id || "",
-    period: s.period || undefined,
-    techStack: s.tech_stack,
-    tags: (s.tags || []).map((t) => ({ title: t.title })),
-    // isFeatured: s.is_featured,
-  };
-}
+import { SolutionsSearchDialog } from "./solutions-search-dialog";
 
 export function SolutionFilterBar({
   solutions,
 }: {
   solutions: Solution[];
 }) {
-  const [search, setSearch] = useState("");
+  const [items, setItems] = useState<Solution[]>(solutions);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activePeriod, setActivePeriod] = useState<string | null>(null);
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [featuredOnly, setFeaturedOnly] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    setItems(solutions);
+  }, [solutions]);
+
+  // The RSC fetch can fail (internal URL misconfigured, backend briefly
+  // down) and resolves to []. Fall back to the same-origin public API so
+  // the page still fills in instead of showing a permanent empty state.
+  useEffect(() => {
+    if (solutions.length > 0) return;
+    let cancelled = false;
+    fetchPublicSolutionsClient()
+      .then((next) => {
+        if (!cancelled && next.length > 0) setItems(next);
+      })
+      .catch(() => {
+        /* empty state is still valid */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [solutions.length]);
 
   // Extract categories, periods, and tags from the solutions dynamically
   const categories = useMemo(() => {
     const set = new Set<string>();
-    for (const s of solutions) if (s.category) set.add(s.category);
+    for (const s of items) if (s.category) set.add(s.category);
     return Array.from(set).sort();
-  }, [solutions]);
+  }, [items]);
 
   const periods = useMemo(() => {
     const set = new Set<string>();
-    for (const s of solutions) if (s.period) set.add(s.period);
+    for (const s of items) if (s.period) set.add(s.period);
     return Array.from(set).sort().reverse();
-  }, [solutions]);
+  }, [items]);
 
   const tags = useMemo(() => {
     const map = new Map<string, number>();
-    for (const s of solutions) {
+    for (const s of items) {
       for (const t of s.tags || []) {
         if (!t.title) continue;
         map.set(t.title, (map.get(t.title) || 0) + 1);
       }
     }
     return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
-  }, [solutions]);
+  }, [items]);
 
   const featuredCount = useMemo(
-    () => solutions.filter((s) => s.is_featured).length,
-    [solutions],
+    () => items.filter((s) => s.is_featured).length,
+    [items],
   );
 
   // Filtering logic
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return solutions.filter((s) => {
+    const q = query.trim().toLowerCase();
+    return items.filter((s) => {
       if (activeCategory && s.category !== activeCategory) return false;
       if (activePeriod && s.period !== activePeriod) return false;
       if (featuredOnly && !s.is_featured) return false;
@@ -95,7 +102,13 @@ export function SolutionFilterBar({
         if (!has) return false;
       }
       if (q) {
-        const haystack = [s.title, s.short_description, s.description]
+        const haystack = [
+          s.title,
+          s.short_description,
+          s.category,
+          s.period,
+          ...(s.tags || []).map((t) => t.title),
+        ]
           .filter(Boolean)
           .join(" ")
           .toLowerCase();
@@ -103,68 +116,34 @@ export function SolutionFilterBar({
       }
       return true;
     });
-  }, [solutions, activeCategory, activePeriod, activeTag, featuredOnly, search]);
+  }, [items, activeCategory, activePeriod, activeTag, featuredOnly, query]);
+
+  const recommended = useMemo(
+    () => items.filter((s) => s.is_featured).slice(0, 3),
+    [items],
+  );
 
   const activeFilterCount =
     (activeCategory ? 1 : 0) +
     (activePeriod ? 1 : 0) +
     (activeTag ? 1 : 0) +
     (featuredOnly ? 1 : 0);
-  const hasActiveFilters = !!search.trim() || activeFilterCount > 0;
+  const hasActiveFilters = activeFilterCount > 0;
+  const hasQuery = query.trim().length > 0;
+  const showRecommended = !hasActiveFilters && !hasQuery && recommended.length > 0;
+  const gridItems = showRecommended
+    ? filtered.filter((s) => !s.is_featured)
+    : filtered;
 
   const resetAll = () => {
-    setSearch("");
     setActiveCategory(null);
     setActivePeriod(null);
     setActiveTag(null);
     setFeaturedOnly(false);
+    setQuery("");
   };
 
   // Live counts for drawer chips
-  const liveCategoryCount = (code: string | null) => {
-    const q = search.trim().toLowerCase();
-    return solutions.filter((s) => {
-      if (code !== null && s.category !== code) return false;
-      if (activePeriod && s.period !== activePeriod) return false;
-      if (featuredOnly && !s.is_featured) return false;
-      if (activeTag && !(s.tags || []).some((t) => t.title === activeTag)) return false;
-      if (q) {
-        const h = [s.title, s.short_description, s.description].filter(Boolean).join(" ").toLowerCase();
-        if (!h.includes(q)) return false;
-      }
-      return true;
-    }).length;
-  };
-
-  const livePeriodCount = (period: string | null) => {
-    const q = search.trim().toLowerCase();
-    return solutions.filter((s) => {
-      if (period !== null && s.period !== period) return false;
-      if (activeCategory && s.category !== activeCategory) return false;
-      if (featuredOnly && !s.is_featured) return false;
-      if (activeTag && !(s.tags || []).some((t) => t.title === activeTag)) return false;
-      if (q) {
-        const h = [s.title, s.short_description, s.description].filter(Boolean).join(" ").toLowerCase();
-        if (!h.includes(q)) return false;
-      }
-      return true;
-    }).length;
-  };
-
-  const liveTagCount = (label: string) => {
-    const q = search.trim().toLowerCase();
-    return solutions.filter((s) => {
-      if (!(s.tags || []).some((t) => t.title === label)) return false;
-      if (activeCategory && s.category !== activeCategory) return false;
-      if (activePeriod && s.period !== activePeriod) return false;
-      if (featuredOnly && !s.is_featured) return false;
-      if (q) {
-        const h = [s.title, s.short_description, s.description].filter(Boolean).join(" ").toLowerCase();
-        if (!h.includes(q)) return false;
-      }
-      return true;
-    }).length;
-  };
 
   const categoryChips = useMemo(
     () => [
@@ -184,127 +163,135 @@ export function SolutionFilterBar({
 
   return (
     <>
-      <div className="pb-10">
+      <div>
         <Container>
-          <h1 className="mb-10 text-display-2">
-            Наши решения
-          </h1>
-          <div className="flex flex-col gap-4">
-            <div className="flex items-stretch gap-2">
-              <div className="relative flex-1 min-w-0 group">
-                <MagnifyingGlassIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-(--on-bg-low) pointer-events-none transition-colors group-focus-within:text-(--primary)" />
+          <div className="flex flex-col gap-3 pb-6 sm:flex-row sm:items-center sm:gap-4 sm:pb-8">
+            <h1 className="text-display-3 leading-[1.05] sm:mr-auto">Наши решения</h1>
+
+            <div className="flex items-center gap-2">
+              <div className="relative min-w-0 flex-1 sm:w-[220px] lg:w-[280px]">
+                <MagnifyingGlassIcon className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-(--on-bg-low)" />
                 <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Поиск по решениям..."
-                  inputMode="search"
-                  autoComplete="off"
-                  spellCheck={false}
-                  className={cn(
-                    "w-full h-11 pl-10 pr-10 bg-transparent rounded-xl",
-                    "border border-(--outline) text-body-3 text-(--on-bg-high)",
-                    "placeholder:text-(--on-bg-low)",
-                    "transition-all duration-200 outline-none",
-                    "hover:border-(--on-bg-low)/40",
-                    "focus:border-(--primary)",
-                    "focus:shadow-[0_0_0_3px_color-mix(in_srgb,var(--primary),transparent_90%)]",
-                  )}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Поиск решений…"
+                  aria-label="Поиск решений"
+                  className="h-8 w-full rounded-lg border border-(--outline) bg-transparent pl-8 pr-14 text-body-5 text-(--on-bg-high) outline-none transition-colors placeholder:text-(--on-bg-low) focus:border-(--on-bg-low)/40"
                 />
-                {search && (
+                {query ? (
                   <button
                     type="button"
-                    onClick={() => setSearch("")}
-                    aria-label="Очистить"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 size-7 inline-flex items-center justify-center rounded-full text-(--on-bg-low) hover:text-(--on-bg-high) hover:bg-(--state-hover) transition-colors"
+                    onClick={() => setQuery("")}
+                    aria-label="Очистить поиск"
+                    className="absolute right-1.5 top-1/2 inline-flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-(--on-bg-low) transition-colors hover:text-(--on-bg-high)"
                   >
                     <XIcon className="size-3.5" />
                   </button>
+                ) : (
+                  <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded border border-(--outline) bg-(--card) px-1.5 py-0.5 font-mono text-[10px] text-(--on-bg-low)">
+                    ⌘K
+                  </kbd>
                 )}
               </div>
+
               <Button
                 onClick={() => setDrawerOpen(true)}
-                variant={activeFilterCount > 0 ? "filled" : "outlined"}
-                className="h-11! shrink-0 px-3 sm:px-4 gap-2"
+                variant={activeFilterCount > 0 ? "filled" : "text"}
+                size="small"
+                className="h-8! gap-1.5 px-2.5"
               >
                 <SlidersHorizontalIcon
                   className="size-4"
                   weight={activeFilterCount > 0 ? "bold" : "regular"}
                 />
                 <span className="hidden sm:inline">Фильтры</span>
-                {activeFilterCount > 0 && (
-                  <span className="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-(--on-primary)/25 text-(--on-primary) text-[10px]  tabular-nums">
-                    {activeFilterCount}
-                  </span>
-                )}
               </Button>
-              <div className="hidden lg:flex items-center shrink-0 pl-2">
-                <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-(--on-bg-low) tabular-nums">
-                  {filtered.length}
-                  <span className="mx-1.5 opacity-40">/</span>
-                  {solutions.length}
-                </span>
+
+              {(activeFilterCount > 0 || hasQuery) && (
+                <button
+                  type="button"
+                  onClick={resetAll}
+                  className="text-body-5 text-(--on-bg-low) underline-offset-4 transition-colors hover:text-(--on-bg-high) hover:underline"
+                >
+                  Сбросить
+                </button>
+              )}
+            </div>
+          </div>
+
+          <AnimatePresence initial={false}>
+            {activeFilterCount > 0 && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="overflow-hidden"
+              >
+                <div className="flex flex-wrap items-center gap-1.5 pb-6">
+                  {activeCategory && (
+                    <RemovableChip
+                      label={activeCategoryLabel ?? activeCategory}
+                      onRemove={() => setActiveCategory(null)}
+                    />
+                  )}
+                  {activePeriod && (
+                    <RemovableChip
+                      label={activePeriod}
+                      onRemove={() => setActivePeriod(null)}
+                    />
+                  )}
+                  {featuredOnly && (
+                    <RemovableChip
+                      label="Избранные"
+                      onRemove={() => setFeaturedOnly(false)}
+                    />
+                  )}
+                  {activeTag && (
+                    <RemovableChip
+                      label={activeTag}
+                      onRemove={() => setActiveTag(null)}
+                    />
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </Container>
+
+      <section className="pt-8 pb-24 md:pb-32">
+        <Container>
+          {showRecommended && (
+            <div className="mb-12">
+              <h2 className="mb-5 text-heading-2">Рекомендуем</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {recommended.map((s, idx) => (
+                  <ProjectCard
+                    key={s.id}
+                    project={solutionToProject(s)}
+                    index={idx}
+                    variant="clean"
+                    href={`/solutions/${s.slug}`}
+                    tags={(s.tags || [])
+                      .filter((t) => t.title)
+                      .map((t, i) => ({
+                        id: `${s.slug}-rec-tag-${i}`,
+                        label: t.title,
+                      }))}
+                  />
+                ))}
               </div>
             </div>
-            <AnimatePresence initial={false}>
-              {activeFilterCount > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                  className="overflow-hidden"
-                >
-                  <div className="flex flex-wrap items-center gap-2 pt-1">
-                    {activeCategory && (
-                      <RemovableChip
-                        label={activeCategoryLabel ?? activeCategory}
-                        onRemove={() => setActiveCategory(null)}
-                      />
-                    )}
-                    {activePeriod && (
-                      <RemovableChip
-                        label={activePeriod}
-                        onRemove={() => setActivePeriod(null)}
-                      />
-                    )}
-                    {featuredOnly && (
-                      <RemovableChip
-                        label="Избранные"
-                        onRemove={() => setFeaturedOnly(false)}
-                      />
-                    )}
-                    {activeTag && (
-                      <RemovableChip
-                        label={activeTag}
-                        onRemove={() => setActiveTag(null)}
-                      />
-                    )}
-                    <button
-                      type="button"
-                      onClick={resetAll}
-                      className="ml-1 text-body-5 text-(--on-bg-low) hover:text-(--on-bg-high) transition-colors underline-offset-4 hover:underline"
-                    >
-                      Очистить всё
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </Container>
-      </div>
+          )}
 
-      <section className="pb-24 md:pb-32">
-        <Container>
           {filtered.length === 0 ? (
             <div className="py-32 text-center">
-              <p className="text-2xl font-heading  text-(--on-bg-medium) mb-4">
-                {solutions.length === 0
+              <p className="mb-4 text-heading-2 text-(--on-bg-medium)">
+                {items.length === 0
                   ? "Здесь пока нет решений"
                   : "Ничего не найдено"}
               </p>
-              {hasActiveFilters && (
+              {(hasActiveFilters || hasQuery) && (
                 <button
                   type="button"
                   onClick={resetAll}
@@ -314,14 +301,15 @@ export function SolutionFilterBar({
                 </button>
               )}
             </div>
-          ) : (
+          ) : gridItems.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filtered.map((s, idx) => (
+              {gridItems.map((s, idx) => (
                 <ProjectCard
                   key={s.id}
-                  project={mapSolutionToProject(s)}
+                  project={solutionToProject(s)}
                   index={idx}
-                  variant="featured"
+                  variant="clean"
+                  href={`/solutions/${s.slug}`}
                   tags={(s.tags || [])
                     .filter((t) => t.title)
                     .map((t, i) => ({
@@ -331,9 +319,10 @@ export function SolutionFilterBar({
                 />
               ))}
             </div>
-          )}
+          ) : null}
         </Container>
       </section>
+      </div>
 
       {/* Filters Drawer */}
       <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
@@ -349,9 +338,6 @@ export function SolutionFilterBar({
                   <SlidersHorizontalIcon className="size-5 shrink-0" weight="bold" />
                   Фильтры
                 </SheetTitle>
-                <SheetDescription className="text-body-4 text-(--on-bg-low) mt-1 tabular-nums">
-                  {filtered.length} из {solutions.length} решений
-                </SheetDescription>
               </div>
               <SheetClose asChild>
                 <Button
@@ -371,14 +357,11 @@ export function SolutionFilterBar({
                 <FilterSection title="Категория">
                   {categoryChips.map((c) => {
                     const code = c.id === "__all__" ? null : c.id;
-                    const count = liveCategoryCount(code);
                     return (
                       <DrawerChip
                         key={c.id}
                         label={c.label}
-                        count={count}
                         active={c.active}
-                        disabled={count === 0 && !c.active}
                         onClick={() => setActiveCategory(c.active ? null : code)}
                       />
                     );
@@ -388,15 +371,12 @@ export function SolutionFilterBar({
               {periods.length > 1 && (
                 <FilterSection title="Период">
                   {periods.map((p) => {
-                    const count = livePeriodCount(p);
                     const active = activePeriod === p;
                     return (
                       <DrawerChip
                         key={p}
                         label={p}
-                        count={count}
                         active={active}
-                        disabled={count === 0 && !active}
                         onClick={() => setActivePeriod(active ? null : p)}
                       />
                     );
@@ -407,7 +387,6 @@ export function SolutionFilterBar({
                 <FilterSection title="Особенности">
                   <DrawerChip
                     label="Только избранные"
-                    count={featuredCount}
                     active={featuredOnly}
                     onClick={() => setFeaturedOnly((v) => !v)}
                   />
@@ -415,15 +394,13 @@ export function SolutionFilterBar({
               )}
               {tags.length > 0 && (
                 <FilterSection title="Теги">
-                  {tags.map(([label, count]) => {
+                  {tags.map(([label]) => {
                     const active = activeTag === label;
                     return (
                       <DrawerChip
                         key={label}
                         label={label}
-                        count={liveTagCount(label)}
                         active={active}
-                        disabled={count === 0 && !active}
                         onClick={() => setActiveTag(active ? null : label)}
                       />
                     );
@@ -453,11 +430,17 @@ export function SolutionFilterBar({
               onClick={() => setDrawerOpen(false)}
               className="flex-1 h-11"
             >
-              Показать {filtered.length}
+              Показать
             </Button>
           </SheetFooter>
         </SheetContent>
       </Sheet>
+
+      <SolutionsSearchDialog
+        open={searchOpen}
+        onOpenChange={setSearchOpen}
+        solutions={items}
+      />
     </>
   );
 }
@@ -503,40 +486,25 @@ function RemovableChip({
 
 function DrawerChip({
   label,
-  count,
   active,
-  disabled,
   onClick,
 }: {
   label: string;
-  count: number;
   active: boolean;
-  disabled?: boolean;
   onClick: () => void;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      disabled={disabled}
       className={cn(
         "inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full text-body-4  transition-all duration-200",
         active
           ? "bg-(--on-bg-high) text-(--bg) shadow-sm"
           : "bg-(--card) border border-(--outline) text-(--on-bg-medium) hover:border-(--on-bg-low)/40 hover:text-(--on-bg-high)",
-        disabled &&
-        "opacity-30 cursor-not-allowed hover:border-(--outline) hover:text-(--on-bg-medium)",
       )}
     >
       <span>{label}</span>
-      <span
-        className={cn(
-          "tabular-nums text-[10px] leading-none",
-          active ? "text-(--bg)/60" : "text-(--on-bg-low)",
-        )}
-      >
-        {count}
-      </span>
     </button>
   );
 }

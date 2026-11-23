@@ -27,6 +27,7 @@ import {
 import { SOLUTION_CUSTOM_PAGES_META } from "@/app/solutions/[slug]/_components/solution-custom-pages-meta";
 import { NovelEditor } from "./novel/novel-editor";
 import { UnifiedCover } from "./unified-cover";
+import { revalidateTags } from "@/utils/revalidate";
 
 interface Props {
   editing: Solution | null;
@@ -57,7 +58,7 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
     seo_title: "",
     meta_description: "",
     is_featured: false,
-    status: "draft",
+    status: "published",
     sort_order: 0,
   });
   const [techInput, setTechInput] = useState("");
@@ -139,6 +140,7 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
         await createSolution(payload);
         toast.success("Решение создано");
       }
+      await revalidateTags(["solutions"]);
       router.push(redirectAfter || "..");
       router.refresh();
     } catch (err: any) {
@@ -409,6 +411,9 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
                 <SelectItem value="archived">В архиве</SelectItem>
               </SelectContent>
             </Select>
+            <p className="text-body-5 text-(--on-bg-low) mt-1">
+              Скрыть с сайта можно статусом «В архиве».
+            </p>
           </Field>
           <Field>
             <FieldLabel>Порядок сортировки</FieldLabel>

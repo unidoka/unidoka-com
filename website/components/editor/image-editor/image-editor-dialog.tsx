@@ -45,10 +45,14 @@ export const ImageEditorDialog = React.memo(function ImageEditorDialog({
   const [historyIdx, setHistoryIdx] = useState(-1);
 
   useEffect(() => {
+    if (!open) return;
+    setAspect(defaultAspect ?? "free");
+  }, [open, defaultAspect]);
+
+  useEffect(() => {
     if (!open || !src) return;
     setLoading(true);
-    setImg(null);
-    loadImage(src)
+    setImg(null);    loadImage(src)
       .then((im) => {
         setImg(im);
         const preset = ASPECT_PRESETS.find((p) => p.id === aspect);

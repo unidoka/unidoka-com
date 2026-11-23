@@ -50,6 +50,8 @@ from urllib.parse import parse_qs, quote, urlparse
 
 import httpx
 
+from app.shared.slug import slugify
+
 try:
     from icalendar import Calendar as ICalCalendar
 except ImportError:  # pragma: no cover
@@ -135,23 +137,8 @@ def _feed_url(
 
 
 
-# Same transliteration table events.py already uses, so slugs from the
-# iCal feed look like slugs from the DB path.
-_TRANSLIT = {
-    "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "е": "e", "ё": "e",
-    "ж": "zh", "з": "z", "и": "i", "й": "y", "к": "k", "л": "l", "м": "m",
-    "н": "n", "о": "o", "п": "p", "р": "r", "с": "s", "т": "t", "у": "u",
-    "ф": "f", "х": "kh", "ц": "ts", "ч": "ch", "ш": "sh", "щ": "shch",
-    "ъ": "", "ы": "y", "ь": "", "э": "e", "ю": "yu", "я": "ya",
-}
-
-
 def _slugify(text: str) -> str:
-    text = (text or "").lower().strip()
-    text = "".join(_TRANSLIT.get(c, c) for c in text)
-    text = re.sub(r"[^\w\s-]", "", text, flags=re.UNICODE)
-    text = re.sub(r"[\s_]+", "-", text)
-    return re.sub(r"-+", "-", text).strip("-")[:180] or "event"
+    return slugify(text, fallback="event")
 
 
 def _validate_url(url: str) -> str:

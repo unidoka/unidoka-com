@@ -19,6 +19,7 @@ class Solution(Base):
     short_description = Column(String, nullable=True)
     description = Column(Text, nullable=True)
     mdx_content = Column(Text, nullable=True)
+    content_json = Column(JSON, nullable=True)
 
     cover_image_src = Column(String, nullable=True)
     cover_video_src = Column(String, nullable=True)

@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import {
   Plus, MagnifyingGlassIcon, ArrowClockwiseIcon,
-  PencilSimple, ArrowSquareOutIcon, Cube, TrashIcon, DotsThree,
+  PencilSimple, ArrowSquareOutIcon, Cube, TrashIcon, DotsThree, RocketIcon,
 } from "@phosphor-icons/react";
 import {
   DropdownMenu,
@@ -25,11 +25,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import {
-  fetchAdminSolutions, deleteSolution,
+  fetchAdminSolutions, deleteSolution, updateSolution,
   type Solution,
 } from "@/utils/api/solutions";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
-import { crossSubdomainUrl } from "@/utils/root-domain";
+import { crossSubdomainUrl, rootDomainUrl } from "@/utils/root-domain";
+import { revalidateTags } from "@/utils/revalidate";
 import { AdminPageHeader } from "../../_components/admin-page-header";
 
 const STATUS_META: Record<string, { label: string; cls: string }> = {
@@ -80,10 +81,22 @@ export default function AdminSolutionsPage() {
     if (!confirm(`Удалить решение «${s.title}»?`)) return;
     try {
       await deleteSolution(s.slug);
+      await revalidateTags(["solutions"]);
       toast.success("Удалено");
       load();
     } catch (e: any) {
       toast.error(e?.message || "Ошибка удаления");
+    }
+  };
+
+  const handlePublish = async (s: Solution) => {
+    try {
+      await updateSolution(s.slug, { title: s.title, status: "published" });
+      await revalidateTags(["solutions"]);
+      toast.success("Опубликовано");
+      load();
+    } catch (e: any) {
+      toast.error(e?.message || "Ошибка публикации");
     }
   };
 
@@ -101,7 +114,7 @@ export default function AdminSolutionsPage() {
           actions={[
             {
               label: "Открыть на сайте",
-              href: "/solutions",
+              href: rootDomainUrl("/solutions"),
               external: true,
               icon: ArrowSquareOutIcon,
             },
@@ -179,7 +192,11 @@ export default function AdminSolutionsPage() {
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-(--primary-glass) to-(--card)" />
+                      <div className="absolute inset-0 flex items-center justify-center bg-(--card)">
+                        <span className="select-none font-heading text-display-2 leading-none text-(--on-bg-low)/25">
+                          {s.title.trim().charAt(0).toUpperCase() || "—"}
+                        </span>
+                      </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
                     <div className="absolute top-3 left-3 flex gap-1 flex-wrap z-[2]">
@@ -202,34 +219,45 @@ export default function AdminSolutionsPage() {
                   </div>
                   <div className="p-4 flex items-center justify-between gap-2 mt-auto">
                     <span className="text-body-5 text-(--on-bg-low) font-mono truncate">/{s.slug}</span>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="text" size="icon-small" aria-label="Действия">
-                          <DotsThree className="size-5" weight="bold" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="min-w-[190px]">
-                        <DropdownMenuItem asChild className="gap-2 px-2 py-2 text-body-4">
-                          <Link href={`/solutions/${s.slug}`} target="_blank" rel="noopener noreferrer">
-                            <ArrowSquareOutIcon className="size-4" />
-                            Открыть
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild className="gap-2 px-2 py-2 text-body-4">
-                          <Link href={`${base}/${s.slug}/edit`}>
-                            <PencilSimple className="size-4" />
-                            Редактировать
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onSelect={() => handleDelete(s)}
-                          className="gap-2 px-2 py-2 text-body-4 text-(--error)"
-                        >
-                          <TrashIcon className="size-4" />
-                          Удалить
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button variant="outlined" size="small" asChild className="gap-1.5">
+                        <Link href={`${base}/${s.slug}/edit`}>
+                          <PencilSimple className="size-4" />
+                          Редактировать
+                        </Link>
+                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="text" size="icon-small" aria-label="Действия">
+                            <DotsThree className="size-5" weight="bold" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="min-w-[190px]">
+                          <DropdownMenuItem asChild className="gap-2 px-2 py-2 text-body-4">
+                            <Link href={rootDomainUrl(`/solutions/${s.slug}`)} target="_blank" rel="noopener noreferrer">
+                              <ArrowSquareOutIcon className="size-4" />
+                              Открыть
+                            </Link>
+                          </DropdownMenuItem>
+                          {s.status !== "published" && (
+                            <DropdownMenuItem
+                              onSelect={() => handlePublish(s)}
+                              className="gap-2 px-2 py-2 text-body-4"
+                            >
+                              <RocketIcon className="size-4" />
+                              Опубликовать
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem
+                            onSelect={() => handleDelete(s)}
+                            className="gap-2 px-2 py-2 text-body-4 text-(--error)"
+                          >
+                            <TrashIcon className="size-4" />
+                            Удалить
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
                 </Card>
               );

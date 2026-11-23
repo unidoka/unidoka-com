@@ -38,6 +38,8 @@ export const extensions = [
     orderedList: { HTMLAttributes: { class: "list-decimal pl-5" } },
     listItem: { HTMLAttributes: { class: "mt-1" } },
     codeBlock: false,
+    link: false,
+    horizontalRule: false,
   }),
   TiptapLink.configure({
     HTMLAttributes: { class: "text-(--primary) underline underline-offset-4" },

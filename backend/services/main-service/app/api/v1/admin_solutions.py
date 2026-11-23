@@ -1,4 +1,3 @@
-import re
 import uuid
 from datetime import datetime
 from typing import Optional, List
@@ -9,6 +8,7 @@ from app.models.solution import Solution
 from app.schemas.solution import SolutionPayload, SolutionOut
 from app.shared.auth import get_current_user
 from app.shared.permissions import require_permission
+from app.shared.slug import slugify
 from database.database import get_db
 
 router = APIRouter(prefix="/admin/solutions", tags=["admin-solutions"])
@@ -19,10 +19,7 @@ _require_admin = require_permission("admin.solutions")
 
 
 def _slugify(text: str) -> str:
-    text = text.lower().strip()
-    text = re.sub(r"[^\w\s-]", "", text, flags=re.UNICODE)
-    text = re.sub(r"[\s_]+", "-", text)
-    return re.sub(r"-+", "-", text).strip("-")[:180]
+    return slugify(text, fallback="solution")
 
 
 def _unique_slug(db: Session, base: str, exclude_id: Optional[uuid.UUID] = None) -> str:

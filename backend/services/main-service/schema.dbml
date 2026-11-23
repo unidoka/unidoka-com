@@ -32,3 +32,56 @@ Table users {
   created_at timestamp [default: `now()`]
   updated_at timestamp [default: `now()`]
 }
+
+Table articles {
+  id uuid [pk]
+  slug varchar [unique, not null]
+  title varchar [not null]
+  description text
+  content_json jsonb [note: 'Novel/Tiptap JSON document']
+  cover_image_src varchar
+  cover_video_src varchar
+  category varchar
+  tags jsonb [not null, default: `'[]'::jsonb`]
+  author_name varchar
+  author_avatar_url varchar
+  is_team_author boolean [not null, default: true]
+  seo_title varchar
+  meta_description varchar
+  is_featured boolean [not null, default: false]
+  status varchar [not null, default: 'draft']
+  sort_order int [default: 0]
+  published_at timestamp
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  deleted_at timestamp
+}
+
+Table solutions {
+  id uuid [pk]
+  slug varchar [unique, not null]
+  title varchar [not null]
+  short_description varchar
+  description text
+  mdx_content text [note: 'Legacy MDX body']
+  content_json jsonb [note: 'Novel/Tiptap JSON document']
+  cover_image_src varchar
+  cover_video_src varchar
+  href varchar
+  platform varchar
+  category varchar
+  period varchar
+  tech_stack jsonb [not null, default: `'[]'::jsonb`]
+  tags jsonb [not null, default: `'[]'::jsonb`]
+  client_id uuid
+  client_name varchar
+  custom_page varchar
+  seo_title varchar
+  meta_description varchar
+  is_featured boolean [not null, default: false]
+  status varchar [not null, default: 'draft']
+  sort_order int [default: 0]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  deleted_at timestamp
+}

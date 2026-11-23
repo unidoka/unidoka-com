@@ -17,7 +17,7 @@ async def list_public_solutions(
 ):
     q = db.query(Solution).filter(
         Solution.deleted_at.is_(None),
-        Solution.status == "published",
+        Solution.status != "archived",
     ).order_by(Solution.sort_order, Solution.created_at.desc())
     if featured is True:
         q = q.filter(Solution.is_featured.is_(True))
@@ -33,7 +33,7 @@ async def get_public_solution(slug: str, db: Session = Depends(get_db)):
     s = db.query(Solution).filter(
         Solution.slug == slug,
         Solution.deleted_at.is_(None),
-        Solution.status == "published",
+        Solution.status != "archived",
     ).first()
     if not s:
         raise HTTPException(404, "Solution not found")

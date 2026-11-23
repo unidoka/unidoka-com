@@ -7,6 +7,7 @@ export interface Solution {
   short_description: string | null;
   description: string | null;
   mdx_content: string | null;
+  content_json: any | null;
   cover_image_src: string | null;
   cover_video_src: string | null;
   href: string | null;
@@ -33,6 +34,7 @@ export interface SolutionPayload {
   short_description?: string | null;
   description?: string | null;
   mdx_content?: string | null;
+  content_json?: any | null;
   cover_image_src?: string | null;
   cover_video_src?: string | null;
   href?: string | null;
@@ -143,7 +145,7 @@ export async function fetchPublicSolutionsServer(params?: {
   try {
     const res = await fetch(
       `${API_BASE}/api/v1/solutions${qs.toString() ? `?${qs}` : ""}`,
-      { next: { revalidate: 60, tags: ["solutions"] } } as any,
+      { cache: "no-store" },
     );
     if (!res.ok) return [];
     const body = await res.json();
@@ -157,7 +159,7 @@ export async function fetchPublicSolutionServer(slug: string): Promise<Solution 
   try {
     const res = await fetch(
       `${API_BASE}/api/v1/solutions/${encodeURIComponent(slug)}`,
-      { next: { revalidate: 60, tags: ["solutions", `solution:${slug}`] } } as any,
+      { cache: "no-store" },
     );
     if (!res.ok) return null;
     return (await res.json()) as Solution;

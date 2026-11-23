@@ -1,4 +1,3 @@
-import re
 import uuid
 from datetime import datetime, timedelta, timezone
 from typing import Optional, List
@@ -18,6 +17,7 @@ from app.schemas.event import (
     OrganizerOut, EventTypeOut, DirectionOut,
 )
 from app.shared.auth import get_current_user
+from app.shared.slug import slugify
 from database.database import get_db
 
 router = APIRouter(prefix="/events", tags=["events"])
@@ -25,22 +25,6 @@ logger = logging.getLogger(__name__)
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────
-TRANSLIT_MAP = {
-    'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'e',
-    'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm',
-    'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
-    'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'shch',
-    'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya'
-}
-
-def slugify(text: str) -> str:
-    text = text.lower().strip()
-    # Transliterate Cyrillic to Latin
-    transliterated = "".join(TRANSLIT_MAP.get(char, char) for char in text)
-    # Remove non-alphanumeric, non-space, non-hyphen
-    transliterated = re.sub(r"[^\w\s-]", "", transliterated, flags=re.UNICODE)
-    transliterated = re.sub(r"[\s_]+", "-", transliterated)
-    return re.sub(r"-+", "-", transliterated).strip("-")[:180]
 
 
 def _unique_slug(db: Session, base: str, exclude_id: Optional[uuid.UUID] = None) -> str:

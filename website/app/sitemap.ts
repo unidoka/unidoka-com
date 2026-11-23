@@ -5,6 +5,7 @@ import {
 } from "@/utils/api/events";
 import { shortId } from "@/utils/short-id";
 import { fetchPublicSolutionsServer } from "@/utils/api/solutions";
+import { fetchPublicArticlesServer } from "@/utils/api/articles";
 
 export const revalidate = 3600;
 
@@ -78,6 +79,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           ru: `${SITE_URL}/solutions`,
           en: `${SITE_URL}/en/solutions`,
           "x-default": `${SITE_URL}/solutions`,
+        },
+      },
+    },
+    {
+      url: `${SITE_URL}/blog`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+      alternates: {
+        languages: {
+          ru: `${SITE_URL}/blog`,
+          en: `${SITE_URL}/en/blog`,
+          "x-default": `${SITE_URL}/blog`,
+        },
+      },
+    },
+    {
+      url: `${SITE_URL}/en/blog`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+      alternates: {
+        languages: {
+          ru: `${SITE_URL}/blog`,
+          en: `${SITE_URL}/en/blog`,
+          "x-default": `${SITE_URL}/blog`,
         },
       },
     },
@@ -161,10 +188,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   try {
-    const [eventsRu, eventsEn, solutions] = await Promise.all([
+    const [eventsRu, eventsEn, solutions, articles] = await Promise.all([
       fetchPublishedEventsServer({ locale: "ru", limit: 1000 }),
       fetchPublishedEventsServer({ locale: "en", limit: 1000 }),
       fetchPublicSolutionsServer({}),
+      fetchPublicArticlesServer({}),
     ]);
 
     const ruById = new Map<string, EventListItem>(
@@ -246,7 +274,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ];
     });
 
-    return [...staticRoutes, ...eventUrls, ...solutionUrls];
+    const articleUrls: MetadataRoute.Sitemap = articles.flatMap((a) => {
+      const ru = `${SITE_URL}/blog/${a.slug}`;
+      const en = `${SITE_URL}/en/blog/${a.slug}`;
+      const alternates = {
+        languages: { ru, en, "x-default": ru },
+      };
+      const lastModified = a.updated_at ? new Date(a.updated_at) : now;
+      return [
+        {
+          url: ru,
+          lastModified,
+          changeFrequency: "monthly" as const,
+          priority: 0.6,
+          alternates,
+        },
+        {
+          url: en,
+          lastModified,
+          changeFrequency: "monthly" as const,
+          priority: 0.6,
+          alternates,
+        },
+      ];
+    });
+
+    return [...staticRoutes, ...eventUrls, ...solutionUrls, ...articleUrls];
   } catch {
     return staticRoutes;
   }

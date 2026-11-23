@@ -85,6 +85,23 @@ app.mount("/order_files", StaticFiles(directory=str(_storage_root)), name="order
 # "Типы не загружены". This seeds a sensible default set once, on
 # boot, so a fresh deploy is immediately usable. Idempotent: skipped
 # if any row already exists in event_types.
+# ── Startup: apply pending migrations before touching the schema ────
+# The Docker CMD also runs `alembic upgrade head`, but `uvicorn --reload`
+# restarts only the Python process. Without this, a migration added while
+# the dev stack is running never reaches the DB and the next query fails
+# with "column ... does not exist". Alembic is idempotent, so running it
+# again in production is a no-op.
+def _apply_migrations() -> None:
+    from alembic import command
+    from alembic.config import Config
+
+    root = Path(__file__).resolve().parent
+    config = Config(str(root / "alembic.ini"))
+    config.set_main_option("script_location", str(root / "alembic"))
+    command.upgrade(config, "head")
+    logger.info("Database migrations are up to date")
+
+
 def _seed_taxonomy_if_empty() -> None:
     try:
         from database.database import SessionLocal
@@ -171,6 +188,7 @@ def _seed_taxonomy_if_empty() -> None:
 
 @app.on_event("startup")
 def _on_startup() -> None:
+    _apply_migrations()
     _seed_taxonomy_if_empty()
 
 

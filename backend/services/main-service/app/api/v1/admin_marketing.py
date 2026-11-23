@@ -1,4 +1,3 @@
-import re
 import uuid
 from datetime import datetime
 from typing import Optional, List
@@ -9,6 +8,7 @@ from app.models.marketing import MarketingPlacement
 from app.schemas.marketing import PlacementPayload, PlacementOut
 from app.shared.auth import get_current_user
 from app.shared.permissions import require_permission
+from app.shared.slug import slugify
 from database.database import get_db
 
 router = APIRouter(prefix="/admin/marketing/placements", tags=["admin-marketing"])
@@ -19,10 +19,7 @@ _require_admin = require_permission("admin.marketing")
 
 
 def _slugify(text: str) -> str:
-    text = text.lower().strip()
-    text = re.sub(r"[^\w\s-]", "", text, flags=re.UNICODE)
-    text = re.sub(r"[\s_]+", "-", text)
-    return re.sub(r"-+", "-", text).strip("-")[:180] or "placement"
+    return slugify(text, fallback="placement")
 
 
 def _unique_slug(
