@@ -22,7 +22,6 @@ import {
   Plus,
   MagnifyingGlassIcon,
   ArrowClockwiseIcon,
-  CircleNotchIcon,
   PencilSimple,
   ArrowSquareOutIcon,
   CalendarBlank,
@@ -30,7 +29,14 @@ import {
   UserIcon,
   FunnelIcon,
   XIcon,
+  DotsThree,
 } from "@phosphor-icons/react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import {
   fetchAdminEvents,
@@ -45,6 +51,7 @@ import {
 } from "@/utils/api/event-taxonomies";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
 import { crossSubdomainUrl } from "@/utils/root-domain";
+import { AdminPageHeader } from "../../_components/admin-page-header";
 
 export default function AdminEventsPage() {
   const { user, isLoading: userLoading } = useUser();
@@ -127,37 +134,27 @@ export default function AdminEventsPage() {
   return (
     <CheckUser permission="admin.events">
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-display-2 mb-1">События</h1>
-            <p className="text-body-3 text-(--on-bg-medium)">
-              {loading ? "Загрузка…" : `${events.length} событий`}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outlined" size="small" asChild>
-              <Link href={crossSubdomainUrl("admin", `/${secret}/event-requests`)}>
-                <Receipt className="size-4" />
-                Все заявки
-              </Link>
-            </Button>
-            <Button variant="outlined" size="small" onClick={load}>
-              {loading ? (
-                <CircleNotchIcon className="size-4 animate-spin" />
-              ) : (
-                <ArrowClockwiseIcon className="size-4" />
-              )}
-              Обновить
-            </Button>
-            <Button asChild>
-              <Link href={`${base}/new`}>
-                <Plus className="size-4" />
-                Новое событие
-              </Link>
-            </Button>
-          </div>
-        </div>
+        <AdminPageHeader
+          title="События"
+          meta={loading ? "Загрузка…" : `${events.length} событий`}
+          primary={{
+            label: "Новое событие",
+            href: `${base}/new`,
+            icon: Plus,
+          }}
+          actions={[
+            {
+              label: "Все заявки",
+              href: crossSubdomainUrl("admin", `/${secret}/event-requests`),
+              icon: Receipt,
+            },
+            {
+              label: "Обновить",
+              icon: ArrowClockwiseIcon,
+              onClick: load,
+            },
+          ]}
+        />
 
         {/* Filters */}
         <Card className="rounded-3xl border-(--outline) p-4 space-y-3">
@@ -371,22 +368,27 @@ export default function AdminEventsPage() {
                       ev.location_name || "-"
                     )}
                   </div>
-                  <div className="flex gap-1 shrink-0">
-                    <Button
-                      variant="text"
-                      size="icon-small"
-                      asChild
-                    >
-                      <Link href={eventUrl(ev)} target="_blank">
-                        <ArrowSquareOutIcon className="size-4" />
-                      </Link>
-                    </Button>
-                    <Button variant="text" size="icon-small" asChild>
-                      <Link href={`${base}/${ev.slug}/edit`}>
-                        <PencilSimple className="size-4" />
-                      </Link>
-                    </Button>
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="text" size="icon-small" aria-label="Действия">
+                        <DotsThree className="size-5" weight="bold" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="min-w-[190px]">
+                      <DropdownMenuItem asChild className="gap-2 px-2 py-2 text-body-4">
+                        <Link href={eventUrl(ev)} target="_blank" rel="noopener noreferrer">
+                          <ArrowSquareOutIcon className="size-4" />
+                          Открыть
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild className="gap-2 px-2 py-2 text-body-4">
+                        <Link href={`${base}/${ev.slug}/edit`}>
+                          <PencilSimple className="size-4" />
+                          Редактировать
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </Card>
             ))}

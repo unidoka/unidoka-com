@@ -10,7 +10,10 @@ const nextConfig: NextConfig = {
   // The ASCII hero mark is read from disk at request time, so keep the
   // plain .txt file in the standalone bundle.
   outputFileTracingIncludes: {
-    "/**": ["./components/layout/logo/logo-ascii.txt"],
+    "/**": [
+      "./components/layout/logo/logo-ascii.txt",
+      "./components/layout/logo/vershiny-ascii.txt",
+    ],
   },
   // Type-check runs in CI (`tsc --noEmit`), not in `next build`.
   // Type-checking inside the Docker build turns one missing

@@ -1,0 +1,252 @@
+@import 'tippy.js/dist/tippy.css';
+
+/* Scoped Novel / ProseMirror styling. */
+.novel-editor {
+  overflow: hidden;
+  position: relative;
+}
+
+.novel-editor .novel-prosemirror {
+  min-height: 400px;
+  padding: 48px 64px;
+  outline: none;
+  color: var(--on-bg-high);
+  font-size: var(--body-2-size);
+  line-height: var(--body-2-lh);
+}
+
+@media (max-width: 768px) {
+  .novel-editor .novel-prosemirror {
+    padding: 24px 20px;
+  }
+}
+
+.novel-reader .novel-prosemirror {
+  min-height: 0;
+  padding: 0;
+  outline: none;
+  color: var(--on-bg-medium);
+  font-size: var(--body-2-size);
+  line-height: var(--body-2-lh);
+}
+
+.novel-prosemirror > * + * {
+  margin-top: 1em;
+}
+
+.novel-prosemirror h1 {
+  font-size: var(--display-2-size);
+  font-weight: var(--display-2-weight);
+  letter-spacing: -0.03em;
+  line-height: var(--display-2-lh);
+  margin-top: 2em;
+  margin-bottom: 0.5em;
+  line-height: 1.2;
+}
+
+.novel-prosemirror h2 {
+  font-size: var(--display-4-size);
+  font-weight: var(--display-4-weight);
+  letter-spacing: -0.02em;
+  line-height: var(--display-4-lh);
+  margin-top: 1.8em;
+  margin-bottom: 0.4em;
+  line-height: 1.3;
+}
+
+.novel-prosemirror h3 {
+  font-size: var(--display-5-size);
+  font-weight: var(--display-5-weight);
+  line-height: var(--display-5-lh);
+  margin-top: 1.5em;
+  margin-bottom: 0.3em;
+}
+
+.novel-prosemirror h1:first-child,
+.novel-prosemirror h2:first-child,
+.novel-prosemirror h3:first-child {
+  margin-top: 0;
+}
+
+.novel-prosemirror ul {
+  list-style: disc;
+  padding-left: 1.5em;
+}
+
+.novel-prosemirror ol {
+  list-style: decimal;
+  padding-left: 1.5em;
+}
+
+.novel-prosemirror li {
+  margin-top: 0.4em;
+}
+
+.novel-prosemirror li::marker {
+  color: var(--primary);
+}
+
+.novel-prosemirror blockquote {
+  border-left: 3px solid var(--outline);
+  padding-left: 1.2em;
+  color: var(--on-bg-medium);
+  font-style: italic;
+  margin: 1.5em 0;
+}
+
+/* Inline Code */
+.novel-prosemirror code {
+  background: var(--bg-disabled);
+  color: var(--primary);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-family: 'Geist Mono', 'SF Mono', monospace;
+  font-size: var(--body-4-size);
+  font-weight: 500;
+}
+
+.novel-prosemirror hr {
+  border: 0;
+  height: 1px;
+  background: var(--outline);
+  margin: 3em 0;
+}
+
+.novel-prosemirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  border: 1px solid var(--outline);
+}
+
+.novel-prosemirror img.ProseMirror-selectednode {
+  outline: 2px solid var(--primary);
+}
+
+/* Placeholder */
+.novel-prosemirror p.is-editor-empty:first-child::before,
+.novel-prosemirror .is-empty::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: var(--on-bg-low);
+  font-style: italic;
+}
+
+/* Force Tippy menu to the top */
+.tippy-box {
+  z-index: 99999 !important;
+}
+
+/* ————
+Стили для Slash Menu (EditorCommand)
+Novel не поставляет CSS из коробки, поэтому Tippy-попап
+без этих правил рендерится как пустая точка.
+———— */
+
+/* Контейнер попапа (Tippy), в котором Novel рендерит React-компонент */
+.tippy-box[data-theme~='novel'] {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.tippy-content {
+  padding: 0;
+}
+
+/* Reset generic pre/code inside the novel editor to avoid conflicts with NodeViews */
+.novel-prosemirror pre {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  border: none;
+  margin: 0;
+  font-family: inherit;
+}
+
+.novel-prosemirror pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  border: none;
+  font-size: inherit;
+}
+
+/* - Syntax Highlighting - monochrome tokens, no hardcoded theme colours - */
+.hljs {
+  color: var(--on-bg-high);
+  background: transparent;
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: var(--on-bg-low);
+  font-style: italic;
+}
+
+.hljs-doctag,
+.hljs-keyword,
+.hljs-formula {
+  color: var(--on-bg-medium);
+  font-weight: 600;
+}
+
+.hljs-section,
+.hljs-name,
+.hljs-selector-tag,
+.hljs-deletion,
+.hljs-subst {
+  color: var(--on-bg-high);
+}
+
+.hljs-literal {
+  color: var(--on-bg-medium);
+}
+
+.hljs-string,
+.hljs-regexp,
+.hljs-addition,
+.hljs-attribute,
+.hljs-meta .hljs-string {
+  color: var(--on-bg-medium);
+}
+
+.hljs-attr,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-type,
+.hljs-selector-class,
+.hljs-selector-attr,
+.hljs-selector-pseudo,
+.hljs-number {
+  color: var(--on-bg-high);
+}
+
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link,
+.hljs-meta,
+.hljs-selector-id,
+.hljs-title {
+  color: var(--on-bg-medium);
+}
+
+.hljs-built_in,
+.hljs-title.class_,
+.hljs-class .hljs-title {
+  color: var(--on-bg-high);
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+.hljs-link {
+  text-decoration: underline;
+}

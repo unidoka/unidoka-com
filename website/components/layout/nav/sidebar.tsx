@@ -1,9 +1,15 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import {
@@ -184,6 +190,7 @@ export function Sidebar({
           href: child.href,
           icon: item.icon,
           exact: child.exact,
+          depth: 1,
         });
       }
     }
@@ -355,6 +362,7 @@ interface MobileTab {
   href: string;
   icon: React.ComponentType<{ className?: string }>;
   exact?: boolean;
+  depth?: number;
 }
 
 function MobileTabs({
@@ -368,66 +376,56 @@ function MobileTabs({
   isActive: (href: string, exact?: boolean) => boolean;
   className?: string;
 }) {
-  const activeRef = useRef<HTMLAnchorElement>(null);
-
-  useEffect(() => {
-    const el = activeRef.current;
-    if (!el) return;
-    const id = requestAnimationFrame(() => {
-      el.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "center",
-      });
-    });
-    return () => cancelAnimationFrame(id);
-  });
+  const active = items.find((item) => isActive(item.href, item.exact));
+  const current = active ?? items[0];
+  const Icon = current?.icon;
 
   return (
-    <div
-      className={cn(
-        "relative w-full border-b border-(--outline) bg-(--card)",
-        className,
-      )}
-    >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-y-0 left-0 w-6 z-10 bg-gradient-to-r from-(--card) to-transparent"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-y-0 right-0 w-6 z-10 bg-gradient-to-l from-(--card) to-transparent"
-      />
-      <div
-        className={cn(
-          "flex gap-1 px-4 py-2 whitespace-nowrap overflow-x-auto",
-          "[&::-webkit-scrollbar]:hidden",
-          "[scrollbar-width:none]",
-          "[-ms-overflow-style:none]",
-          "[-webkit-overflow-scrolling:touch] [touch-action:pan-x]",
-        )}
-      >
-        {items.map((item) => {
-          const active = isActive(item.href, item.exact);
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.href}
-              href={`${basePath}${item.href}`}
-              ref={active ? activeRef : undefined}
-              className={cn(
-                "flex items-center gap-2 px-3 py-2 rounded-full text-sm  transition-colors shrink-0",
-                active
-                  ? "bg-(--primary-glass) text-(--primary)"
-                  : "text-(--on-bg-medium) hover:bg-(--state-hover) hover:text-(--on-bg-high)",
-              )}
-            >
-              <Icon className="size-4 shrink-0" />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
-      </div>
+    <div className={cn("w-full", className)}>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            className="flex w-full items-center justify-between gap-2 rounded-xl border border-(--outline) bg-(--card) px-3 py-2.5 text-left"
+          >
+            <span className="flex min-w-0 items-center gap-2">
+              {Icon && <Icon className="size-4 shrink-0" />}
+              <span className="truncate text-sm text-(--on-bg-high)">
+                {current?.label ?? "Меню"}
+              </span>
+            </span>
+            <CaretDown className="size-4 shrink-0 text-(--on-bg-low)" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="start"
+          className="max-h-[60vh] w-[calc(100vw-2rem)] overflow-y-auto"
+        >
+          {items.map((item) => {
+            const active = isActive(item.href, item.exact);
+            const ItemIcon = item.icon;
+            return (
+              <DropdownMenuItem
+                key={`${item.href}-${item.label}`}
+                asChild
+                className="p-0"
+              >
+                <Link
+                  href={`${basePath}${item.href}`}
+                  className={cn(
+                    "flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm",
+                    item.depth ? "pl-6 text-(--on-bg-medium)" : "text-(--on-bg-high)",
+                    active && "bg-(--state-hover) text-(--on-bg-high)",
+                  )}
+                >
+                  <ItemIcon className={cn("size-4 shrink-0", item.depth && "opacity-60")} />
+                  <span className="truncate">{item.label}</span>
+                </Link>
+              </DropdownMenuItem>
+            );
+          })}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }

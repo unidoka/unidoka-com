@@ -36,7 +36,7 @@ export default function VershinyPage() {
     <CheckUser permission="admin.vershiny">
       <div className="space-y-6">
         <div>
-          <h1 className="text-display-2 mb-1">Вершины</h1>
+          <h1 className="text-heading-1 mb-1">Вершины</h1>
           <p className="text-body-3 text-(--on-bg-medium)">
             Программа развития специалистов - участники, менторы, заявки
           </p>

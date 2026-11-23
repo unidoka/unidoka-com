@@ -14,9 +14,15 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  Plus, MagnifyingGlassIcon, ArrowClockwiseIcon, CircleNotchIcon,
-  PencilSimple, ArrowSquareOutIcon, Cube, TrashIcon,
+  Plus, MagnifyingGlassIcon, ArrowClockwiseIcon,
+  PencilSimple, ArrowSquareOutIcon, Cube, TrashIcon, DotsThree,
 } from "@phosphor-icons/react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import {
   fetchAdminSolutions, deleteSolution,
@@ -24,6 +30,7 @@ import {
 } from "@/utils/api/solutions";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
 import { crossSubdomainUrl } from "@/utils/root-domain";
+import { AdminPageHeader } from "../../_components/admin-page-header";
 
 const STATUS_META: Record<string, { label: string; cls: string }> = {
   published: { label: "Опубликовано", cls: "bg-emerald-500/40 text-white border-white/20" },
@@ -83,32 +90,28 @@ export default function AdminSolutionsPage() {
   return (
     <CheckUser permission="admin.solutions">
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-display-2 mb-1">Решения</h1>
-            <p className="text-body-3 text-(--on-bg-medium)">
-              {loading ? "Загрузка…" : `${items.length} решений`}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outlined" size="small" asChild>
-              <Link href="/projects" target="_blank">
-                <ArrowSquareOutIcon className="size-4" />
-                Открыть на сайте
-              </Link>
-            </Button>
-            <Button variant="outlined" size="small" onClick={load} disabled={loading}>
-              {loading ? <CircleNotchIcon className="size-4 animate-spin" /> : <ArrowClockwiseIcon className="size-4" />}
-              Обновить
-            </Button>
-            <Button asChild>
-              <Link href={`${base}/new`}>
-                <Plus className="size-4" />
-                Новое решение
-              </Link>
-            </Button>
-          </div>
-        </div>
+        <AdminPageHeader
+          title="Решения"
+          meta={loading ? "Загрузка…" : `${items.length} решений`}
+          primary={{
+            label: "Новое решение",
+            href: `${base}/new`,
+            icon: Plus,
+          }}
+          actions={[
+            {
+              label: "Открыть на сайте",
+              href: "/solutions",
+              external: true,
+              icon: ArrowSquareOutIcon,
+            },
+            {
+              label: "Обновить",
+              icon: ArrowClockwiseIcon,
+              onClick: load,
+            },
+          ]}
+        />
 
         <Card className="rounded-3xl border-(--outline) p-4 space-y-3">
           <div className="flex flex-wrap gap-2">
@@ -199,26 +202,34 @@ export default function AdminSolutionsPage() {
                   </div>
                   <div className="p-4 flex items-center justify-between gap-2 mt-auto">
                     <span className="text-body-5 text-(--on-bg-low) font-mono truncate">/{s.slug}</span>
-                    <div className="flex gap-1 shrink-0">
-                      <Button variant="text" size="icon-small" asChild>
-                        <Link href={`/solutions/${s.slug}`} target="_blank">
-                          <ArrowSquareOutIcon className="size-4" />
-                        </Link>
-                      </Button>
-                      <Button variant="text" size="icon-small" asChild>
-                        <Link href={`${base}/${s.slug}/edit`}>
-                          <PencilSimple className="size-4" />
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="text"
-                        size="icon-small"
-                        className="text-(--error)"
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(s); }}
-                      >
-                        <TrashIcon className="size-4" />
-                      </Button>
-                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="text" size="icon-small" aria-label="Действия">
+                          <DotsThree className="size-5" weight="bold" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="min-w-[190px]">
+                        <DropdownMenuItem asChild className="gap-2 px-2 py-2 text-body-4">
+                          <Link href={`/solutions/${s.slug}`} target="_blank" rel="noopener noreferrer">
+                            <ArrowSquareOutIcon className="size-4" />
+                            Открыть
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild className="gap-2 px-2 py-2 text-body-4">
+                          <Link href={`${base}/${s.slug}/edit`}>
+                            <PencilSimple className="size-4" />
+                            Редактировать
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onSelect={() => handleDelete(s)}
+                          className="gap-2 px-2 py-2 text-body-4 text-(--error)"
+                        >
+                          <TrashIcon className="size-4" />
+                          Удалить
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </Card>
               );

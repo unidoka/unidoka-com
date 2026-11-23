@@ -34,13 +34,11 @@ export const vershinyTranslations: Record<Language, Record<string, string>> = {
       'Networking, like-minded people and teams that grow together with you.',
 
     // ── Mentors ─────────────────────────────────────────────────────────────
-    'vershiny.mentors_title': 'Free work on your career path.',
-    'vershiny.mentors_body':
-      'Every participant gets a mentor who helps shape their path: from choosing a direction to defending a project. Mentors honestly point out weaknesses - not to offend, but so you know what to fix.',
     'vershiny.mentors_point_1': 'Breakdown of your current level and gaps',
     'vershiny.mentors_point_2': 'A step-by-step growth plan for your direction',
     'vershiny.mentors_point_3': 'Regular project feedback',
     'vershiny.mentors_point_4': 'Referrals to internships and teams',
+    'vershiny.mentors_next': 'Show the next point',
 
     // ── Directions ──────────────────────────────────────────────────────────
     'vershiny.directions_title': 'Four tracks - one standard.',
@@ -111,13 +109,11 @@ export const vershinyTranslations: Record<Language, Record<string, string>> = {
       'Объединяемся с похожими проектами и открываем двери в самые нашим участникам',
 
     // ── Mentors ─────────────────────────────────────────────────────────────
-    'vershiny.mentors_title': 'От нуля к единице',
-    'vershiny.mentors_body':
-      'Менторы помогают участникам проще проходить этот путь и быстрее выходить из тупиковых ситуаций',
     'vershiny.mentors_point_1': 'Разбор текущего уровня и пробелов',
     'vershiny.mentors_point_2': 'Пошаговый план роста в направлении',
     'vershiny.mentors_point_3': 'Регулярная обратная связь по проектам',
     'vershiny.mentors_point_4': 'Рекомендации на стажировки и в команды',
+    'vershiny.mentors_next': 'Показать следующий пункт',
 
     // ── Directions ──────────────────────────────────────────────────────────
     'vershiny.directions_title': 'Четыре направления',

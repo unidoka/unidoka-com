@@ -35,6 +35,7 @@ import { $fetch } from "@/utils/fetch";
 import { makeTeamMember, removeTeamMember, fetchTeamMembers } from "@/utils/api/team";
 import { ADMIN_PERMISSIONS } from "@/utils/permissions";
 import { USER_TOPICS } from "@/entities/i18n/notifications";
+import { AdminPageHeader } from "../../_components/admin-page-header";
 
 /* ═══════════════════════════════════════════════════════════════════
    TYPES
@@ -209,62 +210,65 @@ export default function AdminUsersPage() {
   return (
     <CheckUser permission="admin.users">
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-          <div>
-            <h1 className="text-display-2 mb-1">Пользователи</h1>
-            <p className="text-body-3 text-(--on-bg-medium)">
-              {loading
-                ? "Загрузка…"
-                : query
-                  ? `${filtered.length} из ${users.length}`
-                  : `${users.length} пользователей`}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <div className="inline-flex items-center gap-0.5 rounded-full border border-(--outline) bg-(--card) p-0.5 h-9">
-              {([
-                { id: "cards", icon: GridFourIcon, label: "Карточки" },
-                { id: "table", icon: RowsIcon, label: "Таблица" },
-              ] as const).map((opt) => {
-                const Icon = opt.icon;
-                const isActive = view === opt.id;
-                return (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    onClick={() => setView(opt.id)}
-                    title={opt.label}
-                    className={cn(
-                      "inline-flex items-center gap-1.5 rounded-full px-3 h-8 text-xs  transition-colors",
-                      isActive
-                        ? "bg-(--on-bg-high) text-(--bg)"
-                        : "text-(--on-bg-medium) hover:text-(--on-bg-high) hover:bg-(--state-hover)",
-                    )}
-                  >
-                    <Icon className="size-3.5" />
-                    <span className="hidden sm:inline">{opt.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-            <Button variant="outlined" size="small" onClick={load} disabled={loading}>
-              <ArrowClockwiseIcon className={cn("size-4", loading && "animate-spin")} />
-            </Button>
-            <Button size="small" onClick={openCreate}>
-              <PlusIcon className="size-4" />
-              <span className="hidden sm:inline">Добавить</span>
-            </Button>
-          </div>
-        </div>
+        <AdminPageHeader
+          title="Пользователи"
+          meta={
+            loading
+              ? "Загрузка…"
+              : query
+                ? `${filtered.length} из ${users.length}`
+                : `${users.length} пользователей`
+          }
+          primary={{
+            label: "Добавить",
+            icon: PlusIcon,
+            onClick: openCreate,
+          }}
+          actions={[
+            {
+              label: "Обновить",
+              icon: ArrowClockwiseIcon,
+              onClick: load,
+            },
+          ]}
+        />
 
-        <div className="relative">
-          <MagnifyingGlassIcon className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-(--on-bg-low) pointer-events-none" />
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Поиск…"
-            className="pl-9 h-11"
-          />
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative min-w-[200px] flex-1">
+            <MagnifyingGlassIcon className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-(--on-bg-low) pointer-events-none" />
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Поиск…"
+              className="pl-9 h-11"
+            />
+          </div>
+          <div className="inline-flex h-9 items-center gap-0.5 rounded-full border border-(--outline) bg-(--card) p-0.5">
+            {([
+              { id: "cards", icon: GridFourIcon, label: "Карточки" },
+              { id: "table", icon: RowsIcon, label: "Таблица" },
+            ] as const).map((opt) => {
+              const Icon = opt.icon;
+              const isActive = view === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setView(opt.id)}
+                  title={opt.label}
+                  className={cn(
+                    "inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-xs transition-colors",
+                    isActive
+                      ? "bg-(--on-bg-high) text-(--bg)"
+                      : "text-(--on-bg-medium) hover:bg-(--state-hover) hover:text-(--on-bg-high)",
+                  )}
+                >
+                  <Icon className="size-3.5" />
+                  <span className="hidden sm:inline">{opt.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {loading && (

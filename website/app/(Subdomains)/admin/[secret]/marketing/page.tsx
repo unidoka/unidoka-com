@@ -26,7 +26,7 @@ export default function MarketingPage() {
     <CheckUser permission="admin.marketing">
       <div className="space-y-6">
         <div>
-          <h1 className="text-display-2 mb-1">Маркетинг</h1>
+          <h1 className="text-heading-1 mb-1">Маркетинг</h1>
           <p className="text-body-3 text-(--on-bg-medium)">
             Кампании в интерфейсе и рабочие инструменты
           </p>

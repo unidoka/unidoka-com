@@ -31,7 +31,20 @@ export interface VershinyLogoIconProps
  * Fills use `currentColor`, so the mark inherits any design-token text
  * color (`text-(--on-bg-high)`, etc.) in both themes.
  */
-const ICON_DELAYS = ["220ms", "165ms", "110ms", "55ms", "0ms"];
+const ICON_DELAYS = ["300ms", "225ms", "150ms", "75ms", "0ms"];
+
+/**
+ * The staircase is built from five arcs. Read bottom-up, the two base
+ * arcs are point 1 and each higher step is the next point, so the four
+ * mentor points fill the mark like water rising through its sections.
+ */
+export const VERSHINY_LOGO_SECTIONS = [
+  { point: 3, d: "M46 14C59.2548 14 70 24.7452 70 38H58C58 31.3726 52.6274 26 46 26V14Z" },
+  { point: 2, d: "M37 29C46.9411 29 55 37.0589 55 47H46C46 42.0294 41.9706 38 37 38V29Z" },
+  { point: 1, d: "M28 41C36.2843 41 43 47.7157 43 56H35.5C35.5 51.8579 32.1421 48.5 28 48.5V41Z" },
+  { point: 0, d: "M20.5 51.5C27.1274 51.5 32.5 56.8726 32.5 63.5H26.5C26.5 60.1863 23.8137 57.5 20.5 57.5V51.5Z" },
+  { point: 0, d: "M16 62C19.3137 62 22 64.6863 22 68C19.383 68 18.5149 68 16 68V62Z" },
+] as const;
 
 export function VershinyLogoIcon({
   replayKey = 0,
@@ -83,36 +96,15 @@ export function VershinyLogoIcon({
       className={cn("vershiny-logo-settle shrink-0", className)}
       {...props}
     >
-      <path
-        className="vershiny-anim-icon"
-        style={{ animationDelay: ICON_DELAYS[0] }}
-        d="M46 14C59.2548 14 70 24.7452 70 38H58C58 31.3726 52.6274 26 46 26V14Z"
-        fill="currentColor"
-      />
-      <path
-        className="vershiny-anim-icon"
-        style={{ animationDelay: ICON_DELAYS[1] }}
-        d="M37 29C46.9411 29 55 37.0589 55 47H46C46 42.0294 41.9706 38 37 38V29Z"
-        fill="currentColor"
-      />
-      <path
-        className="vershiny-anim-icon"
-        style={{ animationDelay: ICON_DELAYS[2] }}
-        d="M28 41C36.2843 41 43 47.7157 43 56H35.5C35.5 51.8579 32.1421 48.5 28 48.5V41Z"
-        fill="currentColor"
-      />
-      <path
-        className="vershiny-anim-icon"
-        style={{ animationDelay: ICON_DELAYS[3] }}
-        d="M20.5 51.5C27.1274 51.5 32.5 56.8726 32.5 63.5H26.5C26.5 60.1863 23.8137 57.5 20.5 57.5V51.5Z"
-        fill="currentColor"
-      />
-      <path
-        className="vershiny-anim-icon"
-        style={{ animationDelay: ICON_DELAYS[4] }}
-        d="M16 62C19.3137 62 22 64.6863 22 68C19.383 68 18.5149 68 16 68V62Z"
-        fill="currentColor"
-      />
+      {VERSHINY_LOGO_SECTIONS.map((section, index) => (
+        <path
+          key={index}
+          className="vershiny-anim-icon"
+          style={{ animationDelay: ICON_DELAYS[index] }}
+          d={section.d}
+          fill="currentColor"
+        />
+      ))}
     </svg>
   );
 }

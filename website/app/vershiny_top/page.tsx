@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getLocale } from "@/i18n/server";
+import { getVershinyAscii } from "@/lib/logo-ascii";
 import { ScrollReveal } from "@/components/layout/animation/scroll-reveal";
 import { HeroSection } from "./_components/hero-section";
 import { WhySection } from "./_components/why-section";
@@ -55,7 +56,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function VershinyTopPage() {
   return (
     <div className="min-h-screen bg-(--bg)">
-      <HeroSection />
+      <HeroSection ascii={getVershinyAscii()} />
       <ScrollReveal threshold={0.05}>
         <WhySection />
       </ScrollReveal>

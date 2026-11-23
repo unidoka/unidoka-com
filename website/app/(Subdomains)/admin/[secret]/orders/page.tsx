@@ -123,14 +123,13 @@ export default function AdminOrdersPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <h1 className="text-display-2 mb-1">Заявки</h1>
-          <p className="text-body-4 text-(--on-bg-medium)">
+          <h1 className="text-heading-1 mb-1">Заявки</h1>
+          <p className="text-body-5 text-(--on-bg-low)">
             {loading ? "Загрузка…" : filtered.length === orders.length ? `${orders.length} заявок` : `${filtered.length} из ${orders.length}`}
           </p>
         </div>
-        <Button variant="outlined" size="small" onClick={fetchOrders} disabled={loading}>
+        <Button variant="text" size="icon-small" onClick={fetchOrders} disabled={loading} aria-label="Обновить">
           <ArrowClockwiseIcon className={cn("size-4", loading && "animate-spin")} />
-          Обновить
         </Button>
       </div>
       {!loading && orders.length > 0 && (

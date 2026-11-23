@@ -11,7 +11,7 @@ export interface VershinyLogoMonoProps
 
 const WORDMARK_DELAY = "60ms";
 /* Bottom (smallest) arc first, rising to the top. */
-const ICON_DELAYS = ["220ms", "165ms", "110ms", "55ms", "0ms"];
+const ICON_DELAYS = ["300ms", "225ms", "150ms", "75ms", "0ms"];
 
 export function VershinyLogoMono({
   replayKey = 0,

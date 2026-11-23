@@ -95,7 +95,8 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", onDown);
   }, [profileOpen]);
 
-  const { secret: adminSecret } = useAdminSecret();
+  const isAdmin = user?.role === "admin" || user?.role === "root";
+  const { secret: adminSecret } = useAdminSecret(isAdmin);
 
   const adminHref = adminSecret
     ? crossSubdomainUrl("admin", `/${adminSecret}`)
@@ -232,7 +233,7 @@ export default function Header() {
                             >
                               {tr("nav.profile", "Профиль")}
                             </Link>
-                            {(user?.role === "admin" || user?.role === "root") && adminHref && (
+                            {isAdmin && adminHref && (
                               <Link
                                 href={adminHref}
                                 onClick={() => setProfileOpen(false)}

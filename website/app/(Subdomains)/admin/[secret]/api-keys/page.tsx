@@ -76,14 +76,13 @@ export default function AdminApiKeysPage() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
-            <h1 className="text-display-2 mb-1">API-ключи</h1>
-            <p className="text-body-3 text-(--on-bg-medium)">
+            <h1 className="text-heading-1 mb-1">API-ключи</h1>
+            <p className="text-body-5 text-(--on-bg-low)">
               {loading ? "Загрузка…" : `${rows.length} ключей`}
             </p>
           </div>
-          <Button variant="outlined" size="small" onClick={load} disabled={loading}>
+          <Button variant="text" size="icon-small" onClick={load} disabled={loading} aria-label="Обновить">
             {loading ? <CircleNotchIcon className="size-4 animate-spin" /> : <ArrowClockwiseIcon className="size-4" />}
-            Обновить
           </Button>
         </div>
 

@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
-import { Badge } from "@/components/ui/badge";
 import {
   ImageUploadField,
   type ImageUploadFieldHandle,
@@ -160,17 +159,11 @@ export default function ProfilePage() {
 
   return (
     <CheckUser>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-display-2 mb-1">Профиль</h1>
-          <p className="text-body-3 text-(--on-bg-medium)">
-            Управление публичной информацией аккаунта
-          </p>
-        </div>
+      <div className="space-y-5">
+        <h1 className="text-display-3">Профиль</h1>
 
-        {/* ── Identity card ─────────────────────────────────────── */}
-        <Card className="rounded-3xl border-(--outline) p-6 md:p-8">
-          <div className="flex flex-col sm:flex-row gap-6 md:gap-8 items-start">
+        <Card className="gap-8 rounded-2xl border-(--outline) p-6 md:p-8">
+          <div className="flex flex-col items-start gap-6 sm:flex-row md:gap-8">
             {/* Avatar preview only - actions live in the info column */}
             <div className="shrink-0 mx-auto sm:mx-0">
               <ImageUploadField
@@ -195,20 +188,12 @@ export default function ProfilePage() {
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-1.5">
-                <Badge variant="tonal-card-static" size="chip-small">
-                  {user.role}
-                </Badge>
-                {user.verified && (
-                  <Badge
-                    variant="tonal-card-static"
-                    size="chip-small"
-                    className="bg-emerald-500/15 text-emerald-500 border-emerald-500/30"
-                  >
-                    Подтверждён
-                  </Badge>
-                )}
-              </div>
+              {user.verified && (
+                <p className="inline-flex items-center gap-1.5 text-body-5 text-(--on-bg-low)">
+                  <span className="size-1.5 rounded-full bg-(--on-bg-high)" />
+                  Подтверждён
+                </p>
+              )}
 
               {/* Action row */}
               <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -240,19 +225,10 @@ export default function ProfilePage() {
                   </Button>
                 )}
               </div>
-
-              <p className="text-body-5 text-(--on-bg-low) leading-relaxed">
-                Квадратное изображение 1:1. Перетаскивайте и масштабируйте
-                при загрузке.
-              </p>
             </div>
           </div>
-        </Card>
 
-        {/* ── Personal info ─────────────────────────────────────── */}
-        <Card className="rounded-3xl border-(--outline) p-6 md:p-8 space-y-5">
-          <h2 className="text-heading-3">Личная информация</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 gap-5 border-t border-(--outline) pt-8 md:grid-cols-2">
             <Field data-invalid={!!errors.name}>
               <FieldLabel>Имя</FieldLabel>
               <Input
@@ -314,16 +290,9 @@ export default function ProfilePage() {
               )}
             </Field>
           </div>
-        </Card>
 
-        {/* ── Public links ──────────────────────────────────────── */}
-        <Card className="rounded-3xl border-(--outline) p-6 md:p-8 space-y-5">
-          <div>
-            <h2 className="text-heading-3 mb-1">Публичные ссылки</h2>
-            <p className="text-body-4 text-(--on-bg-medium)">
-              Отображаются в вашем публичном профиле.
-            </p>
-          </div>
+          <div className="space-y-5 border-t border-(--outline) pt-8">
+            <h2 className="text-heading-3">Ссылки</h2>
 
           <Field data-invalid={!!errors.telegram_username}>
             <FieldLabel>
@@ -376,15 +345,16 @@ export default function ProfilePage() {
               <FieldError errors={[{ message: errors.github_url }]} />
             )}
           </Field>
+          </div>
         </Card>
 
         {/* ── Save bar ──────────────────────────────────────────── */}
         <div className="flex flex-wrap gap-3">
-          <Button onClick={save} disabled={saving} size="large">
+          <Button onClick={save} disabled={saving} size="medium">
             {saving && <CircleNotchIcon className="size-4 animate-spin" />}
             {saving ? "Сохранение…" : "Сохранить изменения"}
           </Button>
-          <Button variant="outlined" size="large" onClick={reset} disabled={saving}>
+          <Button variant="outlined" size="medium" onClick={reset} disabled={saving}>
             Сбросить
           </Button>
         </div>

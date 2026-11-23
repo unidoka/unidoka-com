@@ -1,7 +1,9 @@
 "use client";
 
-import { CheckIcon } from "@phosphor-icons/react";
+import { useEffect, useState } from "react";
+import { animate, motion, useMotionValue, useTransform } from "motion/react";
 import { Container } from "@/components/ui/container";
+import { VershinyLogoIcon } from "@/components/icons/logotypes/vershiny-logo-icon";
 import { useLanguage } from "@/providers/language-provider";
 
 const POINTS = [
@@ -11,34 +13,101 @@ const POINTS = [
   "vershiny.mentors_point_4",
 ] as const;
 
+/* The water rises bottom-up: point 1 is the base, point 4 the whole mark. */
+const FILL_LEVELS = [28, 52, 76, 100];
+
+const CYCLE_MS = 5000;
+
 export function MentorsSection() {
   const { t } = useLanguage();
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const fill = useMotionValue(0);
+  const clipPath = useTransform(fill, (value) => `inset(${100 - value}% 0% 0% 0%)`);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReduceMotion(media.matches);
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    if (reduceMotion) {
+      fill.set(FILL_LEVELS[active]);
+      return;
+    }
+    const controls = animate(fill, FILL_LEVELS[active], {
+      type: "spring",
+      stiffness: 120,
+      damping: 14,
+      mass: 0.7,
+    });
+    return () => controls.stop();
+  }, [active, fill, reduceMotion]);
+
+  useEffect(() => {
+    if (paused || reduceMotion) return;
+    const id = window.setTimeout(
+      () => setActive((active + 1) % POINTS.length),
+      CYCLE_MS,
+    );
+    return () => window.clearTimeout(id);
+  }, [active, paused, reduceMotion]);
+
+  const next = () => setActive((active + 1) % POINTS.length);
 
   return (
     <section className="py-16 md:py-24">
-      <Container >
-        <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[1.2fr_1fr] lg:gap-20">
-          <div>
-            <h2 className="mb-6 text-display-3 leading-[1.05]! md:text-display-2">
-              {t("vershiny.mentors_title")}
-            </h2>
-            <p className="max-w-[560px] text-body-2 leading-relaxed text-(--on-bg-medium)">
-              {t("vershiny.mentors_body")}
-            </p>
+      <Container>
+        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1fr_1fr] lg:gap-20">
+          <div className="min-w-0">
+            <motion.h2
+              key={active}
+              initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={
+                reduceMotion
+                  ? { duration: 0 }
+                  : { type: "spring", stiffness: 280, damping: 26, mass: 0.7 }
+              }
+              className="max-w-[560px] text-display-4 leading-[1.08] text-(--on-bg-high) md:text-display-3"
+            >
+              {t(POINTS[active])}
+            </motion.h2>
           </div>
 
-          <ul className="">
-            {POINTS.map((key) => (
-              <li key={key} className="flex items-center gap-4 py-5">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-(--on-bg-high) text-(--bg)">
-                  <CheckIcon className="size-4" weight="bold" />
-                </span>
-                <span className="text-body-2 leading-snug text-(--on-bg-high)">
-                  {t(key)}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={next}
+              onPointerEnter={(event) => {
+                if (event.pointerType === "mouse") setPaused(true);
+              }}
+              onPointerLeave={(event) => {
+                if (event.pointerType === "mouse") setPaused(false);
+              }}
+              aria-label={t("vershiny.mentors_next")}
+              className="relative block aspect-square w-64 cursor-pointer select-none border-0 bg-transparent p-0 transition-transform duration-300 active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--on-bg-high)/30 focus-visible:ring-offset-4 focus-visible:ring-offset-(--bg) sm:w-80 lg:w-[400px]"
+            >
+              {/* Dry mark. */}
+              <VershinyLogoIcon
+                aria-hidden
+                className="absolute inset-0 size-full text-(--outline)"
+              />
+
+              {/* Water: the same solid mark, clipped from the bottom up. */}
+              <motion.div
+                aria-hidden
+                style={{ clipPath }}
+                className="absolute inset-0"
+              >
+                <VershinyLogoIcon className="size-full text-(--on-bg-high)" />
+              </motion.div>
+            </button>
+          </div>
         </div>
       </Container>
     </section>

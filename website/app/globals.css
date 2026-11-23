@@ -1903,7 +1903,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
   stroke-opacity: 1;
   stroke-dasharray: 300;
   stroke-dashoffset: 300;
-  animation: vershiny-draw-and-fill 1.05s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: vershiny-draw-and-fill 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   will-change: stroke-dashoffset, fill-opacity, stroke-opacity;
 }
 
@@ -1955,7 +1955,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
   stroke-opacity: 1;
   stroke-dasharray: 300;
   stroke-dashoffset: 300;
-  animation: vershiny-draw-and-fill 1.05s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: vershiny-draw-and-fill 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   will-change: stroke-dashoffset, fill-opacity, stroke-opacity;
 }
 
@@ -2183,8 +2183,14 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 @keyframes vershiny-logo-settle {
   0% {
     opacity: 0;
-    transform: translateY(10px) scale(0.985);
-    filter: blur(3px);
+    transform: translateY(14px) scale(0.96);
+    filter: blur(6px);
+  }
+
+  55% {
+    opacity: 1;
+    transform: translateY(-1.5px) scale(1.006);
+    filter: blur(0);
   }
 
   100% {
@@ -2196,7 +2202,7 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 
 .vershiny-logo-settle {
   transform-origin: center;
-  animation: vershiny-logo-settle 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: vershiny-logo-settle 1.15s cubic-bezier(0.16, 1, 0.3, 1) both;
   will-change: transform, opacity, filter;
 }
 
@@ -2222,16 +2228,22 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
     stroke-opacity: 1;
   }
 
-  55% {
+  52% {
     stroke-dashoffset: 0;
     fill-opacity: 0;
     stroke-opacity: 1;
   }
 
-  72% {
+  68% {
     stroke-dashoffset: 0;
-    fill-opacity: 0.35;
-    stroke-opacity: 0.9;
+    fill-opacity: 0.16;
+    stroke-opacity: 0.92;
+  }
+
+  84% {
+    stroke-dashoffset: 0;
+    fill-opacity: 0.72;
+    stroke-opacity: 0.42;
   }
 
   100% {
@@ -2896,14 +2908,36 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
 /* The order CTA mark takes one slow breath every few seconds, then rests.
    The beat is short enough to notice and long enough not to nag. */
 @keyframes grow-icon-breathe {
-  0%, 64%, 100% { transform: scale(1) rotate(0deg); }
-  74% { transform: scale(1.14) rotate(-7deg); }
-  86% { transform: scale(1.06) rotate(3deg); }
+  0%, 58%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 0 transparent);
+  }
+
+  66% {
+    transform: scale(1.05) rotate(-3deg);
+    filter: drop-shadow(0 0 0 transparent);
+  }
+
+  73% {
+    transform: scale(1.18) rotate(-9deg);
+    filter: drop-shadow(0 2px 7px color-mix(in srgb, var(--on-bg-high), transparent 62%));
+  }
+
+  82% {
+    transform: scale(1.09) rotate(4deg);
+    filter: drop-shadow(0 1px 5px color-mix(in srgb, var(--on-bg-high), transparent 70%));
+  }
+
+  90% {
+    transform: scale(1.02) rotate(-1deg);
+    filter: drop-shadow(0 0 0 transparent);
+  }
 }
 
 .grow-icon-animated {
   transform-origin: 50% 85%;
-  animation: grow-icon-breathe 4.8s ease-in-out infinite;
+  animation: grow-icon-breathe 6.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  will-change: transform, filter;
 }
 
 @media (prefers-reduced-motion: reduce) {

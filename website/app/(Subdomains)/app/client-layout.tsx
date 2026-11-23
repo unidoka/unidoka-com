@@ -9,9 +9,9 @@ export default function ProfileRootClientLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-(--bg) py-16 md:py-24">
+    <div className="min-h-screen bg-(--bg) py-12 md:py-16">
       <Container >
-        <div className="flex flex-col md:flex-row gap-10 lg:gap-16 items-start">
+        <div className="flex flex-col md:flex-row gap-8 lg:gap-12 items-start">
           <aside className="w-full md:w-auto md:sticky md:top-28 md:self-start shrink-0">
             <ProfileSidebar />
           </aside>

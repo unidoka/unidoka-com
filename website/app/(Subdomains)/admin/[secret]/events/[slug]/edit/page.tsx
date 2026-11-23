@@ -31,7 +31,7 @@ export default function EditEventPage({ params }: { params: Promise<{ slug: stri
     <CheckUser permission="admin.events">
       <div className="max-w-3xl space-y-6">
         <div>
-          <h1 className="text-display-2 mb-1">Редактирование</h1>
+          <h1 className="text-heading-1 mb-1">Редактирование</h1>
           <p className="text-body-3 text-(--on-bg-medium) font-mono">/events/{slug}</p>
         </div>
         {loading && (

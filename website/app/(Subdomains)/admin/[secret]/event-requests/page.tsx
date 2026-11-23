@@ -36,6 +36,7 @@ import {
 } from "@/utils/api/events";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
 import { crossSubdomainUrl } from "@/utils/root-domain";
+import { AdminPageHeader } from "../../_components/admin-page-header";
 
 export default function AdminEventRequestsPage() {
   const { user, isLoading: userLoading } = useUser();
@@ -107,32 +108,26 @@ export default function AdminEventRequestsPage() {
   return (
     <CheckUser permission="admin.events">
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-display-2 mb-1">Заявки на события</h1>
-            <p className="text-body-3 text-(--on-bg-medium)">
-              {loading
-                ? "Загрузка…"
-                : `${events.length} заявок на модерации`}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outlined" size="small" onClick={load} disabled={loading}>
-              {loading ? (
-                <CircleNotchIcon className="size-4 animate-spin" />
-              ) : (
-                <ArrowClockwiseIcon className="size-4" />
-              )}
-              Обновить
-            </Button>
-            <Button asChild size="small">
-              <Link href={`${base}/events`}>
-                <CalendarBlankIcon className="size-4" />
-                Все события
-              </Link>
-            </Button>
-          </div>
-        </div>
+        <AdminPageHeader
+          title="Заявки на события"
+          meta={
+            loading
+              ? "Загрузка…"
+              : `${events.length} заявок на модерации`
+          }
+          primary={{
+            label: "Все события",
+            href: `${base}/events`,
+            icon: CalendarBlankIcon,
+          }}
+          actions={[
+            {
+              label: "Обновить",
+              icon: ArrowClockwiseIcon,
+              onClick: load,
+            },
+          ]}
+        />
 
         {loading && (
           <div className="space-y-3">

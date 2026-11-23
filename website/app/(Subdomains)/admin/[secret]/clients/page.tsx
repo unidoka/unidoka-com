@@ -68,7 +68,7 @@ export default function AdminClientsPage() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-display-2 mb-1">Клиенты</h1>
+            <h1 className="text-heading-1 mb-1">Клиенты</h1>
             <p className="text-body-3 text-(--on-bg-medium)">
               {state.kind === "ready" ? `${clients.length} клиентов` : "Загрузка…"}
             </p>

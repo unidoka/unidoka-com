@@ -11,7 +11,7 @@ export default function NewSolutionPage() {
     <CheckUser permission="admin.solutions">
       <div className="max-w-3xl space-y-6">
         <div>
-          <h1 className="text-display-2 mb-1">Новое решение</h1>
+          <h1 className="text-heading-1 mb-1">Новое решение</h1>
           <p className="text-body-3 text-(--on-bg-medium)">
             Заполните данные. Можно выбрать кастомную страницу.
           </p>

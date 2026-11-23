@@ -1,9 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
-export function useAdminSecret() {
+
+/**
+ * Loads the admin route secret for the current session.
+ *
+ * Pass `enabled` as a gate so the header refetches after an SPA login:
+ * the header mounts while unauthenticated, so a one-shot fetch would
+ * cache the 401 and never show the admin link until a full reload.
+ */
+export function useAdminSecret(enabled = true) {
   const [secret, setSecret] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
+    if (!enabled) return;
     let cancelled = false;
     const load = async () => {
       try {
@@ -27,6 +36,6 @@ export function useAdminSecret() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [enabled]);
   return { secret, loading };
 }

@@ -1,15 +1,12 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { compileMDX } from "next-mdx-remote/rsc";
 import { Container } from "@/components/ui/container";
-import {
-  fetchPublicSolutionServer,
-} from "@/utils/api/solutions";
-import {
-  SOLUTION_CUSTOM_PAGES,
-} from "./_components/solution-custom-pages";
-
-export const dynamic = "force-dynamic";
+import { NovelReadOnly } from "@/components/editor/novel/novel-readonly";
+import { extractMdxHeadings } from "@/utils/mdx-headings";
+import { extractTiptapHeadings } from "@/utils/tiptap-headings";
+import { Toc } from "@/components/layout/toc/toc";
+import { fetchPublicSolutionServer, type Solution } from "@/utils/api/solutions";
+import { SOLUTION_CUSTOM_PAGES } from "./_components/solution-custom-pages";
 
 export async function generateMetadata({
   params,
@@ -39,78 +36,66 @@ export default async function SolutionPage({
   const solution = await fetchPublicSolutionServer(slug);
   if (!solution) notFound();
 
-  // ── Custom page override ────────────────────────────────────────
-  // If the solution has `custom_page` set and a component is
-  // registered for it, render that instead of the MDX content.
-  if (solution.custom_page) {
+  // If custom page is set, render it
+  if (solution.custom_page && SOLUTION_CUSTOM_PAGES[solution.custom_page]) {
     const CustomPage = SOLUTION_CUSTOM_PAGES[solution.custom_page];
-    if (CustomPage) {
-      return <CustomPage solution={solution} />;
-    }
-    // custom_page is set but not registered - fall through to MDX.
+    return <CustomPage solution={solution} />;
   }
 
-  // ── Default: render MDX content ─────────────────────────────────
-  const { content } = await compileMDX({
-    source: solution.mdx_content || solution.description || "",
-    options: { parseFrontmatter: false },
-  });
+  // Extract headings for TOC
+  const headings = solution.content_json
+    ? extractTiptapHeadings(solution.content_json)
+    : extractMdxHeadings(solution.mdx_content ?? "");
+  const hasToc = headings.length > 0;
 
   return (
-    <main className="min-h-screen bg-(--bg)">
-      <section className="pt-32 pb-12 border-b border-(--outline)">
-        <Container>
-          <div className="max-w-4xl">
-            {solution.category && (
-              <p className="text-body-5 uppercase tracking-[0.3em] text-(--on-bg-low) mb-4">
-                {solution.category}
-                {solution.period && ` · ${solution.period}`}
-              </p>
-            )}
-            <h1 className="text-display-1 font-heading  tracking-tight text-(--on-bg-high) leading-[0.95] mb-6">
-              {solution.title}
-            </h1>
-            {solution.short_description && (
-              <p className="text-body-1 text-(--on-bg-medium) max-w-2xl leading-relaxed">
-                {solution.short_description}
-              </p>
-            )}
-            {(solution.tags ?? []).length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-6">
-                {(solution.tags ?? []).map((t, i) => (
-                  <span
-                    key={i}
-                    className="inline-flex items-center rounded-full border border-(--outline) bg-(--bg) px-3 py-1 text-body-5 text-(--on-bg-medium)"
-                  >
-                    {t.title}
-                  </span>
-                ))}
+    <main className="pt-24 sm:pt-28 pb-16">
+      <Container>
+        <div className={hasToc ? "grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-12" : ""}>
+          <div className="min-w-0">
+            <header className="mb-12">
+              <h1 className="text-display-2 md:text-display-1 mb-4">{solution.title}</h1>
+              {solution.short_description && (
+                <p className="text-body-2 text-(--on-bg-medium) max-w-[760px]">
+                  {solution.short_description}
+                </p>
+              )}
+            </header>
+
+            {solution.cover_image_src && (
+              <div className="relative aspect-[4/3] rounded-3xl overflow-hidden border border-(--outline) mb-12">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={solution.cover_image_src}
+                  alt={solution.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
               </div>
             )}
+
+            {solution.content_json ? (
+              <article className="max-w-[760px]">
+                <NovelReadOnly content={solution.content_json} />
+              </article>
+            ) : solution.mdx_content ? (
+              <article className="max-w-[760px] prose prose-neutral dark:prose-invert">
+                {/* Fallback for legacy MDX if needed, though NovelReadOnly is primary */}
+                <div dangerouslySetInnerHTML={{ __html: solution.mdx_content }} />
+              </article>
+            ) : solution.description ? (
+              <article className="max-w-[760px] prose prose-neutral dark:prose-invert">
+                <p>{solution.description}</p>
+              </article>
+            ) : null}
           </div>
-        </Container>
-      </section>
-      {solution.cover_image_src && (
-        <section className="py-8">
-          <Container>
-            <div className="relative aspect-[4/3] rounded-3xl overflow-hidden border border-(--outline)">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={solution.cover_image_src}
-                alt={solution.title}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
+
+          {hasToc && (
+            <div className="hidden lg:block">
+              <Toc headings={headings} />
             </div>
-          </Container>
-        </section>
-      )}
-      <section className="py-12 md:py-20">
-        <Container>
-          <article className="max-w-[760px] prose prose-neutral dark:prose-invert">
-            {content}
-          </article>
-        </Container>
-      </section>
+          )}
+        </div>
+      </Container>
     </main>
   );
 }
