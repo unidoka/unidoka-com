@@ -5,7 +5,7 @@ import { $fetch } from "@/utils/fetch";
 const onUpload = async (file: File) => {
   const fd = new FormData();
   fd.append("file", file);
-  const res = await $fetch("/api/v1/uploads/images", {
+  const res = await $fetch("/api/v1/uploads/image", {
     method: "POST",
     body: fd,
     isToast: false,

@@ -41,25 +41,39 @@ export const SlashMenu = forwardRef<any, SlashMenuProps>(({ items, command }, re
   if (items.length === 0) return null;
 
   return (
-    <div className="z-50 w-64 rounded-xl border border-(--outline) bg-(--card) p-1 shadow-xl">
-      {items.map((item, index) => (
-        <button
-          key={index}
-          onClick={() => selectItem(index)}
-          className={cn(
-            "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors",
-            index === selectedIndex ? "bg-(--primary) text-(--on-primary)" : "text-(--on-bg-medium) hover:bg-(--state-hover)"
-          )}
-        >
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-(--bg) border border-(--outline)">
-            {item.icon}
-          </div>
-          <div>
-            <div className="font-medium">{item.title}</div>
-            <div className="text-xs opacity-70">{item.description}</div>
-          </div>
-        </button>
-      ))}
+    <div className="z-50 max-h-[min(70vh,26rem)] w-72 overflow-y-auto overscroll-contain rounded-xl border border-(--outline) bg-(--card) p-1 shadow-xl">
+      {items.map((item, index) => {
+        const selected = index === selectedIndex;
+        return (
+          <button
+            key={item.title}
+            type="button"
+            onClick={() => selectItem(index)}
+            onMouseEnter={() => setSelectedIndex(index)}
+            className={cn(
+              "flex w-full items-start gap-3 rounded-lg px-2.5 py-2 text-left transition-colors",
+              selected
+                ? "bg-(--primary) text-(--on-primary)"
+                : "text-(--on-bg-medium) hover:bg-(--state-hover)",
+            )}
+          >
+            <span
+              className={cn(
+                "mt-0.5 shrink-0",
+                selected ? "text-(--on-primary)" : "text-(--on-bg-low)",
+              )}
+            >
+              {item.icon}
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-medium">{item.title}</span>
+              <span className={cn("block truncate text-xs", selected ? "opacity-70" : "text-(--on-bg-low)")}>
+                {item.description}
+              </span>
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 });

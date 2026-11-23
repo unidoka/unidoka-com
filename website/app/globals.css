@@ -2905,39 +2905,39 @@ input[type="time"]::-webkit-calendar-picker-indicator:hover {
   }
 }
 
-/* The order CTA mark takes one slow breath every few seconds, then rests.
-   The beat is short enough to notice and long enough not to nag. */
-@keyframes grow-icon-breathe {
-  0%, 58%, 100% {
-    transform: scale(1) rotate(0deg);
-    filter: drop-shadow(0 0 0 transparent);
+/* The order CTA mark is a potted plant. It grows out of the pot from
+   the soil line upward, holds, then quietly starts again. Clipping from
+   just below the rim keeps the pot itself stable while the stem and
+   leaves rise. */
+@keyframes grow-icon-grow {
+  0% {
+    clip-path: inset(46% 0 0 0);
+    transform: rotate(0deg) scale(1);
   }
 
-  66% {
-    transform: scale(1.05) rotate(-3deg);
-    filter: drop-shadow(0 0 0 transparent);
+  30% {
+    clip-path: inset(0 0 0 0);
+    transform: rotate(-1.5deg) scale(1.01);
   }
 
-  73% {
-    transform: scale(1.18) rotate(-9deg);
-    filter: drop-shadow(0 2px 7px color-mix(in srgb, var(--on-bg-high), transparent 62%));
+  45% {
+    transform: rotate(1deg) scale(1);
   }
 
-  82% {
-    transform: scale(1.09) rotate(4deg);
-    filter: drop-shadow(0 1px 5px color-mix(in srgb, var(--on-bg-high), transparent 70%));
+  60% {
+    transform: rotate(-0.8deg);
   }
 
-  90% {
-    transform: scale(1.02) rotate(-1deg);
-    filter: drop-shadow(0 0 0 transparent);
+  75%, 100% {
+    clip-path: inset(0 0 0 0);
+    transform: rotate(0deg) scale(1);
   }
 }
 
 .grow-icon-animated {
-  transform-origin: 50% 85%;
-  animation: grow-icon-breathe 6.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
-  will-change: transform, filter;
+  transform-origin: 50% 100%;
+  animation: grow-icon-grow 9s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  will-change: clip-path, transform;
 }
 
 @media (prefers-reduced-motion: reduce) {

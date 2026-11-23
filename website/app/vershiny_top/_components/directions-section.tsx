@@ -1,27 +1,30 @@
 "use client";
 
-import { ArrowUpRight, Briefcase, Code, Cpu, Palette } from "@phosphor-icons/react";
 import { Container } from "@/components/ui/container";
+import { SoftwareSpecialIcon } from "@/components/icons/special/software-special-icon";
+import { BusinessSpecialIcon } from "@/components/icons/special/business-special-icon";
+import { DesignSpecialIcon } from "@/components/icons/special/design-special-icon";
+import { HardwareSpecialIcon } from "@/components/icons/special/hardware-special-icon";
 import { useLanguage } from "@/providers/language-provider";
 
 const DIRECTIONS = [
   {
-    icon: Code,
+    icon: SoftwareSpecialIcon,
     titleKey: "vershiny.direction_software_title",
     bodyKey: "vershiny.direction_software_body",
   },
   {
-    icon: Briefcase,
+    icon: BusinessSpecialIcon,
     titleKey: "vershiny.direction_business_title",
     bodyKey: "vershiny.direction_business_body",
   },
   {
-    icon: Palette,
+    icon: DesignSpecialIcon,
     titleKey: "vershiny.direction_design_title",
     bodyKey: "vershiny.direction_design_body",
   },
   {
-    icon: Cpu,
+    icon: HardwareSpecialIcon,
     titleKey: "vershiny.direction_hardware_title",
     bodyKey: "vershiny.direction_hardware_body",
   },
@@ -35,9 +38,7 @@ export function DirectionsSection() {
       <Container>
         <div className="relative mb-12 max-w-2xl">
           <h2 className="mb-4 text-display-3 leading-[1.05]! md:text-display-2">
-            <span className="relative inline-block">
-              {t("vershiny.directions_title")}
-            </span>
+            {t("vershiny.directions_title")}
           </h2>
           <p className="text-body-2 leading-relaxed text-(--on-bg-medium)">
             {t("vershiny.directions_subtitle")}
@@ -50,17 +51,12 @@ export function DirectionsSection() {
             return (
               <article
                 key={d.titleKey}
-                className="group relative flex min-h-[220px] flex-col bg-(--bg) p-7 transition-colors duration-300 hover:bg-(--card)"
+                className="group relative flex min-h-[260px] flex-col bg-(--bg) p-7 transition-colors duration-300 hover:bg-(--card)"
               >
-                <span
+                <Icon
                   aria-hidden
-                  className="absolute inset-x-0 top-0 h-[2px] w-0 bg-(--primary) transition-all duration-500 group-hover:w-full"
+                  className="size-12 shrink-0 text-(--on-bg-high) transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-[1.04] lg:size-14"
                 />
-
-                <div className="flex items-start justify-between gap-4">
-                  <Icon className="size-5" weight="bold" />
-                  <ArrowUpRight className="size-4 text-(--on-bg-low) transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                </div>
 
                 <div className="mt-auto pt-10">
                   <h3 className="text-heading-2 leading-tight text-(--on-bg-high)">

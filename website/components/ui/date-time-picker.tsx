@@ -72,12 +72,6 @@ export function DateTimePicker({
 
   const handleDateSelect = (d: Date | undefined) => commit(d, time);
 
-  const handleTimeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const t = e.target.value || "00:00";
-    setTime(t);
-    commit(localToDate(value) ?? new Date(), t);
-  };
-
   const handleClear = (e: React.MouseEvent) => {
     e.stopPropagation();
     onChange("");
@@ -188,9 +182,12 @@ export function DateTimePicker({
   );
 }
 
-/* A scrollable column of values. Values in a fixed-height container
-   with `scroll-snap` so paging feels deliberate, and the active value
-   snaps into place at the top when the popover opens. */
+/* An iOS-style wheel: the value in the centre is large and solid, the
+   neighbours are small and dimmed. Scrolling moves the highlight, and
+   the value is committed once the wheel settles. */
+const WHEEL_ITEM_H = 36;
+const WHEEL_PAD = WHEEL_ITEM_H * 2;
+
 function TimeColumn({
   value,
   options,
@@ -201,39 +198,80 @@ function TimeColumn({
   onChange: (v: string) => void;
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
+  const settle = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [center, setCenter] = React.useState(() =>
+    Math.max(0, options.indexOf(value)),
+  );
 
   React.useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const active = el.querySelector<HTMLElement>("[data-active='true']");
-    if (active) active.scrollIntoView({ block: "center", behavior: "instant" });
-  }, [value]);
+    const index = Math.max(0, options.indexOf(value));
+    el.scrollTo({ top: index * WHEEL_ITEM_H, behavior: "auto" });
+    setCenter(index);
+  }, [value, options]);
+
+  React.useEffect(
+    () => () => {
+      if (settle.current) clearTimeout(settle.current);
+    },
+    [],
+  );
+
+  const handleScroll = () => {
+    const el = ref.current;
+    if (!el) return;
+    const index = Math.max(
+      0,
+      Math.min(
+        options.length - 1,
+        Math.round(el.scrollTop / WHEEL_ITEM_H),
+      ),
+    );
+    setCenter(index);
+    if (settle.current) clearTimeout(settle.current);
+    settle.current = setTimeout(() => {
+      const next = options[index];
+      if (next && next !== value) onChange(next);
+    }, 140);
+  };
 
   return (
     <div
       ref={ref}
-      className="h-[168px] overflow-y-auto scrollbar-terminal rounded-lg border border-(--outline) bg-(--bg) py-1"
+      onScroll={handleScroll}
+      role="listbox"
+      className="h-[180px] snap-y snap-mandatory overflow-y-auto rounded-lg border border-(--outline) bg-(--bg) [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
-      {options.map((opt) => {
-        const active = opt === value;
+      <div style={{ height: WHEEL_PAD }} aria-hidden />
+      {options.map((opt, index) => {
+        const isCenter = index === center;
         return (
           <button
             key={opt}
             type="button"
-            data-active={active}
-            onClick={() => onChange(opt)}
+            role="option"
+            aria-selected={isCenter}
+            onClick={() => {
+              onChange(opt);
+              ref.current?.scrollTo({
+                top: index * WHEEL_ITEM_H,
+                behavior: "smooth",
+              });
+            }}
+            style={{ height: WHEEL_ITEM_H }}
             className={cn(
-              "w-full h-8 text-center font-mono text-body-4 tabular-nums transition-colors rounded-md mx-1",
-              active
-                ? "bg-(--on-bg-high) text-(--bg) "
-                : "text-(--on-bg-medium) hover:bg-(--state-hover) hover:text-(--on-bg-high)",
+              "flex w-full snap-center items-center justify-center font-mono tabular-nums transition-colors",
+              isCenter
+                ? "text-body-2 text-(--on-bg-high)"
+                : "text-body-5 text-(--on-bg-low) hover:text-(--on-bg-medium)",
             )}
-            style={{ width: "calc(100% - 8px)" }}
           >
             {opt}
           </button>
         );
       })}
+      <div style={{ height: WHEEL_PAD }} aria-hidden />
     </div>
   );
 }

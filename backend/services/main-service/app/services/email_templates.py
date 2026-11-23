@@ -41,7 +41,14 @@ To add a new email type:
 """
 
 from typing import Optional
+import os
 
+# Public mail asset. Overridable per environment; the i. host is the
+# static image origin that the rest of the brand already uses.
+MAIL_LOGO_URL = os.getenv(
+    "MAIL_LOGO_URL",
+    "https://i.unidoka.com/images/mail/unidoka.com/unidoka-logotype-icon.png",
+)
 
 # ═══════════════════════════════════════════════════════════════════
 # Translations
@@ -66,12 +73,11 @@ TRANSLATIONS: dict[str, dict] = {
             "preheader": "Ваш код: {code}. Действует 5 минут.",
             "title": "Подтверждение email",
             "greeting": "Здравствуйте!",
-            "intro": "Вы регистрируетесь в Юнидоке. Введите код ниже, чтобы подтвердить адрес:",
+            "intro": "Введите код ниже, чтобы подтвердить адрес:",
             "expiry": "Код действует 5 минут.",
             "ignore_title": "Не запрашивали код?",
             "ignore_body": (
-                "Если вы не регистрировались в Юнидоке, просто "
-                "проигнорируйте это письмо. Ваш аккаунт в безопасности, "
+                "Просто проигнорируйте это письмо. Ваш аккаунт в безопасности, "
                 "никаких действий не требуется."
             ),
         },
@@ -107,7 +113,7 @@ TRANSLATIONS: dict[str, dict] = {
             "preheader": "Your code is {code}. Valid for 5 minutes.",
             "title": "Verify your email",
             "greeting": "Hello,",
-            "intro": "You're signing up for Unidoka. Enter the code below to confirm your email address:",
+            "intro": "Enter the code below to confirm your email address:",
             "expiry": "This code expires in 5 minutes.",
             "ignore_title": "Didn't request this code?",
             "ignore_body": (
@@ -129,8 +135,7 @@ TRANSLATIONS: dict[str, dict] = {
             "expiry": "This link expires in 30 minutes.",
             "ignore_title": "Didn't request a reset?",
             "ignore_body": (
-                "If you did not request a password reset, you can safely "
-                "ignore this email. Your password will remain unchanged, "
+                "You can safely ignore this email. Your password will remain unchanged, "
                 "and no action is required."
             ),
         },
@@ -216,6 +221,8 @@ def _base_layout(
       .fl-dim {{ color: #a1a1aa !important; }}
       .fl-border {{ border-color: #e4e4e7 !important; }}
       .fl-divider {{ border-color: #f4f4f5 !important; }}
+      .fl-code {{ background-color: #18181b !important; }}
+      .fl-code-text {{ color: #ffffff !important; }}
       a {{ color: #18181b !important; }}
     }}
     /* Outlook adds a 15px lspace/rspace around every table unless told
@@ -249,8 +256,17 @@ def _base_layout(
             <td style="padding: 24px 40px; border-bottom: 1px solid #f4f4f5;" class="fl-card fl-divider">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
-                  <td align="left" style="font-family:{FONT_SANS}; font-size:15px; font-weight:600; letter-spacing:-0.01em; color:#18181b; mso-line-height-rule:exactly; line-height:20px;" class="fl-text">
-                    {t["brand"]}
+                  <td align="left" style="mso-line-height-rule:exactly; line-height:20px;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="padding-right:10px; vertical-align:middle;">
+                          <img src="{MAIL_LOGO_URL}" width="28" height="28" alt="{t['brand']}" style="display:block; width:28px; height:28px; border:0; outline:none; text-decoration:none; border-radius:8px;" />
+                        </td>
+                        <td style="font-family:{FONT_SANS}; font-size:15px; font-weight:600; letter-spacing:-0.01em; color:#18181b; mso-line-height-rule:exactly; line-height:20px; vertical-align:middle;" class="fl-text">
+                          {t["brand"]}
+                        </td>
+                      </tr>
+                    </table>
                   </td>
                   <td align="right" style="font-family:{FONT_MONO}; font-size:11px; letter-spacing:0.06em; color:#a1a1aa; mso-line-height-rule:exactly; line-height:20px;" class="fl-dim">
                     {t["site_label"]}
@@ -298,7 +314,7 @@ def _base_layout(
 def _heading(text: str) -> str:
     return (
         f'<h1 style="margin:0 0 16px; font-family:{FONT_SANS}; '
-        f'font-size:26px; font-weight:600; letter-spacing:-0.02em; '
+        f"font-size:26px; font-weight:600; letter-spacing:-0.02em; "
         f'color:#18181b; mso-line-height-rule:exactly; line-height:34px;" '
         f'class="fl-text">{text}</h1>'
     )
@@ -310,7 +326,7 @@ def _paragraph(text: str, *, tone: str = "body", margin_bottom: int = 20) -> str
     classes = {"body": "fl-text", "muted": "fl-muted", "dim": "fl-muted"}
     return (
         f'<p style="margin:0 0 {margin_bottom}px; font-family:{FONT_SANS}; '
-        f'font-size:15px; color:{colors[tone]}; mso-line-height-rule:exactly; '
+        f"font-size:15px; color:{colors[tone]}; mso-line-height-rule:exactly; "
         f'line-height:24px;" class="{classes[tone]}">{text}</p>'
     )
 
@@ -356,8 +372,8 @@ def _code_block(code: str, *, label: str) -> str:
           <td align="center">
             <table role="presentation" cellpadding="0" cellspacing="0" border="0">
               <tr>
-                <td align="center" bgcolor="#f4f4f5" style="background-color:#f4f4f5; border:1px solid #e4e4e7; border-radius:14px; padding:20px 36px 20px 46px;" class="fl-surface fl-border" aria-label="{label}">
-                  <span style="font-family:{FONT_MONO}; font-size:30px; font-weight:600; letter-spacing:10px; color:#18181b; mso-line-height-rule:exactly; line-height:38px;" class="fl-text">{code}</span>
+                <td align="center" bgcolor="#18181b" style="background-color:#18181b; border-radius:14px; padding:20px 36px 20px 46px;" class="fl-code" aria-label="{label}">
+                  <span translate="no" dir="ltr" class="notranslate fl-code-text" style="font-family:{FONT_MONO}; font-size:30px; font-weight:600; letter-spacing:10px; color:#ffffff; mso-line-height-rule:exactly; line-height:38px; font-variant-numeric:tabular-nums; direction:ltr; unicode-bidi:isolate; user-select:all; -webkit-user-select:all;">{code}</span>
                 </td>
               </tr>
             </table>
@@ -472,10 +488,10 @@ def render_password_reset_email(
         f'color:#71717a; mso-line-height-rule:exactly; line-height:20px;" '
         f'class="fl-muted">{p["fallback"]}</p>'
         f'<p style="margin:0 0 28px; font-family:{FONT_MONO}; font-size:12px; '
-        f'color:#18181b; word-break:break-all; mso-line-height-rule:exactly; '
+        f"color:#18181b; word-break:break-all; mso-line-height-rule:exactly; "
         f'line-height:18px;" class="fl-text">'
         f'<a href="{reset_url}" target="_blank" style="color:#18181b; text-decoration:underline;">{reset_url}</a>'
-        f'</p>'
+        f"</p>"
     )
 
     body_html = (

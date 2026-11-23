@@ -12,8 +12,8 @@ import { extensions } from "./extensions";
 import { uploadFn } from "./image-upload";
 import { registerUploadCallbacks } from "./suggestion-items";
 import { cn } from "@/lib/utils";
-import "@/app/novel-editor.css";
 import "tippy.js/dist/tippy.css";
+import "@/app/novel-editor.css";
 import {
   TextB,
   TextItalic,
@@ -75,7 +75,7 @@ export function NovelEditor({
   const uploadMediaFile = async (file: File | Blob, filename: string, isVideo: boolean) => {
     const fd = new FormData();
     fd.append("file", file, filename);
-    const endpoint = isVideo ? "/api/v1/uploads/media" : "/api/v1/uploads/images";
+    const endpoint = isVideo ? "/api/v1/uploads/media" : "/api/v1/uploads/image";
     const res = await $fetch(endpoint, { method: "POST", body: fd, isToast: false });
     if (!res?.response?.ok) throw new Error(res?.json?.detail || "Upload failed");
     return res.json;
@@ -138,8 +138,10 @@ export function NovelEditor({
       }
       if (urls.length > 0) {
         insertBlockWithTrailingParagraph(pos, { type: "gallery", attrs: { images: urls } });
+        toast.success("Галерея добавлена", { id: tId });
+      } else {
+        toast.error("Не удалось загрузить изображения", { id: tId });
       }
-      toast.success("Галерея добавлена", { id: tId });
     };
     input.click();
   };
@@ -229,35 +231,37 @@ export function NovelEditor({
 function Toolbar({ editor, onImageUpload, onVideoUpload, onGalleryUpload }: any) {
   return (
     <div className="sticky top-0 z-10 flex flex-wrap items-center gap-1 border-b border-(--outline) bg-(--card) p-2 shrink-0 rounded-t-xl">
-      <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} isActive={editor.isActive("bold")} icon={<TextB className="size-4" />} />
-      <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} isActive={editor.isActive("italic")} icon={<TextItalic className="size-4" />} />
-      <ToolbarButton onClick={() => editor.chain().focus().toggleStrike().run()} isActive={editor.isActive("strike")} icon={<TextStrikethrough className="size-4" />} />
-      <ToolbarButton onClick={() => editor.chain().focus().toggleCode().run()} isActive={editor.isActive("code")} icon={<Code className="size-4" />} />
+      <ToolbarButton onClick={() => editor.chain().focus().toggleBold().run()} isActive={editor.isActive("bold")} label="Жирный" icon={<TextB className="size-4" />} />
+      <ToolbarButton onClick={() => editor.chain().focus().toggleItalic().run()} isActive={editor.isActive("italic")} label="Курсив" icon={<TextItalic className="size-4" />} />
+      <ToolbarButton onClick={() => editor.chain().focus().toggleStrike().run()} isActive={editor.isActive("strike")} label="Зачёркнутый" icon={<TextStrikethrough className="size-4" />} />
+      <ToolbarButton onClick={() => editor.chain().focus().toggleCode().run()} isActive={editor.isActive("code")} label="Код" icon={<Code className="size-4" />} />
       <div className="w-px h-5 bg-(--outline) mx-1" />
-      <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} isActive={editor.isActive("heading", { level: 1 })} icon={<TextHOne className="size-4" />} />
-      <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} isActive={editor.isActive("heading", { level: 2 })} icon={<TextHTwo className="size-4" />} />
-      <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} isActive={editor.isActive("heading", { level: 3 })} icon={<TextHThree className="size-4" />} />
+      <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} isActive={editor.isActive("heading", { level: 1 })} label="Заголовок 1" icon={<TextHOne className="size-4" />} />
+      <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} isActive={editor.isActive("heading", { level: 2 })} label="Заголовок 2" icon={<TextHTwo className="size-4" />} />
+      <ToolbarButton onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} isActive={editor.isActive("heading", { level: 3 })} label="Заголовок 3" icon={<TextHThree className="size-4" />} />
       <div className="w-px h-5 bg-(--outline) mx-1" />
-      <ToolbarButton onClick={() => editor.chain().focus().toggleBulletList().run()} isActive={editor.isActive("bulletList")} icon={<ListBullets className="size-4" />} />
-      <ToolbarButton onClick={() => editor.chain().focus().toggleOrderedList().run()} isActive={editor.isActive("orderedList")} icon={<ListNumbers className="size-4" />} />
-      <ToolbarButton onClick={() => editor.chain().focus().toggleCodeBlock().run()} isActive={editor.isActive("codeBlock")} icon={<CodeBlock className="size-4" />} />
+      <ToolbarButton onClick={() => editor.chain().focus().toggleBulletList().run()} isActive={editor.isActive("bulletList")} label="Маркированный список" icon={<ListBullets className="size-4" />} />
+      <ToolbarButton onClick={() => editor.chain().focus().toggleOrderedList().run()} isActive={editor.isActive("orderedList")} label="Нумерованный список" icon={<ListNumbers className="size-4" />} />
+      <ToolbarButton onClick={() => editor.chain().focus().toggleCodeBlock().run()} isActive={editor.isActive("codeBlock")} label="Блок кода" icon={<CodeBlock className="size-4" />} />
       <div className="w-px h-5 bg-(--outline) mx-1" />
-      <ToolbarButton onClick={() => onImageUpload(editor.view.state.selection.from)} icon={<ImageSquare className="size-4" />} />
-      <ToolbarButton onClick={() => onVideoUpload(editor.view.state.selection.from)} icon={<VideoCamera className="size-4" />} />
-      <ToolbarButton onClick={() => onGalleryUpload(editor.view.state.selection.from)} icon={<SquaresFour className="size-4" />} />
+      <ToolbarButton onClick={() => onImageUpload(editor.view.state.selection.from)} label="Изображение" icon={<ImageSquare className="size-4" />} />
+      <ToolbarButton onClick={() => onVideoUpload(editor.view.state.selection.from)} label="Видео" icon={<VideoCamera className="size-4" />} />
+      <ToolbarButton onClick={() => onGalleryUpload(editor.view.state.selection.from)} label="Галерея" icon={<SquaresFour className="size-4" />} />
       <div className="w-px h-5 bg-(--outline) mx-1" />
-      <ToolbarButton onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} icon={<ArrowCounterClockwise className="size-4" />} />
-      <ToolbarButton onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} icon={<ArrowClockwise className="size-4" />} />
+      <ToolbarButton onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} label="Отменить" icon={<ArrowCounterClockwise className="size-4" />} />
+      <ToolbarButton onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} label="Повторить" icon={<ArrowClockwise className="size-4" />} />
     </div>
   );
 }
 
-function ToolbarButton({ onClick, isActive, disabled, icon }: any) {
+function ToolbarButton({ onClick, isActive, disabled, label, icon }: any) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
+      aria-label={label}
+      title={label}
       className={cn(
         "p-1.5 rounded-md transition-colors",
         isActive ? "bg-(--primary) text-(--on-primary)" : "text-(--on-bg-medium) hover:bg-(--state-hover) hover:text-(--on-bg-high)",

@@ -106,6 +106,10 @@ export const extensions = [
                   interactive: true,
                   trigger: "manual",
                   placement: "bottom-start",
+                  theme: "novel",
+                  zIndex: 99999,
+                  maxWidth: "none",
+                  offset: [0, 8],
                 });
               },
               onUpdate(props: SuggestionProps) {
