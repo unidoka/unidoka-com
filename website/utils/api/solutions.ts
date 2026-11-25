@@ -143,27 +143,31 @@ export async function fetchPublicSolutionsServer(params?: {
   if (params?.featured) qs.set("featured", "true");
   if (params?.limit) qs.set("limit", String(params.limit));
   try {
-    const res = await fetch(
-      `${API_BASE}/api/v1/solutions${qs.toString() ? `?${qs}` : ""}`,
-      { cache: "no-store" },
-    );
-    if (!res.ok) return [];
+    const url = `${API_BASE}/api/v1/solutions${qs.toString() ? `?${qs}` : ""}`;
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) {
+      console.error("[solutions] public list failed", res.status, url);
+      return [];
+    }
     const body = await res.json();
     return Array.isArray(body) ? body : [];
-  } catch {
+  } catch (error) {
+    console.error("[solutions] public list unreachable", API_BASE, error);
     return [];
   }
 }
 
 export async function fetchPublicSolutionServer(slug: string): Promise<Solution | null> {
   try {
-    const res = await fetch(
-      `${API_BASE}/api/v1/solutions/${encodeURIComponent(slug)}`,
-      { cache: "no-store" },
-    );
-    if (!res.ok) return null;
+    const url = `${API_BASE}/api/v1/solutions/${encodeURIComponent(slug)}`;
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) {
+      console.error("[solutions] public detail failed", res.status, url);
+      return null;
+    }
     return (await res.json()) as Solution;
-  } catch {
+  } catch (error) {
+    console.error("[solutions] public detail unreachable", API_BASE, error);
     return null;
   }
 }
@@ -171,4 +175,12 @@ export async function fetchPublicSolutionServer(slug: string): Promise<Solution 
 export async function fetchPublicSolutionsClient(): Promise<Solution[]> {
   const res = await $fetch("/api/v1/solutions", { isToast: false });
   return Array.isArray(res?.json) ? (res.json as Solution[]) : [];
+}
+
+export async function fetchPublicSolutionClient(slug: string): Promise<Solution | null> {
+  const res = await $fetch(`/api/v1/solutions/${encodeURIComponent(slug)}`, {
+    isToast: false,
+  });
+  if (!res?.response?.ok) return null;
+  return (res.json as Solution) ?? null;
 }

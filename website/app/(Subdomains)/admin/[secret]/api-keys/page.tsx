@@ -7,7 +7,6 @@ import { useUser } from "@/entities/user/model/user-context";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -17,7 +16,6 @@ import {
 } from "@/components/ui/dialog";
 import { CopyButton } from "@/components/ui/copy-button";
 import {
-  MagnifyingGlassIcon,
   ArrowClockwiseIcon,
   CircleNotchIcon,
   TrashIcon,
@@ -28,6 +26,7 @@ import {
   revokeAnyApiKey,
   type AdminApiKey,
 } from "@/utils/api/api-keys";
+import { AdminFilterBar } from "../../_components/admin-filter-bar";
 
 export default function AdminApiKeysPage() {
   const { user, isLoading: userLoading } = useUser();
@@ -86,17 +85,27 @@ export default function AdminApiKeysPage() {
           </Button>
         </div>
 
-        <Card className="rounded-3xl border-(--outline) p-4">
-          <div className="flex flex-col sm:flex-row gap-2">
-            <div className="relative flex-1">
-              <MagnifyingGlassIcon className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-(--on-bg-low) pointer-events-none" />
-              <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Поиск по пользователю, email, префиксу…" className="pl-9" />
-            </div>
-            <Button variant={activeOnly ? "filled" : "outlined"} size="small" onClick={() => setActiveOnly((v) => !v)}>
-              Только активные
-            </Button>
-          </div>
-        </Card>
+        <AdminFilterBar
+          query={query}
+          onQueryChange={setQuery}
+          placeholder="Поиск по пользователю, email, префиксу…"
+          fields={[
+            {
+              id: "state",
+              label: "Статус",
+              value: activeOnly ? "active" : "all",
+              onChange: (value) => setActiveOnly(value === "active"),
+              options: [
+                { value: "all", label: "Все" },
+                { value: "active", label: "Только активные" },
+              ],
+            },
+          ]}
+          onReset={() => {
+            setQuery("");
+            setActiveOnly(false);
+          }}
+        />
 
         {loading ? (
           <div className="space-y-2">

@@ -10,26 +10,17 @@ import { useUser } from "@/entities/user/model/user-context";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Plus,
-  MagnifyingGlassIcon,
   ArrowClockwiseIcon,
   PencilSimple,
   ArrowSquareOutIcon,
   CalendarBlank,
   Receipt,
   UserIcon,
-  FunnelIcon,
-  XIcon,
   DotsThree,
+  ListBullets,
+  SquaresFour,
 } from "@phosphor-icons/react";
 import {
   DropdownMenu,
@@ -52,6 +43,7 @@ import {
 import { useAdminSecret } from "@/hooks/use-admin-secret";
 import { crossSubdomainUrl } from "@/utils/root-domain";
 import { AdminPageHeader } from "../../_components/admin-page-header";
+import { AdminFilterBar } from "../../_components/admin-filter-bar";
 
 export default function AdminEventsPage() {
   const { user, isLoading: userLoading } = useUser();
@@ -67,7 +59,7 @@ export default function AdminEventsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [organizerFilter, setOrganizerFilter] = useState<string>("all");
   const [typeFilter, setTypeFilter] = useState<string>("all");
-  const [showFilters, setShowFilters] = useState(false);
+  const [view, setView] = useState<"list" | "grid">("list");
 
   // Metadata for filters
   const [organizers, setOrganizers] = useState<Organizer[]>([]);
@@ -157,101 +149,85 @@ export default function AdminEventsPage() {
         />
 
         {/* Filters */}
-        <Card className="rounded-3xl border-(--outline) p-4 space-y-3">
-          <div className="flex flex-wrap gap-2 items-center">
-            <div className="relative flex-1 min-w-[200px]">
-              <MagnifyingGlassIcon className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-(--on-bg-low) pointer-events-none" />
-              <Input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Поиск..."
-                className="pl-9"
-              />
-            </div>
-            <Button
-              variant={showFilters ? "filled" : "outlined"}
-              size="small"
-              onClick={() => setShowFilters((v) => !v)}
+        <AdminFilterBar
+          query={query}
+          onQueryChange={setQuery}
+          placeholder="Поиск событий…"
+          fields={[
+            {
+              id: "status",
+              label: "Статус",
+              value: statusFilter,
+              onChange: setStatusFilter,
+              options: [
+                { value: "all", label: "Все" },
+                { value: "pending", label: "На модерации" },
+                { value: "approved", label: "Опубликовано" },
+                { value: "rejected", label: "Отклонено" },
+              ],
+            },
+            {
+              id: "organizer",
+              label: "Организатор",
+              value: organizerFilter,
+              onChange: setOrganizerFilter,
+              options: [
+                { value: "all", label: "Все" },
+                ...organizers.map((o) => ({ value: o.id, label: o.name })),
+              ],
+            },
+            {
+              id: "type",
+              label: "Тип",
+              value: typeFilter,
+              onChange: setTypeFilter,
+              options: [
+                { value: "all", label: "Все" },
+                ...types.map((t) => ({ value: t.id, label: t.name })),
+              ],
+            },
+          ]}
+          onReset={clearFilters}
+          trailing={
+            <div
+              role="group"
+              aria-label="Вид списка"
+              className="flex items-center rounded-lg border border-(--outline) bg-(--bg) p-0.5"
             >
-              <FunnelIcon className="size-4" />
-              Фильтры
-              {hasActiveFilters && (
-                <span className="ml-1 inline-flex items-center justify-center min-w-[16px] h-4 px-1 text-[9px]  rounded-full bg-white/20">
-                  !
-                </span>
-              )}
-            </Button>
-          </div>
-
-          {showFilters && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-(--outline)">
-              <div>
-                <label className="text-body-5 text-(--on-bg-low) mb-1 block">
-                  Статус
-                </label>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger size="sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Все</SelectItem>
-                    <SelectItem value="pending">На модерации</SelectItem>
-                    <SelectItem value="approved">Опубликовано</SelectItem>
-                    <SelectItem value="rejected">Отклонено</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-body-5 text-(--on-bg-low) mb-1 block">
-                  Организатор
-                </label>
-                <Select value={organizerFilter} onValueChange={setOrganizerFilter}>
-                  <SelectTrigger size="sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Все</SelectItem>
-                    {organizers.map((o) => (
-                      <SelectItem key={o.id} value={o.id}>
-                        {o.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-body-5 text-(--on-bg-low) mb-1 block">
-                  Тип
-                </label>
-                <Select value={typeFilter} onValueChange={setTypeFilter}>
-                  <SelectTrigger size="sm">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Все</SelectItem>
-                    {types.map((t) => (
-                      <SelectItem key={t.id} value={t.id}>
-                        {t.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <button
+                type="button"
+                onClick={() => setView("list")}
+                aria-pressed={view === "list"}
+                aria-label="Списком"
+                className={cn(
+                  "rounded-md p-1.5 transition-colors",
+                  view === "list"
+                    ? "bg-(--primary) text-(--on-primary)"
+                    : "text-(--on-bg-low) hover:text-(--on-bg-high)",
+                )}
+              >
+                <ListBullets className="size-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setView("grid")}
+                aria-pressed={view === "grid"}
+                aria-label="Плиткой"
+                className={cn(
+                  "rounded-md p-1.5 transition-colors",
+                  view === "grid"
+                    ? "bg-(--primary) text-(--on-primary)"
+                    : "text-(--on-bg-low) hover:text-(--on-bg-high)",
+                )}
+              >
+                <SquaresFour className="size-4" />
+              </button>
             </div>
-          )}
-
-          {hasActiveFilters && (
-            <div className="flex justify-end pt-1">
-              <Button variant="text" size="small" onClick={clearFilters}>
-                <XIcon className="size-4" />
-                Сбросить фильтры
-              </Button>
-            </div>
-          )}
-        </Card>
+          }
+        />
 
         {/* Content */}
-        {loading && (
+        {loading && view === "grid" && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (
               <Card
@@ -260,6 +236,20 @@ export default function AdminEventsPage() {
               />
             ))}
           </div>
+        )}
+
+        {loading && view === "list" && (
+          <Card className="rounded-3xl border-(--outline) divide-y divide-(--outline)">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3 p-3">
+                <div className="h-14 w-20 animate-pulse bg-muted/40" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-1/2 animate-pulse bg-muted/40" />
+                  <div className="h-3 w-1/3 animate-pulse bg-muted/30" />
+                </div>
+              </div>
+            ))}
+          </Card>
         )}
 
         {error && (
@@ -287,7 +277,7 @@ export default function AdminEventsPage() {
           </Card>
         )}
 
-        {!loading && events.length > 0 && (
+        {!loading && events.length > 0 && view === "grid" && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {events.map((ev) => (
               <Card
@@ -368,33 +358,122 @@ export default function AdminEventsPage() {
                       ev.location_name || "-"
                     )}
                   </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="text" size="icon-small" aria-label="Действия">
-                        <DotsThree className="size-5" weight="bold" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="min-w-[190px]">
-                      <DropdownMenuItem asChild className="gap-2 px-2 py-2 text-body-4">
-                        <Link href={eventUrl(ev)} target="_blank" rel="noopener noreferrer">
-                          <ArrowSquareOutIcon className="size-4" />
-                          Открыть
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="gap-2 px-2 py-2 text-body-4">
-                        <Link href={`${base}/${ev.slug}/edit`}>
-                          <PencilSimple className="size-4" />
-                          Редактировать
-                        </Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <EventRowActions ev={ev} base={base} />
                 </div>
               </Card>
             ))}
           </div>
         )}
+
+        {!loading && events.length > 0 && view === "list" && (
+          <Card className="overflow-hidden rounded-3xl border-(--outline) bg-(--card) divide-y divide-(--outline)">
+            {events.map((ev) => (
+              <div
+                key={ev.id}
+                className="flex items-center gap-3 p-3 transition-colors hover:bg-(--state-hover)"
+              >
+                <Link
+                  href={`${base}/${ev.slug}/edit`}
+                  className="relative h-14 w-20 shrink-0 overflow-hidden bg-muted"
+                  aria-label={`Редактировать ${ev.title}`}
+                >
+                  {ev.cover_image_src ? (
+                    <Image
+                      src={ev.cover_image_src}
+                      alt=""
+                      fill
+                      sizes="80px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-(--primary-glass) to-(--card)" />
+                  )}
+                </Link>
+
+                <div className="min-w-0 flex-1">
+                  <Link
+                    href={`${base}/${ev.slug}/edit`}
+                    className="block truncate text-body-3 text-(--on-bg-high) transition-colors hover:text-(--primary)"
+                  >
+                    {ev.title}
+                  </Link>
+                  <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-body-5 text-(--on-bg-low)">
+                    {ev.start_at && (
+                      <span className="inline-flex items-center gap-1">
+                        <CalendarBlank className="size-3.5" />
+                        {new Date(ev.start_at).toLocaleDateString("ru-RU")}
+                      </span>
+                    )}
+                    {(ev.location_name || ev.submitted_by) && (
+                      <span className="inline-flex items-center gap-1 truncate">
+                        <UserIcon className="size-3.5 shrink-0" />
+                        <span className="truncate">
+                          {ev.submitted_by
+                            ? [ev.submitted_by.name, ev.submitted_by.surname]
+                                .filter(Boolean)
+                                .join(" ") ||
+                              ev.submitted_by.username ||
+                              "-"
+                            : ev.location_name}
+                        </span>
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <EventStatusBadge ev={ev} />
+                <EventRowActions ev={ev} base={base} />
+              </div>
+            ))}
+          </Card>
+        )}
       </div>
     </CheckUser>
+  );
+}
+
+function EventStatusBadge({ ev }: { ev: EventListItem }) {
+  const cls =
+    ev.status === "approved"
+      ? "bg-emerald-500/40"
+      : ev.status === "rejected"
+        ? "bg-rose-500/40"
+        : "bg-amber-500/40";
+  const label =
+    ev.status === "approved"
+      ? "Опубликовано"
+      : ev.status === "rejected"
+        ? "Отклонено"
+        : "На модерации";
+  return (
+    <Badge variant="glass-static" size="chip-small" className={cn("shrink-0 text-white border-white/20", cls)}>
+      {label}
+    </Badge>
+  );
+}
+
+function EventRowActions({ ev, base }: { ev: EventListItem; base: string }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="text" size="icon-small" aria-label="Действия" className="shrink-0">
+          <DotsThree className="size-5" weight="bold" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="min-w-[190px]">
+        <DropdownMenuItem asChild className="gap-2 px-2 py-2 text-body-4">
+          <Link href={eventUrl(ev)} target="_blank" rel="noopener noreferrer">
+            <ArrowSquareOutIcon className="size-4" />
+            Открыть
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild className="gap-2 px-2 py-2 text-body-4">
+          <Link href={`${base}/${ev.slug}/edit`}>
+            <PencilSimple className="size-4" />
+            Редактировать
+          </Link>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

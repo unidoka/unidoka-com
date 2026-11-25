@@ -274,29 +274,38 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ];
     });
 
-    const articleUrls: MetadataRoute.Sitemap = articles.flatMap((a) => {
-      const ru = `${SITE_URL}/blog/${a.slug}`;
-      const en = `${SITE_URL}/en/blog/${a.slug}`;
-      const alternates = {
-        languages: { ru, en, "x-default": ru },
-      };
-      const lastModified = a.updated_at ? new Date(a.updated_at) : now;
-      return [
-        {
-          url: ru,
-          lastModified,
+    const articleGroups = new Map<string, typeof articles>();
+    for (const article of articles) {
+      const key = article.translation_group_id || article.id;
+      const bucket = articleGroups.get(key);
+      if (bucket) bucket.push(article);
+      else articleGroups.set(key, [article]);
+    }
+
+    const articleUrls: MetadataRoute.Sitemap = [
+      ...articleGroups.values(),
+    ].flatMap((versions) => {
+      const ru = versions.find((v) => v.lang === "ru");
+      const en = versions.find((v) => v.lang === "en");
+      if (!ru && !en) return [];
+
+      const languages: Record<string, string> = {};
+      if (ru) languages.ru = `${SITE_URL}/blog/${ru.slug}`;
+      if (en) languages.en = `${SITE_URL}/en/blog/${en.slug}`;
+      languages["x-default"] = languages.ru ?? languages.en;
+
+      return [ru, en]
+        .filter((version): version is (typeof versions)[number] => Boolean(version))
+        .map((version) => ({
+          url:
+            version.lang === "ru"
+              ? `${SITE_URL}/blog/${version.slug}`
+              : `${SITE_URL}/en/blog/${version.slug}`,
+          lastModified: version.updated_at ? new Date(version.updated_at) : now,
           changeFrequency: "monthly" as const,
           priority: 0.6,
-          alternates,
-        },
-        {
-          url: en,
-          lastModified,
-          changeFrequency: "monthly" as const,
-          priority: 0.6,
-          alternates,
-        },
-      ];
+          alternates: { languages },
+        }));
     });
 
     return [...staticRoutes, ...eventUrls, ...solutionUrls, ...articleUrls];

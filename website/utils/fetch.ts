@@ -1,6 +1,7 @@
 "use client";
 import { toast } from "sonner";
 import { safeCookieStorage } from "@/utils/safe-cookie-storage";
+import { apiBaseUrl } from "@/utils/api-base";
 export interface FetchResult {
   response?: Response;
   json?: any;
@@ -19,17 +20,16 @@ interface FetchOptions {
 // this to an absolute URL like http://localhost:8000 bypasses Traefik and
 // triggers CORS + "Failed to fetch" in the browser. Only set it to a full
 // origin when the API genuinely lives on a different host.
-const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 // Auth endpoints: a 401 there is a real credential failure, not a stale
 // session. Skip the refresh-and-retry dance for those - and never toast
 // their backend messages, because "User not found or blocked" is session
 // state, not a user-action error.
 const NO_RETRY = /\/login|\/register|\/verify|\/refresh|\/logout/;
-async function refreshAccessToken(): Promise<string | null> {
+export async function refreshAccessToken(): Promise<string | null> {
   const refresh_token = safeCookieStorage.getItem("refresh_token");
   if (!refresh_token) return null;
   try {
-    const res = await fetch(API_URL + "/api/v1/refresh", {
+    const res = await fetch(apiBaseUrl() + "/api/v1/refresh", {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({ refresh_token }),
@@ -79,7 +79,7 @@ export async function $fetch(
   }
   const token = safeCookieStorage.getItem("access_token");
   if (token) finalHeaders.Authorization = "Bearer " + token;
-  const url = API_URL + route;
+  const url = apiBaseUrl() + route;
   let response: Response;
   try {
     response = await fetch(url, { method, body, headers: finalHeaders });

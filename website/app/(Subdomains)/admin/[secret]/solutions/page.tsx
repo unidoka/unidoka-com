@@ -9,12 +9,8 @@ import { useUser } from "@/entities/user/model/user-context";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
-import {
-  Plus, MagnifyingGlassIcon, ArrowClockwiseIcon,
+  Plus, ArrowClockwiseIcon,
   PencilSimple, ArrowSquareOutIcon, Cube, TrashIcon, DotsThree, RocketIcon,
 } from "@phosphor-icons/react";
 import {
@@ -32,6 +28,7 @@ import { useAdminSecret } from "@/hooks/use-admin-secret";
 import { crossSubdomainUrl, rootDomainUrl } from "@/utils/root-domain";
 import { revalidateTags } from "@/utils/revalidate";
 import { AdminPageHeader } from "../../_components/admin-page-header";
+import { AdminFilterBar } from "../../_components/admin-filter-bar";
 
 const STATUS_META: Record<string, { label: string; cls: string }> = {
   published: { label: "Опубликовано", cls: "bg-emerald-500/40 text-white border-white/20" },
@@ -126,23 +123,29 @@ export default function AdminSolutionsPage() {
           ]}
         />
 
-        <Card className="rounded-3xl border-(--outline) p-4 space-y-3">
-          <div className="flex flex-wrap gap-2">
-            <div className="relative flex-1 min-w-[200px]">
-              <MagnifyingGlassIcon className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-(--on-bg-low) pointer-events-none" />
-              <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Поиск…" className="pl-9" />
-            </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Все статусы</SelectItem>
-                <SelectItem value="draft">Черновики</SelectItem>
-                <SelectItem value="published">Опубликованные</SelectItem>
-                <SelectItem value="archived">В архиве</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </Card>
+        <AdminFilterBar
+          query={query}
+          onQueryChange={setQuery}
+          placeholder="Поиск по названию…"
+          fields={[
+            {
+              id: "status",
+              label: "Статус",
+              value: statusFilter,
+              onChange: setStatusFilter,
+              options: [
+                { value: "all", label: "Все" },
+                { value: "draft", label: "Черновики" },
+                { value: "published", label: "Опубликованные" },
+                { value: "archived", label: "В архиве" },
+              ],
+            },
+          ]}
+          onReset={() => {
+            setQuery("");
+            setStatusFilter("all");
+          }}
+        />
 
         {loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

@@ -18,7 +18,7 @@ export const CustomImage = Node.create({
     return [{ tag: "img" }];
   },
   renderHTML({ HTMLAttributes }) {
-    return ["img", mergeAttributes(HTMLAttributes, { class: "rounded-lg border border-(--outline) max-w-full" })];
+    return ["img", mergeAttributes(HTMLAttributes, { class: "border border-(--outline) max-w-full" })];
   },
 });
 
@@ -42,7 +42,7 @@ export const VideoNode = Node.create({
   renderHTML({ HTMLAttributes }) {
     const { controls, autoplay, loop, muted, ...rest } = HTMLAttributes;
     const attrs: Record<string, string> = {
-      class: "rounded-lg border border-(--outline) max-w-full",
+      class: "border border-(--outline) max-w-full",
       playsinline: "",
     };
     if (controls) attrs.controls = "";

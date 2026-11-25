@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional, List, Any, Dict
+from uuid import UUID
 from pydantic import BaseModel, Field
 
 
@@ -21,3 +22,6 @@ class ArticlePayload(BaseModel):
     status: str = Field("draft", pattern="^(draft|published|archived)$")
     sort_order: int = 0
     published_at: Optional[datetime] = None
+    lang: str = Field("ru", pattern="^(ru|en)$")
+    # Set when creating a translation of an existing article.
+    translation_group_id: Optional[UUID] = None

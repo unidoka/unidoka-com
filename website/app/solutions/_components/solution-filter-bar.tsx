@@ -37,29 +37,33 @@ export function SolutionFilterBar({
   const [featuredOnly, setFeaturedOnly] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(solutions.length === 0);
 
   useEffect(() => {
     setItems(solutions);
   }, [solutions]);
 
-  // The RSC fetch can fail (internal URL misconfigured, backend briefly
-  // down) and resolves to []. Fall back to the same-origin public API so
-  // the page still fills in instead of showing a permanent empty state.
+  // The public page and admin must read the same API. Always refetch
+  // from the browser - the same path admin uses - and let the client
+  // result win when it has rows. A server-side internal URL can point
+  // at a different host/DB and silently return an empty or stale list.
   useEffect(() => {
-    if (solutions.length > 0) return;
     let cancelled = false;
     fetchPublicSolutionsClient()
       .then((next) => {
-        if (!cancelled && next.length > 0) setItems(next);
+        if (cancelled) return;
+        if (next.length > 0 || solutions.length === 0) setItems(next);
       })
       .catch(() => {
-        /* empty state is still valid */
+        /* keep the server-provided list */
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
       });
     return () => {
       cancelled = true;
     };
-  }, [solutions.length]);
+  }, [solutions]);
 
   // Extract categories, periods, and tags from the solutions dynamically
   const categories = useMemo(() => {
@@ -92,7 +96,6 @@ export function SolutionFilterBar({
 
   // Filtering logic
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
     return items.filter((s) => {
       if (activeCategory && s.category !== activeCategory) return false;
       if (activePeriod && s.period !== activePeriod) return false;
@@ -101,27 +104,9 @@ export function SolutionFilterBar({
         const has = (s.tags || []).some((t) => t.title === activeTag);
         if (!has) return false;
       }
-      if (q) {
-        const haystack = [
-          s.title,
-          s.short_description,
-          s.category,
-          s.period,
-          ...(s.tags || []).map((t) => t.title),
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-        if (!haystack.includes(q)) return false;
-      }
       return true;
     });
-  }, [items, activeCategory, activePeriod, activeTag, featuredOnly, query]);
-
-  const recommended = useMemo(
-    () => items.filter((s) => s.is_featured).slice(0, 3),
-    [items],
-  );
+  }, [items, activeCategory, activePeriod, activeTag, featuredOnly]);
 
   const activeFilterCount =
     (activeCategory ? 1 : 0) +
@@ -129,18 +114,12 @@ export function SolutionFilterBar({
     (activeTag ? 1 : 0) +
     (featuredOnly ? 1 : 0);
   const hasActiveFilters = activeFilterCount > 0;
-  const hasQuery = query.trim().length > 0;
-  const showRecommended = !hasActiveFilters && !hasQuery && recommended.length > 0;
-  const gridItems = showRecommended
-    ? filtered.filter((s) => !s.is_featured)
-    : filtered;
 
   const resetAll = () => {
     setActiveCategory(null);
     setActivePeriod(null);
     setActiveTag(null);
     setFeaturedOnly(false);
-    setQuery("");
   };
 
   // Live counts for drawer chips
@@ -169,30 +148,18 @@ export function SolutionFilterBar({
             <h1 className="text-display-3 leading-[1.05] sm:mr-auto">Наши решения</h1>
 
             <div className="flex items-center gap-2">
-              <div className="relative min-w-0 flex-1 sm:w-[220px] lg:w-[280px]">
-                <MagnifyingGlassIcon className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-(--on-bg-low)" />
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Поиск решений…"
-                  aria-label="Поиск решений"
-                  className="h-8 w-full rounded-lg border border-(--outline) bg-transparent pl-8 pr-14 text-body-5 text-(--on-bg-high) outline-none transition-colors placeholder:text-(--on-bg-low) focus:border-(--on-bg-low)/40"
-                />
-                {query ? (
-                  <button
-                    type="button"
-                    onClick={() => setQuery("")}
-                    aria-label="Очистить поиск"
-                    className="absolute right-1.5 top-1/2 inline-flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-(--on-bg-low) transition-colors hover:text-(--on-bg-high)"
-                  >
-                    <XIcon className="size-3.5" />
-                  </button>
-                ) : (
-                  <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded border border-(--outline) bg-(--card) px-1.5 py-0.5 font-mono text-[10px] text-(--on-bg-low)">
-                    ⌘K
-                  </kbd>
-                )}
-              </div>
+              <button
+                type="button"
+                onClick={() => setSearchOpen(true)}
+                aria-label="Поиск решений"
+                className="flex h-8 min-w-0 flex-1 items-center gap-2 rounded-lg border border-(--outline) px-2.5 text-body-5 text-(--on-bg-low) transition-colors hover:border-(--on-bg-low)/40 hover:text-(--on-bg-high) sm:w-[240px] sm:flex-none lg:w-[280px]"
+              >
+                <MagnifyingGlassIcon className="size-4 shrink-0" />
+                <span className="truncate">Поиск решений…</span>
+                <kbd className="ml-auto rounded border border-(--outline) bg-(--card) px-1.5 py-0.5 font-mono text-[10px]">
+                  ⌘K
+                </kbd>
+              </button>
 
               <Button
                 onClick={() => setDrawerOpen(true)}
@@ -207,7 +174,7 @@ export function SolutionFilterBar({
                 <span className="hidden sm:inline">Фильтры</span>
               </Button>
 
-              {(activeFilterCount > 0 || hasQuery) && (
+              {(activeFilterCount > 0) && (
                 <button
                   type="button"
                   onClick={resetAll}
@@ -261,37 +228,23 @@ export function SolutionFilterBar({
 
       <section className="pt-8 pb-24 md:pb-32">
         <Container>
-          {showRecommended && (
-            <div className="mb-12">
-              <h2 className="mb-5 text-heading-2">Рекомендуем</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {recommended.map((s, idx) => (
-                  <ProjectCard
-                    key={s.id}
-                    project={solutionToProject(s)}
-                    index={idx}
-                    variant="clean"
-                    href={`/solutions/${s.slug}`}
-                    tags={(s.tags || [])
-                      .filter((t) => t.title)
-                      .map((t, i) => ({
-                        id: `${s.slug}-rec-tag-${i}`,
-                        label: t.title,
-                      }))}
-                  />
-                ))}
-              </div>
+          {loading && items.length === 0 ? (
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {[...Array(3)].map((_, index) => (
+                <div
+                  key={index}
+                  className="aspect-[4/3] animate-pulse bg-(--card)"
+                />
+              ))}
             </div>
-          )}
-
-          {filtered.length === 0 ? (
+          ) : filtered.length === 0 ? (
             <div className="py-32 text-center">
               <p className="mb-4 text-heading-2 text-(--on-bg-medium)">
                 {items.length === 0
                   ? "Здесь пока нет решений"
                   : "Ничего не найдено"}
               </p>
-              {(hasActiveFilters || hasQuery) && (
+              {(hasActiveFilters) && (
                 <button
                   type="button"
                   onClick={resetAll}
@@ -301,9 +254,9 @@ export function SolutionFilterBar({
                 </button>
               )}
             </div>
-          ) : gridItems.length > 0 ? (
+          ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {gridItems.map((s, idx) => (
+              {filtered.map((s, idx) => (
                 <ProjectCard
                   key={s.id}
                   project={solutionToProject(s)}
@@ -319,7 +272,7 @@ export function SolutionFilterBar({
                 />
               ))}
             </div>
-          ) : null}
+          )}
         </Container>
       </section>
       </div>

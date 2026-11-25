@@ -3,9 +3,9 @@ import React, { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { CloudArrowUpIcon, CircleNotchIcon, XIcon } from "@phosphor-icons/react";
-import { $fetch } from "@/utils/fetch";
+import { uploadImage, uploadVideo } from "@/utils/api/uploads";
 import { ImageEditorDialog } from "./image-editor/image-editor-dialog";
-import { VideoEditorDialog } from "./video-editor/video-editor-dialog";
+import { VideoCoverDialog, type VideoTrim } from "./video-editor/video-cover-dialog";
 import { readFileAsDataURL } from "./image-editor/canvas-utils";
 
 interface Props {
@@ -14,25 +14,36 @@ interface Props {
   onChange: (imageUrl: string, videoUrl: string) => void;
 }
 
+const IMAGE_LIMIT_MB = 20;
+const VIDEO_LIMIT_MB = 100;
+
 export const UnifiedCover = React.memo(function UnifiedCover({ imageUrl, videoUrl, onChange }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
-  const [videoEditorOpen, setVideoEditorOpen] = useState(false);
   const [editorSrc, setEditorSrc] = useState<string | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoDialogOpen, setVideoDialogOpen] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [dragOver, setDragOver] = useState(false);
 
   const activeUrl = videoUrl || imageUrl;
+  const isVideo = Boolean(videoUrl);
 
   const handleFile = async (file: File) => {
-    if (file.size > 20 * 1024 * 1024) {
-      toast.error("Файл больше 20 МБ");
+    // Some browsers/OSes hand over an empty or generic MIME type for local
+    // video files, so fall back to the extension before rejecting the drop.
+    const isVideoFile =
+      file.type.startsWith("video/") || /\.(mp4|webm)$/i.test(file.name);
+    const limit = isVideoFile ? VIDEO_LIMIT_MB : IMAGE_LIMIT_MB;
+    if (file.size > limit * 1024 * 1024) {
+      toast.error(`Файл больше ${limit} МБ`);
       return;
     }
-    if (file.type.startsWith("video/")) {
+    if (isVideoFile) {
       setVideoFile(file);
-      setVideoEditorOpen(true);
-    } else {
+      setVideoDialogOpen(true);
+    } else if (file.type.startsWith("image/")) {
       setUploading(true);
       try {
         const dataUrl = await readFileAsDataURL(file);
@@ -44,42 +55,99 @@ export const UnifiedCover = React.memo(function UnifiedCover({ imageUrl, videoUr
         setUploading(false);
         if (inputRef.current) inputRef.current.value = "";
       }
+    } else {
+      toast.error("Можно загрузить изображение или видео");
+    }
+  };
+
+  const handleApplyVideo = async (
+    video: File,
+    poster: { blob: Blob; filename: string } | null,
+    trim: VideoTrim | null,
+  ) => {
+    setUploading(true);
+    setUploadProgress(0);
+    try {
+      const { url } = await uploadVideo(video, {
+        start: trim?.start ?? null,
+        end: trim?.end ?? null,
+        onProgress: setUploadProgress,
+      });
+      let posterUrl = "";
+      if (poster) {
+        try {
+          posterUrl = await uploadImage(poster.blob, poster.filename);
+        } catch {
+          toast.error("Видео загружено, но обложку сохранить не удалось");
+        }
+      }
+      onChange(posterUrl, url);
+      toast.success(
+        trim ? "Видео обрезано и сохранено" : "Видео-обложка обновлена",
+      );
+    } catch (err: any) {
+      toast.error(err?.message || "Ошибка загрузки");
+      throw err;
+    } finally {
+      setUploading(false);
+      setUploadProgress(null);
+      if (inputRef.current) inputRef.current.value = "";
     }
   };
 
   const handleApplyImage = async (blob: Blob, filename: string) => {
     setUploading(true);
     try {
-      const fd = new FormData();
-      fd.append("file", new File([blob], filename, { type: blob.type }));
-      const res = await $fetch("/api/v1/uploads/media", { method: "POST", body: fd, isToast: false });
-      if (!res?.response?.ok) throw new Error(res?.json?.detail || "Upload failed");
-      onChange(res.json.url, "");
+      const url = await uploadImage(blob, filename);
+      onChange(url, "");
       toast.success("Обложка обновлена");
     } catch (err: any) {
-      toast.error(err.message || "Ошибка загрузки");
+      toast.error(err?.message || "Ошибка загрузки");
     } finally {
       setUploading(false);
     }
-  };
-
-  const handleApplyVideo = async (url: string, posterUrl?: string) => {
-    onChange(posterUrl || "", url);
-    toast.success("Видео-обложка обновлена");
-    setVideoFile(null);
-    if (inputRef.current) inputRef.current.value = "";
   };
 
   const handleRemove = () => {
     onChange("", "");
   };
 
+  const openPicker = () => {
+    if (!uploading) inputRef.current?.click();
+  };
+
   return (
     <div className="space-y-3">
-      <div className="relative aspect-[4/3] w-full rounded-2xl border border-(--outline) bg-(--bg) overflow-hidden flex items-center justify-center">
-        {activeUrl ? (
-          <>
-            {videoUrl ? (
+      <div
+        className="relative aspect-[4/3] w-full"
+        onDragOver={(event) => {
+          event.preventDefault();
+          if (!dragOver) setDragOver(true);
+        }}
+        onDragLeave={(event) => {
+          event.preventDefault();
+          setDragOver(false);
+        }}
+        onDrop={(event) => {
+          event.preventDefault();
+          setDragOver(false);
+          const file = event.dataTransfer.files?.[0];
+          if (file) void handleFile(file);
+        }}
+      >
+        <button
+          type="button"
+          onClick={openPicker}
+          disabled={uploading}
+          aria-label={activeUrl ? "Заменить обложку" : "Загрузить обложку"}
+          className={[
+            "group relative flex h-full w-full items-center justify-center overflow-hidden border bg-(--bg) transition-colors",
+            dragOver ? "border-(--primary) bg-(--primary-glass)" : "border-(--outline)",
+            activeUrl ? "cursor-pointer" : "cursor-pointer hover:border-(--on-bg-low)/40",
+          ].join(" ")}
+        >
+          {activeUrl ? (
+            isVideo ? (
               <video
                 src={videoUrl}
                 poster={imageUrl}
@@ -87,30 +155,46 @@ export const UnifiedCover = React.memo(function UnifiedCover({ imageUrl, videoUr
                 muted
                 loop
                 playsInline
-                className="absolute inset-0 w-full h-full object-cover"
+                className="pointer-events-none absolute inset-0 h-full w-full object-cover"
               />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={imageUrl}
                 alt="Cover"
-                className="absolute inset-0 w-full h-full object-cover"
+                className="pointer-events-none absolute inset-0 h-full w-full object-cover"
               />
-            )}
-            <button
-              type="button"
-              onClick={handleRemove}
-              disabled={uploading}
-              className="absolute top-3 right-3 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors disabled:opacity-50"
-            >
-              <XIcon className="size-4" />
-            </button>
-          </>
-        ) : (
-          <div className="text-center text-(--on-bg-low) p-6">
-            <CloudArrowUpIcon className="size-10 mx-auto mb-2" />
-            <p className="text-body-4">Загрузите изображение или видео</p>
-          </div>
+            )
+          ) : (
+            <span className="flex flex-col items-center p-6 text-center text-(--on-bg-low)">
+              <CloudArrowUpIcon className="mb-2 size-10" />
+              <span className="text-body-4">Нажмите, чтобы загрузить</span>
+              <span className="mt-1 text-body-5">или перетащите файл сюда</span>
+            </span>
+          )}
+
+          {dragOver && (
+            <span className="absolute inset-0 flex items-center justify-center bg-(--primary-glass) text-body-3 text-(--primary)">
+              Отпустите, чтобы загрузить
+            </span>
+          )}
+
+          {uploading && (
+            <span className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+              <CircleNotchIcon className="size-6 animate-spin text-white" />
+            </span>
+          )}
+        </button>
+
+        {activeUrl && !uploading && (
+          <button
+            type="button"
+            onClick={handleRemove}
+            aria-label="Удалить обложку"
+            className="absolute right-3 top-3 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
+          >
+            <XIcon className="size-4" />
+          </button>
         )}
       </div>
 
@@ -118,25 +202,25 @@ export const UnifiedCover = React.memo(function UnifiedCover({ imageUrl, videoUr
         <Button
           type="button"
           variant="outlined"
-          onClick={() => inputRef.current?.click()}
+          onClick={openPicker}
           disabled={uploading}
           className="flex-1"
         >
           {uploading ? (
-            <CircleNotchIcon className="size-4 animate-spin mr-2" />
+            <CircleNotchIcon className="mr-2 size-4 animate-spin" />
           ) : (
-            <CloudArrowUpIcon className="size-4 mr-2" />
+            <CloudArrowUpIcon className="mr-2 size-4" />
           )}
           {activeUrl ? "Заменить" : "Загрузить"}
         </Button>
         <input
           ref={inputRef}
           type="file"
-          accept="image/*,video/mp4,video/webm"
+          accept="image/png,image/jpeg,image/webp,image/gif,image/avif,video/mp4,video/webm"
           className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) handleFile(file);
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) void handleFile(file);
           }}
         />
       </div>
@@ -147,10 +231,18 @@ export const UnifiedCover = React.memo(function UnifiedCover({ imageUrl, videoUr
         src={editorSrc}
         onApply={handleApplyImage}
       />
-      <VideoEditorDialog
-        open={videoEditorOpen}
-        onOpenChange={setVideoEditorOpen}
+      <VideoCoverDialog
+        open={videoDialogOpen}
+        file={videoFile}
+        onOpenChange={(next) => {
+          setVideoDialogOpen(next);
+          if (!next) {
+            setVideoFile(null);
+            if (inputRef.current) inputRef.current.value = "";
+          }
+        }}
         onApply={handleApplyVideo}
+        progress={uploadProgress}
       />
     </div>
   );

@@ -7,11 +7,11 @@ import { useUser } from "@/entities/user/model/user-context";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { MagnifyingGlassIcon, ArrowClockwiseIcon, CircleNotchIcon, UserIcon, PhoneIcon, EnvelopeSimpleIcon, TelegramLogoIcon, ArrowSquareOutIcon } from "@phosphor-icons/react";
+import { ArrowClockwiseIcon, CircleNotchIcon, UserIcon, PhoneIcon, EnvelopeSimpleIcon, TelegramLogoIcon, ArrowSquareOutIcon } from "@phosphor-icons/react";
 import { $fetch } from "@/utils/fetch";
 import { useAdminSecret } from "@/hooks/use-admin-secret";
 import { crossSubdomainUrl } from "@/utils/root-domain";
+import { AdminFilterBar } from "../../_components/admin-filter-bar";
 interface ClientRow {
   id: string; name: string | null; phone: string | null; email: string | null;
   telegram_username: string | null; role_title: string | null;
@@ -78,12 +78,11 @@ export default function AdminClientsPage() {
             Обновить
           </Button>
         </div>
-        <Card className="rounded-3xl border-(--outline) p-4">
-          <div className="relative">
-            <MagnifyingGlassIcon className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-(--on-bg-low) pointer-events-none" />
-            <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Поиск…" className="pl-9" />
-          </div>
-        </Card>
+        <AdminFilterBar
+          query={query}
+          onQueryChange={setQuery}
+          placeholder="Поиск по имени, телефону, email…"
+        />
         {state.kind === "loading" && <div className="space-y-3">{[...Array(5)].map((_, i) => <Card key={i} className="rounded-3xl border-(--outline) h-24 animate-pulse bg-muted/30" />)}</div>}
         {state.kind === "error" && <Card className="rounded-3xl border border-[color-mix(in_srgb,var(--error),transparent_70%)] bg-[color-mix(in_srgb,var(--error),transparent_96%)] p-6"><p className="text-body-4 text-(--error) mb-3">{state.message}</p><Button variant="outlined" size="small" onClick={load}>Повторить</Button></Card>}
         {state.kind === "ready" && filtered.length === 0 && (

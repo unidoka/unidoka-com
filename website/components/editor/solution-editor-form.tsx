@@ -35,32 +35,41 @@ interface Props {
 }
 const NO_CUSTOM_PAGE = "__none__";
 
+/**
+ * NovelEditor only reads `initialContent` on mount, so the state has to be
+ * filled from the fetched solution before the first render - a useEffect
+ * runs after the editor already mounted empty.
+ */
+function formFromSolution(editing: Solution | null) {
+  return {
+    title: editing?.title ?? "",
+    slug: editing?.slug ?? "",
+    short_description: editing?.short_description ?? "",
+    description: editing?.description ?? "",
+    mdx_content: editing?.mdx_content ?? "",
+    content_json: editing?.content_json ?? null,
+    media: (editing as any)?.media ?? [],
+    cover_image_src: editing?.cover_image_src ?? "",
+    cover_video_src: editing?.cover_video_src ?? "",
+    href: editing?.href ?? "",
+    platform: editing?.platform ?? "",
+    category: editing?.category ?? "",
+    period: editing?.period ?? "",
+    tech_stack: editing?.tech_stack ?? [],
+    tags: editing?.tags ?? [],
+    client_name: editing?.client_name ?? "",
+    custom_page: editing?.custom_page ?? null,
+    seo_title: editing?.seo_title ?? "",
+    meta_description: editing?.meta_description ?? "",
+    is_featured: editing?.is_featured ?? false,
+    status: editing?.status ?? "published",
+    sort_order: editing?.sort_order ?? 0,
+  };
+}
+
 export function SolutionEditorForm({ editing, redirectAfter }: Props) {
   const router = useRouter();
-  const [form, setForm] = useState<any>({
-    title: "",
-    slug: "",
-    short_description: "",
-    description: "",
-    mdx_content: "",
-    content_json: null,
-    media: [],
-    cover_image_src: "",
-    cover_video_src: "",
-    href: "",
-    platform: "",
-    category: "",
-    period: "",
-    tech_stack: [],
-    tags: [],
-    client_name: "",
-    custom_page: null,
-    seo_title: "",
-    meta_description: "",
-    is_featured: false,
-    status: "published",
-    sort_order: 0,
-  });
+  const [form, setForm] = useState<any>(() => formFromSolution(editing));
   const [techInput, setTechInput] = useState("");
   const [tagInput, setTagInput] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -68,30 +77,7 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
 
   useEffect(() => {
     if (!editing) return;
-    setForm({
-      title: editing.title,
-      slug: editing.slug,
-      short_description: editing.short_description ?? "",
-      description: editing.description ?? "",
-      mdx_content: editing.mdx_content ?? "",
-      content_json: (editing as any).content_json ?? null,
-      media: (editing as any).media ?? [],
-      cover_image_src: editing.cover_image_src ?? "",
-      cover_video_src: editing.cover_video_src ?? "",
-      href: editing.href ?? "",
-      platform: editing.platform ?? "",
-      category: editing.category ?? "",
-      period: editing.period ?? "",
-      tech_stack: editing.tech_stack ?? [],
-      tags: editing.tags ?? [],
-      client_name: editing.client_name ?? "",
-      custom_page: editing.custom_page,
-      seo_title: editing.seo_title ?? "",
-      meta_description: editing.meta_description ?? "",
-      is_featured: editing.is_featured,
-      status: editing.status,
-      sort_order: editing.sort_order,
-    });
+    setForm(formFromSolution(editing));
   }, [editing]);
 
   const set = (k: string, v: any) => setForm((p: any) => ({ ...p, [k]: v }));

@@ -3,7 +3,6 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 const isDev = process.env.NODE_ENV === "development";
-const hasAbsoluteApi = !!process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -28,20 +27,36 @@ const nextConfig: NextConfig = {
   // same same-origin proxy shape as prod. Skipped in prod and skipped
   // when an absolute NEXT_PUBLIC_API_BASE_URL is set on purpose.
   async rewrites() {
-    if (!isDev || hasAbsoluteApi) return [];
+    if (!isDev) return [];
     const backend = process.env.DEV_BACKEND_URL || "http://localhost:8000";
     const mcp = process.env.DEV_MCP_URL || "http://localhost:8001";
-    return [
-      { source: "/api/v1/:path*", destination: `${backend}/api/v1/:path*` },
-      { source: "/docs", destination: `${backend}/docs` },
-      { source: "/docs/:path*", destination: `${backend}/docs/:path*` },
-      { source: "/health", destination: `${backend}/health` },
+
+    // Uploaded images/videos are written by FastAPI into its storage
+    // dir and served from /order_files. In prod the website container
+    // mounts that dir under public/, but `npm run dev` does not - proxy
+    // it to the backend so editor media actually renders in development.
+    const rewrites = [
+      { source: "/order_files/:path*", destination: `${backend}/order_files/:path*` },
       // MCP over HTTP - same URL shape as prod (`https://.../mcp`),
       // so clients configured in dev against `http://localhost:3000/mcp`
       // work identically in prod against `https://unidoka.com/mcp`.
       { source: "/mcp", destination: `${mcp}/mcp` },
       { source: "/mcp/:path*", destination: `${mcp}/mcp/:path*` },
     ];
+
+    // Always register the API proxy in dev. The browser usually calls the
+    // API same-origin (apiBaseUrl() drops a baked-in localhost base when the
+    // page is opened from another host), and that needs this rewrite. When
+    // an absolute API base is configured and used, the rewrite simply goes
+    // unused.
+    rewrites.push(
+      { source: "/api/v1/:path*", destination: `${backend}/api/v1/:path*` },
+      { source: "/docs", destination: `${backend}/docs` },
+      { source: "/docs/:path*", destination: `${backend}/docs/:path*` },
+      { source: "/health", destination: `${backend}/health` },
+    );
+
+    return rewrites;
   },
   // LLM context: on a 1-CPU box, webpack spends most of its time
   // resolving barrel files. optimizePackageImports rewrites

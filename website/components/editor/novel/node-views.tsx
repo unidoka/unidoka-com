@@ -55,7 +55,7 @@ export function VideoNodeView({ node, deleteNode, updateAttributes, editor }: an
   const editable = editor?.isEditable ?? false;
 
   return (
-    <NodeViewWrapper className="relative my-4 overflow-hidden rounded-xl border border-(--outline) bg-(--bg)">
+    <NodeViewWrapper className="relative my-4 overflow-hidden border border-(--outline) bg-(--bg)">
       <video
         src={src}
         poster={poster}
@@ -64,7 +64,7 @@ export function VideoNodeView({ node, deleteNode, updateAttributes, editor }: an
         muted={muted}
         controls={controls}
         playsInline
-        className="w-full rounded-lg"
+        className="w-full"
       />
       {editable && (
         <div className="flex items-center justify-between gap-2 border-t border-(--outline) px-3 py-2">
@@ -199,7 +199,7 @@ export function GalleryNodeView({ node, deleteNode, updateAttributes, editor }: 
 
   return (
     <NodeViewWrapper className={cn("relative my-6", widthClass)}>
-      <div className="overflow-hidden rounded-xl border border-(--outline) bg-(--card)">
+      <div className="overflow-hidden border border-(--outline) bg-(--card)">
         {images.length > 0 ? (
           <div className={cn("grid gap-1", colsClass)}>
             {images.map((src: string, idx: number) => {

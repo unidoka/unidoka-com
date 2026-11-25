@@ -15,8 +15,10 @@ import ProjectCard from "@/components/layout/projects/project-card";
 import {
   fetchPublicArticlesClient,
   type Article,
+  type ArticleLang,
 } from "@/utils/api/articles";
 import { articleToProject } from "@/utils/article-to-project";
+import { locales, localeLabels } from "@/i18n/config";
 import {
   MagnifyingGlassIcon,
   XIcon,
@@ -26,35 +28,54 @@ import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "motion/react";
 import { ArticlesSearchDialog } from "./articles-search-dialog";
 
-export function ArticleFilterBar({ articles }: { articles: Article[] }) {
+export function ArticleFilterBar({
+  articles,
+  initialLang,
+}: {
+  articles: Article[];
+  initialLang: ArticleLang;
+}) {
   const [items, setItems] = useState<Article[]>(articles);
+  const [lang, setLang] = useState<ArticleLang>(initialLang);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeTag, setActiveTag] = useState<string | null>(null);
   const [featuredOnly, setFeaturedOnly] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(articles.length === 0);
 
   useEffect(() => {
     setItems(articles);
   }, [articles]);
 
-  // Same fallback as solutions: RSC can resolve to [] when the
-  // internal URL is unreachable, so fill in from the public API.
+  // Same as solutions: refetch from the browser so the page and the
+  // admin panel read the exact same API endpoint.
   useEffect(() => {
-    if (articles.length > 0) return;
     let cancelled = false;
-    fetchPublicArticlesClient()
+    setLoading(true);
+    fetchPublicArticlesClient(lang)
       .then((next) => {
-        if (!cancelled && next.length > 0) setItems(next);
+        if (!cancelled) setItems(next);
       })
       .catch(() => {
-        /* empty state is still valid */
+        /* keep the server-provided list */
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
       });
     return () => {
       cancelled = true;
     };
-  }, [articles.length]);
+  }, [lang]);
+
+  const changeLang = (next: ArticleLang) => {
+    if (next === lang) return;
+    setLang(next);
+    setItems([]);
+    setActiveCategory(null);
+    setActiveTag(null);
+    setFeaturedOnly(false);
+  };
 
   const categories = useMemo(() => {
     const set = new Set<string>();
@@ -79,27 +100,13 @@ export function ArticleFilterBar({ articles }: { articles: Article[] }) {
   );
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
     return items.filter((a) => {
       if (activeCategory && a.category !== activeCategory) return false;
       if (featuredOnly && !a.is_featured) return false;
       if (activeTag && !(a.tags || []).some((t) => t.title === activeTag)) return false;
-      if (q) {
-        const haystack = [
-          a.title,
-          a.description,
-          a.category,
-          a.author_name,
-          ...(a.tags || []).map((t) => t.title),
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-        if (!haystack.includes(q)) return false;
-      }
       return true;
     });
-  }, [items, activeCategory, activeTag, featuredOnly, query]);
+  }, [items, activeCategory, activeTag, featuredOnly]);
 
   const recommended = useMemo(
     () => items.filter((a) => a.is_featured).slice(0, 3),
@@ -109,8 +116,7 @@ export function ArticleFilterBar({ articles }: { articles: Article[] }) {
   const activeFilterCount =
     (activeCategory ? 1 : 0) + (activeTag ? 1 : 0) + (featuredOnly ? 1 : 0);
   const hasActiveFilters = activeFilterCount > 0;
-  const hasQuery = query.trim().length > 0;
-  const showRecommended = !hasActiveFilters && !hasQuery && recommended.length > 0;
+  const showRecommended = !hasActiveFilters && recommended.length > 0;
   const gridItems = showRecommended
     ? filtered.filter((a) => !a.is_featured)
     : filtered;
@@ -119,7 +125,6 @@ export function ArticleFilterBar({ articles }: { articles: Article[] }) {
     setActiveCategory(null);
     setActiveTag(null);
     setFeaturedOnly(false);
-    setQuery("");
   };
 
   const categoryChips = useMemo(
@@ -144,31 +149,42 @@ export function ArticleFilterBar({ articles }: { articles: Article[] }) {
         <div className="flex flex-col gap-3 pb-6 sm:flex-row sm:items-center sm:gap-4 sm:pb-8">
           <h1 className="text-display-3 leading-[1.05] sm:mr-auto">Журнал</h1>
 
+          <div
+            role="group"
+            aria-label="Язык статей"
+            className="flex w-fit items-center self-start rounded-lg border border-(--outline) bg-(--card) p-0.5 sm:self-auto"
+          >
+            {locales.map((code) => (
+              <button
+                key={code}
+                type="button"
+                onClick={() => changeLang(code)}
+                aria-pressed={lang === code}
+                className={cn(
+                  "rounded-md px-2.5 py-1 text-body-5 transition-colors",
+                  lang === code
+                    ? "bg-(--primary) text-(--on-primary)"
+                    : "text-(--on-bg-low) hover:text-(--on-bg-high)",
+                )}
+              >
+                {localeLabels[code]}
+              </button>
+            ))}
+          </div>
+
           <div className="flex items-center gap-2">
-            <div className="relative min-w-0 flex-1 sm:w-[220px] lg:w-[280px]">
-              <MagnifyingGlassIcon className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-(--on-bg-low)" />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Поиск статей…"
-                aria-label="Поиск статей"
-                className="h-8 w-full rounded-lg border border-(--outline) bg-transparent pl-8 pr-14 text-body-5 text-(--on-bg-high) outline-none transition-colors placeholder:text-(--on-bg-low) focus:border-(--on-bg-low)/40"
-              />
-              {query ? (
-                <button
-                  type="button"
-                  onClick={() => setQuery("")}
-                  aria-label="Очистить поиск"
-                  className="absolute right-1.5 top-1/2 inline-flex size-6 -translate-y-1/2 items-center justify-center rounded-full text-(--on-bg-low) transition-colors hover:text-(--on-bg-high)"
-                >
-                  <XIcon className="size-3.5" />
-                </button>
-              ) : (
-                <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded border border-(--outline) bg-(--card) px-1.5 py-0.5 font-mono text-[10px] text-(--on-bg-low)">
-                  ⌘K
-                </kbd>
-              )}
-            </div>
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              aria-label="Поиск статей"
+              className="flex h-8 min-w-0 flex-1 items-center gap-2 rounded-lg border border-(--outline) px-2.5 text-body-5 text-(--on-bg-low) transition-colors hover:border-(--on-bg-low)/40 hover:text-(--on-bg-high) sm:w-[240px] sm:flex-none lg:w-[280px]"
+            >
+              <MagnifyingGlassIcon className="size-4 shrink-0" />
+              <span className="truncate">Поиск статей…</span>
+              <kbd className="ml-auto rounded border border-(--outline) bg-(--card) px-1.5 py-0.5 font-mono text-[10px]">
+                ⌘K
+              </kbd>
+            </button>
 
             <Button
               onClick={() => setDrawerOpen(true)}
@@ -183,7 +199,7 @@ export function ArticleFilterBar({ articles }: { articles: Article[] }) {
               <span className="hidden sm:inline">Фильтры</span>
             </Button>
 
-            {(activeFilterCount > 0 || hasQuery) && (
+            {(activeFilterCount > 0) && (
               <button
                 type="button"
                 onClick={resetAll}
@@ -254,12 +270,21 @@ export function ArticleFilterBar({ articles }: { articles: Article[] }) {
             </div>
           )}
 
-          {filtered.length === 0 ? (
+          {loading && items.length === 0 ? (
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {[...Array(3)].map((_, index) => (
+                <div
+                  key={index}
+                  className="aspect-[4/3] animate-pulse bg-(--card)"
+                />
+              ))}
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="py-32 text-center">
               <p className="mb-4 text-heading-2 text-(--on-bg-medium)">
                 {items.length === 0 ? "Здесь пока нет статей" : "Ничего не найдено"}
               </p>
-              {(hasActiveFilters || hasQuery) && (
+              {(hasActiveFilters) && (
                 <button
                   type="button"
                   onClick={resetAll}

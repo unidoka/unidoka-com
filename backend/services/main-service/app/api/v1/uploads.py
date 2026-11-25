@@ -10,10 +10,13 @@ Files are deduplicated by UUID name. Old uploads are NOT garbage
 collected — orphaned files from repeated avatar edits will accumulate.
 Add a nightly sweep if disk usage becomes a concern.
 """
+import asyncio
+import shutil
 import uuid
 from pathlib import Path
+from typing import Optional
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 
 from app.models.user import User
 from app.shared.auth import get_current_user
@@ -26,8 +29,13 @@ ALLOWED_CONTENT_TYPES = {
     "image/jpeg", "image/png", "image/webp", "image/gif", "image/avif",
 }
 ALLOWED_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"}
-ALLOWED_VIDEO_TYPES = {"video/mp4", "video/webm"}
-ALLOWED_VIDEO_EXTS = {".mp4", ".webm"}
+ALLOWED_VIDEO_TYPES = {
+    "video/mp4",
+    "video/webm",
+    "video/quicktime",
+    "video/x-m4v",
+}
+ALLOWED_VIDEO_EXTS = {".mp4", ".webm", ".mov", ".m4v"}
 STORAGE_ROOT = Path("/app/storage/order_files")
 UPLOAD_SUBDIR = "uploads"
 
@@ -60,15 +68,85 @@ async def upload_image(
     return {"url": f"/order_files/{UPLOAD_SUBDIR}/{name}"}
 
 
+async def _trim_video(
+    source: Path, start: Optional[float], end: Optional[float]
+) -> Path:
+    """Cut/remux the uploaded file. Stream copy first, re-encode as fallback.
+
+    Phone recordings arrive as `.mov` with an H.264/AAC pair; remuxing them
+    into `.mp4` is cheap and makes the file playable in every browser.
+    """
+    ffmpeg = shutil.which("ffmpeg")
+    if ffmpeg is None:
+        # Old images are built without ffmpeg; keep the full clip instead
+        # of failing the whole upload.
+        return source
+
+    ext = source.suffix.lower()
+    remux = ext not in {".mp4", ".webm"}
+    trim = start is not None or end is not None
+    if not remux and not trim:
+        return source
+
+    out_ext = ".mp4" if remux else ext
+    out = source.with_name(f"{source.stem}.out{out_ext}")
+
+    def command(reencode: bool) -> list[str]:
+        cmd = [ffmpeg, "-y", "-loglevel", "error"]
+        if start is not None:
+            cmd += ["-ss", f"{max(start, 0):.3f}"]
+        cmd += ["-i", str(source)]
+        if end is not None:
+            begin = max(start or 0, 0)
+            cmd += ["-t", f"{max(end - begin, 0.1):.3f}"]
+        if reencode:
+            cmd += ["-c:v", "libx264", "-preset", "veryfast", "-c:a", "aac"]
+        else:
+            cmd += ["-c", "copy"]
+        if out_ext == ".mp4":
+            cmd += ["-movflags", "+faststart"]
+        cmd.append(str(out))
+        return cmd
+
+    async def run(cmd: list[str]) -> int:
+        proc = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.DEVNULL,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        await proc.communicate()
+        return proc.returncode
+
+    code = await run(command(reencode=False))
+    if code != 0:
+        out.unlink(missing_ok=True)
+        # A container/bitrate the muxer refuses to copy: re-encode once.
+        code = await run(command(reencode=True))
+
+    if code != 0 or not out.exists() or out.stat().st_size == 0:
+        out.unlink(missing_ok=True)
+        raise HTTPException(400, "Не удалось обработать видео")
+    source.unlink(missing_ok=True)
+    return out
+
+
 @router.post("/media")
 async def upload_media(
     file: UploadFile = File(...),
+    start: Optional[float] = Form(None),
+    end: Optional[float] = Form(None),
     current_user: User = Depends(get_current_user),
 ):
-    if file.content_type not in ALLOWED_VIDEO_TYPES:
+    ext = Path(file.filename or "").suffix.lower()
+    # Some clients (drag-and-drop from Finder/Explorer, certain Android
+    # pickers) send an empty or generic MIME type. Trust a known video
+    # extension instead of rejecting a perfectly good file.
+    if (
+        file.content_type not in ALLOWED_VIDEO_TYPES
+        and ext not in ALLOWED_VIDEO_EXTS
+    ):
         raise HTTPException(400, f"Unsupported content type: {file.content_type}")
 
-    ext = Path(file.filename or "").suffix.lower()
     if ext not in ALLOWED_VIDEO_EXTS:
         ext = ".mp4" if file.content_type == "video/mp4" else ".webm"
 
@@ -91,4 +169,21 @@ async def upload_media(
         target.unlink(missing_ok=True)
         raise HTTPException(400, "Empty file")
 
-    return {"url": f"/order_files/{UPLOAD_SUBDIR}/{name}", "poster_url": None}
+    trimmed = start is not None or end is not None
+    if trimmed:
+        if start is not None and start < 0:
+            start = 0
+        if end is not None and start is not None and end <= start:
+            target.unlink(missing_ok=True)
+            raise HTTPException(400, "Некорректный интервал обрезки")
+        try:
+            target = await _trim_video(target, start, end)
+        except HTTPException:
+            target.unlink(missing_ok=True)
+            raise
+
+    return {
+        "url": f"/order_files/{UPLOAD_SUBDIR}/{target.name}",
+        "poster_url": None,
+        "trimmed": trimmed,
+    }

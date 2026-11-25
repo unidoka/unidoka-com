@@ -27,3 +27,16 @@ class ArticleOut(BaseModel):
     published_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
+    lang: str = "ru"
+    translation_group_id: UUID
+
+
+class ArticleTranslation(BaseModel):
+    lang: str
+    slug: str
+    title: str
+    status: str
+
+
+class ArticleDetailOut(ArticleOut):
+    translations: List[ArticleTranslation] = []

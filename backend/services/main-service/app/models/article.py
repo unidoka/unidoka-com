@@ -17,6 +17,12 @@ class Article(Base):
     description = Column(Text, nullable=True)
     content_json = Column(JSON, nullable=True)
 
+    # One row per language. Versions of the same post share the group id.
+    lang = Column(String, nullable=False, default="ru", server_default=text("'ru'"), index=True)
+    translation_group_id = Column(
+        UUID(as_uuid=True), nullable=False, default=uuid.uuid4, index=True
+    )
+
     cover_image_src = Column(String, nullable=True)
     cover_video_src = Column(String, nullable=True)
 

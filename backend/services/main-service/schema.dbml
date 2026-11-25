@@ -39,6 +39,8 @@ Table articles {
   title varchar [not null]
   description text
   content_json jsonb [note: 'Novel/Tiptap JSON document']
+  lang varchar [not null, default: 'ru', note: 'Content language: ru | en']
+  translation_group_id uuid [not null, note: 'Shared by language versions of one post']
   cover_image_src varchar
   cover_video_src varchar
   category varchar

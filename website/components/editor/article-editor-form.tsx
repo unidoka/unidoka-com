@@ -29,53 +29,48 @@ import { revalidateTags } from "@/utils/revalidate";
 interface Props {
   editing: Article | null;
   redirectAfter?: string;
+  /** Prefill for a new article, e.g. the source of a translation. */
+  template?: Article | null;
 }
 
-export function ArticleEditorForm({ editing, redirectAfter }: Props) {
+// NovelEditor reads initialContent only on mount, so form state must already
+// contain the fetched article on the first render.
+function formFromArticle(editing: Article | null) {
+  return {
+    title: editing?.title ?? "",
+    slug: editing?.slug ?? "",
+    description: editing?.description ?? "",
+    content_json: editing?.content_json ?? null,
+    lang: editing?.lang ?? "ru",
+    translation_group_id: editing?.translation_group_id ?? null,
+    cover_image_src: editing?.cover_image_src ?? "",
+    cover_video_src: editing?.cover_video_src ?? "",
+    category: editing?.category ?? "",
+    tags: editing?.tags ?? [],
+    author_name: editing?.author_name ?? "",
+    author_avatar_url: editing?.author_avatar_url ?? "",
+    is_team_author: editing?.is_team_author ?? true,
+    seo_title: editing?.seo_title ?? "",
+    meta_description: editing?.meta_description ?? "",
+    is_featured: editing?.is_featured ?? false,
+    status: editing?.status ?? "published",
+    sort_order: editing?.sort_order ?? 0,
+  };
+}
+
+export function ArticleEditorForm({ editing, redirectAfter, template }: Props) {
   const router = useRouter();
-  const [form, setForm] = useState<any>({
-    title: "",
-    slug: "",
-    description: "",
-    content_json: null,
-    cover_image_src: "",
-    cover_video_src: "",
-    category: "",
-    tags: [],
-    author_name: "",
-    author_avatar_url: "",
-    is_team_author: true,
-    seo_title: "",
-    meta_description: "",
-    is_featured: false,
-    status: "published",
-    sort_order: 0,
-  });
+  const [form, setForm] = useState<any>(() =>
+    formFromArticle(editing ?? template ?? null),
+  );
   const [tagInput, setTagInput] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!editing) return;
-    setForm({
-      title: editing.title,
-      slug: editing.slug,
-      description: editing.description ?? "",
-      content_json: editing.content_json ?? null,
-      cover_image_src: editing.cover_image_src ?? "",
-      cover_video_src: editing.cover_video_src ?? "",
-      category: editing.category ?? "",
-      tags: editing.tags ?? [],
-      author_name: editing.author_name ?? "",
-      author_avatar_url: editing.author_avatar_url ?? "",
-      is_team_author: editing.is_team_author,
-      seo_title: editing.seo_title ?? "",
-      meta_description: editing.meta_description ?? "",
-      is_featured: editing.is_featured,
-      status: editing.status,
-      sort_order: editing.sort_order,
-    });
-  }, [editing]);
+    if (!editing && !template) return;
+    setForm(formFromArticle(editing ?? template ?? null));
+  }, [editing, template]);
 
   const set = (k: string, v: any) => setForm((p: any) => ({ ...p, [k]: v }));
 
@@ -135,16 +130,30 @@ export function ArticleEditorForm({ editing, redirectAfter }: Props) {
           />
           {errors.title && <FieldError errors={[{ message: errors.title }]} />}
         </Field>
-        <Field>
-          <FieldLabel>Slug (URL)</FieldLabel>
-          <Input
-            value={form.slug}
-            onChange={(e) =>
-              set("slug", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))
-            }
-            placeholder="auto-generated from title"
-          />
-        </Field>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-[1fr_180px]">
+          <Field>
+            <FieldLabel>Slug (URL)</FieldLabel>
+            <Input
+              value={form.slug}
+              onChange={(e) =>
+                set("slug", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))
+              }
+              placeholder="auto-generated from title"
+            />
+          </Field>
+          <Field>
+            <FieldLabel>Язык</FieldLabel>
+            <Select value={form.lang} onValueChange={(v) => set("lang", v)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ru">Русский</SelectItem>
+                <SelectItem value="en">English</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+        </div>
         <Field>
           <FieldLabel>Короткое описание</FieldLabel>
           <Textarea

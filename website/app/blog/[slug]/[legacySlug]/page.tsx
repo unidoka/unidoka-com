@@ -7,8 +7,8 @@ import { redirect } from "next/navigation";
 export default async function LegacyArticlePage({
   params,
 }: {
-  params: Promise<{ id: string; slug: string }>;
+  params: Promise<{ slug: string; legacySlug: string }>;
 }) {
-  const { slug } = await params;
-  redirect(`/blog/${slug}`);
+  const { legacySlug } = await params;
+  redirect(`/blog/${legacySlug}`);
 }

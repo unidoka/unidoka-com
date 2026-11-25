@@ -7,17 +7,8 @@ import { useUser } from "@/entities/user/model/user-context";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   PlusIcon,
-  MagnifyingGlassIcon,
   ArrowClockwiseIcon,
   CircleNotchIcon,
   PencilSimpleIcon,
@@ -35,6 +26,7 @@ import {
   type MarketingPlacement,
 } from "@/utils/api/marketing";
 import { PlacementEditorDialog } from "./_components/placement-editor-dialog";
+import { AdminFilterBar } from "../../../_components/admin-filter-bar";
 
 /**
  * Compute the effective status of a placement.
@@ -178,51 +170,44 @@ export default function AdminPlacementsPage() {
             min-w-[200px] and the select was fixed at w-[200px]; on a
             content column narrower than ~450px every item wrapped onto
             its own line and the card looked broken. */}
-        <Card className="rounded-2xl border-(--outline) p-4">
-          <div className="flex flex-col sm:flex-row gap-2">
-            {/* Search - full width on its own row on mobile,
-                flex-1 alongside the other controls on sm+. */}
-            <div className="relative flex-1 min-w-0">
-              <MagnifyingGlassIcon className="size-4 absolute left-3 top-1/2 -translate-y-1/2 text-(--on-bg-low) pointer-events-none" />
-              <Input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Поиск по названию…"
-                className="pl-9"
+        <AdminFilterBar
+          query={query}
+          onQueryChange={setQuery}
+          placeholder="Поиск по названию…"
+          fields={[
+            {
+              id: "type",
+              label: "Тип",
+              value: typeFilter,
+              onChange: setTypeFilter,
+              options: [
+                { value: "all", label: "Все типы" },
+                { value: "top", label: "Верхняя полоса" },
+                { value: "card", label: "Карточка" },
+                { value: "toast", label: "Уведомление" },
+                { value: "dialog", label: "Окно" },
+              ],
+            },
+          ]}
+          onReset={() => {
+            setQuery("");
+            setTypeFilter("all");
+          }}
+          trailing={
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={load}
+              disabled={loading}
+              className="shrink-0"
+              aria-label="Обновить"
+            >
+              <ArrowClockwiseIcon
+                className={cn("size-4", loading && "animate-spin")}
               />
-            </div>
-
-            {/* Select + refresh. On mobile they stay side-by-side
-                (select fills, refresh hugs the right). On desktop the
-                pair is a fixed block on the right of the row. */}
-            <div className="flex gap-2">
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="flex-1 sm:w-[200px] sm:flex-none">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Все типы</SelectItem>
-                  <SelectItem value="top">Верхняя полоса</SelectItem>
-                  <SelectItem value="card">Карточка</SelectItem>
-                  <SelectItem value="toast">Уведомление</SelectItem>
-                  <SelectItem value="dialog">Окно</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={load}
-                disabled={loading}
-                className="shrink-0"
-                aria-label="Обновить"
-              >
-                <ArrowClockwiseIcon
-                  className={cn("size-4", loading && "animate-spin")}
-                />
-              </Button>
-            </div>
-          </div>
-        </Card>
+            </Button>
+          }
+        />
 
         {loading && (
           <div className="space-y-3">

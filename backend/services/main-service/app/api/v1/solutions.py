@@ -1,9 +1,12 @@
+import logging
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.models.solution import Solution
 from app.schemas.solution import SolutionOut
 from database.database import get_db
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/solutions", tags=["solutions"])
 
@@ -25,7 +28,9 @@ async def list_public_solutions(
         q = q.filter(Solution.category == category)
     if limit:
         q = q.limit(limit)
-    return [SolutionOut.model_validate(s) for s in q.all()]
+    rows = q.all()
+    logger.info("[solutions] public list returned %d row(s)", len(rows))
+    return [SolutionOut.model_validate(s) for s in rows]
 
 
 @router.get("/{slug}", response_model=SolutionOut)
@@ -35,6 +40,7 @@ async def get_public_solution(slug: str, db: Session = Depends(get_db)):
         Solution.deleted_at.is_(None),
         Solution.status != "archived",
     ).first()
+    logger.info("[solutions] public detail slug=%s found=%s", slug, bool(s))
     if not s:
         raise HTTPException(404, "Solution not found")
     return SolutionOut.model_validate(s)
