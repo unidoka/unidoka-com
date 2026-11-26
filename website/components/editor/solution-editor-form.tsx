@@ -25,6 +25,7 @@ import {
   type SolutionPayload,
 } from "@/utils/api/solutions";
 import { SOLUTION_CUSTOM_PAGES_META } from "@/app/solutions/[slug]/_components/solution-custom-pages-meta";
+import { SOLUTION_PAGE_OPTIONS } from "@/utils/solution-pages";
 import { NovelEditor } from "./novel/novel-editor";
 import { UnifiedCover } from "./unified-cover";
 import { revalidateTags } from "@/utils/revalidate";
@@ -59,6 +60,7 @@ function formFromSolution(editing: Solution | null) {
     tags: editing?.tags ?? [],
     client_name: editing?.client_name ?? "",
     custom_page: editing?.custom_page ?? null,
+    page: editing?.page ?? "",
     seo_title: editing?.seo_title ?? "",
     meta_description: editing?.meta_description ?? "",
     is_featured: editing?.is_featured ?? false,
@@ -114,6 +116,11 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
         ...form,
         title: form.title.trim(),
         slug: form.slug?.trim() || undefined,
+        page: form.page?.trim()
+          ? form.page.trim().startsWith("/")
+            ? form.page.trim()
+            : `/${form.page.trim()}`
+          : null,
         custom_page:
           form.custom_page === NO_CUSTOM_PAGE || !form.custom_page
             ? null
@@ -218,6 +225,8 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
         <UnifiedCover
           imageUrl={form.cover_image_src ?? ""}
           videoUrl={form.cover_video_src ?? ""}
+          aspect={4 / 3}
+          folder="solutions"
           onChange={(img, vid) => {
             set("cover_image_src", img);
             set("cover_video_src", vid || null);
@@ -260,6 +269,31 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
         </Field>
       </Card>
 
+      {/* Page match */}
+      <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4">
+        <h2 className="text-heading-3">Страница</h2>
+        <Field>
+          <FieldLabel>Привязать к странице</FieldLabel>
+          <Input
+            list="solution-page-options"
+            value={form.page ?? ""}
+            onChange={(e) => set("page", e.target.value.trim())}
+            placeholder="/amorfa"
+          />
+          <datalist id="solution-page-options">
+            {SOLUTION_PAGE_OPTIONS.map((p) => (
+              <option key={p.value} value={p.value}>
+                {p.label}
+              </option>
+            ))}
+          </datalist>
+          <p className="text-body-5 text-(--on-bg-low) mt-1">
+            Укажите путь страницы, на которой показывать решение, например
+            /amorfa. Оставьте пустым, чтобы не привязывать.
+          </p>
+        </Field>
+      </Card>
+
       {/* Content */}
       <Card className="rounded-3xl border-(--outline) bg-(--card) p-6 space-y-4">
         <h2 className="text-heading-3">Контент</h2>
@@ -269,6 +303,7 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
             initialContent={form.content_json}
             onChange={(json) => set("content_json", json)}
             className="min-h-[500px] rounded-2xl border border-(--outline) bg-(--card)"
+            folder="solutions"
           />
         </Field>
         <Field>

@@ -3,7 +3,7 @@ import { slugify } from "@/utils/slugify";
 export interface TiptapHeading {
   id: string;
   text: string;
-  level: 2 | 3;
+  level: 1 | 2 | 3;
 }
 
 function collectText(node: any): string {
@@ -14,7 +14,7 @@ function collectText(node: any): string {
 }
 
 /**
- * Extract h2/h3 headings from a Tiptap/Novel JSON document for the TOC.
+ * Extract h1/h2/h3 headings from a Tiptap/Novel JSON document for the TOC.
  * Uses the same slugify() as the read-only heading renderer, so ids match.
  */
 export function extractTiptapHeadings(content: any): TiptapHeading[] {
@@ -24,7 +24,9 @@ export function extractTiptapHeadings(content: any): TiptapHeading[] {
     if (!node || typeof node !== "object") return;
     if (
       node.type === "heading" &&
-      (node.attrs?.level === 2 || node.attrs?.level === 3)
+      (node.attrs?.level === 1 ||
+        node.attrs?.level === 2 ||
+        node.attrs?.level === 3)
     ) {
       const text = collectText(node).trim();
       if (text) {

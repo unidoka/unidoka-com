@@ -223,6 +223,7 @@ function OrganizerEditorDialog({
               outputSize={256}
               variant="avatar"
               fallbackText={form.name.slice(0, 2).toUpperCase()}
+              folder="organizers"
             />
           </Field>
 

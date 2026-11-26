@@ -196,7 +196,7 @@ export default function AdminArticlesPage() {
                   key={a.id}
                   className="group relative rounded-3xl border-(--outline) bg-(--card) overflow-hidden transition-all hover:border-(--primary)/40 flex flex-col"
                 >
-                  <div className="relative aspect-[4/3] bg-muted overflow-hidden">
+                  <div className="relative aspect-[16/9] bg-muted overflow-hidden">
                     <Link
                       href={`${base}/${a.slug}/edit`}
                       className="absolute inset-0 z-[1]"

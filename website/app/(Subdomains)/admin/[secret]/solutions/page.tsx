@@ -214,6 +214,11 @@ export default function AdminSolutionsPage() {
                           custom: {s.custom_page}
                         </Badge>
                       )}
+                      {s.page && (
+                        <Badge variant="glass-static" size="chip-small" className="text-white border-white/20">
+                          {s.page}
+                        </Badge>
+                      )}
                     </div>
                     <div className="absolute bottom-3 left-3 right-3 text-white z-[2] pointer-events-none">
                       <h3 className="text-heading-4 truncate">{s.title}</h3>

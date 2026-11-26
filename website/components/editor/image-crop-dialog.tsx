@@ -25,8 +25,11 @@ interface Props {
   aspect?: number;
   outputSize?: number;
   quality?: number;
+  progress?: number | null;
+  progressLabel?: string;
+  filename?: string;
   onCancel: () => void;
-  onComplete: (blob: Blob, filename: string) => void;
+  onComplete: (blob: Blob, filename: string) => void | Promise<void>;
 }
 
 /**
@@ -34,8 +37,8 @@ interface Props {
  *
  * Layout (matches Telegram's avatar editor):
  *   - The full image is visible inside a fixed-height stage.
- *   - A square crop area sits centered on top, marked by corner brackets.
- *   - A circular outline inside the square previews the final avatar.
+ *   - An aspect-locked crop area sits centered on top, marked by brackets.
+ *   - For 1:1 crops a circular outline previews the final avatar.
  *   - Zoom is controlled by slider + scroll wheel + pinch.
  *   - Bottom bar: [Cancel]  [grid] [rotate ⟲] [rotate ⟳] [reset]  [Apply]
  *
@@ -45,7 +48,7 @@ interface Props {
  * rotation math inline (as `getCroppedImg` in react-easy-crop's docs)
  * is what keeps the crop aligned with what the user sees on screen.
  */
-const MIN_ZOOM = 0.4;
+const MIN_ZOOM = 1;
 const MAX_ZOOM = 4;
 const STAGE_HEIGHT = "min(64vh, 520px)";
 
@@ -54,6 +57,9 @@ export function ImageCropDialog({
   aspect = 1,
   outputSize = 512,
   quality = 0.92,
+  progress = null,
+  progressLabel = "Загрузка",
+  filename = "image",
   onCancel,
   onComplete,
 }: Props) {
@@ -63,7 +69,7 @@ export function ImageCropDialog({
   const [rotation, setRotation] = useState(0);
   const [showGrid, setShowGrid] = useState(false);
   const [area, setArea] = useState<Area | null>(null);
-  const [cropSize, setCropSize] = useState(0);
+  const [cropSize, setCropSize] = useState({ width: 0, height: 0 });
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(false);
 
@@ -87,7 +93,7 @@ export function ImageCropDialog({
     setRotation(0);
     setArea(null);
     setReady(false);
-    setCropSize(0);
+    setCropSize({ width: 0, height: 0 });
   }, [file]);
 
   const onCropComplete = useCallback((_: Area, pixels: Area) => {
@@ -98,7 +104,7 @@ export function ImageCropDialog({
     // The library reports the crop area's CSS pixel size. We use it to
     // size our overlay (circle + corner brackets) so they line up exactly
     // with the draggable crop region.
-    setCropSize(size.width);
+    setCropSize(size);
   }, []);
 
   const resetView = () => {
@@ -127,12 +133,13 @@ export function ImageCropDialog({
         area,
         rotation,
         outputSize,
+        aspect,
         mime,
         quality,
       );
-      onComplete(blob, `avatar.${ext}`);
+      await onComplete(blob, `${filename}.${ext}`);
     } catch (e) {
-      console.error("[crop] rasterize failed", e);
+      console.error("[crop] export failed", e);
     } finally {
       setBusy(false);
     }
@@ -179,10 +186,10 @@ export function ImageCropDialog({
             same transform the library uses, so they overlap exactly.
             `pointer-events-none` - the Cropper must receive all drags.
           */}
-          {cropSize > 0 && (
+          {cropSize.width > 0 && (
             <div
               className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-              style={{ width: cropSize, height: cropSize }}
+              style={{ width: cropSize.width, height: cropSize.height }}
             >
               {/* Circular avatar preview - only meaningful for 1:1 crops. */}
               {aspect === 1 && (
@@ -222,6 +229,20 @@ export function ImageCropDialog({
             {Math.round(zoom * 100)}%
           </span>
         </div>
+
+        {typeof progress === "number" && (
+          <div className="space-y-1 px-5 py-3 border-t border-(--outline)">
+            <div className="h-1 w-full overflow-hidden rounded-full bg-(--bg)">
+              <div
+                className="h-full bg-(--primary) transition-[width] duration-200"
+                style={{ width: `${Math.min(Math.max(progress, 0), 100)}%` }}
+              />
+            </div>
+            <p className="text-body-5 text-(--on-bg-low)">
+              {progressLabel}… {Math.round(progress)}%
+            </p>
+          </div>
+        )}
 
         {/* ── Bottom bar - Telegram layout ────────────────────────── */}
         <div className="flex items-center justify-between gap-3 px-5 py-4 border-t border-(--outline) bg-(--card)">
@@ -346,7 +367,7 @@ function rotatedBounds(w: number, h: number, deg: number) {
 }
 
 /**
- * Rasterise the visible crop region to a square canvas.
+ * Rasterise the visible crop region to an aspect-locked canvas.
  *
  * `area` comes from react-easy-crop's `onCropComplete` and is already in
  * natural image pixels of the *rotated* image, so it must be applied
@@ -359,6 +380,7 @@ async function rasterize(
   area: Area,
   rotation: number,
   size: number,
+  aspect: number,
   mime: string,
   quality: number,
 ): Promise<Blob> {
@@ -380,10 +402,14 @@ async function rasterize(
   rctx.translate(-img.naturalWidth / 2, -img.naturalHeight / 2);
   rctx.drawImage(img, 0, 0);
 
-  // 2. Extract `area` and scale it to the output square.
+  // 2. Extract `area` and scale it to the aspect-locked output frame.
+  //    `size` is the longest side, so a 16:9 cover becomes 1600×900 and
+  //    a 4:3 cover becomes 1600×1200 instead of being squashed square.
+  const outWidth = aspect >= 1 ? Math.round(size) : Math.round(size * aspect);
+  const outHeight = aspect >= 1 ? Math.round(size / aspect) : Math.round(size);
   const outCanvas = document.createElement("canvas");
-  outCanvas.width = size;
-  outCanvas.height = size;
+  outCanvas.width = outWidth;
+  outCanvas.height = outHeight;
   const octx = outCanvas.getContext("2d");
   if (!octx) throw new Error("Canvas 2D unavailable");
   octx.imageSmoothingEnabled = true;
@@ -396,7 +422,7 @@ async function rasterize(
   const sw = Math.max(1, Math.min(area.width, rotatedCanvas.width - sx));
   const sh = Math.max(1, Math.min(area.height, rotatedCanvas.height - sy));
 
-  octx.drawImage(rotatedCanvas, sx, sy, sw, sh, 0, 0, size, size);
+  octx.drawImage(rotatedCanvas, sx, sy, sw, sh, 0, 0, outWidth, outHeight);
 
   return new Promise((resolve, reject) => {
     outCanvas.toBlob(

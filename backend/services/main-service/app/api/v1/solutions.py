@@ -15,6 +15,7 @@ router = APIRouter(prefix="/solutions", tags=["solutions"])
 async def list_public_solutions(
     featured: Optional[bool] = Query(None),
     category: Optional[str] = Query(None),
+    page: Optional[str] = Query(None),
     limit: Optional[int] = Query(None, ge=1, le=200),
     db: Session = Depends(get_db),
 ):
@@ -26,6 +27,8 @@ async def list_public_solutions(
         q = q.filter(Solution.is_featured.is_(True))
     if category:
         q = q.filter(Solution.category == category)
+    if page:
+        q = q.filter(Solution.page == page)
     if limit:
         q = q.limit(limit)
     rows = q.all()

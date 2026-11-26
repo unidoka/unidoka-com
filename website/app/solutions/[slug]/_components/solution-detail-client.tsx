@@ -53,7 +53,7 @@ export function SolutionDetailClient({
       return (
         <main className="pb-16 pt-24 sm:pt-28">
           <Container>
-            <div className="max-w-[820px] animate-pulse space-y-4">
+            <div className="animate-pulse space-y-4">
               <div className="h-12 w-2/3 rounded-lg bg-(--card)" />
               <div className="h-5 w-1/2 rounded bg-(--card)" />
               <div className="mt-8 aspect-[4/3] bg-(--card)" />

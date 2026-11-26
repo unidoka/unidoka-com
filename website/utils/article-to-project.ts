@@ -11,6 +11,7 @@ export function articleToProject(a: Article): Project {
     cover: {
       imageSrc: a.cover_image_src || "",
       videoSrc: a.cover_video_src || undefined,
+      aspect: 16 / 9,
     },
     category: a.category || "",
     clientId: "",

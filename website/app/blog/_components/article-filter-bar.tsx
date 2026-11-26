@@ -147,7 +147,7 @@ export function ArticleFilterBar({
     <>
       <Container>
         <div className="flex flex-col gap-3 pb-6 sm:flex-row sm:items-center sm:gap-4 sm:pb-8">
-          <h1 className="text-display-3 leading-[1.05] sm:mr-auto">Журнал</h1>
+          <h1 className="text-display-3 leading-[1.05] sm:mr-auto">Блог</h1>
 
           <div
             role="group"
@@ -275,7 +275,7 @@ export function ArticleFilterBar({
               {[...Array(3)].map((_, index) => (
                 <div
                   key={index}
-                  className="aspect-[4/3] animate-pulse bg-(--card)"
+                  className="aspect-[16/9] animate-pulse bg-(--card)"
                 />
               ))}
             </div>

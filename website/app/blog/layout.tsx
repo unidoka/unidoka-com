@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const isEn = locale === "en";
   const siteUrl = siteOrigin();
   const canonical = `${siteUrl}${isEn ? "/en/blog" : "/blog"}`;
-  const title = isEn ? "Journal" : "Журнал";
+  const title = isEn ? "Blog" : "Блог";
   const description = isEn
     ? "Articles about design, development, cases, and insights from the Unidoka team."
     : "Статьи о дизайне, разработке, кейсах и инсайтах команды Unidoka.";

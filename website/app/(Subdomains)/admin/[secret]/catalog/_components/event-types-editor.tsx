@@ -50,11 +50,12 @@ export function EventTypesEditor() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-body-4 text-(--on-bg-medium)">
           {rows.length} типов
         </p>
         <Button
+          className="shrink-0"
           onClick={() => {
             setEditing(null);
             setDialogOpen(true);
@@ -69,23 +70,23 @@ export function EventTypesEditor() {
           <CircleNotchIcon className="size-5 animate-spin mx-auto text-(--on-bg-low)" />
         </Card>
       ) : (
-        <Card className="rounded-3xl border-(--outline) bg-(--card) divide-y divide-(--outline) overflow-hidden">
+        <Card className="rounded-3xl border-(--outline) bg-(--card) divide-y divide-(--outline) overflow-hidden gap-0 py-0">
           {rows.map((t) => (
             <div
               key={t.id}
-              className="grid grid-cols-[auto_1fr_auto] gap-3 items-center p-4"
+              className="grid grid-cols-[auto_minmax(0,1fr)_auto] gap-2 sm:gap-3 items-center p-3 sm:p-4"
             >
               <span
                 className="size-6 rounded-md"
                 style={{ background: t.color || "#888" }}
               />
               <div className="min-w-0">
-                <p className="text-body-3  truncate">{t.name}</p>
-                <p className="text-body-5 text-(--on-bg-low) font-mono">
+                <p className="text-body-3 truncate">{t.name}</p>
+                <p className="text-body-5 text-(--on-bg-low) font-mono truncate">
                   /{t.slug}
                 </p>
               </div>
-              <div className="flex gap-1">
+              <div className="flex shrink-0 gap-1">
                 {!t.is_active && (
                   <Badge variant="tonal-card-static" size="chip-small">
                     Скрыт

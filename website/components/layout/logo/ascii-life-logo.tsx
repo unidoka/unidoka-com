@@ -30,11 +30,11 @@ const YOUNG_GLYPHS = ["+", "*", "#", "%", "&", "@", "@"];
 const CELL_W = 6;
 const CELL_H = 10;
 // Slow enough to read as growth, not flicker.
-const STEP_MS = 180;
+const STEP_MS = 150;
 
 // Phase 1: the mark unfolds from its centre. After this, the colony
 // keeps multiplying into the remaining space.
-const GROWTH_TICKS = 30;
+const GROWTH_TICKS = 28;
 const GROWTH_REVEAL = 0.85;
 
 // Life-cycle timing, in ticks.

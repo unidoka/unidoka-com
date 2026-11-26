@@ -19,6 +19,7 @@ export interface Solution {
   client_id: string | null;
   client_name: string | null;
   custom_page: string | null;
+  page: string | null;
   seo_title: string | null;
   meta_description: string | null;
   is_featured: boolean;
@@ -46,6 +47,7 @@ export interface SolutionPayload {
   client_id?: string | null;
   client_name?: string | null;
   custom_page?: string | null;
+  page?: string | null;
   seo_title?: string | null;
   meta_description?: string | null;
   is_featured?: boolean;
@@ -62,10 +64,12 @@ const API_BASE =
 export async function fetchAdminSolutions(params?: {
   q?: string;
   status?: string;
+  page?: string;
 }): Promise<Solution[]> {
   const qs = new URLSearchParams();
   if (params?.q) qs.set("q", params.q);
   if (params?.status) qs.set("status", params.status);
+  if (params?.page) qs.set("page", params.page);
   const res = await $fetch(
     `/api/v1/admin/solutions${qs.toString() ? `?${qs}` : ""}`,
     { isToast: false },
@@ -138,10 +142,12 @@ export async function deleteSolution(slug: string): Promise<void> {
 export async function fetchPublicSolutionsServer(params?: {
   featured?: boolean;
   limit?: number;
+  page?: string;
 }): Promise<Solution[]> {
   const qs = new URLSearchParams();
   if (params?.featured) qs.set("featured", "true");
   if (params?.limit) qs.set("limit", String(params.limit));
+  if (params?.page) qs.set("page", params.page);
   try {
     const url = `${API_BASE}/api/v1/solutions${qs.toString() ? `?${qs}` : ""}`;
     const res = await fetch(url, { cache: "no-store" });
@@ -172,8 +178,9 @@ export async function fetchPublicSolutionServer(slug: string): Promise<Solution 
   }
 }
 
-export async function fetchPublicSolutionsClient(): Promise<Solution[]> {
-  const res = await $fetch("/api/v1/solutions", { isToast: false });
+export async function fetchPublicSolutionsClient(page?: string): Promise<Solution[]> {
+  const qs = page ? `?page=${encodeURIComponent(page)}` : "";
+  const res = await $fetch(`/api/v1/solutions${qs}`, { isToast: false });
   return Array.isArray(res?.json) ? (res.json as Solution[]) : [];
 }
 

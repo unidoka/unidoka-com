@@ -20,6 +20,7 @@ class SolutionPayload(BaseModel):
     client_id: Optional[str] = None
     client_name: Optional[str] = None
     custom_page: Optional[str] = None
+    page: Optional[str] = None
     seo_title: Optional[str] = None
     meta_description: Optional[str] = None
     is_featured: bool = False

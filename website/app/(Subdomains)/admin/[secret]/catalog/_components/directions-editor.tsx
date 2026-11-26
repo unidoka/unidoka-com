@@ -75,11 +75,12 @@ export function DirectionsEditor() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-body-4 text-(--on-bg-medium)">
           Вершины - направления и поднаправления (теги событий)
         </p>
         <Button
+          className="shrink-0"
           onClick={() => {
             setEditingDir(null);
             setDirOpen(true);
@@ -100,15 +101,15 @@ export function DirectionsEditor() {
             return (
               <Card
                 key={d.id}
-                className="rounded-3xl border-(--outline) bg-(--card) overflow-hidden"
+                className="rounded-3xl border-(--outline) bg-(--card) overflow-hidden gap-0 py-0"
               >
-                <div className="flex items-center gap-3 p-4">
+                <div className="flex flex-wrap items-center gap-2 p-3 sm:flex-nowrap sm:gap-3 sm:p-4">
                   <button
                     type="button"
                     onClick={() =>
                       setExpanded((p) => ({ ...p, [d.id]: !p[d.id] }))
                     }
-                    className="size-8 rounded-full flex items-center justify-center hover:bg-(--state-hover)"
+                    className="size-8 shrink-0 rounded-full flex items-center justify-center hover:bg-(--state-hover)"
                   >
                     {isOpen ? (
                       <CaretUpIcon className="size-4" />
@@ -116,10 +117,10 @@ export function DirectionsEditor() {
                       <CaretDownIcon className="size-4" />
                     )}
                   </button>
-                  <span className="text-2xl">{d.emoji}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-body-3  truncate">{d.name}</p>
-                    <p className="text-body-5 text-(--on-bg-low) font-mono">
+                  <span className="shrink-0 text-xl sm:text-2xl">{d.emoji}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-body-3 truncate">{d.name}</p>
+                    <p className="text-body-5 text-(--on-bg-low) font-mono truncate">
                       /{d.slug} · {d.subdirections.length} поднаправл.
                     </p>
                   </div>
@@ -128,63 +129,72 @@ export function DirectionsEditor() {
                       Скрыт
                     </Badge>
                   )}
-                  <Button
-                    variant="text"
-                    size="icon-small"
-                    onClick={() => {
-                      setEditingDir(d);
-                      setDirOpen(true);
-                    }}
-                  >
-                    <PencilSimple className="size-4" />
-                  </Button>
-                  <Button
-                    variant="text"
-                    size="icon-small"
-                    onClick={async () => {
-                      if (!confirm(`Удалить «${d.name}» и все поднаправления?`))
-                        return;
-                      await adminDeleteDirection(d.id);
-                      toast.success("Удалено");
-                      load();
-                    }}
-                  >
-                    <Trash className="size-4" />
-                  </Button>
+                  <div className="ml-auto flex shrink-0 gap-1">
+                    <Button
+                      variant="text"
+                      size="icon-small"
+                      onClick={() => {
+                        setEditingDir(d);
+                        setDirOpen(true);
+                      }}
+                    >
+                      <PencilSimple className="size-4" />
+                    </Button>
+                    <Button
+                      variant="text"
+                      size="icon-small"
+                      onClick={async () => {
+                        if (!confirm(`Удалить «${d.name}» и все поднаправления?`))
+                          return;
+                        await adminDeleteDirection(d.id);
+                        toast.success("Удалено");
+                        load();
+                      }}
+                    >
+                      <Trash className="size-4" />
+                    </Button>
+                  </div>
                 </div>
 
                 {isOpen && (
-                  <div className="border-t border-(--outline) p-4 space-y-2">
+                  <div className="border-t border-(--outline) p-3 space-y-2 sm:p-4">
                     {d.subdirections.map((s) => (
-                      <div key={s.id} className="flex items-center gap-2 pl-8">
-                        <p className="flex-1 text-body-4">{s.name}</p>
+                      <div
+                        key={s.id}
+                        className="flex items-center gap-2 pl-4 sm:pl-8"
+                      >
+                        <p className="min-w-0 flex-1 truncate text-body-4">
+                          {s.name}
+                        </p>
                         {!s.is_active && (
                           <Badge variant="tonal-card-static" size="chip-small">
                             Скрыт
                           </Badge>
                         )}
-                        <Button
-                          variant="text"
-                          size="icon-small"
-                          onClick={() => {
-                            setEditingSub({ sub: s, dirId: d.id });
-                            setSubOpen(true);
-                          }}
-                        >
-                          <PencilSimple className="size-3.5" />
-                        </Button>
-                        <Button
-                          variant="text"
-                          size="icon-small"
-                          onClick={async () => {
-                            if (!confirm(`Удалить «${s.name}»?`)) return;
-                            await adminDeleteSubdirection(s.id);
-                            toast.success("Удалено");
-                            load();
-                          }}
-                        >
-                          <Trash className="size-3.5" />
-                        </Button>
+                        <div className="flex shrink-0 gap-1">
+                          <Button
+                            variant="text"
+                            size="icon-small"
+                            onClick={() => {
+                              setEditingSub({ sub: s, dirId: d.id });
+                              setSubOpen(true);
+                            }}
+                          >
+                            <PencilSimple className="size-3.5" />
+                          </Button>
+                          <Button
+                            variant="text"
+                            size="icon-small"
+                            onClick={async () => {
+                              if (!confirm(`Удалить «${s.name}»?`)) return;
+                              await adminDeleteSubdirection(s.id);
+                              toast.success("Удалено");
+                              load();
+                            }}
+                          >
+                            <Trash className="size-3.5" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                     <Button

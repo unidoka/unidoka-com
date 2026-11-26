@@ -43,6 +43,7 @@ def _serialize(s: Solution) -> SolutionOut:
 async def list_solutions(
     q: Optional[str] = Query(None),
     status: Optional[str] = Query(None, pattern="^(draft|published|archived)$"),
+    page: Optional[str] = Query(None),
     db: Session = Depends(get_db),
     _: User = Depends(_require_admin),
 ):
@@ -53,6 +54,8 @@ async def list_solutions(
         query = query.filter(Solution.title.ilike(f"%{q}%"))
     if status:
         query = query.filter(Solution.status == status)
+    if page:
+        query = query.filter(Solution.page == page)
     return [_serialize(s) for s in query.all()]
 
 

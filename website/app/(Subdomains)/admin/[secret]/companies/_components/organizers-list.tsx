@@ -78,11 +78,12 @@ export function OrganizersList() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-body-4 text-(--on-bg-medium)">
           {rows.length} организаторов
         </p>
         <Button
+          className="shrink-0"
           onClick={() => {
             setEditing(null);
             setDialogOpen(true);
@@ -97,9 +98,9 @@ export function OrganizersList() {
           <CircleNotchIcon className="size-5 animate-spin mx-auto text-(--on-bg-low)" />
         </Card>
       ) : (
-        <Card className="rounded-3xl border-(--outline) bg-(--card) divide-y divide-(--outline) overflow-hidden">
+        <Card className="rounded-3xl border-(--outline) bg-(--card) divide-y divide-(--outline) overflow-hidden gap-0 py-0">
           {rows.map((o) => (
-            <div key={o.id} className="grid grid-cols-[auto_1fr_auto] gap-3 items-center p-4">
+            <div key={o.id} className="grid grid-cols-[auto_minmax(0,1fr)_auto] gap-2 sm:gap-3 items-center p-3 sm:p-4">
               {o.avatar_url ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
@@ -121,12 +122,12 @@ export function OrganizersList() {
                 </span>
               )}
               <div className="min-w-0">
-                <p className="text-body-3  truncate">{o.name}</p>
-                <p className="text-body-5 text-(--on-bg-low) font-mono">
+                <p className="text-body-3 truncate">{o.name}</p>
+                <p className="text-body-5 text-(--on-bg-low) font-mono truncate">
                   /{o.slug}
                 </p>
               </div>
-              <div className="flex gap-1">
+              <div className="flex shrink-0 gap-1">
                 {!o.is_active && (
                   <Badge variant="tonal-card-static" size="chip-small">
                     Скрыт
@@ -264,6 +265,7 @@ function OrganizerEditorDialog({
               outputSize={256}
               variant="avatar"
               fallbackText={form.name.slice(0, 2).toUpperCase()}
+              folder="organizers"
             />
           </Field>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

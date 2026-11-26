@@ -9,7 +9,7 @@ import {
   handleImagePaste,
 } from "novel";
 import { extensions } from "./extensions";
-import { uploadFn } from "./image-upload";
+import { createUploadFn } from "./image-upload";
 import { registerUploadCallbacks } from "./suggestion-items";
 import { cn } from "@/lib/utils";
 import "tippy.js/dist/tippy.css";
@@ -35,6 +35,7 @@ import { ImageEditorDialog } from "../image-editor/image-editor-dialog";
 import { readFileAsDataURL } from "../image-editor/canvas-utils";
 import { ImageViewer, viewerStateFromImage, type ViewerImage } from "./image-viewer";
 import { $fetch } from "@/utils/fetch";
+import { setActiveUploadFolder } from "@/utils/api/uploads";
 import { toast } from "sonner";
 
 export interface NovelEditorProps {
@@ -42,6 +43,8 @@ export interface NovelEditorProps {
   onChange: (json: any) => void;
   onDirty?: () => void;
   className?: string;
+  /** Storage folder for inline images/videos (e.g. "articles"). */
+  folder?: string;
 }
 
 export function NovelEditor({
@@ -49,6 +52,7 @@ export function NovelEditor({
   onChange,
   onDirty,
   className,
+  folder = "misc",
 }: NovelEditorProps) {
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [editor, setEditor] = useState<any>(null);
@@ -84,8 +88,14 @@ export function NovelEditor({
     [],
   );
 
+  useEffect(() => {
+    setActiveUploadFolder(folder);
+    return () => setActiveUploadFolder("misc");
+  }, [folder]);
+
   const uploadMediaFile = async (file: File | Blob, filename: string, isVideo: boolean) => {
     const fd = new FormData();
+    fd.append("folder", folder);
     fd.append("file", file, filename);
     const endpoint = isVideo ? "/api/v1/uploads/media" : "/api/v1/uploads/image";
     const res = await $fetch(endpoint, { method: "POST", body: fd, isToast: false });
@@ -144,7 +154,7 @@ export function NovelEditor({
   const handleVideoUpload = (pos: number) => {
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = "video/mp4,video/webm";
+    input.accept = "video/mp4,video/webm,video/quicktime,video/x-m4v,.mp4,.webm,.mov,.m4v";
     input.onchange = async () => {
       if (input.files?.length) {
         const file = input.files[0];
@@ -218,7 +228,9 @@ export function NovelEditor({
       video: () => handleVideoUpload(editor.view.state.selection.from),
       gallery: () => handleGalleryUpload(editor.view.state.selection.from),
     });
-  }, [editor]);
+  }, [editor, folder]);
+
+  const uploadFn = useMemo(() => createUploadFn(folder), [folder]);
 
   const editorProps = useMemo(
     () => ({
@@ -226,7 +238,7 @@ export function NovelEditor({
       handlePaste: (view: any, event: ClipboardEvent) => handleImagePaste(view, event, uploadFn),
       handleDrop: (view: any, event: DragEvent, _slice: any, moved: boolean) => handleImageDrop(view, event, moved, uploadFn),
     }),
-    [],
+    [uploadFn],
   );
 
   return (

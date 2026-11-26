@@ -78,6 +78,7 @@ Table solutions {
   client_id uuid
   client_name varchar
   custom_page varchar
+  page varchar
   seo_title varchar
   meta_description varchar
   is_featured boolean [not null, default: false]

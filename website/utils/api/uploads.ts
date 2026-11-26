@@ -7,6 +7,17 @@ interface UploadResponse {
   json: any;
 }
 
+let activeFolder = "misc";
+
+/**
+ * Default folder for uploads that do not pass one explicitly. The Novel
+ * editor sets this so its inline node views (gallery, image replace) land
+ * next to the cover instead of in `misc`.
+ */
+export function setActiveUploadFolder(folder: string): void {
+  activeFolder = folder;
+}
+
 /**
  * POST a FormData body with an upload-progress callback. `fetch` cannot
  * report upload progress, so video uploads go through XHR. A 401 is
@@ -63,13 +74,16 @@ async function uploadWithProgress(
 
 /**
  * Upload an image blob/file. Returns a same-origin URL
- * (e.g. "/order_files/uploads/abc.webp").
+ * (e.g. "/order_files/articles/abc.webp"). `folder` groups uploads by
+ * owning area on disk; the backend validates it against a whitelist.
  */
 export async function uploadImage(
   file: File | Blob,
   filename = "image.jpg",
+  folder = activeFolder,
 ): Promise<string> {
   const fd = new FormData();
+  fd.append("folder", folder);
   // The third arg is mandatory when passing a Blob - without it the
   // browser sends "blob" as the filename and the backend's extension
   // sniffing falls back to .jpg regardless of actual format.
@@ -94,6 +108,8 @@ export async function uploadImage(
 }
 
 export interface VideoUploadOptions {
+  /** Storage subfolder, e.g. "articles" or "solutions". */
+  folder?: string;
   /** Trim bounds in seconds, applied by the backend with a stream copy. */
   start?: number | null;
   end?: number | null;
@@ -109,6 +125,7 @@ export async function uploadVideo(
   options: VideoUploadOptions = {},
 ): Promise<{ url: string; posterUrl: string }> {
   const fd = new FormData();
+  fd.append("folder", options.folder ?? activeFolder);
   fd.append("file", file, file.name);
   if (options.start != null) fd.append("start", String(options.start));
   if (options.end != null) fd.append("end", String(options.end));

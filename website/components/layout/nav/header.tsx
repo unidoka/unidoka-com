@@ -38,7 +38,7 @@ const NAV_LINKS: NavItem[] = [
     labelKey: "nav.amorfa",
     fallback: "Amorfa",
   },
-  { href: "/blog", labelKey: "nav.blog", fallback: "Журнал" },
+  { href: "/blog", labelKey: "nav.blog", fallback: "Блог" },
   {
     href: "/vershiny_top",
     labelKey: "nav.vershiny",
@@ -50,7 +50,7 @@ const BACK_MAP: Record<string, { href: string; labelKey: string; fallback: strin
   events: { href: "/events", labelKey: "nav.events", fallback: "События" },
   solutions: { href: "/solutions", labelKey: "nav.solutions", fallback: "Решения" },
   amorfa: { href: "/amorfa", labelKey: "nav.amorfa", fallback: "Amorfa" },
-  blog: { href: "/blog", labelKey: "nav.blog", fallback: "Журнал" },
+  blog: { href: "/blog", labelKey: "nav.blog", fallback: "Блог" },
   vershiny_top: { href: "/vershiny_top", labelKey: "nav.vershiny", fallback: "Вершины" },
 };
 

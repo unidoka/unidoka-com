@@ -1,10 +1,11 @@
 """
 Generic image/video upload endpoints.
 
-Every uploaded file is persisted under `storage/order_files/uploads/`,
-which is bind-mounted into the Next.js container's `public/` directory
-(see website/docker-compose.yml). The returned URL is same-origin, so
-<img src={url}> / <video src={url}> work in prod without extra config.
+Every uploaded file is persisted under `storage/order_files/<folder>/`,
+where `<folder>` identifies the owning area ("articles", "solutions",
+"orders", ...). The Next.js container mounts the same directory under
+`public/order_files`, so the returned URL is same-origin: <img src={url}>
+and <video src={url}> work in prod without extra config.
 
 Files are deduplicated by UUID name. Old uploads are NOT garbage
 collected — orphaned files from repeated avatar edits will accumulate.
@@ -37,12 +38,32 @@ ALLOWED_VIDEO_TYPES = {
 }
 ALLOWED_VIDEO_EXTS = {".mp4", ".webm", ".mov", ".m4v"}
 STORAGE_ROOT = Path("/app/storage/order_files")
-UPLOAD_SUBDIR = "uploads"
+
+# Only these directories can be created under the storage root. Unknown
+# values fall back to "misc" instead of letting the client pick a path.
+UPLOAD_FOLDERS = {
+    "orders",
+    "articles",
+    "solutions",
+    "events",
+    "marketing",
+    "companies",
+    "organizers",
+    "avatars",
+    "misc",
+}
+DEFAULT_FOLDER = "misc"
+
+
+def _folder(name: Optional[str]) -> str:
+    folder = (name or "").strip().lower()
+    return folder if folder in UPLOAD_FOLDERS else DEFAULT_FOLDER
 
 
 @router.post("/image")
 async def upload_image(
     file: UploadFile = File(...),
+    folder: str = Form(DEFAULT_FOLDER),
     current_user: User = Depends(get_current_user),
 ):
     if file.content_type not in ALLOWED_CONTENT_TYPES:
@@ -60,12 +81,13 @@ async def upload_image(
         # browser already encoded the canvas output as JPEG/WebP.
         ext = ".jpg"
 
-    target_dir = STORAGE_ROOT / UPLOAD_SUBDIR
+    subdir = _folder(folder)
+    target_dir = STORAGE_ROOT / subdir
     target_dir.mkdir(parents=True, exist_ok=True)
     name = f"{uuid.uuid4().hex}{ext}"
     (target_dir / name).write_bytes(contents)
 
-    return {"url": f"/order_files/{UPLOAD_SUBDIR}/{name}"}
+    return {"url": f"/order_files/{subdir}/{name}"}
 
 
 async def _trim_video(
@@ -135,6 +157,7 @@ async def upload_media(
     file: UploadFile = File(...),
     start: Optional[float] = Form(None),
     end: Optional[float] = Form(None),
+    folder: str = Form(DEFAULT_FOLDER),
     current_user: User = Depends(get_current_user),
 ):
     ext = Path(file.filename or "").suffix.lower()
@@ -150,7 +173,8 @@ async def upload_media(
     if ext not in ALLOWED_VIDEO_EXTS:
         ext = ".mp4" if file.content_type == "video/mp4" else ".webm"
 
-    target_dir = STORAGE_ROOT / UPLOAD_SUBDIR
+    subdir = _folder(folder)
+    target_dir = STORAGE_ROOT / subdir
     target_dir.mkdir(parents=True, exist_ok=True)
     name = f"{uuid.uuid4().hex}{ext}"
     target = target_dir / name
@@ -170,20 +194,21 @@ async def upload_media(
         raise HTTPException(400, "Empty file")
 
     trimmed = start is not None or end is not None
-    if trimmed:
-        if start is not None and start < 0:
-            start = 0
-        if end is not None and start is not None and end <= start:
-            target.unlink(missing_ok=True)
-            raise HTTPException(400, "Некорректный интервал обрезки")
-        try:
-            target = await _trim_video(target, start, end)
-        except HTTPException:
-            target.unlink(missing_ok=True)
-            raise
+    if start is not None and start < 0:
+        start = 0
+    if end is not None and start is not None and end <= start:
+        target.unlink(missing_ok=True)
+        raise HTTPException(400, "Некорректный интервал обрезки")
+    # Always call this: it is a no-op for a plain mp4/webm, but remuxes
+    # phone .mov/.m4v clips into mp4 even when the user did not trim.
+    try:
+        target = await _trim_video(target, start, end)
+    except HTTPException:
+        target.unlink(missing_ok=True)
+        raise
 
     return {
-        "url": f"/order_files/{UPLOAD_SUBDIR}/{target.name}",
+        "url": f"/order_files/{subdir}/{target.name}",
         "poster_url": None,
         "trimmed": trimmed,
     }

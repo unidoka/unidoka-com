@@ -36,7 +36,7 @@ const nextConfig: NextConfig = {
     // mounts that dir under public/, but `npm run dev` does not - proxy
     // it to the backend so editor media actually renders in development.
     const rewrites = [
-      { source: "/order_files/:path*", destination: `${backend}/order_files/:path*` },
+      { source: "/order_files/:path*", destination: `${backend}/api/order_files/:path*` },
       // MCP over HTTP - same URL shape as prod (`https://.../mcp`),
       // so clients configured in dev against `http://localhost:3000/mcp`
       // work identically in prod against `https://unidoka.com/mcp`.

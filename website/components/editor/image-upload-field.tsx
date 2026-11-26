@@ -27,6 +27,8 @@ interface Props {
   accept?: string;
   maxSizeMb?: number;
   variant?: "avatar" | "cover" | "square";
+  /** Storage folder for the uploaded file (e.g. "events", "marketing"). */
+  folder?: string;
   className?: string;
   fallbackText?: string;
   hideActions?: boolean;
@@ -46,6 +48,7 @@ export const ImageUploadField = forwardRef<ImageUploadFieldHandle, Props>(
       accept = "image/jpeg,image/png,image/webp,image/gif,image/avif",
       maxSizeMb = 5,
       variant = "avatar",
+      folder = "misc",
       className,
       fallbackText,
       hideActions = false,
@@ -62,7 +65,10 @@ export const ImageUploadField = forwardRef<ImageUploadFieldHandle, Props>(
 
     const acceptFile = (file: File | null | undefined) => {
       if (!file) return;
-      if (!file.type.startsWith("image/")) {
+      const isImage =
+        file.type.startsWith("image/") ||
+        /\.(png|jpe?g|webp|gif|avif)$/i.test(file.name);
+      if (!isImage) {
         toast.error("Можно загружать только изображения");
         return;
       }
@@ -84,7 +90,7 @@ export const ImageUploadField = forwardRef<ImageUploadFieldHandle, Props>(
       setUploading(true);
       setErrored(false);
       try {
-        const url = await uploadImage(new File([blob], filename, { type: blob.type }), filename);
+        const url = await uploadImage(new File([blob], filename, { type: blob.type }), filename, folder);
         onChange(url);
         toast.success("Изображение загружено");
       } catch (err: any) {

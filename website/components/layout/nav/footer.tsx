@@ -55,7 +55,7 @@ export default function Footer() {
     { title: t("footer.projects"), href: rootLink(ROUTES.projects.href) },
     { title: t("footer.about"), href: rootLink(ROUTES.about.href) },
     { title: t("footer.amorfa"), href: rootLink("/amorfa") },
-    { title: t("footer.journal"), href: rootLink(ROUTES.blog.href) },
+    { title: t("footer.blog"), href: rootLink(ROUTES.blog.href) },
     {
       title: t("footer.careers"),
       href: "https://forms.yandex.com/u/69975d0849af47b15b4c80df",

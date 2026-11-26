@@ -56,7 +56,7 @@ export function ArticleDetailClient({
             <div className="max-w-[820px] animate-pulse space-y-4">
               <div className="h-12 w-2/3 rounded-lg bg-(--card)" />
               <div className="h-5 w-1/2 rounded bg-(--card)" />
-              <div className="mt-8 aspect-[4/3] bg-(--card)" />
+              <div className="mt-8 aspect-[16/9] bg-(--card)" />
             </div>
           </Container>
         </main>

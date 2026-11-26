@@ -11,6 +11,7 @@ export function solutionToProject(s: Solution): Project {
     cover: {
       imageSrc: s.cover_image_src || "",
       videoSrc: s.cover_video_src || undefined,
+      aspect: 4 / 3,
     },
     category: s.category || "",
     clientId: s.client_id || "",

@@ -371,6 +371,7 @@ export function EventEditorForm({
             aspect={16 / 9}
             outputSize={1600}
             variant="cover"
+            folder="events"
           />
         </Field>
         <Field>

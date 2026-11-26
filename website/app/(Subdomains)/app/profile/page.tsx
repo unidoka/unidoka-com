@@ -175,6 +175,7 @@ export default function ProfilePage() {
                 outputSize={512}
                 fallbackText={initials}
                 hideActions
+                folder="avatars"
               />
             </div>
 

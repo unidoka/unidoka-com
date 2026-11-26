@@ -194,6 +194,8 @@ export function ArticleEditorForm({ editing, redirectAfter, template }: Props) {
         <UnifiedCover
           imageUrl={form.cover_image_src ?? ""}
           videoUrl={form.cover_video_src ?? ""}
+          aspect={16 / 9}
+          folder="articles"
           onChange={(img, vid) => {
             set("cover_image_src", img);
             set("cover_video_src", vid || null);
@@ -209,6 +211,7 @@ export function ArticleEditorForm({ editing, redirectAfter, template }: Props) {
             initialContent={form.content_json}
             onChange={(json) => set("content_json", json)}
             className="min-h-[500px] rounded-2xl border border-(--outline) bg-(--card)"
+            folder="articles"
           />
         </Field>
       </Card>

@@ -157,7 +157,7 @@ export default function Footer() {
                   href="/blog"
                   className="text-body-4 text-(--on-bg-medium) hover:text-(--primary) transition-colors"
                 >
-                  {t("footer.journal")}
+                  {t("footer.blog")}
                 </Link>
               </li>
               <li>

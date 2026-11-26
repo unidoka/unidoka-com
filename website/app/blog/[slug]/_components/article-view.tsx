@@ -80,6 +80,7 @@ export function ArticleView({
             imageSrc={article.cover_image_src}
             videoSrc={article.cover_video_src}
             alt={article.title}
+            aspect={16 / 9}
           />
 
           {article.content_json ? (

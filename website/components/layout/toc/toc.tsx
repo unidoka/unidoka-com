@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 export interface TocHeading {
   id: string;
   text: string;
-  level: 2 | 3;
+  level: 1 | 2 | 3;
 }
 
 interface TocProps {
@@ -163,6 +163,7 @@ export function Toc({ headings, label, ariaLabel }: TocProps) {
                       onClick={() => handleJump(h.id)}
                       className={cn(
                         "text-left w-full leading-snug py-2 px-3 rounded-lg transition-colors",
+                        h.level === 1 && "font-medium",
                         h.level === 3 && "pl-6 text-body-5",
                         isActive
                           ? "bg-(--primary-glass) text-(--primary)"

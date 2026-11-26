@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo, type CSSProperties } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "@phosphor-icons/react";
 import { Project } from "@/app/_data/projects";
 import { cn } from "@/lib/utils";
+import { CoverMedia } from "@/components/layout/media/cover-media";
 
 export interface ProjectTagRef {
   id?: string;
@@ -160,10 +160,11 @@ export default function ProjectCard({
   variant?: "classic" | "featured" | "clean";
   href?: string;
 }) {
-  const [failed, setFailed] = useState(false);  const hasImage = Boolean(project.cover?.imageSrc?.trim());
+  const [failed, setFailed] = useState(false);
+  const hasImage = Boolean(project.cover?.imageSrc?.trim());
   const hasVideo = Boolean(project.cover?.videoSrc?.trim());
-  const showFallback = (!hasImage && !hasVideo) || failed;
-  const canRenderImage = hasImage && !failed;
+  const showFallback = (!hasImage && !hasVideo) || (failed && !hasVideo);
+  const coverAspect = project.cover?.aspect ?? 4 / 3;
 
   const normalizedTags = (tags || [])
     .map((tag) => (typeof tag === "string" ? tag : tag.name || tag.label || ""))
@@ -245,28 +246,26 @@ export default function ProjectCard({
         className="group block animate-reveal fill-mode-both relative w-full"
         style={{ animationDelay: `${index ? index * 100 : 100}ms` }}
       >
-        {/* Image: 4:3, no rounding, no border. Text lives below it. */}
-        <div className="relative w-full aspect-[4/3] overflow-hidden bg-(--card)">
-          {project.cover.videoSrc ? (
-            <video
-              src={project.cover.videoSrc}
-              poster={project.cover.imageSrc || undefined}
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
-            />
-          ) : showFallback ? (
-            <CoverFallback title={project.title} />
+        {/* Cover: no rounding, no border. Text lives below it. */}
+        <div className="relative w-full overflow-hidden bg-(--card)">
+          {showFallback ? (
+            <div
+              className="relative w-full"
+              style={{ aspectRatio: String(coverAspect) }}
+            >
+              <CoverFallback title={project.title} />
+            </div>
           ) : (
-            <Image
-              src={project.cover.imageSrc}
+            <CoverMedia
+              imageSrc={project.cover.imageSrc}
+              videoSrc={project.cover.videoSrc}
               alt={project.title}
-              fill
+              aspect={coverAspect}
+              bordered={false}
+              animate={false}
               sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-              className="object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] image-auto-contrast"
-              onError={() => setFailed(true)}
+              onImageError={() => setFailed(true)}
+              mediaClassName="transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] image-auto-contrast"
             />
           )}
           <div className="absolute top-4 right-4 z-10 flex items-center justify-center size-10 bg-black/40 backdrop-blur-md text-white opacity-0 -translate-y-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
@@ -311,31 +310,25 @@ export default function ProjectCard({
       )}
       style={{ animationDelay: `${index ? index * 100 : 100}ms` }}
     >
-      {canRenderImage ? (
-        <Image
-          src={project.cover.imageSrc}
-          alt={project.title}
+      {showFallback ? (
+        <CoverFallback title={project.title} />
+      ) : (
+        <CoverMedia
           fill
+          imageSrc={project.cover.imageSrc}
+          videoSrc={project.cover.videoSrc}
+          alt={project.title}
+          preferImage={hasImage && !failed}
+          bordered={false}
+          animate={false}
           sizes={
             variant === "featured"
               ? "(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 50vw"
               : "(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
           }
-          className="object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] image-auto-contrast"
-          onError={() => setFailed(true)}
+          onImageError={() => setFailed(true)}
+          mediaClassName="transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] image-auto-contrast"
         />
-      ) : project.cover.videoSrc ? (
-        <video
-          src={project.cover.videoSrc}
-          poster={project.cover.imageSrc || undefined}
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
-        />
-      ) : (
-        <CoverFallback title={project.title} />
       )}
 
       <div

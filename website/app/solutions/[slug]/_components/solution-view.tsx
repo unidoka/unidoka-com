@@ -25,8 +25,8 @@ export function SolutionView({
   return (
     <main className="pb-16 pt-24 sm:pt-28">
       <Container>
-        <div className="max-w-[820px]">
-          <header className="mb-12">
+        <div className="">
+          <header className="mb-12 animate-reveal fill-mode-both">
             <h1 className="mb-4 text-display-2 md:text-display-1">{solution.title}</h1>
             {solution.short_description && (
               <p className="max-w-[760px] text-body-2 text-(--on-bg-medium)">
@@ -40,24 +40,25 @@ export function SolutionView({
             imageSrc={solution.cover_image_src}
             videoSrc={solution.cover_video_src}
             alt={solution.title}
+            aspect={4 / 3}
           />
 
           {solution.content_json ? (
-            <article>
+            <article className="animate-reveal fill-mode-both [animation-delay:120ms]">
               <NovelReadOnly content={solution.content_json} />
             </article>
           ) : solution.mdx_content ? (
-            <article className="prose prose-neutral max-w-[760px] dark:prose-invert">
+            <article className="prose prose-neutral animate-reveal fill-mode-both [animation-delay:120ms] dark:prose-invert">
               <div dangerouslySetInnerHTML={{ __html: solution.mdx_content }} />
             </article>
           ) : solution.description ? (
-            <article className="prose prose-neutral max-w-[760px] dark:prose-invert">
+            <article className="prose prose-neutral animate-reveal fill-mode-both [animation-delay:120ms] dark:prose-invert">
               <p>{solution.description}</p>
             </article>
           ) : null}
 
           {(solution.tech_stack || []).length > 0 && (
-            <div className="mt-10 flex flex-wrap gap-2">
+            <div className="mt-10 flex flex-wrap gap-2 animate-reveal fill-mode-both [animation-delay:180ms]">
               {solution.tech_stack.map((tech) => (
                 <span
                   key={tech}
@@ -71,7 +72,7 @@ export function SolutionView({
         </div>
 
         {recommended.length > 0 && (
-          <section className="mt-20 border-t border-(--outline) pt-12">
+          <section className="mt-20 border-t border-(--outline) pt-12 animate-reveal fill-mode-both [animation-delay:220ms]">
             <div className="mb-6 flex items-end justify-between gap-4">
               <h2 className="text-heading-2">Рекомендуем</h2>
               <Link

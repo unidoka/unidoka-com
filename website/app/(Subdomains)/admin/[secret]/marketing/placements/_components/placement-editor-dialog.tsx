@@ -359,6 +359,7 @@ export function PlacementEditorDialog({
                 outputSize={1200}
                 variant="cover"
                 maxSizeMb={5}
+                folder="marketing"
               />
             </Field>
 

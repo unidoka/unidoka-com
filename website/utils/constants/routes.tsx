@@ -23,5 +23,5 @@ export const ROUTES = {
   companies: { id: "companies", href: "/companies", title: "Компании" },
   order: { id: "order", href: "/order", title: "Оставить заявку" },
   about: { id: "about", href: "/about", title: "О нас" },
-  blog: { id: "blog", href: "/blog", title: "Журнал" },
+  blog: { id: "blog", href: "/blog", title: "Блог" },
 };

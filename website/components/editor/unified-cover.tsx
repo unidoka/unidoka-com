@@ -4,24 +4,32 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { CloudArrowUpIcon, CircleNotchIcon, XIcon } from "@phosphor-icons/react";
 import { uploadImage, uploadVideo } from "@/utils/api/uploads";
-import { ImageEditorDialog } from "./image-editor/image-editor-dialog";
+import { ImageCropDialog } from "./image-crop-dialog";
 import { VideoCoverDialog, type VideoTrim } from "./video-editor/video-cover-dialog";
-import { readFileAsDataURL } from "./image-editor/canvas-utils";
 
 interface Props {
   imageUrl: string;
   videoUrl: string;
   onChange: (imageUrl: string, videoUrl: string) => void;
+  /** Storage folder for uploaded cover files (e.g. "articles"). */
+  folder?: string;
+  /** Strict cover frame ratio. Articles use 16/9, solutions use 4/3. */
+  aspect?: number;
 }
 
 const IMAGE_LIMIT_MB = 20;
 const VIDEO_LIMIT_MB = 100;
 
-export const UnifiedCover = React.memo(function UnifiedCover({ imageUrl, videoUrl, onChange }: Props) {
+export const UnifiedCover = React.memo(function UnifiedCover({
+  imageUrl,
+  videoUrl,
+  onChange,
+  folder = "misc",
+  aspect = 4 / 3,
+}: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
-  const [editorOpen, setEditorOpen] = useState(false);
-  const [editorSrc, setEditorSrc] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
@@ -34,7 +42,9 @@ export const UnifiedCover = React.memo(function UnifiedCover({ imageUrl, videoUr
     // Some browsers/OSes hand over an empty or generic MIME type for local
     // video files, so fall back to the extension before rejecting the drop.
     const isVideoFile =
-      file.type.startsWith("video/") || /\.(mp4|webm)$/i.test(file.name);
+      file.type.startsWith("video/") || /\.(mp4|webm|mov|m4v)$/i.test(file.name);
+    const isImageFile =
+      file.type.startsWith("image/") || /\.(png|jpe?g|webp|gif|avif)$/i.test(file.name);
     const limit = isVideoFile ? VIDEO_LIMIT_MB : IMAGE_LIMIT_MB;
     if (file.size > limit * 1024 * 1024) {
       toast.error(`Файл больше ${limit} МБ`);
@@ -43,18 +53,9 @@ export const UnifiedCover = React.memo(function UnifiedCover({ imageUrl, videoUr
     if (isVideoFile) {
       setVideoFile(file);
       setVideoDialogOpen(true);
-    } else if (file.type.startsWith("image/")) {
-      setUploading(true);
-      try {
-        const dataUrl = await readFileAsDataURL(file);
-        setEditorSrc(dataUrl);
-        setEditorOpen(true);
-      } catch {
-        toast.error("Не удалось открыть изображение");
-      } finally {
-        setUploading(false);
-        if (inputRef.current) inputRef.current.value = "";
-      }
+    } else if (isImageFile) {
+      setImageFile(file);
+      if (inputRef.current) inputRef.current.value = "";
     } else {
       toast.error("Можно загрузить изображение или видео");
     }
@@ -69,6 +70,7 @@ export const UnifiedCover = React.memo(function UnifiedCover({ imageUrl, videoUr
     setUploadProgress(0);
     try {
       const { url } = await uploadVideo(video, {
+        folder,
         start: trim?.start ?? null,
         end: trim?.end ?? null,
         onProgress: setUploadProgress,
@@ -76,7 +78,7 @@ export const UnifiedCover = React.memo(function UnifiedCover({ imageUrl, videoUr
       let posterUrl = "";
       if (poster) {
         try {
-          posterUrl = await uploadImage(poster.blob, poster.filename);
+          posterUrl = await uploadImage(poster.blob, poster.filename, folder);
         } catch {
           toast.error("Видео загружено, но обложку сохранить не удалось");
         }
@@ -98,8 +100,9 @@ export const UnifiedCover = React.memo(function UnifiedCover({ imageUrl, videoUr
   const handleApplyImage = async (blob: Blob, filename: string) => {
     setUploading(true);
     try {
-      const url = await uploadImage(blob, filename);
+      const url = await uploadImage(blob, filename, folder);
       onChange(url, "");
+      setImageFile(null);
       toast.success("Обложка обновлена");
     } catch (err: any) {
       toast.error(err?.message || "Ошибка загрузки");
@@ -119,7 +122,8 @@ export const UnifiedCover = React.memo(function UnifiedCover({ imageUrl, videoUr
   return (
     <div className="space-y-3">
       <div
-        className="relative aspect-[4/3] w-full"
+        className="relative w-full"
+        style={{ aspectRatio: String(aspect) }}
         onDragOver={(event) => {
           event.preventDefault();
           if (!dragOver) setDragOver(true);
@@ -216,7 +220,7 @@ export const UnifiedCover = React.memo(function UnifiedCover({ imageUrl, videoUr
         <input
           ref={inputRef}
           type="file"
-          accept="image/png,image/jpeg,image/webp,image/gif,image/avif,video/mp4,video/webm"
+          accept="image/png,image/jpeg,image/webp,image/gif,image/avif,video/mp4,video/webm,video/quicktime,video/x-m4v,.mp4,.webm,.mov,.m4v"
           className="hidden"
           onChange={(event) => {
             const file = event.target.files?.[0];
@@ -225,15 +229,18 @@ export const UnifiedCover = React.memo(function UnifiedCover({ imageUrl, videoUr
         />
       </div>
 
-      <ImageEditorDialog
-        open={editorOpen}
-        onOpenChange={setEditorOpen}
-        src={editorSrc}
-        onApply={handleApplyImage}
+      <ImageCropDialog
+        file={imageFile}
+        aspect={aspect}
+        outputSize={1920}
+        filename="cover"
+        onCancel={() => setImageFile(null)}
+        onComplete={handleApplyImage}
       />
       <VideoCoverDialog
         open={videoDialogOpen}
         file={videoFile}
+        aspect={aspect}
         onOpenChange={(next) => {
           setVideoDialogOpen(next);
           if (!next) {

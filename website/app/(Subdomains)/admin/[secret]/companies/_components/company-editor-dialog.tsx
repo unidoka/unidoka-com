@@ -75,7 +75,7 @@ export function CompanyEditorDialog({ client, open, onOpenChange, onSaved }: {
             <Field className="md:col-span-2"><FieldLabel>Описание</FieldLabel>
               <Textarea value={form.description} onChange={(e) => update("description", e.target.value)} className="min-h-[80px]" /></Field>
             <Field className="md:col-span-2"><FieldLabel>Логотип</FieldLabel>
-              <ImageUploadField value={form.logotype_url} onChange={(v) => update("logotype_url", v)} /></Field>
+              <ImageUploadField value={form.logotype_url} onChange={(v) => update("logotype_url", v)} folder="companies" /></Field>
           </div>
         </div>
         <DialogFooter>

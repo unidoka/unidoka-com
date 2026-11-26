@@ -18,6 +18,8 @@ export interface Project {
   cover: {
     videoSrc?: string;
     imageSrc: string;
+    /** Preferred frame ratio; cards default to 4:3 when omitted. */
+    aspect?: number;
   };
   href?: string;
   category: ProjectCategoryCode;

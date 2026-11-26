@@ -1,7 +1,7 @@
 import type { Language } from './translations';
 export const blogTranslations: Record<Language, Record<string, string>> = {
   en: {
-    'blog.title': 'Journal',
+    'blog.title': 'Blog',
     'blog.subtitle': 'Articles about design, development, cases, and insights from our team.',
     'blog.empty': 'No articles yet.',
     'blog.empty_filtered': 'No articles with this tag.',
@@ -16,7 +16,7 @@ export const blogTranslations: Record<Language, Record<string, string>> = {
     'blog.back_to_blog': 'All articles',
   },
   ru: {
-    'blog.title': 'Журнал',
+    'blog.title': 'Блог',
     'blog.subtitle': 'Статьи о дизайне, разработке, кейсах и инсайтах нашей команды.',
     'blog.empty': 'Пока нет статей.',
     'blog.empty_filtered': 'Нет статей с таким тегом.',

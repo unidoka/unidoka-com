@@ -1,14 +1,22 @@
 import uuid
 from datetime import datetime
 from sqlalchemy import (
-    Column, String, Boolean, DateTime, Integer, Text, JSON, text,
+    Column,
+    String,
+    Boolean,
+    DateTime,
+    Integer,
+    Text,
+    JSON,
+    text,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from database.database import Base
 
 
 class Article(Base):
-    """A journal post published under /blog."""
+    """A blog post published under /blog."""
+
     __tablename__ = "articles"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -18,7 +26,9 @@ class Article(Base):
     content_json = Column(JSON, nullable=True)
 
     # One row per language. Versions of the same post share the group id.
-    lang = Column(String, nullable=False, default="ru", server_default=text("'ru'"), index=True)
+    lang = Column(
+        String, nullable=False, default="ru", server_default=text("'ru'"), index=True
+    )
     translation_group_id = Column(
         UUID(as_uuid=True), nullable=False, default=uuid.uuid4, index=True
     )
@@ -27,7 +37,9 @@ class Article(Base):
     cover_video_src = Column(String, nullable=True)
 
     category = Column(String, nullable=True)
-    tags = Column(JSON, default=list, nullable=False, server_default=text("'[]'::jsonb"))
+    tags = Column(
+        JSON, default=list, nullable=False, server_default=text("'[]'::jsonb")
+    )
 
     author_name = Column(String, nullable=True)
     author_avatar_url = Column(String, nullable=True)
@@ -37,7 +49,9 @@ class Article(Base):
     meta_description = Column(String, nullable=True)
 
     is_featured = Column(Boolean, default=False, nullable=False)
-    status = Column(String, default="draft", nullable=False, index=True)  # draft | published | archived
+    status = Column(
+        String, default="draft", nullable=False, index=True
+    )  # draft | published | archived
     sort_order = Column(Integer, default=0)
 
     published_at = Column(DateTime, nullable=True)

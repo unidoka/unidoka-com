@@ -7,7 +7,7 @@ import {
   readFileAsDataURL,
   type AspectPresetId,
 } from "../image-editor/canvas-utils";
-import { $fetch } from "@/utils/fetch";
+import { uploadImage } from "@/utils/api/uploads";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -30,17 +30,7 @@ function isVideoSrc(src: string) {
 }
 
 async function uploadBlob(blob: Blob, filename: string) {
-  const fd = new FormData();
-  fd.append("file", new File([blob], filename, { type: blob.type }));
-  const res = await $fetch("/api/v1/uploads/image", {
-    method: "POST",
-    body: fd,
-    isToast: false,
-  });
-  if (!res?.response?.ok || !res.json?.url) {
-    throw new Error(res?.json?.detail || "Upload failed");
-  }
-  return res.json.url as string;
+  return uploadImage(blob, filename);
 }
 
 export function VideoNodeView({ node, deleteNode, updateAttributes, editor }: any) {

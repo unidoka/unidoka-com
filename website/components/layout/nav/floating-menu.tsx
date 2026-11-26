@@ -27,7 +27,7 @@ const MENU_LINKS: MenuLink[] = [
     labelKey: "nav.amorfa",
     fallback: "Amorfa",
   },
-  { href: "/blog", labelKey: "nav.blog", fallback: "Журнал" },
+  { href: "/blog", labelKey: "nav.blog", fallback: "Блог" },
   {
     href: "/vershiny_top",
     labelKey: "nav.vershiny",

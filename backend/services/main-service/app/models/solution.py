@@ -39,6 +39,10 @@ class Solution(Base):
     # the MDX content. See app/solutions/[slug]/page.tsx.
     custom_page = Column(String, nullable=True)
 
+    # Optional site page this solution is attached to, e.g. "/amorfa".
+    # Lets a marketing page pull its own case studies from /api/v1/solutions.
+    page = Column(String, nullable=True, index=True)
+
     seo_title = Column(String, nullable=True)
     meta_description = Column(String, nullable=True)
 

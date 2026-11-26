@@ -16,7 +16,7 @@ import {
   PlayIcon,
 } from "@phosphor-icons/react";
 import { toast } from "sonner";
-import { ImageEditorDialog } from "../image-editor/image-editor-dialog";
+import { ImageCropDialog } from "../image-crop-dialog";
 
 export interface VideoTrim {
   start: number;
@@ -34,6 +34,8 @@ interface Props {
   ) => Promise<void> | void;
   /** 0-100 while the parent uploads, null when idle. */
   progress?: number | null;
+  /** Strict poster frame ratio. Articles use 16/9, solutions use 4/3. */
+  aspect?: number;
 }
 
 function formatTime(value: number): string {
@@ -55,6 +57,7 @@ export function VideoCoverDialog({
   onOpenChange,
   onApply,
   progress = null,
+  aspect = 4 / 3,
 }: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
@@ -66,7 +69,7 @@ export function VideoCoverDialog({
   const [trimEnd, setTrimEnd] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [ready, setReady] = useState(false);
-  const [frameSrc, setFrameSrc] = useState<string | null>(null);
+  const [frameFile, setFrameFile] = useState<File | null>(null);
   const [applying, setApplying] = useState(false);
 
   useEffect(() => {
@@ -82,7 +85,7 @@ export function VideoCoverDialog({
     setTrimEnd(0);
     setPlaying(false);
     setReady(false);
-    setFrameSrc(null);
+    setFrameFile(null);
     return () => URL.revokeObjectURL(url);
   }, [open, file]);
 
@@ -169,8 +172,8 @@ export function VideoCoverDialog({
       toast.error("Видео ещё загружается — подождите секунду");
       return;
     }
-    // Downscale: a 4K JPEG data URL is slow to load back into the cropper
-    // and can hit Safari's data-URL limits, which made the crop step fail.
+    // Downscale before handing the frame to the cropper: a 4K bitmap makes
+    // the crop step sluggish, especially on mobile.
     const maxSide = 1920;
     const scale = Math.min(
       1,
@@ -188,7 +191,17 @@ export function VideoCoverDialog({
     }
     try {
       ctx.drawImage(video, 0, 0, width, height);
-      setFrameSrc(canvas.toDataURL("image/jpeg", 0.9));
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            toast.error("Не удалось получить кадр");
+            return;
+          }
+          setFrameFile(new File([blob], "video-frame.jpg", { type: "image/jpeg" }));
+        },
+        "image/jpeg",
+        0.9,
+      );
     } catch {
       toast.error("Не удалось получить кадр — выберите другой момент");
     }
@@ -205,7 +218,7 @@ export function VideoCoverDialog({
         { blob, filename },
         trimmed ? { start: trimStart, end: trimEnd } : null,
       );
-      setFrameSrc(null);
+      setFrameFile(null);
       onOpenChange(false);
     } finally {
       setApplying(false);
@@ -367,15 +380,15 @@ export function VideoCoverDialog({
         </DialogContent>
       </Dialog>
 
-      <ImageEditorDialog
-        open={!!frameSrc}
-        onOpenChange={(next) => {
-          if (!next && progress === null) setFrameSrc(null);
+      <ImageCropDialog
+        file={frameFile}
+        aspect={aspect}
+        outputSize={1920}
+        filename="video-cover"
+        onCancel={() => {
+          if (progress === null) setFrameFile(null);
         }}
-        src={frameSrc}
-        defaultAspect="4:3"
-        lockedAspect
-        onApply={handleCropApply}
+        onComplete={handleCropApply}
         progress={progress}
         progressLabel="Загрузка видео"
       />
