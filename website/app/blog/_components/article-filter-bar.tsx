@@ -108,18 +108,9 @@ export function ArticleFilterBar({
     });
   }, [items, activeCategory, activeTag, featuredOnly]);
 
-  const recommended = useMemo(
-    () => items.filter((a) => a.is_featured).slice(0, 3),
-    [items],
-  );
-
   const activeFilterCount =
     (activeCategory ? 1 : 0) + (activeTag ? 1 : 0) + (featuredOnly ? 1 : 0);
   const hasActiveFilters = activeFilterCount > 0;
-  const showRecommended = !hasActiveFilters && recommended.length > 0;
-  const gridItems = showRecommended
-    ? filtered.filter((a) => !a.is_featured)
-    : filtered;
 
   const resetAll = () => {
     setActiveCategory(null);
@@ -247,29 +238,6 @@ export function ArticleFilterBar({
 
       <section className="pt-8 pb-24 md:pb-32">
         <Container>
-          {showRecommended && (
-            <div className="mb-12">
-              <h2 className="mb-5 text-heading-2">Рекомендуем</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {recommended.map((a, idx) => (
-                  <ProjectCard
-                    key={a.id}
-                    project={articleToProject(a)}
-                    index={idx}
-                    variant="clean"
-                    href={`/blog/${a.slug}`}
-                    tags={(a.tags || [])
-                      .filter((t) => t.title)
-                      .map((t, i) => ({
-                        id: `${a.slug}-rec-tag-${i}`,
-                        label: t.title,
-                      }))}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
           {loading && items.length === 0 ? (
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
               {[...Array(3)].map((_, index) => (
@@ -294,9 +262,9 @@ export function ArticleFilterBar({
                 </button>
               )}
             </div>
-          ) : gridItems.length > 0 ? (
+          ) : filtered.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {gridItems.map((a, idx) => (
+              {filtered.map((a, idx) => (
                 <ProjectCard
                   key={a.id}
                   project={articleToProject(a)}

@@ -38,6 +38,7 @@ export const vershinyTranslations: Record<Language, Record<string, string>> = {
     'vershiny.mentors_point_2': 'A step-by-step growth plan for your direction',
     'vershiny.mentors_point_3': 'Regular project feedback',
     'vershiny.mentors_point_4': 'Referrals to internships and teams',
+    'vershiny.mentors_prev': 'Show the previous point',
     'vershiny.mentors_next': 'Show the next point',
 
     // ── Directions ──────────────────────────────────────────────────────────
@@ -113,6 +114,7 @@ export const vershinyTranslations: Record<Language, Record<string, string>> = {
     'vershiny.mentors_point_2': 'Пошаговый план роста в направлении',
     'vershiny.mentors_point_3': 'Регулярная обратная связь по проектам',
     'vershiny.mentors_point_4': 'Рекомендации на стажировки и в команды',
+    'vershiny.mentors_prev': 'Показать предыдущий пункт',
     'vershiny.mentors_next': 'Показать следующий пункт',
 
     // ── Directions ──────────────────────────────────────────────────────────

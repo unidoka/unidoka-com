@@ -4,6 +4,8 @@ import {
   fetchPublicSolutionsServer,
 } from "@/utils/api/solutions";
 import { pickRecommended } from "@/utils/pick-recommended";
+import { getRecommendedVideo } from "@/utils/recommended-video";
+import { getLocale } from "@/i18n/server";
 import { SOLUTION_CUSTOM_PAGES } from "./_components/solution-custom-pages";
 import { SolutionDetailClient } from "./_components/solution-detail-client";
 
@@ -42,12 +44,14 @@ export default async function SolutionPage({
 
   const all = solution ? await fetchPublicSolutionsServer() : [];
   const recommended = solution ? pickRecommended(all, solution.id) : [];
+  const recommendedVideo = await getRecommendedVideo(await getLocale());
 
   return (
     <SolutionDetailClient
       slug={slug}
       initial={solution}
       initialRecommended={recommended}
+      video={recommendedVideo}
     />
   );
 }

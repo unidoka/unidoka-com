@@ -57,10 +57,10 @@ interface Props {
 }
 
 const VIEWS: { id: ViewMode; labelKey: string; shortKey: string }[] = [
+  { id: "agenda", labelKey: "events.calendar.list", shortKey: "events.calendar.list_short" },
   { id: "month", labelKey: "events.calendar.month", shortKey: "events.calendar.month_short" },
   { id: "week", labelKey: "events.calendar.week", shortKey: "events.calendar.week_short" },
   { id: "day", labelKey: "events.calendar.day", shortKey: "events.calendar.day_short" },
-  { id: "agenda", labelKey: "events.calendar.list", shortKey: "events.calendar.list_short" },
 ];
 
 export function CalendarHeader({

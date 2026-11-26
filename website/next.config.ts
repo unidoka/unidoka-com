@@ -19,6 +19,9 @@ const nextConfig: NextConfig = {
   // optional field into a hard deploy failure and doubles build
   // time on a 1-vCPU box.
   typescript: { ignoreBuildErrors: true },
+  images: {
+    qualities: [75, 90, 95],
+  },
   // eslint: { ignoreDuringBuilds: true },
   // LLM context: prod routes /api/v1, /docs, /health to FastAPI via
   // Traefik. `npm run dev` runs only Next.js, no Traefik - so a relative

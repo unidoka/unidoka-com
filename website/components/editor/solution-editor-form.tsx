@@ -225,7 +225,7 @@ export function SolutionEditorForm({ editing, redirectAfter }: Props) {
         <UnifiedCover
           imageUrl={form.cover_image_src ?? ""}
           videoUrl={form.cover_video_src ?? ""}
-          aspect={4 / 3}
+          aspect={16 / 9}
           folder="solutions"
           onChange={(img, vid) => {
             set("cover_image_src", img);

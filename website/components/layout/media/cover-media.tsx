@@ -1,8 +1,15 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useRef, type ReactNode, type Ref } from "react";
 import Image from "next/image";
-import { motion, useReducedMotion } from "motion/react";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+  type MotionStyle,
+} from "motion/react";
 import { cn } from "@/lib/utils";
 
 interface CoverMediaProps {
@@ -23,12 +30,19 @@ interface CoverMediaProps {
   className?: string;
   mediaClassName?: string;
   sizes?: string;
+  quality?: number;
   priority?: boolean;
   /** Called when the image fails to load (e.g. to show a fallback). */
   onImageError?: () => void;
-  /** Editorial open-on-load reveal. Disable inside cards. */
+  /** Scroll-linked stretch + reveal. Disable inside cards. */
   animate?: boolean;
   bordered?: boolean;
+}
+
+interface CoverMediaViewProps extends CoverMediaProps {
+  outerRef?: Ref<HTMLDivElement>;
+  innerStyle?: MotionStyle;
+  reveal?: boolean;
 }
 
 /**
@@ -36,8 +50,48 @@ interface CoverMediaProps {
  *
  * Owns the aspect-ratio frame so every page shows the same crop shape.
  * Pass `aspect` for a strict frame, or `fill` to let the parent size it.
+ * Detail pages opt into a scroll stretch; cards stay static so a grid
+ * does not register one scroll tracker per tile.
  */
-export function CoverMedia({
+export function CoverMedia({ animate = true, ...props }: CoverMediaProps) {
+  const reduce = useReducedMotion();
+
+  if (!animate || reduce) {
+    return <CoverMediaView {...props} />;
+  }
+
+  return <ScrollCoverMedia {...props} />;
+}
+
+function ScrollCoverMedia(props: CoverMediaProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  // The frame enters slightly narrower/shorter and settles to its full
+  // width as it reaches the middle of the viewport.
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "center center"],
+  });
+  const scaleX = useSpring(
+    useTransform(scrollYProgress, [0, 1], [0.88, 1]),
+    { stiffness: 140, damping: 28, mass: 0.35 },
+  );
+  const scaleY = useSpring(
+    useTransform(scrollYProgress, [0, 1], [0.94, 1]),
+    { stiffness: 140, damping: 28, mass: 0.35 },
+  );
+
+  return (
+    <CoverMediaView
+      {...props}
+      outerRef={ref}
+      innerStyle={{ scaleX, scaleY }}
+      reveal
+    />
+  );
+}
+
+function CoverMediaView({
   imageSrc,
   videoSrc,
   alt,
@@ -48,12 +102,14 @@ export function CoverMedia({
   className,
   mediaClassName,
   sizes = "(max-width: 768px) 100vw, 820px",
+  quality = 90,
   priority = false,
   onImageError,
-  animate = true,
   bordered = true,
-}: CoverMediaProps) {
-  const reduce = useReducedMotion();
+  outerRef,
+  innerStyle,
+  reveal = false,
+}: CoverMediaViewProps) {
   const hasImage = Boolean(imageSrc?.trim());
   const hasVideo = Boolean(videoSrc?.trim());
   const useVideo = hasVideo && (!preferImage || !hasImage);
@@ -61,54 +117,55 @@ export function CoverMedia({
   if (!hasImage && !hasVideo) return <>{fallback}</>;
 
   return (
-    <motion.div
-      initial={
-        animate && !reduce
-          ? { opacity: 0, scale: 1.04, clipPath: "inset(9% 0% 9% 0%)" }
-          : false
-      }
-      animate={
-        animate
-          ? { opacity: 1, scale: 1, clipPath: "inset(0% 0% 0% 0%)" }
-          : undefined
-      }
-      transition={
-        animate
-          ? { duration: 1.1, ease: [0.16, 1, 0.3, 1] as const }
-          : undefined
-      }
+    <div
+      ref={outerRef}
       style={fill ? undefined : { aspectRatio: String(aspect) }}
       className={cn(
-        "w-full overflow-hidden bg-(--card)",
+        "w-full overflow-hidden",
         fill ? "absolute inset-0 h-full" : "relative",
-        bordered && "border border-(--outline)",
         className,
       )}
     >
-      {useVideo ? (
-        <video
-          src={videoSrc ?? ""}
-          poster={hasImage ? imageSrc ?? undefined : undefined}
-          autoPlay
-          muted
-          loop
-          playsInline
-          className={cn(
-            "absolute inset-0 h-full w-full object-cover",
-            mediaClassName,
-          )}
-        />
-      ) : (
-        <Image
-          src={imageSrc ?? ""}
-          alt={alt}
-          fill
-          sizes={sizes}
-          priority={priority}
-          onError={onImageError}
-          className={cn("object-cover", mediaClassName)}
-        />
-      )}
-    </motion.div>
+      <motion.div
+        initial={reveal ? { opacity: 0 } : false}
+        animate={reveal ? { opacity: 1 } : undefined}
+        transition={
+          reveal
+            ? { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const }
+            : undefined
+        }
+        style={innerStyle}
+        className={cn(
+          "relative h-full w-full overflow-hidden bg-(--card)",
+          bordered && "border border-(--outline)",
+        )}
+      >
+        {useVideo ? (
+          <video
+            src={videoSrc ?? ""}
+            poster={hasImage ? imageSrc ?? undefined : undefined}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className={cn(
+              "absolute inset-0 h-full w-full object-cover",
+              mediaClassName,
+            )}
+          />
+        ) : (
+          <Image
+            src={imageSrc ?? ""}
+            alt={alt}
+            fill
+            sizes={sizes}
+            quality={quality}
+            priority={priority}
+            onError={onImageError}
+            className={cn("object-cover", mediaClassName)}
+          />
+        )}
+      </motion.div>
+    </div>
   );
 }

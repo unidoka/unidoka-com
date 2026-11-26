@@ -57,13 +57,34 @@ export function MentorsSection() {
     return () => window.clearTimeout(id);
   }, [active, paused, reduceMotion]);
 
-  const next = () => setActive((active + 1) % POINTS.length);
+  const prevIndex = (active - 1 + POINTS.length) % POINTS.length;
+  const nextIndex = (active + 1) % POINTS.length;
+  const goTo = (index: number) =>
+    setActive((index + POINTS.length) % POINTS.length);
+  const goNext = () => goTo(active + 1);
 
   return (
     <section className="py-16 md:py-24">
       <Container>
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1fr_1fr] lg:gap-20">
-          <div className="min-w-0">
+          <div
+            className="flex min-w-0 flex-col justify-center gap-5"
+            onPointerEnter={(event) => {
+              if (event.pointerType === "mouse") setPaused(true);
+            }}
+            onPointerLeave={(event) => {
+              if (event.pointerType === "mouse") setPaused(false);
+            }}
+          >
+            <PickerItem
+              key={`prev-${prevIndex}`}
+              reduceMotion={reduceMotion}
+              ariaLabel={t("vershiny.mentors_prev")}
+              onClick={() => goTo(prevIndex)}
+            >
+              {t(POINTS[prevIndex])}
+            </PickerItem>
+
             <motion.h2
               key={active}
               initial={reduceMotion ? false : { opacity: 0, y: 14 }}
@@ -77,12 +98,21 @@ export function MentorsSection() {
             >
               {t(POINTS[active])}
             </motion.h2>
+
+            <PickerItem
+              key={`next-${nextIndex}`}
+              reduceMotion={reduceMotion}
+              ariaLabel={t("vershiny.mentors_next")}
+              onClick={() => goTo(nextIndex)}
+            >
+              {t(POINTS[nextIndex])}
+            </PickerItem>
           </div>
 
           <div className="flex justify-center">
             <button
               type="button"
-              onClick={next}
+              onClick={goNext}
               onPointerEnter={(event) => {
                 if (event.pointerType === "mouse") setPaused(true);
               }}
@@ -111,6 +141,36 @@ export function MentorsSection() {
         </div>
       </Container>
     </section>
+  );
+}
+
+function PickerItem({
+  children,
+  onClick,
+  ariaLabel,
+  reduceMotion,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  ariaLabel: string;
+  reduceMotion: boolean;
+}) {
+  return (
+    <motion.button
+      type="button"
+      onClick={onClick}
+      aria-label={ariaLabel}
+      initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={
+        reduceMotion
+          ? { duration: 0 }
+          : { duration: 0.35, ease: [0.16, 1, 0.3, 1] as const }
+      }
+      className="max-w-[560px] text-left text-body-1 leading-snug text-(--on-bg-low) transition-colors hover:text-(--on-bg-medium) md:text-body-2"
+    >
+      {children}
+    </motion.button>
   );
 }
 

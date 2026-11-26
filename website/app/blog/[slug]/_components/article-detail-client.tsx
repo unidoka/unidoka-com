@@ -9,16 +9,19 @@ import {
   type Article,
 } from "@/utils/api/articles";
 import { pickRecommended } from "@/utils/pick-recommended";
+import type { RecommendedVideo } from "@/utils/recommended-video-types";
 import { ArticleView } from "./article-view";
 
 export function ArticleDetailClient({
   slug,
   initial,
   initialRecommended,
+  video = null,
 }: {
   slug: string;
   initial: Article | null;
   initialRecommended: Article[];
+  video?: RecommendedVideo | null;
 }) {
   const [article, setArticle] = useState<Article | null>(initial);
   const [recommended, setRecommended] = useState<Article[]>(initialRecommended);
@@ -76,5 +79,7 @@ export function ArticleDetailClient({
     );
   }
 
-  return <ArticleView article={article} recommended={recommended} />;
+  return (
+    <ArticleView article={article} recommended={recommended} video={video} />
+  );
 }

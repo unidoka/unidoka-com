@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Hash, X } from "@phosphor-icons/react";
+import { Hash, X } from "@phosphor-icons/react";
 import type { EventListItem, EventsCategory } from "@/utils/api/events";
 import {
   applyFilters,
@@ -148,21 +148,12 @@ export function FilterPanel({ allEvents, value, onChange, compact }: Props) {
                 >
                   <Hash className="size-3 opacity-70" />
                   {tag.name}
-                  <span className="text-[10px] tabular-nums opacity-60">{tag.count}</span>
                 </button>
               );
             })}
           </div>
         </Section>
       )}
-
-      <Section title={t("events.calendar.show")}>
-        <ToggleRow
-          label={t("events.calendar.registration_only")}
-          checked={value.hasRegistrationOnly}
-          onToggle={(v) => onChange({ ...value, hasRegistrationOnly: v })}
-        />
-      </Section>
     </div>
   );
 }
@@ -188,68 +179,6 @@ function FilterChip({
       )}
     >
       {children}
-    </button>
-  );
-}
-
-/**
- * Row-level binary filter toggle.
- *
- * Replaces the bare <Switch> that used to sit here. Reasons:
- *   1. The switch primitive's unchecked state relies on
- *      `data-unchecked:bg-input` -> --outline, and its thumb on
- *      --bg. In dark theme both resolve to near-black and the control
- *      becomes invisible - which is what the screenshot showed.
- *   2. A switch reads as a preference ("email me about events").
- *      A filter row that toggles whether a subset of events is shown
- *      is an action, and should look actionable.
- *   3. Making the whole row the hit target fixes the tap-size problem
- *      on mobile without adding any padding dance.
- *
- * State is signalled three ways so it can't be missed: background
- * fill, label color, and a checkmark inside a filled circle. Any one
- * of them reads on its own; together they're unambiguous.
- */
-function ToggleRow({
-  label,
-  checked,
-  onToggle,
-}: {
-  label: string;
-  checked: boolean;
-  onToggle: (v: boolean) => void;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      onClick={() => onToggle(!checked)}
-      className={cn(
-        "group/toggle flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-left transition-all",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--on-bg-low)",
-        checked
-          ? "border-(--on-bg-low) bg-(--state-hover)"
-          : "border-(--outline) bg-transparent hover:border-(--on-bg-low) hover:bg-(--state-hover)",
-      )}
-    >
-      <span className="text-body-4 leading-tight text-(--on-bg-high) transition-colors">
-        {label}
-      </span>
-      {/* Indicator: hollow circle when off, filled circle with a
-          checkmark when on. `shrink-0` keeps it square when the label
-          wraps to two lines. */}
-      <span
-        aria-hidden
-        className={cn(
-          "flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition-all",
-          checked
-            ? "border-(--on-bg-high) bg-(--on-bg-high) text-(--bg)"
-            : "border-(--on-bg-low) bg-transparent group-hover/toggle:border-(--on-bg-high)",
-        )}
-      >
-        {checked && <Check className="size-3" weight="bold" />}
-      </span>
     </button>
   );
 }

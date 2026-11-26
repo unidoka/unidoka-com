@@ -27,11 +27,25 @@ type LoadState =
   | { kind: "ready"; events: EventListItem[] }
   | { kind: "error"; message: string };
 
+const VIEW_VALUES: ViewMode[] = ["month", "week", "day", "agenda"];
+const DEFAULT_VIEW: ViewMode = "agenda";
+
+function viewFromSearchParams(params: {
+  get(name: string): string | null;
+}): ViewMode {
+  const value = params.get("view");
+  return value && (VIEW_VALUES as string[]).includes(value)
+    ? (value as ViewMode)
+    : DEFAULT_VIEW;
+}
+
 export function EventsCalendar({ locale }: { locale: EventsLocale }) {
   const { t } = useLanguage();
   const searchParams = useSearchParams();
   const [state, setState] = useState<LoadState>({ kind: "loading" });
-  const [view, setView] = useState<ViewMode>("month");
+  const [view, setView] = useState<ViewMode>(() =>
+    viewFromSearchParams(searchParams),
+  );
   const [anchor, setAnchor] = useState<Date>(() => new Date());
   const [selected, setSelected] = useState<Date>(() => new Date());
   const [filter, setFilter] = useState<FilterState>(() =>
@@ -40,36 +54,45 @@ export function EventsCalendar({ locale }: { locale: EventsLocale }) {
   const [active, setActive] = useState<EventListItem | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
 
+  const updateView = useCallback((next: ViewMode) => {
+    setView(next);
+    const params = new URLSearchParams(window.location.search);
+    params.set("view", next);
+    const query = params.toString();
+    const url = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
+    // history.replaceState updates the address bar without an RSC
+    // navigation. router.replace() would re-fetch the calendar on every
+    // view switch and contribute to external iCal rate limits.
+    window.history.replaceState(window.history.state, "", url);
+  }, []);
+
   const updateFilter = useCallback((next: FilterState) => {
     setFilter(next);
     const params = new URLSearchParams(window.location.search);
     writeFilterToSearchParams(params, next);
     const query = params.toString();
     const url = `${window.location.pathname}${query ? `?${query}` : ""}${window.location.hash}`;
-    // history.replaceState updates the address bar without an RSC
-    // navigation. router.replace() here re-rendered the page on every
-    // chip click, which re-fetched the calendar and contributed to
-    // external iCal rate limits.
+    // Keep filters shareable without re-rendering the RSC tree.
     window.history.replaceState(window.history.state, "", url);
   }, []);
 
   useEffect(() => {
     const onPopState = () => {
-      setFilter(
-        filterFromSearchParams(new URLSearchParams(window.location.search)),
-      );
+      const params = new URLSearchParams(window.location.search);
+      setFilter(filterFromSearchParams(params));
+      setView(viewFromSearchParams(params));
     };
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
-  // Pick up filters from a shared/deep-linked URL even if the server
-  // render did not have access to the query string.
+  // Pick up filters and the view from a shared/deep-linked URL even if
+  // the server render did not have access to the query string.
   useEffect(() => {
-    const fromUrl = filterFromSearchParams(
-      new URLSearchParams(window.location.search),
-    );
+    const params = new URLSearchParams(window.location.search);
+    const fromUrl = filterFromSearchParams(params);
     setFilter((current) => (filtersEqual(current, fromUrl) ? current : fromUrl));
+    setView(viewFromSearchParams(params));
   }, []);
 
   useEffect(() => {
@@ -96,9 +119,19 @@ export function EventsCalendar({ locale }: { locale: EventsLocale }) {
   const eventDays = useMemo(() => new Set(byDay.keys()), [byDay]);
 
   const onPrev = () =>
-    setAnchor((d) => (view === "week" ? subWeeks(d, 1) : subMonths(d, 1)));
+    setAnchor((d) => {
+      if (view === "week") return subWeeks(d, 1);
+      if (view === "day") return addDays(d, -1);
+      if (view === "agenda") return addDays(d, -30);
+      return subMonths(d, 1);
+    });
   const onNext = () =>
-    setAnchor((d) => (view === "week" ? addWeeks(d, 1) : addMonths(d, 1)));
+    setAnchor((d) => {
+      if (view === "week") return addWeeks(d, 1);
+      if (view === "day") return addDays(d, 1);
+      if (view === "agenda") return addDays(d, 30);
+      return addMonths(d, 1);
+    });
   const onToday = () => {
     const now = new Date();
     setAnchor(now);
@@ -110,7 +143,7 @@ export function EventsCalendar({ locale }: { locale: EventsLocale }) {
       const key = format(anchor, "yyyy-MM-dd");
       return [{ date: anchor, events: byDay.get(key) ?? [] }];
     }
-    const start = new Date();
+    const start = anchor;
     return Array.from({ length: 30 }, (_, i) => {
       const d = addDays(start, i);
       const key = format(d, "yyyy-MM-dd");
@@ -121,7 +154,7 @@ export function EventsCalendar({ locale }: { locale: EventsLocale }) {
   const onShowMore = (d: Date) => {
     setSelected(d);
     setAnchor(d);
-    setView("week");
+    updateView("week");
   };
 
   return (
@@ -130,7 +163,7 @@ export function EventsCalendar({ locale }: { locale: EventsLocale }) {
         <CalendarHeader
           anchor={anchor}
           view={view}
-          onViewChange={setView}
+          onViewChange={updateView}
           onAnchorChange={setAnchor}
           onPrev={onPrev}
           onNext={onNext}

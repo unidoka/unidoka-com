@@ -233,7 +233,7 @@ export function SolutionFilterBar({
               {[...Array(3)].map((_, index) => (
                 <div
                   key={index}
-                  className="aspect-[4/3] animate-pulse bg-(--card)"
+                  className="aspect-[16/9] animate-pulse bg-(--card)"
                 />
               ))}
             </div>
@@ -254,7 +254,7 @@ export function SolutionFilterBar({
                 </button>
               )}
             </div>
-          ) : (
+          ) : filtered.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {filtered.map((s, idx) => (
                 <ProjectCard
@@ -272,7 +272,7 @@ export function SolutionFilterBar({
                 />
               ))}
             </div>
-          )}
+          ) : null}
         </Container>
       </section>
       </div>

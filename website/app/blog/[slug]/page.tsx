@@ -4,6 +4,8 @@ import {
   fetchPublicArticlesServer,
 } from "@/utils/api/articles";
 import { pickRecommended } from "@/utils/pick-recommended";
+import { getRecommendedVideo } from "@/utils/recommended-video";
+import { getLocale } from "@/i18n/server";
 import { ArticleDetailClient } from "./_components/article-detail-client";
 
 export async function generateMetadata({
@@ -37,12 +39,15 @@ export default async function ArticlePage({
     ? await fetchPublicArticlesServer({ lang: article.lang })
     : [];
   const recommended = article ? pickRecommended(all, article.id) : [];
+  const videoLang = article?.lang ?? (await getLocale());
+  const recommendedVideo = await getRecommendedVideo(videoLang);
 
   return (
     <ArticleDetailClient
       slug={slug}
       initial={article}
       initialRecommended={recommended}
+      video={recommendedVideo}
     />
   );
 }

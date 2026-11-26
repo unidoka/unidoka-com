@@ -8,68 +8,99 @@ import { extractTiptapHeadings } from "@/utils/tiptap-headings";
 import { Toc } from "@/components/layout/toc/toc";
 import ProjectCard from "@/components/layout/projects/project-card";
 import { CoverMedia } from "@/components/layout/media/cover-media";
+import { RecommendedVideo } from "@/components/layout/media/recommended-video";
 import type { Solution } from "@/utils/api/solutions";
+import type { RecommendedVideo as RecommendedVideoData } from "@/utils/recommended-video-types";
 import { solutionToProject } from "@/utils/solution-to-project";
+import { useLanguage } from "@/providers/language-provider";
 
 export function SolutionView({
   solution,
   recommended,
+  video = null,
 }: {
   solution: Solution;
   recommended: Solution[];
+  video?: RecommendedVideoData | null;
 }) {
+  const { lang } = useLanguage();
   const headings = solution.content_json
     ? extractTiptapHeadings(solution.content_json)
     : extractMdxHeadings(solution.mdx_content ?? "");
+  const hasToc = headings.length > 0;
 
   return (
     <main className="pb-16 pt-24 sm:pt-28">
       <Container>
-        <div className="">
-          <header className="mb-12 animate-reveal fill-mode-both">
-            <h1 className="mb-4 text-display-2 md:text-display-1">{solution.title}</h1>
-            {solution.short_description && (
-              <p className="max-w-[760px] text-body-2 text-(--on-bg-medium)">
-                {solution.short_description}
-              </p>
+        <div className={hasToc ? "lg:grid lg:grid-cols-[minmax(0,1fr)_200px] lg:gap-12 xl:grid-cols-[minmax(0,1fr)_220px] xl:gap-24" : undefined}>
+          <div className="min-w-0">
+            <header className="mb-12 animate-reveal fill-mode-both">
+              <h1 className="mb-4 text-display-2 md:text-display-1">{solution.title}</h1>
+              {solution.short_description && (
+                <p className="text-body-2 text-(--on-bg-medium)">
+                  {solution.short_description}
+                </p>
+              )}
+            </header>
+          </div>
+        </div>
+      </Container>
+
+      <CoverMedia
+        className="mb-12"
+        imageSrc={solution.cover_image_src}
+        videoSrc={solution.cover_video_src}
+        alt={solution.title}
+        aspect={16 / 9}
+        sizes="100vw"
+        priority
+        quality={95}
+      />
+
+      <Container>
+        <div className={hasToc ? "lg:grid lg:grid-cols-[minmax(0,1fr)_200px] lg:gap-12 xl:grid-cols-[minmax(0,1fr)_220px] xl:gap-24" : undefined}>
+          <div className="min-w-0">
+            {solution.content_json ? (
+              <article className="animate-reveal fill-mode-both [animation-delay:120ms]">
+                <NovelReadOnly content={solution.content_json} />
+              </article>
+            ) : solution.mdx_content ? (
+              <article className="prose prose-neutral animate-reveal fill-mode-both [animation-delay:120ms] dark:prose-invert">
+                <div dangerouslySetInnerHTML={{ __html: solution.mdx_content }} />
+              </article>
+            ) : solution.description ? (
+              <article className="prose prose-neutral animate-reveal fill-mode-both [animation-delay:120ms] dark:prose-invert">
+                <p>{solution.description}</p>
+              </article>
+            ) : null}
+
+            {(solution.tech_stack || []).length > 0 && (
+              <div className="mt-10 flex flex-wrap gap-2 animate-reveal fill-mode-both [animation-delay:180ms]">
+                {solution.tech_stack.map((tech) => (
+                  <span
+                    key={tech}
+                    className="rounded-full border border-(--outline) px-3 py-1 text-body-5 text-(--on-bg-medium)"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
             )}
-          </header>
+          </div>
 
-          <CoverMedia
-            className="mb-12"
-            imageSrc={solution.cover_image_src}
-            videoSrc={solution.cover_video_src}
-            alt={solution.title}
-            aspect={4 / 3}
-          />
-
-          {solution.content_json ? (
-            <article className="animate-reveal fill-mode-both [animation-delay:120ms]">
-              <NovelReadOnly content={solution.content_json} />
-            </article>
-          ) : solution.mdx_content ? (
-            <article className="prose prose-neutral animate-reveal fill-mode-both [animation-delay:120ms] dark:prose-invert">
-              <div dangerouslySetInnerHTML={{ __html: solution.mdx_content }} />
-            </article>
-          ) : solution.description ? (
-            <article className="prose prose-neutral animate-reveal fill-mode-both [animation-delay:120ms] dark:prose-invert">
-              <p>{solution.description}</p>
-            </article>
-          ) : null}
-
-          {(solution.tech_stack || []).length > 0 && (
-            <div className="mt-10 flex flex-wrap gap-2 animate-reveal fill-mode-both [animation-delay:180ms]">
-              {solution.tech_stack.map((tech) => (
-                <span
-                  key={tech}
-                  className="rounded-full border border-(--outline) px-3 py-1 text-body-5 text-(--on-bg-medium)"
-                >
-                  {tech}
-                </span>
-              ))}
-            </div>
+          {hasToc && (
+            <aside className="hidden lg:block">
+              <Toc
+                headings={headings}
+                label="Содержание"
+                ariaLabel="Содержание страницы"
+                variant="sidebar"
+              />
+            </aside>
           )}
         </div>
+
+        <RecommendedVideo video={video} lang={lang} />
 
         {recommended.length > 0 && (
           <section className="mt-20 border-t border-(--outline) pt-12 animate-reveal fill-mode-both [animation-delay:220ms]">
@@ -103,11 +134,16 @@ export function SolutionView({
         )}
       </Container>
 
-      <Toc
-        headings={headings}
-        label="Содержание"
-        ariaLabel="Содержание страницы"
-      />
+      {hasToc && (
+        <div className="lg:hidden">
+          <Toc
+            headings={headings}
+            label="Содержание"
+            ariaLabel="Содержание страницы"
+            variant="floating"
+          />
+        </div>
+      )}
     </main>
   );
 }

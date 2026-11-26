@@ -4,14 +4,12 @@ export interface FilterState {
   categories: EventsCategory[];
   cities: string[];
   tagIds: string[];
-  hasRegistrationOnly: boolean;
 }
 
 export const EMPTY_FILTER: FilterState = {
   categories: [],
   cities: [],
   tagIds: [],
-  hasRegistrationOnly: false,
 };
 
 interface SearchParamsLike {
@@ -36,7 +34,6 @@ export function filterFromSearchParams(params: SearchParamsLike): FilterState {
     categories: unique(categories),
     cities: unique(params.getAll("city").filter(Boolean)),
     tagIds: unique(params.getAll("tag").filter(Boolean)),
-    hasRegistrationOnly: params.get("registration") === "1",
   };
 }
 
@@ -52,7 +49,6 @@ export function writeFilterToSearchParams(
   for (const category of filter.categories) params.append("category", category);
   for (const city of filter.cities) params.append("city", city);
   for (const tagId of filter.tagIds) params.append("tag", tagId);
-  if (filter.hasRegistrationOnly) params.set("registration", "1");
 }
 
 function sameValues(a: string[], b: string[]): boolean {
@@ -63,7 +59,6 @@ function sameValues(a: string[], b: string[]): boolean {
 
 export function filtersEqual(a: FilterState, b: FilterState): boolean {
   return (
-    a.hasRegistrationOnly === b.hasRegistrationOnly &&
     sameValues(a.categories, b.categories) &&
     sameValues(a.cities, b.cities) &&
     sameValues(a.tagIds, b.tagIds)
@@ -72,10 +67,7 @@ export function filtersEqual(a: FilterState, b: FilterState): boolean {
 
 export function isFilterEmpty(f: FilterState): boolean {
   return (
-    f.categories.length === 0 &&
-    f.cities.length === 0 &&
-    f.tagIds.length === 0 &&
-    !f.hasRegistrationOnly
+    f.categories.length === 0 && f.cities.length === 0 && f.tagIds.length === 0
   );
 }
 
@@ -94,7 +86,6 @@ export function applyFilters(events: EventListItem[], f: FilterState): EventList
       const eventTagIds = (e.tags ?? []).map((t) => t.id);
       if (!eventTagIds.some((id) => f.tagIds.includes(id))) return false;
     }
-    if (f.hasRegistrationOnly && !e.registration_url) return false;
     return true;
   });
 }

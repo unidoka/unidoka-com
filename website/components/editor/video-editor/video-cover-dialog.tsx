@@ -383,7 +383,7 @@ export function VideoCoverDialog({
       <ImageCropDialog
         file={frameFile}
         aspect={aspect}
-        outputSize={1920}
+        outputSize={2560}
         filename="video-cover"
         onCancel={() => {
           if (progress === null) setFrameFile(null);

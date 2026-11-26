@@ -232,7 +232,7 @@ export const UnifiedCover = React.memo(function UnifiedCover({
       <ImageCropDialog
         file={imageFile}
         aspect={aspect}
-        outputSize={1920}
+        outputSize={2560}
         filename="cover"
         onCancel={() => setImageFile(null)}
         onComplete={handleApplyImage}

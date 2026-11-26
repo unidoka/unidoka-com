@@ -16,17 +16,24 @@ interface TocProps {
   label: string;
   /** aria-label for the panel. Translated by the caller. */
   ariaLabel: string;
+  /** Sidebar stays pinned until the article ends; floating is the mobile pill. */
+  variant?: "floating" | "sidebar";
 }
 
 /**
  * Scroll-spy table of contents.
  *
- * One presentation on every screen size: a sticky button pinned to the
- * bottom-right corner that expands into a floating panel with every
- * heading. Uses a top-band crossing check (dependency-free) so it stays
- * accurate without IntersectionObserver.
+ * Desktop uses a sticky sidebar that stays pinned until its article /
+ * solution column ends. Mobile keeps a floating pill pinned to the
+ * bottom-right corner. Uses a top-band crossing check (dependency-free)
+ * so it stays accurate without IntersectionObserver.
  */
-export function Toc({ headings, label, ariaLabel }: TocProps) {
+export function Toc({
+  headings,
+  label,
+  ariaLabel,
+  variant = "floating",
+}: TocProps) {
   const [activeId, setActiveId] = useState<string>(headings[0]?.id ?? "");
   const [open, setOpen] = useState(false);
 
@@ -100,6 +107,39 @@ export function Toc({ headings, label, ariaLabel }: TocProps) {
   };
 
   const activeHeading = headings.find((h) => h.id === activeId);
+
+  if (variant === "sidebar") {
+    return (
+      <nav
+        aria-label={ariaLabel}
+        className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto pr-2"
+      >
+        <p className="mb-3 text-body-5 text-(--on-bg-low)">{label}</p>
+        <ul className="border-l border-(--outline)">
+          {headings.map((h) => {
+            const isActive = h.id === activeId;
+            return (
+              <li key={h.id}>
+                <button
+                  type="button"
+                  onClick={() => handleJump(h.id)}
+                  className={cn(
+                    "-ml-px block w-full border-l-2 py-1.5 text-left text-body-4 leading-snug transition-colors",
+                    h.level === 3 ? "pl-6" : "pl-3",
+                    isActive
+                      ? "border-(--primary) text-(--primary)"
+                      : "border-transparent text-(--on-bg-low) hover:text-(--on-bg-high)",
+                  )}
+                >
+                  {h.text}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    );
+  }
 
   return (
     <div aria-label={ariaLabel}>
