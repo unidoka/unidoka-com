@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { animate, motion, useMotionValue, useTransform } from "motion/react";
+import {
+  AnimatePresence,
+  animate,
+  motion,
+  useMotionValue,
+  useTransform,
+} from "motion/react";
 import { Container } from "@/components/ui/container";
 import { VershinyLogoIcon } from "@/components/icons/logotypes/vershiny-logo-icon";
 import { useLanguage } from "@/providers/language-provider";
@@ -18,9 +24,16 @@ const FILL_LEVELS = [28, 52, 76, 100];
 
 const CYCLE_MS = 5000;
 
+const wheelVariants = {
+  enter: (dir: number) => ({ y: dir > 0 ? 56 : -56, opacity: 0 }),
+  center: { y: 0, opacity: 1 },
+  exit: (dir: number) => ({ y: dir > 0 ? -56 : 56, opacity: 0 }),
+};
+
 export function MentorsSection() {
   const { t } = useLanguage();
   const [active, setActive] = useState(0);
+  const [direction, setDirection] = useState(1);
   const [paused, setPaused] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
   const fill = useMotionValue(0);
@@ -50,17 +63,22 @@ export function MentorsSection() {
 
   useEffect(() => {
     if (paused || reduceMotion) return;
-    const id = window.setTimeout(
-      () => setActive((active + 1) % POINTS.length),
-      CYCLE_MS,
-    );
+    const id = window.setTimeout(() => {
+      setDirection(1);
+      setActive((active + 1) % POINTS.length);
+    }, CYCLE_MS);
     return () => window.clearTimeout(id);
   }, [active, paused, reduceMotion]);
 
   const prevIndex = (active - 1 + POINTS.length) % POINTS.length;
   const nextIndex = (active + 1) % POINTS.length;
-  const goTo = (index: number) =>
-    setActive((index + POINTS.length) % POINTS.length);
+  const goTo = (index: number) => {
+    const target = (index + POINTS.length) % POINTS.length;
+    if (target === active) return;
+    const forward = (target - active + POINTS.length) % POINTS.length;
+    setDirection(forward <= POINTS.length / 2 ? 1 : -1);
+    setActive(target);
+  };
   const goNext = () => goTo(active + 1);
 
   return (
@@ -76,37 +94,52 @@ export function MentorsSection() {
               if (event.pointerType === "mouse") setPaused(false);
             }}
           >
-            <PickerItem
-              key={`prev-${prevIndex}`}
-              reduceMotion={reduceMotion}
-              ariaLabel={t("vershiny.mentors_prev")}
-              onClick={() => goTo(prevIndex)}
-            >
-              {t(POINTS[prevIndex])}
-            </PickerItem>
+            {/* A vertical drum: the outgoing set slides past the incoming
+                one, so switching reads like an iOS time picker. */}
+            <div className="relative [mask-image:linear-gradient(to_bottom,transparent_0%,black_12%,black_88%,transparent_100%)]">
+              <AnimatePresence
+                mode="popLayout"
+                initial={false}
+                custom={direction}
+              >
+                <motion.div
+                  key={active}
+                  custom={direction}
+                  variants={reduceMotion ? undefined : wheelVariants}
+                  animate="center"
+                  exit={reduceMotion ? undefined : "exit"}
+                  transition={
+                    reduceMotion
+                      ? { duration: 0 }
+                      : {
+                          type: "spring",
+                          stiffness: 320,
+                          damping: 32,
+                          mass: 0.8,
+                        }
+                  }
+                  className="flex flex-col gap-5"
+                >
+                  <PickerItem
+                    ariaLabel={t("vershiny.mentors_prev")}
+                    onClick={() => goTo(prevIndex)}
+                  >
+                    {t(POINTS[prevIndex])}
+                  </PickerItem>
 
-            <motion.h2
-              key={active}
-              initial={reduceMotion ? false : { opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={
-                reduceMotion
-                  ? { duration: 0 }
-                  : { type: "spring", stiffness: 280, damping: 26, mass: 0.7 }
-              }
-              className="max-w-[560px] text-display-4 leading-[1.08] text-(--on-bg-high) md:text-display-3"
-            >
-              {t(POINTS[active])}
-            </motion.h2>
+                  <h2 className="max-w-[560px] text-display-4 text-(--on-bg-high) md:text-display-3">
+                    {t(POINTS[active])}
+                  </h2>
 
-            <PickerItem
-              key={`next-${nextIndex}`}
-              reduceMotion={reduceMotion}
-              ariaLabel={t("vershiny.mentors_next")}
-              onClick={() => goTo(nextIndex)}
-            >
-              {t(POINTS[nextIndex])}
-            </PickerItem>
+                  <PickerItem
+                    ariaLabel={t("vershiny.mentors_next")}
+                    onClick={() => goTo(nextIndex)}
+                  >
+                    {t(POINTS[nextIndex])}
+                  </PickerItem>
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </div>
 
           <div className="flex justify-center">
@@ -148,29 +181,20 @@ function PickerItem({
   children,
   onClick,
   ariaLabel,
-  reduceMotion,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   ariaLabel: string;
-  reduceMotion: boolean;
 }) {
   return (
-    <motion.button
+    <button
       type="button"
       onClick={onClick}
       aria-label={ariaLabel}
-      initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={
-        reduceMotion
-          ? { duration: 0 }
-          : { duration: 0.35, ease: [0.16, 1, 0.3, 1] as const }
-      }
-      className="max-w-[560px] text-left text-body-1 leading-snug text-(--on-bg-low) transition-colors hover:text-(--on-bg-medium) md:text-body-2"
+      className="max-w-[560px] cursor-pointer text-left text-display-6 text-(--on-bg-low) opacity-60 transition-[color,opacity] duration-300 hover:text-(--on-bg-medium) hover:opacity-90 md:text-display-5"
     >
       {children}
-    </motion.button>
+    </button>
   );
 }
 

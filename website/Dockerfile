@@ -1,4 +1,7 @@
-FROM node:22.11-alpine3.20 AS base
+# WHY node:22-alpine (not 22.11-alpine3.20): transitive deps in the
+# lockfile (@scalar/*, undici, eslint-visitor-keys) require >=22.19.
+# Pinning the patch meant npm ci ran on an unsupported runtime.
+FROM node:22-alpine AS base
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1 \
     NPM_CONFIG_UPDATE_NOTIFIER=false \
@@ -8,8 +11,22 @@ ENV NEXT_TELEMETRY_DISABLED=1 \
 # ── deps ─────────────────────────────────────────────────────────────
 FROM base AS deps
 COPY package.json package-lock.json ./
+# WHY the retry loop: a single dropped connection aborts the entire npm
+# run even when npm's per-request retries are exhausted. Retrying the
+# install keeps whatever already landed in the cache mount, so a flaky
+# link costs one extra attempt instead of a failed build. Slow links
+# also need a longer fetch-timeout than npm's 5-minute default.
 RUN --mount=type=cache,target=/root/.npm \
-    npm ci --prefer-offline --no-audit --no-fund
+    for delay in 0 10 30; do \
+        sleep "$delay"; \
+        npm ci --prefer-offline --no-audit --no-fund \
+            --maxsockets=4 --fetch-timeout=600000 \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=20000 \
+            --fetch-retry-maxtimeout=120000 && exit 0; \
+        rm -rf node_modules; \
+    done; \
+    exit 1
 
 # ── builder ──────────────────────────────────────────────────────────
 FROM base AS builder
@@ -72,7 +89,7 @@ RUN echo "==> Building GIT_SHA=$GIT_SHA" \
     && echo "==> .next/BUILD_ID=$(cat .next/BUILD_ID)"
 
 # ── prod ─────────────────────────────────────────────────────────────
-FROM node:22.11-alpine3.20 AS prod
+FROM node:22-alpine AS prod
 WORKDIR /app
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1

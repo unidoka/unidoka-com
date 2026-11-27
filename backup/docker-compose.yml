@@ -1,0 +1,59 @@
+# Encrypted, scheduled backups of the database and uploaded media.
+#
+# Included by the root docker-compose.yml only — dev stacks never start
+# it. Media is mounted read-only: this container can never modify files
+# the application serves.
+services:
+  backup:
+    profiles: ["prod"]
+    build: .
+    image: unidoka-backup:local
+    container_name: backup
+    # Only the credentials this container actually needs. It does NOT
+    # load the full .env, so a compromise here cannot read JWT, SMTP or
+    # Telegram secrets.
+    environment:
+      MAIN_DB_HOST: main-db
+      MAIN_DB_PORT: "5432"
+      MAIN_DB_USER: ${MAIN_DB_USER}
+      MAIN_DB_PASSWORD: ${MAIN_DB_PASSWORD}
+      MAIN_DB_NAME: ${MAIN_DB_NAME}
+      RESTIC_REPOSITORY: ${RESTIC_REPOSITORY:-}
+      RESTIC_PASSWORD: ${RESTIC_PASSWORD:-}
+      AWS_ACCESS_KEY_ID: ${BACKUP_S3_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${BACKUP_S3_SECRET_ACCESS_KEY:-}
+      AWS_DEFAULT_REGION: ${BACKUP_S3_REGION:-}
+      BACKUP_INTERVAL_SECONDS: ${BACKUP_INTERVAL_SECONDS:-86400}
+      STORAGE_DIR: /data/storage
+    volumes:
+      - ../backend/services/main-service/storage:/data/storage:ro
+      - backup_state:/state
+    depends_on:
+      main-db:
+        condition: service_healthy
+    networks:
+      - main-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
+      interval: 15m
+      timeout: 30s
+      retries: 2
+      start_period: 20m
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  main-network:
+    name: main-network
+    external: false
+
+volumes:
+  backup_state:

@@ -74,23 +74,27 @@ jobs:
             need_frontend=false
             need_tgbot=false
             need_mcp=false
+            need_backup=false
 
             if [ "$CHANGED" = "ALL" ]; then
               need_backend=true
               need_frontend=true
               need_tgbot=true
               need_mcp=true
+              need_backup=true
             else
               grep -qE '^backend/services/main-service/' <<<"$CHANGED" && need_backend=true || true
               grep -qE '^website/'                       <<<"$CHANGED" && need_frontend=true || true
               grep -qE '^tg-bot/'                        <<<"$CHANGED" && need_tgbot=true || true
               grep -qE '^mcp/'                           <<<"$CHANGED" && need_mcp=true || true
+              grep -qE '^backup/'                        <<<"$CHANGED" && need_backup=true || true
 
-              if grep -qE '^(\.env|docker-compose\.yml|backend/docker-compose\.yml|website/docker-compose\.yml|tg-bot/docker-compose\.yml|mcp/docker-compose\.yml)$' <<<"$CHANGED"; then
+              if grep -qE '^(\.env|docker-compose\.yml|backend/docker-compose\.yml|website/docker-compose\.yml|tg-bot/docker-compose\.yml|mcp/docker-compose\.yml|backup/docker-compose\.yml)$' <<<"$CHANGED"; then
                 need_backend=true
                 need_frontend=true
                 need_tgbot=true
                 need_mcp=true
+                need_backup=true
               fi
             fi
 
@@ -106,6 +110,7 @@ jobs:
             [ "$need_frontend" = "true" ] && BUILD_SERVICES="$BUILD_SERVICES next-js"
             [ "$need_tgbot"    = "true" ] && BUILD_SERVICES="$BUILD_SERVICES tg-bot"
             [ "$need_mcp"      = "true" ] && BUILD_SERVICES="$BUILD_SERVICES mcp-server"
+            [ "$need_backup"   = "true" ] && BUILD_SERVICES="$BUILD_SERVICES backup"
             BUILD_SERVICES=$(echo "$BUILD_SERVICES" | xargs)  # trim
 
             if [ -n "$BUILD_SERVICES" ]; then

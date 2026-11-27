@@ -27,8 +27,12 @@ one-command local dev and one-command prod deploy.
 │   ├── docker-compose.yml         # prod next-js ONLY
 │   ├── .dockerignore              # slim build context for the frontend image
 │   └── README.md
+├── backup/
+│   ├── Dockerfile                 # pg_dump + restic backup sidecar
+│   ├── docker-compose.yml         # prod-only backup service
+│   └── README.md                  # setup, restore drills, safety checklist
 ├── .github/workflows/deploy.yml   # CI: build on runner, ship image to VPS
-├── docker-compose.yml             # root: traefik + include backend + website
+├── docker-compose.yml             # root: traefik + include every service
 ├── docker-compose.dev.yml         # root: backend + dev next-js (no traefik)
 ├── .env.example
 ├── .gitignore
@@ -108,12 +112,25 @@ docker compose --profile prod exec main-service alembic upgrade head
 | `main-db` | PostgreSQL 15 | `backend/docker-compose.yml` |
 | `valkey` | Cache / rate limits / OTPs | `backend/docker-compose.yml` |
 | `next-js` | Next.js standalone | `website/docker-compose.yml` |
+| `backup` | Encrypted DB + media backups to S3 | `backup/docker-compose.yml` |
 
 Stop prod:
 
 ```bash
 docker compose --profile prod down
 ```
+
+### Backups
+
+The `backup` sidecar dumps the database, uploads the dump plus the
+`storage/` media directory to S3-compatible storage with restic
+(client-side encrypted, deduplicated, daily with retention), and
+verifies repository integrity weekly. It mounts media read-only and
+reads only the backup-related `.env` values.
+
+Setup, verification, restore drills and the safety checklist live in
+[backup/README.md](./backup/README.md). A production deployment is not
+finished until that checklist is done and a restore was tested.
 
 ## Why files are split this way
 
@@ -124,6 +141,7 @@ docker compose --profile prod down
 | `backend/docker-compose.yml` | main-service, main-db, valkey | Both root files |
 | `backend/docker-compose.dev.yml` | Backend hot-reload override | Root dev only |
 | `website/docker-compose.yml` | next-js (prod, `profiles: [prod]`) | Root prod only |
+| `backup/docker-compose.yml` | backup sidecar (prod, `profiles: [prod]`) | Root prod only |
 
 The dev root file deliberately does **not** include
 `website/docker-compose.yml` — dev Next.js is defined inline at the
