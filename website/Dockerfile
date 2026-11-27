@@ -11,6 +11,10 @@ ENV NEXT_TELEMETRY_DISABLED=1 \
 # ── deps ─────────────────────────────────────────────────────────────
 FROM base AS deps
 COPY package.json package-lock.json ./
+# npm ci runs the root `postinstall`, which patches node_modules/novel.
+# The script lives in the repo, not in the registry, so it must be
+# present in this stage or npm ci fails with MODULE_NOT_FOUND.
+COPY scripts/patch-novel.mjs ./scripts/patch-novel.mjs
 # WHY the retry loop: a single dropped connection aborts the entire npm
 # run even when npm's per-request retries are exhausted. Retrying the
 # install keeps whatever already landed in the cache mount, so a flaky
